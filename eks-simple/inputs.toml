@@ -7,6 +7,6 @@ display_name = "Configurations for the root domain for Route53"
 [[input]]
 name         = "root_domain"
 description  = "The root domain. Services will be made available at subdomains of this root domain."
-default      = "<app id>.nuon.run"
+default      = "{{ .nuon.install.id }}.nuon.run"
 display_name = "Root Domain"
 group        = "dns"

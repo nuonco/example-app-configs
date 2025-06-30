@@ -6,8 +6,8 @@ namespace      = "whoami"
 storage_driver = "configmap"
 
 [public_repo]
-repo      = "sharkymark/nuon"
-directory = "src/app-config/eks-simple/src/components/whoami"
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/whoami"
 branch    = "main"
 
 [[values_file]]

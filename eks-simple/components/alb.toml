@@ -1,3 +1,5 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+
 name         = "application_load_balancer"
 type         = "helm_chart"
 chart_name   = "application-load-balancer"
@@ -13,5 +15,5 @@ domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certi
 domain             = "whoami.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 https_port         = "443"
 service_name       = "whoami"
-service_port       = "whoami"
+service_port       = "http-whoami"
 install_name       = "{{.nuon.install.id}}"
