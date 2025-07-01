@@ -5,8 +5,8 @@ description  = "DNS Configrations"
 display_name = "Configurations for the root domain for Route53"
 
 [[input]]
-name         = "root_domain"
-description  = "The root domain. Services will be made available at subdomains of this root domain."
-default      = "{{ .nuon.install.id }}.nuon.run"
-display_name = "Root Domain"
+name         = "sub_domain"
+description  = "The sub domain for the Whoami service"
+default      = "whoami"
+display_name = "Sub Domain"
 group        = "dns"

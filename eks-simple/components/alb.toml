@@ -12,7 +12,7 @@ branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
-domain             = "whoami.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+domain             = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 https_port         = "443"
 service_name       = "whoami"
 service_port       = "http-whoami"
