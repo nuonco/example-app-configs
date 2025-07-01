@@ -15,5 +15,5 @@ domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certi
 domain             = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 https_port         = "443"
 service_name       = "whoami"
-service_port       = "http-whoami"
+service_port       = "80"
 install_name       = "{{.nuon.install.id}}"
