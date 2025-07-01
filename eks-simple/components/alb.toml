@@ -6,8 +6,8 @@ chart_name   = "application-load-balancer"
 dependencies = ["whoami"]
 
 [public_repo]
-repo      = "nuonco/components"
-directory = "aws/alb"
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/alb"
 branch    = "main"
 
 [values]
@@ -17,3 +17,5 @@ https_port         = "443"
 service_name       = "whoami"
 service_port       = "80"
 install_name       = "{{.nuon.install.id}}"
+namespace          = "whoami"
+healthcheck_path   = "/health"
