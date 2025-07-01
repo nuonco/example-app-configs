@@ -7,7 +7,7 @@ dependencies = ["whoami"]
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "eks-simple/src/alb"
+directory = "eks-simple/src/components/alb"
 branch    = "main"
 
 [values]
