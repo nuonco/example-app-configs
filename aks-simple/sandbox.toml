@@ -1,10 +1,11 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=sandbox
+#:schema https://api.nuon.co/v1/general/config-schema?type=sandbox
+
 terraform_version = "1.11.3"
 
 [public_repo]
 repo      = "nuonco/terraform-azure-aks-sandbox"
 directory = "."
-branch    = "main"
+branch    = "ja/pro-1522-whoami-app-config"
 
 [vars]
 cluster_name         = "n-{{.nuon.install.id}}"

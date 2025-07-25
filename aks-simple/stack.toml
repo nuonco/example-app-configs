@@ -1,3 +1,5 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=stack
+
 type        = "azure-bicep"
 name        = "nuon-azure-aks-simple-{{.nuon.install.id}}"
 description = "Install the Nuon runner in an Azure resource group to manage a BYOC deployment of your app."
