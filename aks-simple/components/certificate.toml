@@ -7,7 +7,7 @@ terraform_version = "1.11.3"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/certificate"
-branch    = "main"
+branch    = "ja/pro-1515-https-cert-component"
 
 [vars]
 install_id  = "{{ .nuon.install.id }}"

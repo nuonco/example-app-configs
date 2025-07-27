@@ -9,7 +9,7 @@ spec:
   tls:
     - hosts:
       - {{ .Values.domain }}
-    - secretName: <guestbook-secret-name>
+    - secretName: "https-cert"
   rules:
   - host: {{ .Values.domain }}
     http:

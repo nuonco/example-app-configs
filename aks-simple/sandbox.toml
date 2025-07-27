@@ -5,7 +5,7 @@ terraform_version = "1.11.3"
 [public_repo]
 repo      = "nuonco/terraform-azure-aks-sandbox"
 directory = "."
-branch    = "ja/pro-1522-whoami-app-config"
+branch    = "ja/pro-1534-secrets-syncing"
 
 [vars]
 cluster_name         = "n-{{.nuon.install.id}}"

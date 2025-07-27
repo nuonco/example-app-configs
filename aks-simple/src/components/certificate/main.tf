@@ -1,5 +1,6 @@
 resource "azurerm_key_vault_certificate" "example" {
-  name         = "${var.install_id}-cert"
+  # name         = "${var.install_id}-cert"
+  name         = "https-cert"
   key_vault_id = var.key_vault_id
 
   certificate_policy {

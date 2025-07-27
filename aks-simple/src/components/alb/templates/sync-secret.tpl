@@ -3,7 +3,7 @@ apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
   name: azure-kv-sync
-  namespace: default
+  namespace: {{ .Values.namespace }}
 spec:
   provider: azure
   secretObjects:
@@ -11,15 +11,13 @@ spec:
     type: Opaque
     data:
     - objectName: https-cert
-      key: username
+      key: https-cert
   parameters:
-    usePodIdentity: "false"
     useVMManagedIdentity: "true"
-    userAssignedIdentityID: "<client-id>"
-    keyvaultName: "<your-key-vault-name>"
+    keyvaultName: {{. Values.key_vault_name }}
     objects: |
       array:
         - |
-          objectName: foo
+          objectName: https-cert
           objectType: secret
-  tenantId: "<tenant-id>"
+  tenantId: {{ .Values.tenant_id }}

@@ -8,7 +8,7 @@ dependencies = ["whoami"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/alb"
-branch    = "main"
+branch    = "ja/pro-1515-https-cert-component"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"

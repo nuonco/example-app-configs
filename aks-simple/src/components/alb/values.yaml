@@ -1,4 +1,7 @@
 install_name: ""
+install_id: ""
+tenant_id: ""
+key_vault_name: ""
 
 name: ""
 domain: ""
