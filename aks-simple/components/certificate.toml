@@ -10,7 +10,7 @@ directory = "aks-simple/src/components/certificate"
 branch    = "ja/pro-1515-https-cert-component"
 
 [vars]
+key_vault_id = "/subscriptions/{{ .nuon.install_stack.outputs.subscription_id }}/resourceGroups/{{ .nuon.install.id }}-rg/providers/Microsoft.KeyVault/vaults/{{ .nuon.install.id }}"
 install_id  = "{{ .nuon.install.id }}"
-region      = "{{ .nuon.install_stack.outputs.region }}"
-zone_id     = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id }}"
-domain_name = "*.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+zone_id     = "{{ .nuon.install.sandbox.outputs.public_domain.id }}"
+domain_name = "*.{{ .nuon.install.sandbox.outputs.public_domain.name }}"

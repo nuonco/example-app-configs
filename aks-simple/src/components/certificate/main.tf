@@ -1,4 +1,4 @@
-resource "azurerm_key_vault_certificate" "example" {
+resource "azurerm_key_vault_certificate" "main" {
   # name         = "${var.install_id}-cert"
   name         = "https-cert"
   key_vault_id = var.key_vault_id
