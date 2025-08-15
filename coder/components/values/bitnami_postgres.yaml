@@ -1,0 +1,11 @@
+# https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+
+auth:
+  username: coder
+  password: coder
+  database: coder
+primary:
+  enabled: true
+  persistence:
+    size: 08Gi
+    storageClass: gp2
