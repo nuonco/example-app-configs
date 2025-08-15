@@ -1,7 +1,7 @@
 #:schema https://api.nuon.co/v1/general/config-schema?source=action
 
-# This action checks the Coder deployment's health and status after deployment.
-# They are run after the Coder component is deployed, and can be triggered manually.
+# This action checks the ALB's health status
+# It is triggered manually from the dashboard.
 
 name    = "healthcheck"
 timeout = "5m"
