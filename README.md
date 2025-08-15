@@ -10,7 +10,7 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 ## coder
 
-[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app config deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class.
+[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app config deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [deploying Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/n).
 
 # How to Use
 
