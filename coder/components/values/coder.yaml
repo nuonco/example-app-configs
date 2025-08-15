@@ -1,0 +1,96 @@
+# https://github.com/coder/coder/blob/main/helm/coder/values.yaml
+# https://github.com/coder/coder/pkgs/container/coder
+# https://coder.com/docs/admin/setup#wildcard-access-url
+# https://coder.com/docs/reference/cli/server
+# https://github.com/coder/coder/releases/   
+
+coder:
+
+  image:
+    # coder.image.repo -- The repository of the image.
+    repo: "ghcr.io/coder/coder"
+    tag: "{{.nuon.inputs.inputs.release}}"
+
+  replicaCount: "{{.nuon.inputs.inputs.replicas}}"
+
+  # since tls is terminated at alb
+  tls:
+    secretNames: []
+
+  serviceAccount:
+    workspacePerms: true
+    enableDeployments: true
+
+  # letting nuon handle alb and routing to coder service and port
+  ingress:
+    enabled: false
+    # if you want to use the ingress, uncomment the following lines
+    # and set the annotations as needed
+    # annotations:
+    #   kubernetes.io/ingress.class: "alb"
+    #   alb.ingress.kubernetes.io/scheme: internet-facing
+    #   alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    #   alb.ingress.kubernetes.io/certificate-arn: "{{ .nuon.components.certificate.outputs.public_domain_certificate_arn }}"
+    #   alb.ingress.kubernetes.io/target-type: ip
+
+  service:
+    type: ClusterIP
+    ports:
+      - name: http
+        port: 80
+        protocol: TCP
+        targetPort: 8080
+        
+    sessionAffinity: None # Already default, but good to confirm.
+    loadBalancerIP: ""
+    loadBalancerClass: ""
+    annotations: {} # No annotations needed here for ALB provisioning
+    httpNodePort: "" # Irrelevant with ClusterIP
+    httpsNodePort: "" # Irrelevant with ClusterIP    
+
+  externalTrafficPolicy: Local
+
+  envUseClusterAccessURL: false
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  env:
+    - name: CODER_PG_CONNECTION_URL
+      valueFrom:
+        secretKeyRef:
+          name: coder-db-url
+          key: url
+    - name: CODER_ACCESS_URL
+      value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+    - name: CODER_WILDCARD_ACCESS_URL
+      value: "*.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+    - name: CODER_SWAGGER_ENABLE
+      value: "true"
+    - name: CODER_MAX_TOKEN_LIFETIME
+      value: "{{.nuon.inputs.inputs.max_token_lifetime}}"
+    - name: CODER_SESSION_DURATION
+      value: "{{.nuon.inputs.inputs.session_duration}}"
+    - name: CODER_PROVISIONER_DAEMONS
+      value: "{{.nuon.inputs.inputs.provisioners}}"
+    - name: CODER_MAX_TOKEN_LIFETIME
+      value: "{{.nuon.inputs.inputs.max_token_lifetime}}"
+    - name: CODER_SESSION_DURATION
+      value: "{{.nuon.inputs.inputs.session_duration}}"
+    - name: CODER_BLOCK_DIRECT
+      value: "{{.nuon.inputs.inputs.block_direct}}"
+    - name: CODER_TELEMETRY_ENABLE
+      value: "{{.nuon.inputs.inputs.telemetry}}"
+    - name: CODER_PROMETHEUS_ENABLE
+      value: "true"
+    - name: CODER_PROMETHEUS_ADDRESS
+      value: "127.0.0.1:2112"
+    - name: CODER_UPDATE_CHECK
+      value: "true"
+
+             

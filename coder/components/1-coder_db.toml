@@ -1,0 +1,18 @@
+name           = "coder_db"
+type           = "helm_chart"
+chart_name     = "postgresql"
+namespace      = "coder"
+storage_driver = "configmap"
+
+[public_repo]
+# commenting out gitnami repo for now due to size
+# https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+# that causes nuon build issues
+# repo      = "bitnami/charts"
+# directory = "bitnami/postgresql"
+repo      = "sharkymark/nuon"
+directory = "src/helm/postgresql"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/bitnami_postgres.yaml"

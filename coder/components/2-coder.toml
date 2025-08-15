@@ -1,0 +1,14 @@
+name           = "coder"
+type           = "helm_chart"
+chart_name     = "coder"
+namespace      = "coder"
+storage_driver = "configmap"
+dependencies   = ["coder_db"]
+
+[public_repo]
+repo      = "coder/coder"
+directory = "helm/coder"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/coder.yaml"
