@@ -5,6 +5,13 @@ description  = "DNS Configrations"
 display_name = "Configurations for the root domain for Route53"
 
 [[input]]
+name         = "domain"
+description  = "domain for the whoami endpoint e.g., nuon.run"
+default      = "nuon.run"
+display_name = "Domain"
+group        = "dns"
+
+[[input]]
 name         = "sub_domain"
 description  = "The sub domain for the Whoami service"
 default      = "whoami"
