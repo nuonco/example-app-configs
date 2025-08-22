@@ -4,6 +4,10 @@
 
 # Example Apps
 
+## aws-lambda
+
+Creates AWS Lambda function based on a Go app image built from a Dockerfile. The app config also includes a DynamoDB table, a certificate and an API Gateway. The user `curl`s a POST endpoint to add an integer, which is stored in the DynamoDB table. Then `curl` a GET endpoint to retrieve the integer from the DynamoDB table. We built this app config to demonstrate how Nuon can work with serverless apps and not Kubernetes.
+
 ## eks-simple
 
 Creates an EKS cluster with a `whoami` application deployed on it, an Application Load Balancer and a Certificate. The App Install is accessible from https://<subdomain input>.<install id>.nuon.run. See the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.

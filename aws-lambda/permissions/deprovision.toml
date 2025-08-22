@@ -1,0 +1,8 @@
+type                 = "deprovision"
+name                 = "{{.nuon.install.id}}-deprovision"
+description          = "{{ .nuon.install.id }} deprovision role for nuonco/example-app-configs/aws-lambda install"
+display_name         = "{{ .nuon.install.id }}-deprovision"
+permissions_boundary = "./deprovision_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

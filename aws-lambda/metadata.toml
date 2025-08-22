@@ -1,0 +1,5 @@
+version = "v2"
+
+description  = "AWS Lambda App Config"
+display_name = "AWS Lambda App Config for minimal resources"
+readme       = "./readme.md"
