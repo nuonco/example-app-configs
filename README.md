@@ -6,7 +6,7 @@
 
 ## aws-lambda
 
-Creates AWS Lambda function based on a Go app image built from a Dockerfile. The app config also includes a DynamoDB table, a certificate and an API Gateway. The user `curl`s a POST endpoint to add an integer, which is stored in the DynamoDB table. Then `curl` a GET endpoint to retrieve the integer from the DynamoDB table. We built this app config to demonstrate how Nuon can work with serverless apps and not Kubernetes.
+Creates AWS Lambda function based on a Go app image built from a Dockerfile. The app config also includes a DynamoDB table, a certificate and an API Gateway. The user `curl`s a POST endpoint to add an integer, which is stored in the DynamoDB table. Then `curl` a GET endpoint to retrieve the integer from the DynamoDB table. We built this app config to demonstrate how Nuon can work with serverless apps and not Kubernetes. See the [minimum sandbox](https://github.com/nuonco/aws-min-sandbox) repository used by the AWS Lambda app config and which does not include Kubernetes resources.
 
 ## eks-simple
 
