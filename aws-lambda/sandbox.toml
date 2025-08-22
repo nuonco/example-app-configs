@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=sandbox
+terraform_version = "1.11.4"
+
+[public_repo]
+directory = "."
+repo      = "sharkymark/aws-min-sandbox"
+branch    = "main"
+
+[vars]
+enable_nuon_dns      = "true"
+public_root_domain   = "{{ .nuon.install.id }}.{{.nuon.inputs.inputs.domain}}"
+internal_root_domain = "internal.{{ .nuon.install.id }}.{{.nuon.inputs.inputs.domain}}"
+
+[[var_file]]
+contents = "./sandbox.tfvars"
