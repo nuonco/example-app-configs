@@ -28,11 +28,17 @@ curl https://{{.nuon.components.api_gateway.outputs.api_gateway.domain_name_id}}
 
 ### View Logs
 
+Go to CloudWatch Logs in the AWS Console and find the log group to see the logs for PUT and GET routes for the Lambda function.
+
+`````txt
+{{.nuon.components.lambda_function.outputs.lambda_function.lambda_cloudwatch_log_group_name}}:
+
+````txt
+{{.nuon.components.lambda_function.outputs.lambda_function.lambda_cloudwatch_log_group_name}}
+
 ```txt
 {{.nuon.components.lambda_function.outputs.lambda_function.lambda_cloudwatch_log_group_arn}}
-```
-
-> NOTE! This is under development
+`````
 
 ## Full State
 
