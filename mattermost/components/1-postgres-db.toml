@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+name           = "postgres_db"
+type           = "helm_chart"
+chart_name     = "postgresql"
+namespace      = "mattermost"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "mattermost/src/helm/postgresql"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/postgres-db/bitnami_postgres.yaml"

@@ -1,0 +1,43 @@
+#:schema https://api.nuon.co/v1/general/config-schema?sourcekubernetes-manifest
+
+name   = "mattermost_manifest_installation"
+type   = "kubernetes_manifest"
+dependencies   = ["postgres_db","mattermost_manifest_db_secret","s3_buckets","mattermost_service_account"]
+
+namespace = "mattermost"
+manifest = """
+apiVersion: installation.mattermost.com/v1beta1
+kind: Mattermost
+metadata:
+  name: mm
+  namespace: mattermost
+version: 
+spec:
+  image: mattermost/mattermost-enterprise-edition
+  version: "{{.nuon.inputs.mattermost.app-release}}"
+  useServiceLoadBalancer: false 
+  ingress:
+    enabled: false         
+  database:
+    external:
+      secret: mm-postgres-connection
+  fileStore:
+    external:
+      url: s3.amazonaws.com
+      bucket: "{{.nuon.components.s3_buckets.outputs.mattermost_bucket.id}}"
+  mattermostEnv:
+    - name: MM_SERVICESETTINGS_SITEURL
+      value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  scheduling:
+    resources:
+        limits:
+          cpu: 500m
+          memory: 1024Mi
+        requests:
+          cpu: 250m
+          memory: 512Mi
+    """
+
+# https://github.com/mattermost/mattermost-operator/blob/master/docs/examples/mattermost_full.yaml
+# https://github.com/mattermost/mattermost-operator/blob/master/config/crd/bases/installation.mattermost.com_mattermosts.yaml
+# https://github.com/mattermost/mattermost/releases/
