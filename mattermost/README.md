@@ -5,6 +5,16 @@
 
 <h1>Mattermost App Config</h1>
 
+</center>
+
+Mattermost Access URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}})
+
+Nuon Install Id: {{ .nuon.install.id }}
+
+AWS Region: {{ .nuon.install_stack.outputs.region }}
+
+<center>
+
 ## What is Mattermost?
 
 Mattermost is an open-source, self-hostable collaboration platform designed as an alternative to proprietary services like Slack and Microsoft Teams, with a strong focus on security, customization, and integration. Its functionality includes secure messaging, file sharing, and threaded conversations in public and private channels, as well as features for project management (Boards) and workflow automation (Playbooks). Review the Mattermost docs for how it deploys on [Kubernetes](https://docs.mattermost.com/deployment-guide/server/deploy-kubernetes.html) and visit the [Mattermost OSS repository](https://github.com/mattermost/mattermost) for more information.
