@@ -14,7 +14,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: mattermost
+    app: mattermost
   ports:
     - name: http
       port: 8065
