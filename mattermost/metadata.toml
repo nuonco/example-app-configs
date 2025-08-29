@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "Mattermost is an open-source, self-hostable collaboration platform."
+display_name = "Mattermost"
+readme       = "./readme.md"

@@ -1,0 +1,25 @@
+mattermostOperator:
+  enabled: true
+  replicas: {{.nuon.inputs.inputs.replicas}}
+  rbac:
+    create: true
+  serviceAccount:
+    create: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    maxReconcilingInstallations: 20
+    maxReconcilingConcurrency: 10
+    requeuOnLimitDelay: 20s
+  image:
+    repository: mattermost/mattermost-operator
+    tag: {{.nuon.inputs.inputs.operator_release}}
+    pullPolicy: IfNotPresent
+  args:
+    - --enable-leader-election
+    - --metrics-addr=0.0.0.0:8383

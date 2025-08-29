@@ -1,0 +1,18 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "default_storage_class"
+timeout = "1m"
+
+[[triggers]]
+type           = "pre-deploy-component"
+component_name = "postgres_db"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "make_gp2_default_storage_class"
+inline_contents = """
+#!/usr/bin/env sh
+kubectl auth whoami -o json | jq -c
+kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+"""

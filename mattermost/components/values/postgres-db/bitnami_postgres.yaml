@@ -1,0 +1,18 @@
+# https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+
+auth:
+  username: mattermost
+  password: mattermost
+  database: mattermost
+primary:
+  enabled: true
+  persistence:
+    size: 08Gi
+    storageClass: gp2
+  resources:
+      limits:
+        cpu: 500m
+        memory: 1024Mi
+      requests:
+        cpu: 250m
+        memory: 512Mi

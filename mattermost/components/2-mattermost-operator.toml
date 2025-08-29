@@ -1,0 +1,18 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+name           = "mattermost_operator"
+type           = "helm_chart"
+chart_name     = "mattermost-operator"
+namespace      = "mattermost-operator"
+storage_driver = "configmap"
+dependencies   = ["postgres_db"]
+
+[public_repo]
+repo      = "mattermost/mattermost-helm"
+directory = "charts/mattermost-operator"
+branch    = "master"
+
+[[values_file]]
+contents = "./values/mattermost-operator/config.yaml"
+
+# https://github.com/mattermost/mattermost-operator/blob/master/docs/examples/mattermost_full.yaml
+# https://github.com/mattermost/mattermost-operator/releases

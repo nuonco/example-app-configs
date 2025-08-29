@@ -1,0 +1,73 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+
+# This action checks the Mattermost deployment's health and status after deployment.
+# They are run after the Mattermost component is deployed, and can be triggered manually.
+
+name    = "check_mattermost_deployment"
+timeout = "5m"
+
+[[triggers]]
+type = "manual"
+
+
+[[steps]]
+name    = "Check Mattermost pod status"
+inline_contents = """
+#!/usr/bin/env sh
+kubectl get pods -n mattermost
+"""
+
+
+[[steps]]
+name    = "Check Mattermost service external endpoint"
+inline_contents = """
+#!/usr/bin/env sh
+kubectl get svc -n mattermost
+"""
+
+
+[[steps]]
+name    = "Check ALB health (if available)"
+inline_contents = """
+#!/usr/bin/env sh
+
+if [ -z "$NUON_MATTERMOST_ACCESS_URL" ]; then
+  echo "Error: Mattermost external access URL is empty after Nuon interpolation."
+  exit 1
+fi
+
+# The health check path for ALB and external monitoring, as per Mattermost's design
+HEALTH_CHECK_URL="${NUON_MATTERMOST_ACCESS_URL}/healthz"
+
+echo "Checking Mattermost health at: $HEALTH_CHECK_URL"
+
+# Use curl to get the HTTP status code.
+# -s : Silent output
+# -o /dev/null : Discard the response body
+# -w "%{http_code}" : Print only the HTTP status code to stdout
+# --max-time 15 : Set a generous timeout for the entire operation
+# --fail-early : Exit immediately on the first transfer error
+# --retry 5 --retry-delay 5 : Retry up to 5 times, with 5 seconds between retries
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 --fail-early --retry 5 --retry-delay 5 "$HEALTH_CHECK_URL")
+
+# Check if the HTTP code is 200 (OK)
+if [ "$HTTP_CODE" -eq 200 ]; then
+  echo "Mattermost external health check passed! Status code: $HTTP_CODE"
+  exit 0
+else
+  echo "Mattermost external health check failed! Status code: $HTTP_CODE"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+NUON_MATTERMOST_ACCESS_URL = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+
+
+[[steps]]
+name    = "Check Mattermost pods, services, deployments and replicasets"
+inline_contents = """
+#!/usr/bin/env sh
+kubectl get all -n mattermost -l app.kubernetes.io/name=mattermost
+"""

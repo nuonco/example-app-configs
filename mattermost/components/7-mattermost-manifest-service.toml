@@ -1,0 +1,23 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=kubernetes-manifest
+
+name = "mattermost_manifest_service"
+type = "kubernetes_manifest"
+dependencies = ["mattermost_manifest_installation"]
+
+namespace = "mattermost"
+manifest = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: mm-web
+  namespace: mattermost
+spec:
+  type: ClusterIP
+  selector:
+    app: mattermost
+  ports:
+    - name: http
+      port: 8065
+      targetPort: 8065
+      protocol: TCP
+"""
