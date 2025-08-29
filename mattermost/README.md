@@ -11,13 +11,6 @@ Nuon Install Id: {{ .nuon.install.id }}
 
 AWS Region: {{ .nuon.install_stack.outputs.region }}
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## What is Mattermost?
 
 Mattermost is an open-source, self-hostable collaboration platform designed as an alternative to proprietary services like Slack and Microsoft Teams, with a strong focus on security, customization, and integration. Its functionality includes secure messaging, file sharing, and threaded conversations in public and private channels, as well as features for project management (Boards) and workflow automation (Playbooks). [Example customers](https://mattermost.com/customers/), many of whom are in regulated industries, include U.S. Air Force, Blue Origin, Nasdaq, Qualcomm, BOSCH, HASA, AIG and Samsung.
@@ -27,6 +20,13 @@ Mattermost is an open-source, self-hostable collaboration platform designed as a
 The architecture of Mattermost is built with a modular, scalable approach. The core is a single-compiled Go binary that serves as a RESTful JSON web service. This server communicates with web, desktop, and mobile clients and connects to a backend infrastructure that includes a database (PostgreSQL or MySQL) and file storage (local, network, or object storage like Amazon S3). This design allows for on-premise deployment, providing organizations with complete control over their data, and supports high-availability clusters for large-scale, enterprise-level use. See the [Mattermost architecture diagram](https://docs.mattermost.com/deployment-guide/application-architecture.html) for more details. Review the Mattermost docs for how it deploys on [Kubernetes](https://docs.mattermost.com/deployment-guide/server/deploy-kubernetes.html) and visit the [Mattermost OSS repository](https://github.com/mattermost/mattermost) for more information.
 
 </center>
+
+## Full State
+
+<details>
+<summary>Full Install State</summary>
+<pre>{{ toPrettyJson .nuon }}</pre>
+</details>
 
 ## Mattermost Resources
 
