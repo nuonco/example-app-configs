@@ -15,6 +15,7 @@ spec:
   image: mattermost/mattermost-enterprise-edition
   version: "{{.nuon.inputs.inputs.app_release}}"
   useServiceLoadBalancer: false 
+  replicas: 1
   ingress:
     enabled: false         
   database:
