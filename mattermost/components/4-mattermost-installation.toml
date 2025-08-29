@@ -15,7 +15,6 @@ spec:
   image: mattermost/mattermost-enterprise-edition
   version: "{{.nuon.inputs.inputs.app_release}}"
   useServiceLoadBalancer: false 
-  replicas: 1
   ingress:
     enabled: false         
   database:
@@ -29,6 +28,7 @@ spec:
   mattermostEnv:
     - name: MM_SERVICESETTINGS_SITEURL
       value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  replicas: 1    
     """
 
 # https://github.com/mattermost/mattermost-operator/blob/master/docs/examples/mattermost_full.yaml
