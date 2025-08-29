@@ -28,14 +28,6 @@ spec:
   mattermostEnv:
     - name: MM_SERVICESETTINGS_SITEURL
       value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
-  scheduling:
-    resources:
-        limits:
-          cpu: 500m
-          memory: 1024Mi
-        requests:
-          cpu: 250m
-          memory: 512Mi
     """
 
 # https://github.com/mattermost/mattermost-operator/blob/master/docs/examples/mattermost_full.yaml
