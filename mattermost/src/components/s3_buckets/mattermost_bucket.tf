@@ -64,7 +64,7 @@ resource "aws_kms_alias" "mattermost_bucket" {
 # IAM
 #
 
-# policy to allow access to this bucket: will be assigned to the default ServiceAccount
+# policy to allow access to this bucket: will be assigned to Mastermost's mm ServiceAccount specified in the Mattermost Installation manifest
 # in the mattermost namespace
 
 data "aws_iam_policy_document" "mattermost_bucket_access_policy" {
@@ -100,7 +100,7 @@ data "aws_iam_policy_document" "mattermost_trust_policy" {
     condition {
       test     = "StringEquals"
       variable = "${var.cluster_oidc_provider}:sub"
-      values   = ["system:serviceaccount:mattermost:default"]
+      values   = ["system:serviceaccount:mattermost:mm"]
     }
   }
 }
