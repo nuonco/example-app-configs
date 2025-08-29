@@ -14,7 +14,7 @@ metadata:
 version: 
 spec:
   image: mattermost/mattermost-enterprise-edition
-  version: "{{.nuon.inputs.mattermost.app-release}}"
+  version: "{{.nuon.inputs.mattermost.app_release}}"
   useServiceLoadBalancer: false 
   ingress:
     enabled: false         

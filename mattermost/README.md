@@ -1,5 +1,10 @@
 <center>
 
+<img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Mattermost_logo_horizontal.svg"
+     alt="Mattermost" width="160" />
+
+<h1>Mattermost App Config</h1>
+
 ## What is Mattermost?
 
 Mattermost is an open-source, self-hostable collaboration platform designed as an alternative to proprietary services like Slack and Microsoft Teams, with a strong focus on security, customization, and integration. Its functionality includes secure messaging, file sharing, and threaded conversations in public and private channels, as well as features for project management (Boards) and workflow automation (Playbooks). Review the Mattermost docs for how it deploys on [Kubernetes](https://docs.mattermost.com/deployment-guide/server/deploy-kubernetes.html) and visit the [Mattermost OSS repository](https://github.com/mattermost/mattermost) for more information.

@@ -18,7 +18,7 @@ mattermostOperator:
     requeuOnLimitDelay: 20s
   image:
     repository: mattermost/mattermost-operator
-    tag: {{.nuon.inputs.inputs.release}}
+    tag: {{.nuon.inputs.inputs.operator_release}}
     pullPolicy: IfNotPresent
   args:
     - --enable-leader-election

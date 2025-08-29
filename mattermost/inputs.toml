@@ -1,19 +1,19 @@
 #:schema https://api.nuon.co/v1/general/config-schema?source=inputs
 [[group]]
 name         = "mattermost"
-description  = "Environment variables and configurations for the Mattermost operator and app"
+description  = "Environment variables and configurations for the Mattermost operator and app. Operator: https://github.com/mattermost/mattermost-operator/releases App: https://github.com/mattermost/mattermost/releases/"
 display_name = "Application Configurations"
 
 [[input]]
-name         = "operator-release"
-description  = "The release of the Mattermost operator to deploy. https://github.com/mattermost/mattermost-operator/releases"
+name         = "operator_release"
+description  = "The release of the Mattermost operator to deploy. "
 default      = "v1.24.0"
 display_name = "Operator Release"
 group        = "mattermost"
 
 [[input]]
-name         = "app-release"
-description  = "The release of the Mattermost operator to deploy. https://github.com/mattermost/mattermost/releases/ Note: Remove the 'v' prefix, e.g., use 10.11.2 not v10.11.2"
+name         = "app_release"
+description  = "The release of the Mattermost operator to deploy. Note: Remove the 'v' prefix, e.g., use 10.11.2 not v10.11.2"
 default      = "10.11.2"
 display_name = "Mattermost App Release"
 group        = "mattermost"
