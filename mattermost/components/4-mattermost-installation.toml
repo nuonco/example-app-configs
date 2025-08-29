@@ -24,6 +24,7 @@ spec:
     external:
       url: s3.amazonaws.com
       bucket: "{{.nuon.components.s3_buckets.outputs.mattermost_bucket.id}}"
+      secret: "mattermost-s3-secret"
   mattermostEnv:
     - name: MM_SERVICESETTINGS_SITEURL
       value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
