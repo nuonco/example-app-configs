@@ -1,4 +1,4 @@
-additional_namespaces = ["mattermost-operator,mattermost"]
+additional_namespaces = ["mattermost-operator","mattermost"]
 
 
 min_size             = {{ .nuon.inputs.inputs.min_size }}
