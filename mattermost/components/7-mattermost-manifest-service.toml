@@ -15,7 +15,6 @@ spec:
   type: ClusterIP
   selector:
     app.kubernetes.io/name: mattermost
-    app.kubernetes.io/instance: mm
   ports:
     - name: http
       port: 8065
