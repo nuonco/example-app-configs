@@ -27,8 +27,7 @@ spec:
       secret: "mattermost-s3-secret"
   mattermostEnv:
     - name: MM_SERVICESETTINGS_SITEURL
-      value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
-  replicas: 1    
+      value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"         
     """
 
 # https://github.com/mattermost/mattermost-operator/blob/master/docs/examples/mattermost_full.yaml
