@@ -6,7 +6,7 @@ dependencies = ["mattermost_manifest_installation","certificate"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "mattermost/src/components/alb"
-branch    = "mm/mattermost"
+branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
