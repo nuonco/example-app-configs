@@ -9,7 +9,7 @@ persistence:
     enabled: true
 
 config:
-  publicUri: "https://penpot.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  publicUri: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
   telemetryEnabled: {{.nuon.inputs.inputs.telemetry_enabled}}
 
 ingress:
