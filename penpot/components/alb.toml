@@ -1,0 +1,21 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+
+name         = "application_load_balancer"
+type         = "helm_chart"
+chart_name   = "application-load-balancer"
+dependencies = ["penpot"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "penpot/src/components/alb"
+branch    = "mm/penpot"
+
+[values]
+domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
+domain             = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+https_port         = "443"
+service_name       = "penpot-penpot-frontend"
+service_port       = "8080"
+install_name       = "{{.nuon.install.id}}"
+namespace          = "penpot"
+healthcheck_path   = "/health"

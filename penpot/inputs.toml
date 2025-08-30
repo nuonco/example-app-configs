@@ -1,0 +1,60 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+[[group]]
+name         = "penpot"
+description  = "Environment variables and configurations for the Penpot app. https://github.com/penpot/penpot/releases"
+display_name = "Application Configurations"
+
+[[input]]
+name         = "app_release"
+description  = "The release of the Penpot app."
+default      = "2.9.0"
+display_name = "Penpot App Release"
+group        = "penpot"
+
+[[input]]
+name         = "replicas"
+description  = "The number of replicas of the Penpor control plane pods to deploy"
+default      = "1"
+display_name = "Penpot Frontend and Backend Replicas"
+group        = "penpot"
+
+[[input]]
+name         = "telemetry_enabled"
+description  = "Enable/disable telemetry collection to help improve Penpot."
+default      = "true"
+display_name = "Telemtry"
+group        = "penpot"
+
+[[group]]
+name         = "compute"
+description  = "How many nodes to provision to support dev environments? https://aws.amazon.com/ec2/instance-types/ e.g., t3-medium, t3.xlarge, t3.2xlarge"
+display_name = "Kubernetes Nodes"
+group        = "compute"
+
+[[input]]
+name         = "instance_size"
+description  = "The AWS instance size to use for each node in the EKS cluster"
+default      = "t3-medium"
+display_name = "Node Instance Size"
+group        = "compute"
+
+[[input]]
+name         = "min_size"
+description  = "Minimum number of nodes to provision in the EKS cluster"
+default      = "3"
+display_name = "Minimum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "max_size"
+description  = "Maximum number of nodes to provision in the EKS cluster"
+default      = "5"
+display_name = "Maximum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "desired_capacity"
+description  = "Desired number of nodes to provision in the EKS cluster"
+default      = "3"
+display_name = "Desired Node Count"
+group        = "compute"

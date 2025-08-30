@@ -1,0 +1,16 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+
+name              = "certificate"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "penpot/src/components/certificate"
+branch    = "mm/penpot"
+
+[vars]
+install_id  = "{{ .nuon.install.id }}"
+region      = "{{ .nuon.install_stack.outputs.region }}"
+zone_id     = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id }}"
+domain_name = "*.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
