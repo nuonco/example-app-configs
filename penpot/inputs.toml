@@ -22,7 +22,7 @@ group        = "penpot"
 name         = "telemetry_enabled"
 description  = "Enable/disable telemetry collection to help improve Penpot."
 default      = "true"
-display_name = "Telemtry"
+display_name = "Telemetry"
 group        = "penpot"
 
 [[group]]

@@ -1,5 +1,5 @@
 type        = "aws-cloudformation"
-name        = "nuon-demos-penpot-{{.nuon.install.id}}"
+name        = "nuon-penpot-{{.nuon.install.id}}"
 description = "Penpot stack"
 
 # nested stack
