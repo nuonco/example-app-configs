@@ -23,4 +23,18 @@ Penpot is an open-source design and prototyping platform. It is web-based and wo
 <pre>{{ toPrettyJson .nuon }}</pre>
 </details>
 
-## Mattermost Resources
+## Penpot Resources
+
+[Releases](https://github.com/penpot/penpot/releases)
+
+[Helm Chart](https://github.com/penpot/penpot-helm/tree/develop/charts/penpot)
+
+[Values.yaml Reference](https://github.com/penpot/penpot-helm/blob/develop/charts/penpot/values.yaml)
+
+[Self-hosting guide](https://penpot.app/self-host)
+
+[Kubernetes Install Guide](https://help.penpot.app/technical-guide/getting-started/kubernetes/)
+
+[Self-hosting blog post](https://community.penpot.app/t/self-hosting-penpot-i/2336)
+
+[Logo](https://avatars.githubusercontent.com/u/30179644?s=200&v=4)
