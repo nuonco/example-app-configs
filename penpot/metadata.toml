@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "Penpot App Config"
+display_name = "Penpot"
+readme       = "./readme.md"

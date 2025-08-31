@@ -20,6 +20,10 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 [Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app config deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class.
 
+## penpot
+
+[Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app config deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
+
 # How to Use
 
 Clone this repo and cd into the app config directory you want to use, e.g. `cd example-app-configs/<app directory>`. Then run the following commands to create and sync the app config to the Nuon cloud:

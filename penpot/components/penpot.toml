@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+name           = "penpot"
+type           = "helm_chart"
+chart_name     = "penpot"
+namespace      = "penpot"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "penpot/penpot-helm"
+directory = "charts/penpot"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/penpot.yaml"

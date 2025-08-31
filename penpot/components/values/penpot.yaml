@@ -1,0 +1,38 @@
+# https://github.com/penpot/penpot-helm/blob/develop/charts/penpot/values.yaml
+
+global:
+  postgresqlEnabled: true
+  valkeyEnabled: true
+
+persistence:
+  assets:
+    enabled: true
+
+config:
+  publicUri: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  telemetryEnabled: {{.nuon.inputs.inputs.telemetry_enabled}}
+
+ingress:
+  enabled: false
+
+backend:
+  replicaCount: "{{.nuon.inputs.inputs.replicas}}"
+  service:
+    type: ClusterIP
+    port: 6060
+    targetPort: 6060
+    protocol: TCP
+  image:
+    repository: penpotapp/backend
+    tag: "{{.nuon.inputs.inputs.app_release}}"
+
+frontend:
+  replicaCount: "{{.nuon.inputs.inputs.replicas}}"
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  image:
+    repository: penpotapp/frontend
+    tag: "{{.nuon.inputs.inputs.app_release}}"
