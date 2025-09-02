@@ -3,8 +3,8 @@ type              = "terraform_module"
 terraform_version = "1.11.3"
 
 [public_repo]
-repo      = "sharkymark/nuon"
-directory = "src/app-config/coder/src/components/certificate"
+repo      = "nuonco/example-app-configs"
+directory = "coder/src/components/certificate"
 branch    = "main"
 
 [vars]

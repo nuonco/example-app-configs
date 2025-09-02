@@ -4,8 +4,8 @@ chart_name   = "application-load-balancer"
 dependencies = ["coder"]
 
 [public_repo]
-repo      = "sharkymark/nuon"
-directory = "src/app-config/coder/src/components/alb"
+repo      = "nuonco/example-app-configs"
+directory = "coder/src/components/alb"
 branch    = "main"
 
 [values]
