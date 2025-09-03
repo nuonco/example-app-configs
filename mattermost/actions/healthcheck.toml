@@ -38,7 +38,7 @@ if [ -z "$NUON_MATTERMOST_ACCESS_URL" ]; then
 fi
 
 # The health check path for ALB and external monitoring, as per Mattermost's design
-HEALTH_CHECK_URL="${NUON_MATTERMOST_ACCESS_URL}/healthz"
+HEALTH_CHECK_URL="${NUON_MATTERMOST_ACCESS_URL}/"
 
 echo "Checking Mattermost health at: $HEALTH_CHECK_URL"
 
