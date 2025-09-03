@@ -2,7 +2,7 @@
 
 name   = "mattermost_manifest_installation"
 type   = "kubernetes_manifest"
-dependencies   = ["postgres_db","mattermost_manifest_db_secret","s3_buckets","mattermost_service_account"]
+dependencies   = ["postgres_db","mattermost_manifest_db_secret","s3_buckets"]
 
 namespace = "mattermost"
 manifest = """
@@ -16,7 +16,11 @@ spec:
   version: "{{.nuon.inputs.inputs.app_release}}"
   useServiceLoadBalancer: false 
   ingress:
-    enabled: false         
+    enabled: false
+  serviceAccountName: mm
+  podExtensions:
+    serviceAccountAnnotations:
+      eks.amazonaws.com/role-arn: "{{.nuon.components.s3_buckets.outputs.mattermost_bucket_role.arn}}"
   database:
     external:
       secret: mm-postgres-connection
