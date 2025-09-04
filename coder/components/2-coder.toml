@@ -1,3 +1,4 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
 name           = "coder"
 type           = "helm_chart"
 chart_name     = "coder"
