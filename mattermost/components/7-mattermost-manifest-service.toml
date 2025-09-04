@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=kubernetes-manifest
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
 
 name = "mattermost_manifest_service"
 type = "kubernetes_manifest"
