@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Simple Demo"
-display_name = "The simplest demo"
+description = "Simple EKS App Config"
+display_name = "Simple EKS App Config"
 readme       = "./readme.md"

@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Coder"
-display_name = "Coder is a Cloud Development Environment platform that enables developers to work securely and efficiently from anywhere."
+description = "Coder App Config"
+display_name = "Coder App Config"
 readme       = "./readme.md"
