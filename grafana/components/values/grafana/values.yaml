@@ -81,6 +81,8 @@ env:
   GF_SECURITY_ADMIN_USER: admin
   GF_SECURITY_ADMIN_PASSWORD: admin
   GF_INSTALL_PLUGINS: ""
+  # Enterprise license key (if provided, enables Enterprise features)
+  GF_ENTERPRISE_LICENSE_TEXT: "{{ .nuon.install.inputs.enterprise_license_key }}"
 
 # Grafana configuration
 grafana.ini:

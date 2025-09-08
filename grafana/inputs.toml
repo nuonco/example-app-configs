@@ -12,6 +12,13 @@ default      = "12.1.0"
 display_name = "Grafana Release Version"
 group        = "grafana"
 
+[[input]]
+name         = "enterprise_license_key"
+description  = "Grafana Enterprise license key (optional - leave blank for OSS)"
+default      = ""
+display_name = "Enterprise License Key"
+group        = "grafana"
+
 [[group]]
 name         = "compute"
 description  = "Kubernetes node configuration for the EKS cluster"

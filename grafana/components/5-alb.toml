@@ -2,7 +2,7 @@
 name         = "application_load_balancer"
 type         = "helm_chart"
 chart_name   = "application-load-balancer"
-dependencies = ["grafana"]
+dependencies = ["certificate", "grafana"]
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

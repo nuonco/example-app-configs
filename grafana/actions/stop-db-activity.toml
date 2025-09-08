@@ -1,0 +1,24 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "stop_db_activity"
+timeout = "2m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "stop database activity simulation"
+inline_contents = """
+#!/usr/bin/env sh
+
+echo "Stopping database activity simulation..."
+
+# Create a stop signal file in the PostgreSQL pod
+kubectl exec -n exampledb deployment/postgresql -- touch /tmp/stop_db_simulation
+
+# Kill any running psql processes that might be part of the simulation
+kubectl exec -n exampledb deployment/postgresql -- pkill -f "psql.*exampledb" || true
+
+echo "Stop signal sent. Database activity simulation should stop within 30 seconds."
+echo "Any running queries will complete, but no new bursts will start."
+"""
