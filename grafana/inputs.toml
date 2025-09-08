@@ -1,0 +1,46 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+
+[[group]]
+name         = "grafana"
+description  = "Environment variables and configurations for Grafana"
+display_name = "Grafana Configuration"
+
+[[input]]
+name         = "grafana_release"
+description  = "The version of Grafana to deploy - https://github.com/grafana/grafana/releases"
+default      = "12.1.0"
+display_name = "Grafana Release Version"
+group        = "grafana"
+
+[[group]]
+name         = "compute"
+description  = "Kubernetes node configuration for the EKS cluster"
+display_name = "Kubernetes Nodes"
+
+[[input]]
+name         = "instance_size"
+description  = "The AWS instance size to use for each node in the EKS cluster"
+default      = "t3.medium"
+display_name = "Node Instance Size"
+group        = "compute"
+
+[[input]]
+name         = "min_size"
+description  = "Minimum number of nodes to provision in the EKS cluster"
+default      = "3"
+display_name = "Minimum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "max_size"
+description  = "Maximum number of nodes to provision in the EKS cluster"
+default      = "5"
+display_name = "Maximum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "desired_capacity"
+description  = "Desired number of nodes to provision in the EKS cluster"
+default      = "3"
+display_name = "Desired Node Count"
+group        = "compute"

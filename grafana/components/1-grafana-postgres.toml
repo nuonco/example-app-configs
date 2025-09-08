@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "grafana_postgres"
+type           = "helm_chart"
+chart_name     = "postgresql"
+namespace      = "grafana"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "grafana/src/helm/postgresql"
+branch    = "mm/grafana"
+
+[[values_file]]
+contents = "./values/grafana-postgres/values.yaml"

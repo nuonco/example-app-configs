@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "Grafana app config"
+display_name = "Grafana app config"
+readme       = "./README.md"

@@ -1,0 +1,100 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "simulate_db_activity"
+timeout = "30m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "create sample data and run fluctuating load"
+inline_contents = """
+#!/usr/bin/env sh
+
+echo "Starting lightweight database activity simulation..."
+
+# Wait for PostgreSQL to be ready
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=postgresql -n exampledb --timeout=300s
+
+# Create initial schema and seed data
+kubectl exec -n exampledb deployment/postgresql -- psql -U exampledb -d exampledb -c "
+-- Create sample tables if they don't exist
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    amount DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert initial seed data (small amount)
+INSERT INTO users (name, email) 
+SELECT 
+    'User' || generate_series(1,100),
+    'user' || generate_series(1,100) || '@example.com'
+ON CONFLICT DO NOTHING;
+"
+
+echo "Schema created. Starting fluctuating activity..."
+
+# Function to run a burst of activity
+run_activity_burst() {
+    local intensity=$1
+    echo "Running burst with intensity: $intensity"
+    
+    for i in $(seq 1 $intensity); do
+        # Mix of SELECT, INSERT, UPDATE queries
+        kubectl exec -n exampledb deployment/postgresql -- psql -U exampledb -d exampledb -c "
+        -- Random SELECT queries
+        SELECT * FROM users WHERE id = floor(random() * 100 + 1)::int;
+        SELECT COUNT(*) FROM orders WHERE user_id = floor(random() * 100 + 1)::int;
+        
+        -- Random INSERT
+        INSERT INTO orders (user_id, amount) VALUES (
+            floor(random() * 100 + 1)::int,
+            round((random() * 1000)::numeric, 2)
+        );
+        
+        -- Random UPDATE
+        UPDATE users SET created_at = NOW() WHERE id = floor(random() * 100 + 1)::int;
+        " > /dev/null 2>&1 &
+        
+        # Don't overwhelm - small delay between queries
+        sleep 0.1
+    done
+    
+    # Wait for this burst to complete
+    wait
+    echo "Burst completed"
+}
+
+# Simulate fluctuating patterns over 25 minutes
+echo "Starting 25-minute fluctuating load simulation..."
+
+for cycle in $(seq 1 25); do
+    echo "=== Cycle $cycle/25 ==="
+    
+    # Vary intensity in waves (low=5, medium=15, high=25 concurrent queries)
+    case $((cycle % 6)) in
+        0|3) intensity=5 ;;   # Low activity
+        1|4) intensity=15 ;;  # Medium activity  
+        2|5) intensity=25 ;;  # Higher activity
+    esac
+    
+    run_activity_burst $intensity
+    
+    # Vary rest periods (10-30 seconds between bursts)
+    rest_time=$((10 + (cycle % 3) * 10))
+    echo "Resting for ${rest_time}s..."
+    sleep $rest_time
+done
+
+echo "Activity simulation completed!"
+echo "Check your Grafana dashboard to see the fluctuating database metrics."
+"""
