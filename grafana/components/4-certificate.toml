@@ -2,7 +2,6 @@
 name              = "certificate"
 type              = "terraform_module"
 terraform_version = "1.11.3"
-dependencies   = ["grafana"]
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

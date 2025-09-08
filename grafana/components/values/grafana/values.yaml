@@ -41,7 +41,7 @@ ingress:
 livenessProbe:
   httpGet:
     path: /api/health
-    port: http
+    port: 3000
   initialDelaySeconds: 60
   timeoutSeconds: 30
   failureThreshold: 10
@@ -49,7 +49,7 @@ livenessProbe:
 readinessProbe:
   httpGet:
     path: /api/health
-    port: http
+    port: 3000
   initialDelaySeconds: 5
   timeoutSeconds: 10
 
@@ -78,11 +78,11 @@ env:
   GF_SERVER_HTTP_PORT: "3000"
   GF_SERVER_DOMAIN: localhost  # Will be overridden by ALB
   GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/"
-  GF_SECURITY_ADMIN_USER: admin
-  GF_SECURITY_ADMIN_PASSWORD: admin
+  GF_SECURITY_ADMIN_USER: "{{ .nuon.inputs.inputs.admin_user }}"
+  GF_SECURITY_ADMIN_PASSWORD: "{{ .nuon.inputs.inputs.admin_password }}"
   GF_INSTALL_PLUGINS: ""
   # Enterprise license key (if provided, enables Enterprise features)
-  GF_ENTERPRISE_LICENSE_TEXT: "{{ .nuon.install.inputs.enterprise_license_key }}"
+  GF_ENTERPRISE_LICENSE_TEXT: "{{ .nuon.inputs.inputs.enterprise_license_key }}"
 
 # Grafana configuration
 grafana.ini:
@@ -92,8 +92,7 @@ grafana.ini:
     root_url: "%(protocol)s://%(domain)s/"
   # database config handled via GF_DATABASE_URL environment variable from secret
   security:
-    admin_user: admin
-    admin_password: admin
+    # Admin credentials set via environment variables above
   users:
     allow_sign_up: false
     auto_assign_org: true
@@ -103,7 +102,7 @@ grafana.ini:
   log:
     level: info
     mode: console
-  alerting:
+  unified_alerting:
     enabled: true
 
 # Service account

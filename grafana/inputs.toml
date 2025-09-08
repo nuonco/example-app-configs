@@ -19,6 +19,20 @@ default      = ""
 display_name = "Enterprise License Key"
 group        = "grafana"
 
+[[input]]
+name         = "admin_user"
+description  = "Grafana admin username for login"
+default      = "admin"
+display_name = "Admin Username"
+group        = "grafana"
+
+[[input]]
+name         = "admin_password"
+description  = "Grafana admin password for login"
+default      = "admin"
+display_name = "Admin Password"
+group        = "grafana"
+
 [[group]]
 name         = "compute"
 description  = "Kubernetes node configuration for the EKS cluster"
