@@ -4,7 +4,7 @@ type           = "helm_chart"
 chart_name     = "grafana"
 namespace      = "grafana"
 storage_driver = "configmap"
-dependencies   = ["grafana_postgres", "exampledb_postgres", "postgres_secrets"]
+dependencies   = ["prometheus"]
 
 [public_repo]
 repo      = "grafana/helm-charts"

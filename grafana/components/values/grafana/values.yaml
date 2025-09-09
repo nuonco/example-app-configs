@@ -129,12 +129,18 @@ image:
 initContainers: []
 
 # Datasources configuration
-# Note: The datasource connection details will be loaded from exampledb-datasource-secret
-# via sidecar.datasources or additional secret mounting
 datasources:
   datasources.yaml:
     apiVersion: 1
     datasources:
+    # Prometheus datasource (primary for monitoring dashboards)
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server.grafana.svc.cluster.local:80
+      access: proxy
+      isDefault: true
+      editable: true
+    # PostgreSQL datasource (for custom SQL queries)
     - name: ExampleDB PostgreSQL
       type: postgres
       url: postgresql.exampledb.svc.cluster.local:5432
@@ -146,7 +152,7 @@ datasources:
         sslmode: disable
         postgresVersion: 1200
         timescaledb: false
-      isDefault: true
+      isDefault: false
       editable: true
 
 # Dashboards configuration - pre-built PostgreSQL monitoring
@@ -165,15 +171,22 @@ dashboardProviders:
 
 dashboards:
   default:
-    postgres-overview:
-      gnetId: 9628
-      revision: 7
-      datasource: ExampleDB PostgreSQL
+    postgresql-overview:
+      gnetId: 455
+      revision: 2
+      datasource: Prometheus
+      folder: PostgreSQL
+    # Alternative modern dashboard
+    postgresql-database:
+      gnetId: 14114
+      revision: 1
+      datasource: Prometheus
+      folder: PostgreSQL
 
 # Sidecar configuration for additional dashboards and datasources
 sidecar:
   dashboards:
-    enabled: true
+    enabled: false  # Use built-in dashboard provisioning instead
     searchNamespace: ALL
     folderAnnotation: grafana_folder
     provider:

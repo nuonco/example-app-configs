@@ -39,3 +39,23 @@ Grafana is an open-source platform for monitoring and observability that allows 
 [Grafana Operator](https://github.com/grafana/grafana-operator)
 
 [Grafana community](https://community.grafana.com/)
+
+## Example Commands
+
+### Prometheus
+
+```bash
+pg_up
+up{job="postgresql-exporter"}
+{job="postgresql-exporter"}
+pg_database_size_bytes
+pg_stat_database_numbackends{job="postgresql-exporter"}
+{__name__=~"pg_.*"}
+```
+
+### Grafana dashboards
+
+Dashboard ID 9628 (PostgreSQL Exporter)
+Dashboard ID 455 (PostgreSQL Overview)
+Dashboard ID 14114 (PostgreSQL Database)
+Dashboard ID 12485 (PostgreSQL Exporter Quickstart)

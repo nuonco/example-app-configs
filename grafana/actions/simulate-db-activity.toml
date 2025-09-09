@@ -13,11 +13,17 @@ inline_contents = """
 
 echo "Starting lightweight database activity simulation..."
 
-# Wait for PostgreSQL to be ready
-kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=postgresql -n exampledb --timeout=300s
+# Check if PostgreSQL is ready
+echo "Checking if PostgreSQL is ready..."
+if kubectl get pod postgresql-0 -n exampledb >/dev/null 2>&1; then
+    echo "PostgreSQL pod found, proceeding..."
+else
+    echo "PostgreSQL pod not found, exiting..."
+    exit 1
+fi
 
 # Create initial schema and seed data
-kubectl exec -n exampledb deployment/postgresql -- psql -U exampledb -d exampledb -c "
+kubectl exec -n exampledb postgresql-0 -- env PGPASSWORD="$EXAMPLEDB_PASSWORD" psql -U exampledb -d exampledb -c "
 -- Create sample tables if they don't exist
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -50,7 +56,7 @@ run_activity_burst() {
     
     for i in $(seq 1 $intensity); do
         # Mix of SELECT, INSERT, UPDATE queries
-        kubectl exec -n exampledb deployment/postgresql -- psql -U exampledb -d exampledb -c "
+        kubectl exec -n exampledb postgresql-0 -- env PGPASSWORD="$EXAMPLEDB_PASSWORD" psql -U exampledb -d exampledb -c "
         -- Random SELECT queries
         SELECT * FROM users WHERE id = floor(random() * 100 + 1)::int;
         SELECT COUNT(*) FROM orders WHERE user_id = floor(random() * 100 + 1)::int;
@@ -98,3 +104,6 @@ done
 echo "Activity simulation completed!"
 echo "Check your Grafana dashboard to see the fluctuating database metrics."
 """
+
+[steps.env_vars]
+EXAMPLEDB_PASSWORD = "exampledb"

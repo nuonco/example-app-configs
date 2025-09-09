@@ -14,10 +14,10 @@ inline_contents = """
 echo "Stopping database activity simulation..."
 
 # Create a stop signal file in the PostgreSQL pod
-kubectl exec -n exampledb deployment/postgresql -- touch /tmp/stop_db_simulation
+kubectl exec -n exampledb postgresql-0 -- touch /tmp/stop_db_simulation
 
 # Kill any running psql processes that might be part of the simulation
-kubectl exec -n exampledb deployment/postgresql -- pkill -f "psql.*exampledb" || true
+kubectl exec -n exampledb postgresql-0 -- pkill -f "psql.*exampledb" || true
 
 echo "Stop signal sent. Database activity simulation should stop within 30 seconds."
 echo "Any running queries will complete, but no new bursts will start."
