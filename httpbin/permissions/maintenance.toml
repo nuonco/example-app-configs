@@ -1,0 +1,8 @@
+type                 = "maintenance"
+name                 = "{{ .nuon.install.id }}-maintenance"
+description          = "{{ .nuon.install.id }} maintenance role for nuonco/example-app-configs/httpbininstall"
+display_name         = "{{ .nuon.install.id }}-maintenance"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

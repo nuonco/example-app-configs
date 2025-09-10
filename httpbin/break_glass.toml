@@ -1,0 +1,26 @@
+[[role]]
+name = "{{.nuon.install.id}}-httpbin-break-glass-permission"
+description = "Grant elevated break-glass permissions for install {{.nuon.install.id}}."
+display_name = "HTTPBin: Break Glass for Install {{.nuon.install.id}}"
+permissions_boundary = ""
+
+[[role.policies]]
+managed_policy_name = "AdministratorAccess"
+
+[[role.policies]]
+name = "{{.nuon.install.id}}-break-glass-deny-secrets"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenySecretsManagerAccess",
+            "Effect": "Deny",
+            "Action": [
+                "secretsmanager:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""
