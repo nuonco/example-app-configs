@@ -24,6 +24,7 @@ name         = "admin_user"
 description  = "Grafana admin username for login"
 default      = "admin"
 display_name = "Admin Username"
+required     = true
 group        = "grafana"
 
 [[input]]
@@ -31,6 +32,8 @@ name         = "admin_password"
 description  = "Grafana admin password for login"
 default      = "admin"
 display_name = "Admin Password"
+required     = true
+sensitive    = true
 group        = "grafana"
 
 [[group]]
