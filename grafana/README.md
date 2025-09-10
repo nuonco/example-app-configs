@@ -15,6 +15,8 @@ AWS Region: {{ .nuon.install_stack.outputs.region }}
 
 Grafana is an open-source platform for monitoring and observability that allows users to visualize, analyze, and understand their data through customizable dashboards and alerts. Grafana's user-friendly interface enables users to create interactive visualizations such as graphs, charts, and heatmaps, facilitating real-time insights and decision-making. [Example customers](https://grafana.com/success/) include Uber, NVIDIA, BlackRock, Palantir, Wells Fargo, SAP, and Citi.
 
+Prometheus is an open-source monitoring and alerting toolkit that collects and stores time-series metrics from systems and applications. Grafana connects to Prometheus as a data source, enabling users to visualize and analyze those metrics through customizable dashboards. Together, they provide powerful observability for infrastructure like PostgreSQL, especially when paired with exporters such as the Postgres exporter.
+
 </center>
 
 ## Full State
@@ -37,6 +39,14 @@ Grafana is an open-source platform for monitoring and observability that allows 
 [Grafana Operator](https://github.com/grafana/grafana-operator)
 
 [Grafana community](https://community.grafana.com/)
+
+[Prometheus](https://prometheus.io/)
+
+[Prometheus OSS](https://github.com/prometheus/prometheus)
+
+[Prometheus Helm Charts](https://github.com/prometheus-community/helm-charts)
+
+[Postgres Exporter OSS](https://github.com/prometheus-community/postgres_exporter)
 
 ## Example Commands
 
