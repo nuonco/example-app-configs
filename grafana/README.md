@@ -15,8 +15,6 @@ AWS Region: {{ .nuon.install_stack.outputs.region }}
 
 Grafana is an open-source platform for monitoring and observability that allows users to visualize, analyze, and understand their data through customizable dashboards and alerts. Grafana's user-friendly interface enables users to create interactive visualizations such as graphs, charts, and heatmaps, facilitating real-time insights and decision-making. [Example customers](https://grafana.com/success/) include Uber, NVIDIA, BlackRock, Palantir, Wells Fargo, SAP, and Citi.
 
-## Grafana architecture
-
 </center>
 
 ## Full State
@@ -44,6 +42,8 @@ Grafana is an open-source platform for monitoring and observability that allows 
 
 ### Prometheus
 
+Within Grafana, go to the "Explore" section and select the Prometheus data source. You can then run the following example queries to visualize PostgreSQL metrics:
+
 ```bash
 pg_up
 up{job="postgresql-exporter"}
@@ -55,7 +55,10 @@ pg_stat_database_numbackends{job="postgresql-exporter"}
 
 ### Grafana dashboards
 
-Dashboard ID 9628 (PostgreSQL Exporter)
-Dashboard ID 455 (PostgreSQL Overview)
-Dashboard ID 14114 (PostgreSQL Database)
-Dashboard ID 12485 (PostgreSQL Exporter Quickstart)
+Within the Grafana dashboards, make sure to select the host or instance <code>prometheus-postgres-exporter.exampledb.svc.cluster.local</code> to see all of the Prometheus metrics for PostgreSQL.
+
+[Dashboard ID 455 (PostgreSQL Overview)](https://grafana.com/grafana/dashboards/455-postgres-overview/)
+
+[Dashboard ID 9628 (PostgreSQL Database)](https://grafana.com/grafana/dashboards/9628-postgresql-database/)
+
+[Dashboard ID 12273 (PostgreSQL Exporter)](https://grafana.com/grafana/dashboards/12273-postgresql-overview-postgres-exporter/)

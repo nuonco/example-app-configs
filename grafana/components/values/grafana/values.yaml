@@ -93,10 +93,14 @@ grafana.ini:
   # database config handled via GF_DATABASE_URL environment variable from secret
   security:
     # Admin credentials set via environment variables above
+  dashboards:
+   # default_home_dashboard_path: /var/lib/grafana/dashboards/default/postgresql-overview.json
+    default_home_dashboard_path: /var/lib/grafana/dashboards/default/postgresql-database.json    
   users:
     allow_sign_up: false
     auto_assign_org: true
     auto_assign_org_role: Viewer
+    #default_home_dashboard_uid: "wGgaPlciz"
   auth.anonymous:
     enabled: false
   log:
@@ -104,7 +108,7 @@ grafana.ini:
     mode: console
   unified_alerting:
     enabled: true
-
+    
 # Service account
 serviceAccount:
   create: true
@@ -171,17 +175,23 @@ dashboardProviders:
 
 dashboards:
   default:
+# cannot download both 455 and 14114 - conflict on uid  
     postgresql-overview:
       gnetId: 455
       revision: 2
       datasource: Prometheus
-      folder: PostgreSQL
-    # Alternative modern dashboard
+#    postgresql-overview:
+#      gnetId: 14114
+#      revision: 1
+#      datasource: Prometheus
+    postgresql-overview-postgres-exporter:
+      gnetId: 12273
+      revision: 1
+      datasource: Prometheus           
     postgresql-database:
-      gnetId: 14114
+      gnetId: 9628
       revision: 1
       datasource: Prometheus
-      folder: PostgreSQL
 
 # Sidecar configuration for additional dashboards and datasources
 sidecar:
