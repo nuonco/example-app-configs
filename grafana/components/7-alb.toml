@@ -7,7 +7,7 @@ dependencies = ["certificate", "grafana"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "grafana/src/components/alb"
-branch    = "mm/grafana"
+branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
