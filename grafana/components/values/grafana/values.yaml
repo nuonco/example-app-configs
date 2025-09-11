@@ -1,0 +1,206 @@
+# https://github.com/grafana/helm-charts/tree/main/charts/grafana
+
+# Admin user configuration
+admin:
+  existingSecret: ""
+  userKey: admin-user
+  passwordKey: admin-password
+
+# Database configuration - using connection string from secret
+# GF_DATABASE_URL will be loaded from grafana-postgres-secret via envFromSecret
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+# Persistence configuration
+persistence:
+  type: pvc
+  enabled: false  # Using database for persistence instead
+  storageClassName: gp2
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+# Ingress disabled - using ALB instead
+ingress:
+  enabled: false
+
+# Health check configuration
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 60
+  timeoutSeconds: 30
+  failureThreshold: 10
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 5
+  timeoutSeconds: 10
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 472
+  fsGroup: 472
+
+# Pod configuration
+replicas: 1
+
+# Load database connection from secret using explicit reference
+envValueFrom:
+  GF_DATABASE_URL:
+    secretKeyRef:
+      name: grafana-postgres-secret
+      key: GF_DATABASE_URL
+  EXAMPLEDB_PASSWORD:
+    secretKeyRef:
+      name: exampledb-datasource-secret
+      key: DATASOURCE_PASSWORD
+
+# Environment variables
+env:
+  GF_SERVER_HTTP_PORT: "3000"
+  GF_SERVER_DOMAIN: localhost  # Will be overridden by ALB
+  GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/"
+  GF_SECURITY_ADMIN_USER: "{{ .nuon.inputs.inputs.admin_user }}"
+  GF_SECURITY_ADMIN_PASSWORD: "{{ .nuon.inputs.inputs.admin_password }}"
+  GF_INSTALL_PLUGINS: ""
+  # Enterprise license key (if provided, enables Enterprise features)
+  GF_ENTERPRISE_LICENSE_TEXT: "{{ .nuon.inputs.inputs.enterprise_license_key }}"
+
+# Grafana configuration
+grafana.ini:
+  server:
+    http_port: 3000
+    domain: localhost
+    root_url: "%(protocol)s://%(domain)s/"
+  # database config handled via GF_DATABASE_URL environment variable from secret
+  security:
+    # Admin credentials set via environment variables above
+  dashboards:
+   # default_home_dashboard_path: /var/lib/grafana/dashboards/default/postgresql-overview.json
+    default_home_dashboard_path: /var/lib/grafana/dashboards/default/postgresql-database.json    
+  users:
+    allow_sign_up: false
+    auto_assign_org: true
+    auto_assign_org_role: Viewer
+    #default_home_dashboard_uid: "wGgaPlciz"
+  auth.anonymous:
+    enabled: false
+  log:
+    level: info
+    mode: console
+  unified_alerting:
+    enabled: true
+    
+# Service account
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Node selector and tolerations
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Image configuration (using release input)
+image:
+  repository: grafana/grafana
+  tag: "{{ .nuon.inputs.inputs.grafana_release }}"
+  pullPolicy: IfNotPresent
+
+# Init containers
+initContainers: []
+
+# Datasources configuration
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    # Prometheus datasource (primary for monitoring dashboards)
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server.grafana.svc.cluster.local:80
+      access: proxy
+      isDefault: true
+      editable: true
+    # PostgreSQL datasource (for custom SQL queries)
+    - name: ExampleDB PostgreSQL
+      type: postgres
+      url: postgresql.exampledb.svc.cluster.local:5432
+      database: exampledb
+      user: exampledb
+      secureJsonData:
+        password: ${EXAMPLEDB_PASSWORD}
+      jsonData:
+        sslmode: disable
+        postgresVersion: 1200
+        timescaledb: false
+      isDefault: false
+      editable: true
+
+# Dashboards configuration - pre-built PostgreSQL monitoring
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+# cannot download both 455 and 14114 - conflict on uid  
+    postgresql-overview:
+      gnetId: 455
+      revision: 2
+      datasource: Prometheus
+#    postgresql-overview:
+#      gnetId: 14114
+#      revision: 1
+#      datasource: Prometheus
+    postgresql-overview-postgres-exporter:
+      gnetId: 12273
+      revision: 1
+      datasource: Prometheus           
+    postgresql-database:
+      gnetId: 9628
+      revision: 1
+      datasource: Prometheus
+
+# Sidecar configuration for additional dashboards and datasources
+sidecar:
+  dashboards:
+    enabled: false  # Use built-in dashboard provisioning instead
+    searchNamespace: ALL
+    folderAnnotation: grafana_folder
+    provider:
+      foldersFromFilesStructure: true
+  datasources:
+    enabled: true
+    searchNamespace: ALL

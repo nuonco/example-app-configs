@@ -1,0 +1,65 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "stop_db_activity"
+timeout = "2m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "stop database activity simulation"
+inline_contents = """
+#!/usr/bin/env sh
+
+echo "EMERGENCY STOP: Terminating intensive database activity simulation..."
+
+# Create stop signal file
+kubectl exec -n exampledb postgresql-0 -- touch /tmp/stop_db_simulation
+
+echo "Stop signal created. Now killing all simulation processes..."
+
+# Kill all psql processes aggressively 
+kubectl exec -n exampledb postgresql-0 -- pkill -9 -f "psql.*exampledb" || true
+
+# Kill any background processes from the main simulation
+if kubectl exec -n exampledb postgresql-0 -- test -f /tmp/db_simulation_main_pid 2>/dev/null; then
+    MAIN_PID=$(kubectl exec -n exampledb postgresql-0 -- cat /tmp/db_simulation_main_pid 2>/dev/null || echo "")
+    if [ -n "$MAIN_PID" ]; then
+        echo "Killing main simulation process: $MAIN_PID"
+        kubectl exec -n exampledb postgresql-0 -- pkill -9 -P $MAIN_PID 2>/dev/null || true
+        kubectl exec -n exampledb postgresql-0 -- kill -9 $MAIN_PID 2>/dev/null || true
+    fi
+fi
+
+# Kill any remaining database connections from the simulation
+kubectl exec -n exampledb postgresql-0 -- env PGPASSWORD="$EXAMPLEDB_PASSWORD" psql -U exampledb -d exampledb -c "
+-- Kill any long-running queries that look like simulation queries
+SELECT pg_terminate_backend(pid) 
+FROM pg_stat_activity 
+WHERE state = 'active' 
+AND query_start < NOW() - interval '30 seconds'
+AND query NOT LIKE '%pg_stat_activity%'
+AND datname = 'exampledb'
+AND usename = 'exampledb';
+
+-- Also cancel any queries that are just starting
+SELECT pg_cancel_backend(pid) 
+FROM pg_stat_activity 
+WHERE state = 'active' 
+AND datname = 'exampledb' 
+AND usename = 'exampledb'
+AND query NOT LIKE '%pg_stat_activity%'
+AND query NOT LIKE '%pg_terminate_backend%'
+AND query NOT LIKE '%pg_cancel_backend%';
+" 2>/dev/null || true
+
+# Clean up temporary files
+kubectl exec -n exampledb postgresql-0 -- rm -f /tmp/db_simulation_main_pid /tmp/stop_db_simulation
+
+echo "✅ STOP COMPLETE: All simulation processes terminated"
+echo "✅ Database connections cleaned up"
+echo "✅ Temporary files removed"
+echo ""
+echo "Database should return to normal activity levels within 60 seconds."
+echo "Monitor your Grafana dashboards to confirm metrics are decreasing."
+"""

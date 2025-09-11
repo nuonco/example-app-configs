@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "postgres_exporter"
+type           = "helm_chart"
+chart_name     = "prometheus-postgres-exporter"
+namespace      = "exampledb"
+storage_driver = "configmap"
+dependencies   = ["exampledb_postgres"]
+
+[public_repo]
+repo      = "prometheus-community/helm-charts"
+directory = "charts/prometheus-postgres-exporter"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/postgres-exporter/values.yaml"

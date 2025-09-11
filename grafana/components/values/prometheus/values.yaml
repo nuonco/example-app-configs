@@ -1,0 +1,53 @@
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
+
+# Disable components we don't need for this demo
+alertmanager:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: false
+
+pushgateway:
+  enabled: false
+
+# Configure Prometheus server
+server:
+  # Resource limits for t3.medium environment
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Data retention
+  retention: "7d"
+  
+  # Storage
+  persistentVolume:
+    enabled: true
+    size: 8Gi
+    storageClass: gp2
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+
+# Global configuration
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Scrape configuration
+extraScrapeConfigs: |
+  # Scrape PostgreSQL Exporter
+  - job_name: 'postgresql-exporter'
+    static_configs:
+      - targets: ['prometheus-postgres-exporter.exampledb.svc.cluster.local:80']
+    scrape_interval: 30s
+    metrics_path: /metrics

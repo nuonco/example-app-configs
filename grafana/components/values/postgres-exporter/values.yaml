@@ -1,0 +1,28 @@
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-postgres-exporter
+
+# Configure database connection using our exampledb-datasource-secret
+config:
+  datasource:
+    host: postgresql.exampledb.svc.cluster.local
+    port: "5432"
+    database: exampledb
+    user: exampledb
+    passwordSecret:
+      name: exampledb-datasource-secret
+      key: DATASOURCE_PASSWORD
+    sslmode: disable
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 9187
+
+# Resource limits
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi

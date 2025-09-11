@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "grafana"
+type           = "helm_chart"
+chart_name     = "grafana"
+namespace      = "grafana"
+storage_driver = "configmap"
+dependencies   = ["prometheus"]
+
+[public_repo]
+repo      = "grafana/helm-charts"
+directory = "charts/grafana"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/grafana/values.yaml"
