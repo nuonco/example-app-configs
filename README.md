@@ -12,6 +12,10 @@ Creates an AWS Lambda function based on a Go app image built from a Dockerfile. 
 
 Creates an EKS cluster with a `whoami` application deployed on it, an Application Load Balancer and a Certificate. The App Install is accessible from https://<subdomain input>.<install id>.nuon.run. See the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
 
+## grafana
+
+[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app config deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class.
+
 ## coder
 
 [Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app config deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
