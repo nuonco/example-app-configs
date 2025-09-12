@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=sandbox
+terraform_version = "1.11.4"
+
+[public_repo]
+repo      = "nuonco/aws-min-sandbox"
+branch    = "main"
+directory = "."

@@ -28,6 +28,10 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 [Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app config deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
 
+## httpbin
+
+[httpbin](https://httpbingo.org) is a simple HTTP request and response debugging service. This app config deploys an ec2 instance and runs the httpbin service using a docker container.
+
 # How to Use
 
 Clone this repo and cd into the app config directory you want to use, e.g. `cd example-app-configs/<app directory>`. Then run the following commands to create and sync the app config to the Nuon cloud:
