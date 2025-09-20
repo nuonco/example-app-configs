@@ -1,0 +1,23 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name = "twenty_pv_server"
+type = "kubernetes_manifest"
+dependencies = []
+
+namespace = "twentycrm"
+manifest = """
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: twentycrm-server-pv
+  namespace: twentycrm
+spec:
+  storageClassName: default
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: /tmp/data/twentycrm/server
+  persistentVolumeReclaimPolicy: Retain
+"""

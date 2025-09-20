@@ -1,0 +1,95 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+
+[[group]]
+name         = "twenty"
+description  = "Env vars for Twenty CRM"
+display_name = "Twenty Configuration"
+
+[[input]]
+name         = "twenty_release"
+description  = "https://github.com/twentyhq/twenty/releases"
+default      = "v1.5.0"
+display_name = "Twenty Release Version"
+group        = "twenty"
+
+[[input]]
+name         = "postgres_user"
+description  = "PostgreSQL superuser username"
+default      = "twenty"
+display_name = "PostgreSQL Username"
+group        = "twenty"
+
+[[input]]
+name         = "postgres_password"
+description  = "PostgreSQL superuser password"
+default      = "twenty"
+display_name = "PostgreSQL Password"
+group        = "twenty"
+
+[[input]]
+name         = "app_secret"
+description  = "Application secret key for Twenty CRM"
+default      = "twenty1"
+display_name = "Application Secret"
+group        = "twenty"
+
+[[input]]
+name         = "access_token_secret"
+description  = "Secret for signing access tokens"
+default      = "twenty2"
+display_name = "Access Token Secret"
+group        = "twenty"
+
+[[input]]
+name         = "login_token_secret"
+description  = "Secret for signing login tokens"
+default      = "twenty3"
+display_name = "Login Token Secret"
+group        = "twenty"
+
+[[input]]
+name         = "refresh_token_secret"
+description  = "Secret for signing refresh tokens"
+default      = "twenty4"
+display_name = "Refresh Token Secret"
+group        = "twenty"
+
+[[input]]
+name         = "file_token_secret"
+description  = "Secret for signing file tokens"
+default      = "twenty5"
+display_name = "File Token Secret"
+group        = "twenty"
+
+[[group]]
+name         = "compute"
+description  = "Kubernetes node configuration for the EKS cluster"
+display_name = "Kubernetes Nodes"
+
+[[input]]
+name         = "instance_size"
+description  = "The AWS instance size to use for each node in the EKS cluster"
+default      = "t3.medium"
+display_name = "Node Instance Size"
+group        = "compute"
+
+[[input]]
+name         = "min_size"
+description  = "Minimum number of nodes to provision in the EKS cluster"
+default      = "3"
+display_name = "Minimum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "max_size"
+description  = "Maximum number of nodes to provision in the EKS cluster"
+default      = "5"
+display_name = "Maximum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "desired_capacity"
+description  = "Desired number of nodes to provision in the EKS cluster"
+default      = "3"
+display_name = "Desired Node Count"
+group        = "compute"

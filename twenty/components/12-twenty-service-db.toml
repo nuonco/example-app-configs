@@ -1,0 +1,27 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name = "twenty_service_db"
+type = "kubernetes_manifest"
+dependencies = ["twenty_deployment_db"]
+
+namespace = "twentycrm"
+manifest = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: twentycrm-db
+  namespace: twentycrm
+spec:
+  internalTrafficPolicy: Cluster
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: twentycrm-db
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  type: ClusterIP
+"""

@@ -1,0 +1,82 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name = "twenty_deployment_worker"
+type = "kubernetes_manifest"
+dependencies = ["twenty_deployment_db", "twenty_deployment_redis", "twenty_secret"]
+
+namespace = "twentycrm"
+manifest = """
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: twentycrm-worker
+  name: twentycrm-worker
+  namespace: twentycrm
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: twentycrm-worker
+  template:
+    metadata:
+      labels:
+        app: twentycrm-worker
+    spec:
+      containers:
+      - name: twentycrm
+        image: twentycrm/twenty:{{ .nuon.inputs.inputs.twenty_release }}
+        imagePullPolicy: Always
+        command: ["yarn", "worker:prod"]
+        env:
+        - name: "PG_DATABASE_URL"
+          value: "postgres://{{ .nuon.inputs.inputs.postgres_user }}:{{ .nuon.inputs.inputs.postgres_password }}@twentycrm-db.twentycrm.svc.cluster.local/default"
+        - name: "REDIS_URL"
+          value: "redis://twentycrm-redis.twentycrm.svc.cluster.local:6379"
+        - name: STORAGE_TYPE
+          value: "local"
+        - name: "ACCESS_TOKEN_EXPIRES_IN"
+          value: "7d"
+        - name: "LOGIN_TOKEN_EXPIRES_IN"
+          value: "1h"
+        - name: APP_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: tokens
+              key: appSecret
+        - name: "ACCESS_TOKEN_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: tokens
+              key: accessToken
+        - name: "LOGIN_TOKEN_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: tokens
+              key: loginToken
+        - name: "REFRESH_TOKEN_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: tokens
+              key: refreshToken
+        - name: "FILE_TOKEN_SECRET"
+          valueFrom:
+            secretKeyRef:
+              name: tokens
+              key: fileToken
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+"""

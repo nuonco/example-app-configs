@@ -1,0 +1,22 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name = "twenty_pvc_docker_data"
+type = "kubernetes_manifest"
+dependencies = ["twenty_pv_docker_data"]
+
+namespace = "twentycrm"
+manifest = """
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: twentycrm-docker-data-pvc
+  namespace: twentycrm
+spec:
+  storageClassName: default
+  volumeName: twentycrm-docker-data-pv
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+"""
