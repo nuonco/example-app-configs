@@ -7,7 +7,7 @@ display_name = "Twenty Configuration"
 
 [[input]]
 name         = "twenty_release"
-description  = "https://github.com/twentyhq/twenty/releases"
+description  = "https://hub.docker.com/r/twentycrm/twenty/tags"
 default      = "v1.5"
 display_name = "Twenty Release Version"
 group        = "twenty"
