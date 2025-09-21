@@ -8,14 +8,14 @@ display_name = "Twenty Configuration"
 [[input]]
 name         = "twenty_release"
 description  = "https://github.com/twentyhq/twenty/releases"
-default      = "v1.5.0"
+default      = "v1.5"
 display_name = "Twenty Release Version"
 group        = "twenty"
 
 [[input]]
 name         = "postgres_user"
 description  = "PostgreSQL superuser username"
-default      = "twenty"
+default      = "postgres"
 display_name = "PostgreSQL Username"
 group        = "twenty"
 

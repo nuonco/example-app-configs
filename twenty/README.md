@@ -37,3 +37,7 @@ Twenty's competitors include: Odoo, ERPNext, EspoCRM, SuiteCRM, Vtiger, Dolibarr
 [Repo](https://github.com/twentyhq/twenty)
 
 [Kubernetes docs](https://github.com/twentyhq/twenty/tree/main/packages/twenty-docker/k8s)
+
+[postgres-spilo image tags](https://hub.docker.com/r/twentycrm/twenty-postgres-spilo/tags)
+
+[Twenty image tags](https://hub.docker.com/r/twentycrm/twenty/tags)

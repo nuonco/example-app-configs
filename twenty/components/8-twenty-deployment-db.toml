@@ -35,7 +35,7 @@ spec:
           claimName: twentycrm-db-pvc
       containers:
       - name: twentycrm
-        image: twentycrm/twenty-postgres-spilo:{{ .nuon.inputs.inputs.twenty_release }}
+        image: twentycrm/twenty-postgres-spilo:latest
         imagePullPolicy: Always
         env:
         - name: PGUSER_SUPERUSER

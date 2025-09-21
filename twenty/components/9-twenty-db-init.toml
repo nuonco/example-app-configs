@@ -1,0 +1,40 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name = "twenty_db_init"
+type = "kubernetes_manifest"
+dependencies = ["twenty_deployment_db"]
+
+namespace = "twentycrm"
+manifest = """
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: twenty-db-init
+  namespace: twentycrm
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: db-init
+        image: postgres:16
+        env:
+        - name: PGUSER
+          value: "{{ .nuon.inputs.inputs.postgres_user }}"
+        - name: PGPASSWORD
+          value: "{{ .nuon.inputs.inputs.postgres_password }}"
+        - name: PGHOST
+          value: "twentycrm-db"
+        - name: PGPORT
+          value: "5432"
+        command:
+        - psql
+        - -h
+        - twentycrm-db
+        - -U
+        - postgres
+        - -d
+        - postgres
+        - -c
+        - CREATE DATABASE "default";
+"""

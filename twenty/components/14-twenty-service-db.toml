@@ -2,7 +2,7 @@
 
 name = "twenty_service_db"
 type = "kubernetes_manifest"
-dependencies = ["twenty_deployment_db"]
+dependencies = []
 
 namespace = "twentycrm"
 manifest = """
