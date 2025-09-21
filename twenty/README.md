@@ -26,7 +26,51 @@ Twenty's competitors include: Odoo, ERPNext, EspoCRM, SuiteCRM, Vtiger, Dolibarr
 <pre>{{ toPrettyJson .nuon }}</pre>
 </details>
 
+## API Access
+
+Login to the Twenty instance, go to Settings and APIs & Webhooks to create an API key. Enter the key and press Launch to open an API Playground UI to test the API.
+
+Altneratively, use curl or Postman to test the API. Replace YOUR_API_KEY with the key you created in the UI.
+
+### Rest API
+
+**Returns a list of companies with their details**
+
+curl -X GET "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/rest/companies" \
+ -H "Authorization: Bearer YOUR_API_KEY" \
+ -H "Content-Type: application/json"
+
+**Create a new company**
+
+curl -X POST "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/rest/companies" \
+ -H "Authorization: Bearer YOUR_API_KEY" \
+ -H "Content-Type: application/json" \
+ -d '{
+"name": "Tesla, Inc.",
+"domainName": "tesla.com",
+"employees": 125000
+}'
+
+**Get contacts**
+
+curl -X GET "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/rest/people" \
+ -H "Authorization: Bearer YOUR_API_KEY" \
+ -H "Content-Type: application/json"
+
+### GraphQL API
+
+**Returns a list of companies with their details**
+
+curl -X POST "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/graphql" \
+ -H "Authorization: Bearer YOUR_API_KEY" \
+ -H "Content-Type: application/json" \
+ -d '{"query": "query { companies { edges { node { id name domainName { primaryLinkUrl primaryLinkLabel } employees createdAt } } } }"}'
+
 ## Twenty Resources
+
+[Twenty image tags](https://hub.docker.com/r/twentycrm/twenty/tags)
+
+[API docs](https://twenty.com/developers/section/api-and-webhooks/api)
 
 [User guide](https://twenty.com/user-guide)
 
@@ -40,4 +84,4 @@ Twenty's competitors include: Odoo, ERPNext, EspoCRM, SuiteCRM, Vtiger, Dolibarr
 
 [postgres-spilo image tags](https://hub.docker.com/r/twentycrm/twenty-postgres-spilo/tags)
 
-[Twenty image tags](https://hub.docker.com/r/twentycrm/twenty/tags)
+[Discord community](https://discord.com/channels/1130383047699738754/1146466959676936192)
