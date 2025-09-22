@@ -13,7 +13,3 @@ variable "subnet_id" {
 variable "install_id" {
   type = string
 }
-
-variable "ami" {
-  type = string
-}
