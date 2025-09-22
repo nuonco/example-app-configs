@@ -9,9 +9,10 @@ directory = "baserow/src/components/certificate"
 branch    = "mm/baserow"
 
 [vars]
-zone_id     = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id}}"
-domain_name = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
-install_id  = "{{ .nuon.install.id }}"
-region      = "{{ .nuon.install_stack.outputs.region }}"
+zone_id                   = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id}}"
+domain_name               = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+subject_alternative_names = "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+install_id                = "{{ .nuon.install.id }}"
+region                    = "{{ .nuon.install_stack.outputs.region }}"
 
 # https://registry.terraform.io/modules/terraform-aws-modules/acm/aws/latest
