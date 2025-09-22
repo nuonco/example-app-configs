@@ -14,12 +14,32 @@ resource "aws_security_group" "httpbin" {
   }
 }
 
+data "aws_ami" "amazon_linux_2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
 module "ec2_instance" {
   source = "terraform-aws-modules/ec2-instance/aws"
 
   name          = "httpbin-${var.install_id}"
   instance_type = "t2.micro"
-  ami           = var.ami
+  ami           = data.aws_ami.amazon_linux_2023.id
   subnet_id     = var.subnet_id
 
   # Attach the security group to the instance
