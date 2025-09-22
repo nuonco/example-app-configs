@@ -36,6 +36,8 @@ Baserow's competitors include: Airtable, Smartsheet, monday.com, ClickUp, NocoDB
 
 [values.yaml](https://github.com/christianhuth/helm-charts/blob/main/charts/baserow/values.yaml)
 
+[Install with K8s docs](https://baserow.io/docs/installation/install-with-k8s)
+
 [Docs](https://baserow.io/docs/index)
 
 [GitHub repo](https://github.com/bram2w/baserow)

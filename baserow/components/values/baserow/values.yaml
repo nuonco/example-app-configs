@@ -13,9 +13,20 @@ backend:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
 
-celery:
-  image:
-    tag: "{{.nuon.inputs.inputs.baserow_release}}"
+  celery:
+    image:
+      tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+  wsgi:
+    image:
+      tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+    config:
+      env:
+        BASEROW_EXTRA_ALLOWED_HOSTS: "*"
+
+    ingress:
+      enabled: false
 
 config:
   airtableImportSoftTimeLimit: "1800"
@@ -27,10 +38,14 @@ config:
     backendLogLevel: "INFO"
     databaseLogLevel: "ERROR"
   tokens:
-    # -- The number of minutes which specifies how long access tokens are valid. This will be converted in a timedelta value and added to the current UTC time during token generation to obtain the token’s default “exp” claim value.
+    # -- The number of minutes which specifies how long access tokens are valid. This will be converted in a timedelta value and added to the current UTC time during token generation to obtain the token's default "exp" claim value.
     accessTokenLifetimeMinutes: "10"
-    # -- The number of hours which specifies how long refresh tokens are valid. This will be converted in a timedelta value and added to the current UTC time during token generation to obtain the token’s default “exp” claim value.
+    # -- The number of hours which specifies how long refresh tokens are valid. This will be converted in a timedelta value and added to the current UTC time during token generation to obtain the token's default "exp" claim value.
     refreshTokenLifetimeHours: "168"
+  # -- The publicly accessible URL of the backend. Should include the port if non-standard.
+  publicBackendUrl: "https://api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  # -- The publicly accessible URL of the frontend. Should include the port if non-standard.
+  publicFrontendUrl: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
 persistence:
   # -- use a PVC to persist file uploads
@@ -46,20 +61,6 @@ persistence:
   storageClassName: "gp2"
   # -- Storage size for file uploads
   size: "20Gi"
-
-wsgi:
-  image:
-    tag: "{{.nuon.inputs.inputs.baserow_release}}"
-
-  ingress:
-    enabled: false
-
-# General configuration shared between the frontend and backend
-config:
-  # -- The publicly accessible URL of the backend. Should include the port if non-standard.
-  publicBackendUrl: "http://localhost:8000"
-  # -- The publicly accessible URL of the frontend. Should include the port if non-standard.
-  publicFrontendUrl: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
 postgresql:
   enabled: true
