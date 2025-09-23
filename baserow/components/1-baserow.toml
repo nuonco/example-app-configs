@@ -7,13 +7,9 @@ storage_driver = "configmap"
 dependencies   = ["default_storage_class"]
 
 [public_repo]
-# commenting out christianhuth repo to override
-# healthcheck path
-#repo      = "christianhuth/helm-charts"
-#directory = "charts/baserow"
-repo      = "nuonco/example-app-configs"
-directory = "baserow/src/helm/baserow"
-branch    = "mm/baserow"
+repo      = "christianhuth/helm-charts"
+directory = "charts/baserow"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/baserow/values.yaml"
