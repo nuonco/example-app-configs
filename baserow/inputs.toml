@@ -27,20 +27,20 @@ group        = "compute"
 [[input]]
 name         = "min_size"
 description  = "Minimum number of nodes to provision in the EKS cluster"
-default      = "3"
+default      = "4"
 display_name = "Minimum Node Count"
 group        = "compute"
 
 [[input]]
 name         = "max_size"
 description  = "Maximum number of nodes to provision in the EKS cluster"
-default      = "5"
+default      = "6"
 display_name = "Maximum Node Count"
 group        = "compute"
 
 [[input]]
 name         = "desired_capacity"
 description  = "Desired number of nodes to provision in the EKS cluster"
-default      = "3"
+default      = "4"
 display_name = "Desired Node Count"
 group        = "compute"
