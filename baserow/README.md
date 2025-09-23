@@ -40,4 +40,8 @@ Baserow's competitors include: Airtable, Smartsheet, monday.com, ClickUp, NocoDB
 
 [Docs](https://baserow.io/docs/index)
 
+[AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
+
+[AWS T3 and T3a Instances](https://aws.amazon.com/ec2/instance-types/t3/)
+
 [GitHub repo](https://github.com/bram2w/baserow)

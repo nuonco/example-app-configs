@@ -1,9 +1,9 @@
 additional_namespaces = ["baserow"]
 
-
+default_instance_type = {{ .nuon.inputs.inputs.instance_type }}"
 min_size             = {{ .nuon.inputs.inputs.min_size }}
 max_size             = {{ .nuon.inputs.inputs.max_size }}
-desired_capacity     = {{ .nuon.inputs.inputs.desired_capacity }}
+desired_size         = {{ .nuon.inputs.inputs.desired_size }}
 
 
 # adding additional permissions to maintenance role to be able to create the postgres db secret

@@ -18,16 +18,16 @@ description  = "Kubernetes node configuration for the EKS cluster"
 display_name = "Kubernetes Nodes"
 
 [[input]]
-name         = "instance_size"
-description  = "The AWS instance size to use for each node in the EKS cluster"
-default      = "t3.medium"
-display_name = "Node Instance Size"
+name         = "instance_type"
+description  = "The AWS instance type to use for each node in the EKS cluster"
+default      = "t3a.medium"
+display_name = "Node Instance Type"
 group        = "compute"
 
 [[input]]
 name         = "min_size"
 description  = "Minimum number of nodes to provision in the EKS cluster"
-default      = "4"
+default      = "3"
 display_name = "Minimum Node Count"
 group        = "compute"
 
@@ -39,7 +39,7 @@ display_name = "Maximum Node Count"
 group        = "compute"
 
 [[input]]
-name         = "desired_capacity"
+name         = "desired_size"
 description  = "Desired number of nodes to provision in the EKS cluster"
 default      = "4"
 display_name = "Desired Node Count"
