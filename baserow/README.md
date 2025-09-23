@@ -30,6 +30,14 @@ Baserow's competitors include: Airtable, Smartsheet, monday.com, ClickUp, NocoDB
 
 [image tags](https://hub.docker.com/r/baserow/baserow/tags)
 
+[standalone image](https://hub.docker.com/r/baserow/baserow)
+
+[web-frontend image](https://hub.docker.com/r/baserow/web-frontend)
+
+[backend image](https://hub.docker.com/r/baserow/backend)
+
+[Technical help](https://community.baserow.io/c/technical-help/)
+
 [Install with Helm](https://baserow.io/docs/installation%2Finstall-with-helm)
 
 [Helm maintainer's guide](https://artifacthub.io/packages/helm/christianhuth/baserow)

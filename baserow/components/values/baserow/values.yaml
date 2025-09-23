@@ -9,45 +9,26 @@ frontend:
     enabled: false
 
   livenessProbe:
-    httpGet:
-      path: /
-      port: 3000
-    initialDelaySeconds: 60    
-    periodSeconds: 10
-    timeoutSeconds: 10
+    # -- Initial delay seconds for livenessProbe
+    initialDelaySeconds: 120
+    # -- Period seconds for livenessProbe
+    periodSeconds: 30
+    # -- Success threshold for livenessProbe
     successThreshold: 1
 
   readinessProbe:
-    httpGet:
-      path: /
-      port: 3000
-    initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 10
+    # -- Initial delay seconds for readinessProbe
+    initialDelaySeconds: 120
+    # -- Period seconds for readinessProbe
+    periodSeconds: 30
+    # -- Success threshold for readinessProbe
     successThreshold: 1
-
-  resources:
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    limits:
-      cpu: 100m
-      memory: 1Gi
-    requests:
-      cpu: 100m
-      memory: 256Mi
-
-
 
 
 backend:
   asgi:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
-    extraEnv:
-      - name: BASEROW_EXTRA_ALLOWED_HOSTS
-        value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
   celery:
     image:
@@ -56,27 +37,9 @@ backend:
   wsgi:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
-    extraEnv:
-      - name: BASEROW_EXTRA_ALLOWED_HOSTS
-        value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
     ingress:
-      enabled: false
-
-  config:
-    airtableImportSoftTimeLimit: "1800"
-    hoursUntilTrashPermanentlyDeleted: "24"
-    initialCreateSyncTableDataLimit: "5000"
-    logging:
-      backendDebug: "off"
-      # -- The default log level used by the backend, supports ERROR, WARNING, INFO, DEBUG, TRACE
-      backendLogLevel: "INFO"
-      databaseLogLevel: "ERROR"
-    tokens:
-      # -- The number of minutes which specifies how long access tokens are valid. This will be converted in a timedelta value and added to the current UTC time during token generation to obtain the token's default "exp" claim value.
-      accessTokenLifetimeMinutes: "10"
-      # -- The number of hours which specifies how long refresh tokens are valid. This will be converted in a timedelta value and added to the current UTC time during token generation to obtain the token's default "exp" claim value.
-      refreshTokenLifetimeHours: "168"  
+      enabled: false 
 
 config:
   # -- The publicly accessible URL of the backend. Should include the port if non-standard.
