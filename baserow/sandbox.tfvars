@@ -1,6 +1,5 @@
 additional_namespaces = ["baserow"]
 
-default_instance_type = {{ .nuon.inputs.inputs.instance_type }}
 min_size             = {{ .nuon.inputs.inputs.min_size }}
 max_size             = {{ .nuon.inputs.inputs.max_size }}
 desired_size         = {{ .nuon.inputs.inputs.desired_size }}
