@@ -28,6 +28,15 @@ spec:
   rules:
     - http:
         paths:
+          {{- if .Values.websocket_service_name }}
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.websocket_service_name }}
+                port:
+                  number: {{ .Values.websocket_service_port | default "8000" }}
+          {{- end }}
           - path: /
             pathType: Prefix
             backend:
