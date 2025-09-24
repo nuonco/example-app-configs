@@ -3,39 +3,29 @@
 
 frontend:
   image:
-    #repository: baserow/baserow
     repository: "baserow/web-frontend"
     tag: "{{.nuon.inputs.inputs.baserow_release}}"
 
   ingress:
     enabled: false
 
-  livenessProbe:
-    # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 600
-    # -- Period seconds for livenessProbe
-    periodSeconds: 30
-    # -- Success threshold for livenessProbe
-    successThreshold: 1
-
   readinessProbe:
-    # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 600
-    # -- Period seconds for readinessProbe
+    initialDelaySeconds: 30  
     periodSeconds: 30
-    # -- Success threshold for readinessProbe
+    timeoutSeconds: 10       
     successThreshold: 1
-
-  extraEnv:
-    - name: NUXT_PUBLIC_FRONTEND_URL
-      value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"    
-    - name: NUXT_PUBLIC_BACKEND_URL
-      value: "https://api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+    failureThreshold: 3
+  
+  livenessProbe:
+    initialDelaySeconds: 60  
+    periodSeconds: 30
+    timeoutSeconds: 10       
+    successThreshold: 1
+    failureThreshold: 3
 
   extraEnv:
     - name: BASEROW_EXTRA_ALLOWED_HOSTS
-      value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
-
+      value: "*" 
 
 backend:
   asgi:
@@ -44,7 +34,7 @@ backend:
 
     extraEnv:
       - name: BASEROW_EXTRA_ALLOWED_HOSTS
-        value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},baserow-wsgi.baserow.svc.cluster.local" 
+        value: "*"
 
   celery:
     image:
@@ -56,7 +46,7 @@ backend:
 
     extraEnv:
       - name: BASEROW_EXTRA_ALLOWED_HOSTS
-        value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},baserow-wsgi.baserow.svc.cluster.local"      
+        value: "*"     
 
     ingress:
       enabled: false 
