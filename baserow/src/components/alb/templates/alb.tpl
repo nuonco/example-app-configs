@@ -18,6 +18,10 @@ metadata:
     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
     alb.ingress.kubernetes.io/certificate-arn: {{ .Values.domain_certificate }}
 
+    {{- if .Values.healthcheck_host }}
+    alb.ingress.kubernetes.io/healthcheck-host: {{ .Values.healthcheck_host | quote }}
+    {{- end }}
+
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }}
 spec:
   ingressClassName: alb
