@@ -3,6 +3,8 @@
 
 frontend:
   image:
+    #repository: baserow/baserow
+    repository: "baserow/web-frontend"
     tag: "{{.nuon.inputs.inputs.baserow_release}}"
 
   ingress:
@@ -10,7 +12,7 @@ frontend:
 
   livenessProbe:
     # -- Initial delay seconds for livenessProbe
-    initialDelaySeconds: 120
+    initialDelaySeconds: 600
     # -- Period seconds for livenessProbe
     periodSeconds: 30
     # -- Success threshold for livenessProbe
@@ -18,17 +20,31 @@ frontend:
 
   readinessProbe:
     # -- Initial delay seconds for readinessProbe
-    initialDelaySeconds: 120
+    initialDelaySeconds: 600
     # -- Period seconds for readinessProbe
     periodSeconds: 30
     # -- Success threshold for readinessProbe
     successThreshold: 1
+
+  extraEnv:
+    - name: NUXT_PUBLIC_FRONTEND_URL
+      value: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"    
+    - name: NUXT_PUBLIC_BACKEND_URL
+      value: "https://api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+
+  extraEnv:
+    - name: BASEROW_EXTRA_ALLOWED_HOSTS
+      value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
 
 backend:
   asgi:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+    extraEnv:
+      - name: BASEROW_EXTRA_ALLOWED_HOSTS
+        value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},baserow-wsgi.baserow.svc.cluster.local" 
 
   celery:
     image:
@@ -38,8 +54,13 @@ backend:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
 
+    extraEnv:
+      - name: BASEROW_EXTRA_ALLOWED_HOSTS
+        value: "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}},baserow-wsgi.baserow.svc.cluster.local"      
+
     ingress:
       enabled: false 
+
 
 config:
   # -- The publicly accessible URL of the backend. Should include the port if non-standard.
