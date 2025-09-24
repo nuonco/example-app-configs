@@ -1,7 +1,7 @@
 <center>
 
-<img src="https://avatars.githubusercontent.com/u/1261496?v=4"
-     alt="Baserow" width="160" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/57/Baserow_Logo.png"
+     alt="Baserow" width="300" />
 
 <h1>Baserow App Config</h1>
 
@@ -18,6 +18,17 @@ Baserow is an open-source no-code database and Airtable alternative that allows 
 Baserow's competitors include: Airtable, Smartsheet, monday.com, ClickUp, NocoDB, Appsmith, Budibase.
 
 </center>
+
+## Configuration Details
+
+- consider using 4+ t3a.medium or ts3.large instances to prevent OOMKill and provide pod stability
+- set memory and cpu resource requests and limits for frontend and celery pods
+- set BASEROW_EXTRA_ALLOWED_HOSTS to \* to allow ALB healthchecks to work
+- requires 2 load balancers for frontend and backend api services
+- certificate requires subject_alternative_names for backend api domain
+- increased readiness and liveness probe settings to account for slow startups and pod stability
+- adjusted aws helm chart to add a websocket ws route to the ALB listener rules for backend websocket support
+- for file uploading, requires an existing s3 bucket and an existing k8s secret with aws credentials
 
 ## Full State
 

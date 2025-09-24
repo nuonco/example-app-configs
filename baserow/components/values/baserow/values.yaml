@@ -14,14 +14,22 @@ frontend:
     periodSeconds: 30
     timeoutSeconds: 10       
     successThreshold: 1
-    failureThreshold: 3
+    failureThreshold: 5
   
   livenessProbe:
     initialDelaySeconds: 60  
     periodSeconds: 30
     timeoutSeconds: 10       
     successThreshold: 1
-    failureThreshold: 3
+    failureThreshold: 5
+
+  resources:
+    requests:
+      memory: "1Gi"      
+      cpu: "500m"      
+    limits:
+      memory: "2Gi"     
+      cpu: "1500m"      
 
   extraEnv:
     - name: BASEROW_EXTRA_ALLOWED_HOSTS
@@ -40,6 +48,14 @@ backend:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
 
+    resources:
+      requests:
+        memory: "1Gi"      
+        cpu: "500m"      
+      limits:
+        memory: "2Gi"     
+        cpu: "1500m" 
+
   wsgi:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
@@ -51,11 +67,17 @@ backend:
     ingress:
       enabled: false 
 
+  config:
+    aws:
+      # -- Name of existing secret to use for AWS credentials like Access Key Id and Secret Access Key. Keys in secret should be called `access-key-id` and `secret-access-key`.
+      existingSecret: "aws-credentials"
+      bucketName: "baserow-files-nuon"
+      s3RegionName: "us-west-2"
+
 
 config:
   # -- The publicly accessible URL of the backend. Should include the port if non-standard.
   publicBackendUrl: "https://api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
-  #publicBackendUrl: "http://localhost:8000"
   # -- The publicly accessible URL of the frontend. Should include the port if non-standard.
   publicFrontendUrl: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
