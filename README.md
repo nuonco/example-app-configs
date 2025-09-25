@@ -24,6 +24,10 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 [Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app config deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class.
 
+## twenty
+
+[Twenty](https://twenty.com) is an open-source CRM platform designed to help businesses manage customer relationships, sales, and marketing activities. It offers a range of features including contact management, sales pipeline tracking, email marketing, and reporting tools. Twenty's user-friendly interface and customizable workflows enable teams to streamline their processes and improve customer engagement.
+
 ## penpot
 
 [Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app config deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.

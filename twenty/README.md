@@ -85,3 +85,7 @@ curl -X POST "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.nam
 [postgres-spilo image tags](https://hub.docker.com/r/twentycrm/twenty-postgres-spilo/tags)
 
 [Discord community](https://discord.com/channels/1130383047699738754/1146466959676936192)
+
+[AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
+
+[AWS T3 and T3a Instances](https://aws.amazon.com/ec2/instance-types/t3/)
