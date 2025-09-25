@@ -1,0 +1,22 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name = "twenty_pvc_db"
+type = "kubernetes_manifest"
+dependencies = ["twenty_pv_db"]
+
+namespace = "twentycrm"
+manifest = """
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: twentycrm-db-pvc
+  namespace: twentycrm
+spec:
+  storageClassName: default
+  volumeName: twentycrm-db-pv
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+"""

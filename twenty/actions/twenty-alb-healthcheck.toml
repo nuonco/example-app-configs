@@ -1,0 +1,19 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "twenty_alb_healthcheck"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "twenty-alb-healthcheck"
+command = "./healthcheck.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "twenty/src/actions/alb"
+branch    = "mm/twenty"
+
+[steps.env_vars]
+INGRESS_NAME      = "{{.nuon.install.id}}-public"
+INGRESS_NAMESPACE = "twentycrm"
