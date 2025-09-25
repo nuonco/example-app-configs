@@ -4,20 +4,12 @@ type           = "helm_chart"
 chart_name     = "baserow"
 namespace      = "baserow"
 storage_driver = "configmap"
-<<<<<<< HEAD
-dependencies   = ["default_storage_class", "baserow_s3_bucket"]
-=======
-dependencies   = ["default_storage_class"]
->>>>>>> 9cdff126dc5c1feb8a6d6e5deaf61b440d3ea1f0
+dependencies   = ["default_storage_class", "s3_bucket"]
 
 [public_repo]
 repo      = "christianhuth/helm-charts"
 directory = "charts/baserow"
-<<<<<<< HEAD
 branch    = "mm/baserow"
-=======
-branch    = "main"
->>>>>>> 9cdff126dc5c1feb8a6d6e5deaf61b440d3ea1f0
 
 [[values_file]]
 contents = "./values/baserow/values.yaml"
