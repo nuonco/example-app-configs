@@ -1,19 +1,23 @@
+locals {
+  install_templates_bucket_name = "${var.install_id}-byoc-nuon-install-templates"
+  tags = {
+    "install.nuon.co/id"     = var.install_id
+    "component.nuon.co/name" = "baserow-bucket"
+  }
+}
+
 variable "install_id" {
-  description = "Unique identifier for the installation"
-  type        = string
+  type = string
 }
 
 variable "install_name" {
-  description = "Name of the installation"
-  type        = string
+  type = string
 }
 
 variable "region" {
-  description = "AWS region"
-  type        = string
+  type = string
 }
 
 variable "cluster_oidc_provider" {
-  description = "OIDC provider for the cluster"
-  type        = string
+  type = string
 }

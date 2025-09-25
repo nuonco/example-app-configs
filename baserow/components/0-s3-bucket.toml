@@ -1,5 +1,5 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=terraform
-name              = "s3_bucket"
+name              = "baserow_s3_bucket"
 type              = "terraform_module"
 terraform_version = "1.11.3"
 

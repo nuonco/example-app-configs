@@ -1,19 +1,29 @@
-output "bucket_name" {
-  description = "Name of the S3 bucket"
-  value       = aws_s3_bucket.baserow_files.id
+output "install_template_bucket" {
+  value = {
+    id          = module.install_template_bucket.s3_bucket_id
+    arn         = module.install_template_bucket.s3_bucket_arn
+    domain_name = module.install_template_bucket.s3_bucket_bucket_domain_name
+    base_url    = "https://${module.install_template_bucket.s3_bucket_bucket_regional_domain_name}/"
+    region      = module.install_template_bucket.s3_bucket_region
+  }
 }
 
-output "bucket_arn" {
-  description = "ARN of the S3 bucket"
-  value       = aws_s3_bucket.baserow_files.arn
+output "baserow_bucket" {
+  value = {
+    id          = module.baserow_bucket.s3_bucket_id
+    arn         = module.baserow_bucket.s3_bucket_arn
+    domain_name = module.baserow_bucket.s3_bucket_bucket_domain_name
+  }
 }
 
 output "role_arn" {
-  description = "ARN of the IAM role for service account"
-  value       = aws_iam_role.baserow_role.arn
+  value = aws_iam_role.baserow_role.arn
+}
+
+output "bucket_name" {
+  value = module.baserow_bucket.s3_bucket_id
 }
 
 output "region" {
-  description = "AWS region"
-  value       = var.region
+  value = var.region
 }
