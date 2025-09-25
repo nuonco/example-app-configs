@@ -9,7 +9,7 @@ dependencies   = ["default_storage_class", "baserow_s3_bucket"]
 [public_repo]
 repo      = "christianhuth/helm-charts"
 directory = "charts/baserow"
-branch    = "main"
+branch    = "mm/baserow"
 
 [[values_file]]
 contents = "./values/baserow/values.yaml"
