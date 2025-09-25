@@ -7,7 +7,7 @@ dependencies = ["certificate", "twenty_deployment_server"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "twenty/src/components/alb"
-branch    = "mm/twenty"
+branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
