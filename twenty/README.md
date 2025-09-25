@@ -3,7 +3,7 @@
 <img src="https://raw.githubusercontent.com/twentyhq/twenty/main/packages/twenty-website/public/images/core/logo.svg"
      alt="Twenty" width="160" />
 
-<h1>Twenty App Config</h1>
+<h1>Twenty CRM App Config</h1>
 
 Twenty Access URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}})
 
