@@ -44,17 +44,27 @@ backend:
       - name: BASEROW_EXTRA_ALLOWED_HOSTS
         value: "*"
 
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{.nuon.install.components.baserow_s3_bucket.outputs.role_arn}}"
+
   celery:
     image:
       tag: "{{.nuon.inputs.inputs.baserow_release}}"
 
     resources:
       requests:
-        memory: "1Gi"      
-        cpu: "500m"      
+        memory: "512Mi"
+        cpu: "500m"
       limits:
-        memory: "2Gi"     
-        cpu: "1500m" 
+        memory: "2Gi"
+        cpu: "1500m"
+
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{.nuon.install.components.baserow_s3_bucket.outputs.role_arn}}"
 
   wsgi:
     image:
@@ -62,17 +72,20 @@ backend:
 
     extraEnv:
       - name: BASEROW_EXTRA_ALLOWED_HOSTS
-        value: "*"     
+        value: "*"
 
     ingress:
-      enabled: false 
+      enabled: false
+
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{.nuon.install.components.baserow_s3_bucket.outputs.role_arn}}" 
 
   config:
     aws:
-      # -- Name of existing secret to use for AWS credentials like Access Key Id and Secret Access Key. Keys in secret should be called `access-key-id` and `secret-access-key`.
-      existingSecret: "aws-credentials"
-      bucketName: "baserow-files-nuon"
-      s3RegionName: "us-west-2"
+      bucketName: "{{.nuon.install.components.baserow_s3_bucket.outputs.bucket_name}}"
+      s3RegionName: "{{.nuon.install.components.baserow_s3_bucket.outputs.region}}"
 
 
 config:

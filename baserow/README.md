@@ -57,6 +57,8 @@ Baserow's competitors include: Airtable, Smartsheet, monday.com, ClickUp, NocoDB
 
 [Install with K8s docs](https://baserow.io/docs/installation/install-with-k8s)
 
+[Celery repo](https://github.com/celery/celery)
+
 [Docs](https://baserow.io/docs/index)
 
 [AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
