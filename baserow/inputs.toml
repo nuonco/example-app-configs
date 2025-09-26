@@ -20,7 +20,7 @@ display_name = "Kubernetes Nodes"
 [[input]]
 name         = "instance_type"
 description  = "The AWS instance type to use for each node in the EKS cluster"
-default      = "ts3.xlarge"
+default      = "t3a.xlarge"
 display_name = "Node Instance Type"
 group        = "compute"
 
