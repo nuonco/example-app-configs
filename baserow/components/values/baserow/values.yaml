@@ -25,7 +25,7 @@ frontend:
 
   resources:
     requests:
-      memory: "1Gi"      
+      memory: "2Gi"      
       cpu: "500m"      
     limits:
       memory: "2Gi"     
@@ -47,7 +47,7 @@ backend:
     serviceAccount:
       create: true
       annotations:
-        eks.amazonaws.com/role-arn: "{{.nuon.install.components.baserow_s3_bucket.outputs.role_arn}}"
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}"
 
   celery:
     image:
@@ -64,7 +64,7 @@ backend:
     serviceAccount:
       create: true
       annotations:
-        eks.amazonaws.com/role-arn: "{{.nuon.install.components.baserow_s3_bucket.outputs.role_arn}}"
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}"
 
   wsgi:
     image:
@@ -80,12 +80,12 @@ backend:
     serviceAccount:
       create: true
       annotations:
-        eks.amazonaws.com/role-arn: "{{.nuon.install.components.baserow_s3_bucket.outputs.role_arn}}" 
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}" 
 
   config:
     aws:
-      bucketName: "{{.nuon.install.components.baserow_s3_bucket.outputs.bucket_name}}"
-      s3RegionName: "{{.nuon.install.components.baserow_s3_bucket.outputs.region}}"
+      bucketName: "{{.nuon.components.baserow_s3_bucket.outputs.bucket_name}}"
+      s3RegionName: "{{.nuon.components.baserow_s3_bucket.outputs.region}}"
 
 
 config:

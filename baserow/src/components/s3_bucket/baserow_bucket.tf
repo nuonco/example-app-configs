@@ -142,7 +142,7 @@ module "baserow_bucket" {
   attach_public_policy = false
 
   control_object_ownership = true
-  object_ownership         = "BucketOwnerEnforced"
+  object_ownership         = "BucketOwnerPreferred"
 
   # the bucket access policy is inlined with the role
   # this bucket has no bucket policy to dictate access. access is exclusively managed through the role.
