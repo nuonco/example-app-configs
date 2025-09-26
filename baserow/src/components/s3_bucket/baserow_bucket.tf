@@ -78,7 +78,7 @@ data "aws_iam_policy_document" "baserow_bucket_access_policy" {
   # allow all object actions on all objects in this bucket
   statement {
     effect    = "Allow"
-    actions   = ["s3:*Object"]
+    actions   = ["s3:*Object", "s3:PutObjectAcl"]
     resources = ["arn:aws:s3:::${local.bucket_name}/*"]
   }
 }
