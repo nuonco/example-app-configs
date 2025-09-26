@@ -10,30 +10,32 @@ frontend:
     enabled: false
 
   readinessProbe:
-    initialDelaySeconds: 30  
+    initialDelaySeconds: 120
     periodSeconds: 30
-    timeoutSeconds: 10       
+    timeoutSeconds: 15
     successThreshold: 1
-    failureThreshold: 5
-  
+    failureThreshold: 10
+
   livenessProbe:
-    initialDelaySeconds: 60  
+    initialDelaySeconds: 180
     periodSeconds: 30
-    timeoutSeconds: 10       
+    timeoutSeconds: 15
     successThreshold: 1
-    failureThreshold: 5
+    failureThreshold: 10
 
   resources:
     requests:
-      memory: "2Gi"      
-      cpu: "500m"      
+      memory: "2Gi"
+      cpu: "500m"
     limits:
-      memory: "2Gi"     
-      cpu: "1500m"      
+      memory: "4Gi"
+      cpu: "1500m"
 
   extraEnv:
     - name: BASEROW_EXTRA_ALLOWED_HOSTS
-      value: "*" 
+      value: "*"
+    - name: NODE_OPTIONS
+      value: "--max-old-space-size=2048"
 
 backend:
   asgi:
