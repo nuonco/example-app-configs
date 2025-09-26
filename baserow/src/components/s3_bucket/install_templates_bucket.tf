@@ -91,7 +91,7 @@ module "install_template_bucket" {
   attach_deny_insecure_transport_policy = true
   attach_require_latest_tls_policy      = true
 
-  attach_public_policy    = true
+  attach_public_policy    = false
   block_public_acls       = false
   block_public_policy     = false
   restrict_public_buckets = false
@@ -99,7 +99,22 @@ module "install_template_bucket" {
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"
+}
 
-  attach_policy = true
-  policy        = data.aws_iam_policy_document.s3_bucket_policy.json
+resource "aws_s3_bucket_public_access_block" "install_template_bucket" {
+  provider = aws.current
+  bucket   = module.install_template_bucket.s3_bucket_id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  restrict_public_buckets = false
+  ignore_public_acls      = false
+}
+
+resource "aws_s3_bucket_policy" "install_template_bucket" {
+  provider = aws.current
+  bucket   = module.install_template_bucket.s3_bucket_id
+  policy   = data.aws_iam_policy_document.s3_bucket_policy.json
+
+  depends_on = [aws_s3_bucket_public_access_block.install_template_bucket]
 }
