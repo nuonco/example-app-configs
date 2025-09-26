@@ -1,5 +1,4 @@
 locals {
-  install_templates_bucket_name = "${var.install_id}-byoc-nuon-install-templates"
   tags = {
     "install.nuon.co/id"     = var.install_id
     "component.nuon.co/name" = "baserow-bucket"
