@@ -141,6 +141,11 @@ module "baserow_bucket" {
 
   attach_public_policy = false
 
+  block_public_acls       = false
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = false
+
   control_object_ownership = true
   object_ownership         = "BucketOwnerPreferred"
 
