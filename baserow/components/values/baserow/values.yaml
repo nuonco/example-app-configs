@@ -1,0 +1,125 @@
+# https://github.com/christianhuth/helm-charts/blob/main/charts/baserow/values.yaml
+# https://hub.docker.com/r/baserow/baserow/tags
+
+frontend:
+  image:
+    repository: "baserow/web-frontend"
+    tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+  ingress:
+    enabled: false
+
+  readinessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 10
+
+  livenessProbe:
+    initialDelaySeconds: 180
+    periodSeconds: 30
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 10
+
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "1500m"
+
+  extraEnv:
+    - name: BASEROW_EXTRA_ALLOWED_HOSTS
+      value: "*"
+    - name: NODE_OPTIONS
+      value: "--max-old-space-size=2048"
+
+backend:
+  asgi:
+    image:
+      tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+    extraEnv:
+      - name: BASEROW_EXTRA_ALLOWED_HOSTS
+        value: "*"
+
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}"
+
+  celery:
+    image:
+      tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1500m"
+
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}"
+
+  wsgi:
+    image:
+      tag: "{{.nuon.inputs.inputs.baserow_release}}"
+
+    extraEnv:
+      - name: BASEROW_EXTRA_ALLOWED_HOSTS
+        value: "*"
+
+    ingress:
+      enabled: false
+
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}" 
+
+  config:
+    aws:
+      bucketName: "{{.nuon.components.baserow_s3_bucket.outputs.bucket_name}}"
+      s3RegionName: "{{.nuon.components.baserow_s3_bucket.outputs.region}}"
+
+
+config:
+  # -- The publicly accessible URL of the backend. Should include the port if non-standard.
+  publicBackendUrl: "https://api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  # -- The publicly accessible URL of the frontend. Should include the port if non-standard.
+  publicFrontendUrl: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+
+persistence:
+  # -- use a PVC to persist file uploads
+  enabled: true
+  # -- the desired access modes the volume should have.
+  accessModes:
+    - ReadWriteOnce
+  # -- Annotations to be added to the PersistentVolumeClaim
+  annotations: {}
+  # -- provide an existing PersistentVolumeClaim
+  existingClaim: ""
+  # -- Name of the StorageClass required by the claim.
+  storageClassName: "gp2"
+  # -- Storage size for file uploads
+  size: "20Gi"
+
+postgresql:
+  enabled: true
+  auth:
+    database: baserow
+    username: baserow
+    password: baserow
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: baserow

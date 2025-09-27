@@ -1,0 +1,25 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name         = "backend_alb"
+type         = "helm_chart"
+chart_name   = "backend-load-balancer"
+dependencies = ["certificate", "baserow"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "baserow/src/components/alb"
+branch    = "mm/baserow"
+
+[values]
+domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
+domain             = "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+name               = "{{.nuon.install.id}}-backend"
+
+https_port         = "443"
+service_name       = "baserow-wsgi"
+service_port       = "8000"
+websocket_service_name = "baserow-asgi"
+websocket_service_port = "8000"
+install_name       = "{{.nuon.install.id}}"
+namespace          = "baserow"
+healthcheck_host   = "api.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+healthcheck_path   = "/api/_health/"
