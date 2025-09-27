@@ -38,3 +38,7 @@ Penpot is an open-source design and prototyping platform. It is web-based and wo
 [Self-hosting blog post](https://community.penpot.app/t/self-hosting-penpot-i/2336)
 
 [Logo](https://avatars.githubusercontent.com/u/30179644?s=200&v=4)
+
+[AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
+
+[AWS T3 and T3a Instances](https://aws.amazon.com/ec2/instance-types/t3/)

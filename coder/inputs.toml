@@ -55,14 +55,14 @@ group        = "coder"
 
 [[group]]
 name         = "compute"
-description  = "How many nodes to provision to support dev environments? https://aws.amazon.com/ec2/instance-types/ e.g., t3-medium, t3.xlarge, t3.2xlarge"
+description  = "How many nodes to provision to support dev environments? https://aws.amazon.com/ec2/instance-types/ e.g., t3-large, t3.xlarge, t3.2xlarge"
 display_name = "Kubernetes Nodes"
 group        = "compute"
 
 [[input]]
-name         = "instance_size"
-description  = "The AWS instance size to use for each node in the EKS cluster"
-default      = "t3-medium"
+name         = "instance_type"
+description  = "The AWS instance type t3a.large, t3a.xlarge, t3a.2xlarge"
+default      = "t3a.medium"
 display_name = "Node Instance Size"
 group        = "compute"
 
@@ -81,7 +81,7 @@ display_name = "Maximum Node Count"
 group        = "compute"
 
 [[input]]
-name         = "desired_capacity"
+name         = "desired_size"
 description  = "Desired number of nodes to provision in the EKS cluster"
 default      = "2"
 display_name = "Desired Node Count"
