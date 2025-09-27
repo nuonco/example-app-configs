@@ -43,3 +43,7 @@ The architecture of Mattermost is built with a modular, scalable approach. The c
 [Mattermost Kubernetes install guide](https://docs.mattermost.com/deployment-guide/server/deploy-kubernetes.html)
 
 [Mattermost community](https://community.mattermost.com/)
+
+[AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
+
+[AWS T3 and T3a Instances](https://aws.amazon.com/ec2/instance-types/t3/)

@@ -11,6 +11,7 @@ cluster_name         = "n-{{.nuon.install.id}}"
 enable_nuon_dns      = "true"
 public_root_domain   = "{{ .nuon.install.id }}.nuon.run"
 internal_root_domain = "internal.{{ .nuon.install.id }}.nuon.run"
+default_instance_type = "{{ .nuon.inputs.inputs.instance_type }}"
 
 [[var_file]]
 contents = "./sandbox.tfvars"

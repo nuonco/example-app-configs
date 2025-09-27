@@ -21,6 +21,6 @@ maintenance_cluster_role_rules_override = [{
   "verbs"     = ["*"]
 }]
 
-min_size = 2
-max_size = 3
-desired_capacity = 2
+min_size             = {{ .nuon.inputs.inputs.min_size }}
+max_size             = {{ .nuon.inputs.inputs.max_size }}
+desired_size     = {{ .nuon.inputs.inputs.desired_size }}
