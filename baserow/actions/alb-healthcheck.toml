@@ -1,0 +1,32 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "alb_healthcheck"
+timeout = "60s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "frontend-alb-healthcheck"
+command = "./healthcheck.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "baserow/src/actions/alb"
+branch    = "mm/baserow"
+
+[steps.env_vars]
+INGRESS_NAME      = "{{.nuon.install.id}}-frontend"
+INGRESS_NAMESPACE = "baserow"
+
+[[steps]]
+name    = "backend-alb-healthcheck"
+command = "./healthcheck.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "baserow/src/actions/alb"
+branch    = "mm/baserow"
+
+[steps.env_vars]
+INGRESS_NAME      = "{{.nuon.install.id}}-backend"
+INGRESS_NAMESPACE = "baserow"

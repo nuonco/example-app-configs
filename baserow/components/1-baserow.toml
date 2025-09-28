@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "baserow"
+type           = "helm_chart"
+chart_name     = "baserow"
+namespace      = "baserow"
+storage_driver = "configmap"
+dependencies   = ["default_storage_class", "baserow_s3_bucket"]
+
+[public_repo]
+repo      = "christianhuth/helm-charts"
+directory = "charts/baserow"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/baserow/values.yaml"

@@ -32,6 +32,10 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 [Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app config deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
 
+## baserow
+
+[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app config deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access.
+
 ## httpbin
 
 [httpbin](https://httpbingo.org) is a simple HTTP request and response debugging service. This app config deploys an ec2 instance and runs the httpbin service using a docker container.

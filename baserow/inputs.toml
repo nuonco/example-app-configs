@@ -1,0 +1,46 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+
+[[group]]
+name         = "baserow"
+description  = "Env vars for Baserow no-code db platform"
+display_name = "Baserow Configuration"
+
+[[input]]
+name         = "baserow_release"
+description  = "Release (see DockerHub)"
+default      = "1.35.1"
+display_name = "Baserow Release Version"
+group        = "baserow"
+
+[[group]]
+name         = "compute"
+description  = "Kubernetes node configuration for the EKS cluster"
+display_name = "Kubernetes Nodes"
+
+[[input]]
+name         = "instance_type"
+description  = "The AWS instance type to use for each node in the EKS cluster"
+default      = "t3a.large"
+display_name = "Node Instance Type"
+group        = "compute"
+
+[[input]]
+name         = "min_size"
+description  = "Minimum number of nodes to provision in the EKS cluster"
+default      = "2"
+display_name = "Minimum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "max_size"
+description  = "Maximum number of nodes to provision in the EKS cluster"
+default      = "5"
+display_name = "Maximum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "desired_size"
+description  = "Desired number of nodes to provision in the EKS cluster"
+default      = "4"
+display_name = "Desired Node Count"
+group        = "compute"

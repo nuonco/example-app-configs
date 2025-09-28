@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+name              = "baserow_s3_bucket"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "baserow/src/components/s3_bucket"
+branch    = "mm/baserow"
+
+[vars]
+install_name          = "{{ .nuon.install.name }}"
+region                = "{{ .nuon.install_stack.outputs.region }}"
+install_id            = "{{ .nuon.install.id }}"
+cluster_oidc_provider = "{{ .nuon.install.sandbox.outputs.cluster.oidc_provider }}"
