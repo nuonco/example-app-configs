@@ -7,7 +7,7 @@ dependencies = ["certificate", "baserow"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "baserow/src/components/alb"
-branch    = "mm/baserow"
+branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"

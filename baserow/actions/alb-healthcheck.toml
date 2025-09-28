@@ -12,7 +12,7 @@ command = "./healthcheck.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "baserow/src/actions/alb"
-branch    = "mm/baserow"
+branch    = "main"
 
 [steps.env_vars]
 INGRESS_NAME      = "{{.nuon.install.id}}-frontend"
@@ -25,7 +25,7 @@ command = "./healthcheck.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "baserow/src/actions/alb"
-branch    = "mm/baserow"
+branch    = "main"
 
 [steps.env_vars]
 INGRESS_NAME      = "{{.nuon.install.id}}-backend"
