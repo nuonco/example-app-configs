@@ -12,7 +12,7 @@ command = "./healthcheck.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "grafana/src/actions/alb"
-branch    = "mm/grafana-healthcheck"
+branch    = "main"
 
 [steps.env_vars]
 INGRESS_NAME      = "{{.nuon.install.id}}-public"
