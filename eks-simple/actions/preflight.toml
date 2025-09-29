@@ -1,0 +1,42 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name    = "preflight"
+timeout = "1m"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type           = "pre-provision"
+
+[[triggers]]
+type           = "pre-reprovision"
+
+[[steps]]
+name    = "Check service quotas"
+inline_contents = """
+#!/usr/bin/env bash
+
+set -o pipefail
+set -u
+
+# The action should fail if any of the checks fail
+failed=false
+
+# That we are able to provision a VPC.
+output=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --dry-run 2>&1)
+if echo "$output" | grep -q "DryRunOperation"; then
+    echo "You are able to create a VPC."
+else
+    echo "You are NOT able to create a VPC."
+    failed=true
+fi
+
+# NAT Gateways
+
+# Security Groups
+
+if failed; then
+    exit 1
+fi
+
+"""
