@@ -120,7 +120,7 @@ diagnosticMode:
 ##
 image:
   registry: registry-1.docker.io
-  repository: bitnamicharts/postgresql
+  repository: bitnami/postgresql
   tag: 17.5.0-debian-12-r11
   digest: ""
   ## Specify a imagePullPolicy
@@ -1598,7 +1598,7 @@ volumePermissions:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnamicharts/os-shell
+    repository: bitnami/os-shell
     tag: 12-debian-12-r46
     digest: ""
     pullPolicy: IfNotPresent
@@ -1707,7 +1707,7 @@ metrics:
   ##
   image:
     registry: registry-1.docker.io
-    repository: bitnamicharts/postgres-exporter
+    repository: bitnami/postgres-exporter
     tag: 0.17.1-debian-12-r10
     digest: ""
     pullPolicy: IfNotPresent

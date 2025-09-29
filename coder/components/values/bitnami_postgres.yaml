@@ -1,5 +1,9 @@
 # https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 
+global:
+  security:
+    allowInsecureImages: true
+
 auth:
   username: coder
   password: coder
