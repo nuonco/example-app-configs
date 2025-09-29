@@ -1,7 +1,7 @@
 [[role]]
-name = "{{.nuon.install.id}}-httpbin-break-glass-permission"
-description = "Grant elevated break-glass permissions for install {{.nuon.install.id}}."
-display_name = "HTTPBin: Break Glass for Install {{.nuon.install.id}}"
+name                 = "{{.nuon.install.id}}-httpbin-sandbox-break-glass"
+description          = "Grants access to the sandbox for install {{.nuon.install.id}}."
+display_name         = "{{.nuon.install.id}} - HTTPBin Sandbox Break Glass"
 permissions_boundary = ""
 
 [[role.policies]]
