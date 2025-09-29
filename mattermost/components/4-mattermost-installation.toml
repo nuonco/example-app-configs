@@ -14,13 +14,11 @@ metadata:
 spec:
   image: mattermost/mattermost-enterprise-edition
   version: "{{.nuon.inputs.inputs.app_release}}"
-  useServiceLoadBalancer: false 
+  useServiceLoadBalancer: false
   ingress:
     enabled: false
-  serviceAccountName: mm
-  podExtensions:
-    serviceAccountAnnotations:
-      eks.amazonaws.com/role-arn: "{{.nuon.components.s3_buckets.outputs.mattermost_bucket_role.arn}}"
+  serviceAnnotations:
+    eks.amazonaws.com/role-arn: "{{.nuon.components.s3_buckets.outputs.mattermost_bucket_role.arn}}"
   database:
     external:
       secret: mm-postgres-connection
