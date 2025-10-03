@@ -1,0 +1,40 @@
+# https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+# https://www.docker.com/blog/broadcoms-new-bitnami-restrictions-migrate-easily-with-docker/
+# https://news.broadcom.com/app-dev/broadcom-introduces-bitnami-secure-images-for-production-ready-containerized-applications
+# https://github.com/bitnami/charts/issues/35164
+# https://hub.docker.com/r/bitnami/postgresql
+# https://hub.docker.com/u/bitnamilegacy
+# https://hub.docker.com/r/bitnamilegacy/postgresql/tags
+#
+# bitnami/postgresql repository only uses a latest tag for free use
+#
+
+# 
+global:
+  security:
+    allowInsecureImages: true
+
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+  tag: 17.6.0-debian-12-r4
+
+volumePermissions:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+
+metrics:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgres-exporter
+
+auth:
+  username: baserow
+  password: baserow
+  database: baserow
+primary:
+  enabled: true
+  persistence:
+    size: 08Gi
+    storageClass: gp2

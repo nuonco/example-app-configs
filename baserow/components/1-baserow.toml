@@ -4,7 +4,7 @@ type           = "helm_chart"
 chart_name     = "baserow"
 namespace      = "baserow"
 storage_driver = "configmap"
-dependencies   = ["default_storage_class", "baserow_s3_bucket"]
+dependencies   = ["default_storage_class", "baserow_s3_bucket", "postgres"]
 
 [public_repo]
 repo      = "christianhuth/helm-charts"
