@@ -72,8 +72,6 @@ coder:
       value: "*.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
     - name: CODER_SWAGGER_ENABLE
       value: "true"
-    - name: CODER_MAX_TOKEN_LIFETIME
-      value: "{{.nuon.inputs.inputs.max_token_lifetime}}"
     - name: CODER_SESSION_DURATION
       value: "{{.nuon.inputs.inputs.session_duration}}"
     - name: CODER_PROVISIONER_DAEMONS
