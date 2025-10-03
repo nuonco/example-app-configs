@@ -106,11 +106,16 @@ persistence:
   size: "20Gi"
 
 postgresql:
-  enabled: true
+  enabled: false
+
+externalPostgresql:
   auth:
     database: baserow
-    username: baserow
     password: baserow
+    username: baserow
+  hostname: "postgres-postgresql"
+  port: 5432
+
 
 redis:
   enabled: true
