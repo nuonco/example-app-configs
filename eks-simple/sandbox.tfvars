@@ -23,4 +23,4 @@ maintenance_cluster_role_rules_override = [{
 
 min_size = 2
 max_size = 3
-desired_capacity = 2
+desired_size = 2
