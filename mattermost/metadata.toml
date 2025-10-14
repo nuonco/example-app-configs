@@ -2,4 +2,4 @@ version = "v2"
 
 description = "Mattermost App Config"
 display_name = "Mattermost"
-readme       = "./readme.md"
+readme       = "./README.md"
