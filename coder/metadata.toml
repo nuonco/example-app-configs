@@ -2,4 +2,4 @@ version = "v2"
 
 description = "Coder App Config"
 display_name = "Coder App Config"
-readme       = "./readme.md"
+readme       = "./README.md"
