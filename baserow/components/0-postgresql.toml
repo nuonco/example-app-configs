@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "postgres"
+type           = "helm_chart"
+chart_name     = "postgresql"
+namespace      = "baserow"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "baserow/src/components/postgresql"
+branch    = "mm/baserow-helm"
+
+[[values_file]]
+contents = "./values/postgresql/values.yaml"
