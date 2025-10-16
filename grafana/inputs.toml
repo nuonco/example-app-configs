@@ -2,12 +2,12 @@
 
 [[group]]
 name         = "grafana"
-description  = "Environment variables and configurations for Grafana"
+description  = "Env vars https://github.com/grafana/grafana/releases"
 display_name = "Grafana Configuration"
 
 [[input]]
 name         = "grafana_release"
-description  = "The version of Grafana to deploy - https://github.com/grafana/grafana/releases"
+description  = "The version of Grafana to deploy"
 default      = "12.1.0"
 display_name = "Grafana Release Version"
 group        = "grafana"
