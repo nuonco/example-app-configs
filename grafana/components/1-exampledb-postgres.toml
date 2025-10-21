@@ -10,7 +10,7 @@ storage_driver = "configmap"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "grafana/src/helm/postgresql"
-branch    = "main"
+branch    = "mm/grafana-postgres"
 
 [[values_file]]
 contents = "./values/exampledb-postgres/values.yaml"
