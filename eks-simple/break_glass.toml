@@ -24,3 +24,31 @@ contents = """
     ]
 }
 """
+
+[[role]]
+name = "{{.nuon.install.id}}-s3-object-break-glass"
+description = "Grants S3 object deletion permissions for bucket cleanup during deprovisioning"
+display_name = "{{.nuon.install.id}} - S3 Object Operations Break Glass"
+permissions_boundary = ""
+
+[[role.policies]]
+name = "s3-object-operations"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
+            ],
+            "Resource": [
+                "arn:aws:s3:::*-nuon-bucket",
+                "arn:aws:s3:::*-nuon-bucket/*"
+            ]
+        }
+    ]
+}
+"""
