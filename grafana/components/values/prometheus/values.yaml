@@ -13,6 +13,9 @@ kubeStateMetrics:
 pushgateway:
   enabled: false
 
+prometheus-pushgateway:
+  enabled: false
+
 # Configure Prometheus server
 server:
   # Resource limits for t3.medium environment
