@@ -8,7 +8,7 @@ drift_schedule = "0 * * * *"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "eks-simple/src/components/s3-bucket"
-branch    = "ja/expand-eks-simple"
+branch    = "main"
 
 [vars]
 install_id = "{{ .nuon.install.id }}"
