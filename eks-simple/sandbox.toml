@@ -1,9 +1,10 @@
 terraform_version = "1.11.3"
+drift_schedule = "0 * * * *"
 
 [public_repo]
 directory = "."
 repo      = "nuonco/aws-eks-sandbox"
-branch    = "main"
+branch    = "ja/fix-kyverno-image-tag"
 
 [vars]
 cluster_name         = "n-{{.nuon.install.id}}"

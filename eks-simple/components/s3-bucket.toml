@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+
+name              = "my_bucket"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+drift_schedule = "0 * * * *"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/s3-bucket"
+branch    = "main"
+
+[vars]
+install_id = "{{ .nuon.install.id }}"
+region     = "{{ .nuon.install_stack.outputs.region }}"

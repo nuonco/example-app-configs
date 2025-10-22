@@ -1,0 +1,49 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name = "empty_s3_bucket"
+break_glass_role = "inl4vrrxpg5u2l94dacv70tgs0-s3-object-break-glass"
+timeout = "10m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "empty S3 bucket before deletion"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Starting S3 bucket cleanup process..."
+
+# Delete all object versions and delete markers
+echo "Deleting all object versions and delete markers..."
+aws s3api list-object-versions --bucket "$BUCKET_NAME" \
+  --query 'Versions[].{Key:Key,VersionId:VersionId}' \
+  --output text | while read key version_id; do
+    if [ ! -z "$key" ] && [ ! -z "$version_id" ]; then
+      echo "Deleting object version: $key (version: $version_id)"
+      aws s3api delete-object --bucket "$BUCKET_NAME" --key "$key" --version-id "$version_id"
+    fi
+done
+
+# Delete any remaining delete markers
+aws s3api list-object-versions --bucket "$BUCKET_NAME" \
+  --query 'DeleteMarkers[].{Key:Key,VersionId:VersionId}' \
+  --output text | while read key version_id; do
+    if [ ! -z "$key" ] && [ ! -z "$version_id" ]; then
+      echo "Deleting delete marker: $key (version: $version_id)"
+      aws s3api delete-object --bucket "$BUCKET_NAME" --key "$key" --version-id "$version_id"
+    fi
+done
+
+# Verify bucket is empty
+object_count=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --query 'KeyCount' --output text)
+if [ "$object_count" = "0" ] || [ "$object_count" = "None" ]; then
+  echo "✅ S3 bucket '$BUCKET_NAME' is now empty and ready for deletion"
+else
+  echo "❌ Warning: $object_count objects may still remain in bucket"
+  exit 1
+fi
+"""
+[steps.env_vars]
+BUCKET_NAME = "{{ .nuon.components.my_bucket.outputs.bucket_name }}"
