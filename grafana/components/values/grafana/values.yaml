@@ -202,5 +202,5 @@ sidecar:
     provider:
       foldersFromFilesStructure: true
   datasources:
-    enabled: true
+    enabled: false
     searchNamespace: ALL
