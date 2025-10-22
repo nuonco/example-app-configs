@@ -4,9 +4,6 @@ description          = "maintenance"
 display_name         = "byoc-nuon maintenance role"
 permissions_boundary = "./maintenance_boundary.json"
 
-[[policies]]
-managed_policy_name = "AdministratorAccess"
-
 # NOTE: the tag in this policy is determined by the rds_cluster_* component config. the format is known ahead of time by 
 # convention.
 [[policies]]
