@@ -1,5 +1,4 @@
 terraform_version = "1.11.3"
-drift_schedule = "0 * * * *"
 
 [public_repo]
 directory = "."

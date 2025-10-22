@@ -4,7 +4,6 @@ name         = "application_load_balancer"
 type         = "helm_chart"
 chart_name   = "application-load-balancer"
 dependencies = ["whoami"]
-drift_schedule = "0 * * * *"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

@@ -4,7 +4,6 @@ type           = "helm_chart"
 chart_name     = "whoami"
 namespace      = "whoami"
 storage_driver = "configmap"
-drift_schedule = "0 * * * *"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
