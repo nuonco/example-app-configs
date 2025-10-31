@@ -8,7 +8,7 @@ storage_driver = "configmap"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "mattermost/src/helm/postgresql"
-branch    = "main"
+branch    = "mm/mattermost-postgres"
 
 [[values_file]]
 contents = "./values/postgres-db/bitnami_postgres.yaml"
