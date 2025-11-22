@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Penpot App Config"
-display_name = "Penpot"
+description = "Penpot app"
+display_name = "Penpot app"
 readme       = "./README.md"

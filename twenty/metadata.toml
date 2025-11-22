@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Twenty App Config"
-display_name = "Twenty App Config"
+description = "Twenty app"
+display_name = "Twenty app"
 readme       = "./README.md"

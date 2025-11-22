@@ -1,14 +1,14 @@
 [[role]]
 name                 = "{{.nuon.install.id}}-httpbin-sandbox-break-glass"
-description          = "Grants access to the sandbox for install {{.nuon.install.id}}."
-display_name         = "{{.nuon.install.id}} - HTTPBin Sandbox Break Glass"
+description          = "grants access to the sandbox for install {{.nuon.install.id}}."
+display_name         = "break glass role"
 permissions_boundary = ""
 
 [[role.policies]]
 managed_policy_name = "AdministratorAccess"
 
 [[role.policies]]
-name = "{{.nuon.install.id}}-break-glass-deny-secrets"
+name = "remove-secrets-manager"
 contents = """
 {
     "Version": "2012-10-17",

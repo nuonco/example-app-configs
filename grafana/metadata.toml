@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Grafana App Config"
-display_name = "Grafana App Config"
+description = "Grafana app"
+display_name = "Grafana app"
 readme       = "./README.md"

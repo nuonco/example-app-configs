@@ -1,7 +1,7 @@
 type = "deprovision"
 name = "{{.nuon.install.id}}-deprovision"
-description = "deprovision"
-display_name = "deprovision"
+description = "deprovision sandbox and components. you must still delete the cf stack to delete the runner, ec2 vm, and vpc."
+display_name = "deprovision role"
 permissions_boundary = "./deprovision_boundary.json"
 
 [[policies]]

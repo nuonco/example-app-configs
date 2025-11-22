@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Baserow App Config"
-display_name = "Baserow App Config"
+description = "Baserow app"
+display_name = "Baserow app"
 readme       = "./README.md"

@@ -1,5 +1,5 @@
 version = "v1"
 
-display_name = "HTTPBin"
-description  = "A simple HTTP Request & Response Service"
+description = "HTTPBin app"
+display_name = "HTTPBin app"
 readme       = "./README.md"

@@ -1,7 +1,7 @@
-type                 = "deprovision"
-name                 = "{{.nuon.install.id}}-deprovision"
-description          = "{{ .nuon.install.id }} deprovision role for nuonco/example-app-configs/aws-lambda install"
-display_name         = "{{ .nuon.install.id }}-deprovision"
+type = "deprovision"
+name = "{{.nuon.install.id}}-deprovision"
+description = "deprovision sandbox and components. you must still delete the cf stack to delete the runner, ec2 vm, and vpc."
+display_name = "deprovision role"
 permissions_boundary = "./deprovision_boundary.json"
 
 [[policies]]
