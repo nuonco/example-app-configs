@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Coder App Config"
-display_name = "Coder App Config"
+description = "Coder app"
+display_name = "Coder app"
 readme       = "./README.md"

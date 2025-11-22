@@ -1,15 +1,14 @@
 [[role]]
 name                 = "{{.nuon.install.id}}-aws-lambda-sandbox-break-glass"
-description          = "Grants access to the sandbox for install {{.nuon.install.id}}."
-display_name         = "{{.nuon.install.id}} - AWS Lambda Sandbox Break Glass"
+description          = "grants access to the sandbox for install {{.nuon.install.id}}."
+display_name         = "break glass role"
 permissions_boundary = ""
-
 
 [[role.policies]]
 managed_policy_name = "AdministratorAccess"
 
 [[role.policies]]
-name = "{{.nuon.install.id}}-bg-remove-secrets-manager"
+name = "remove-secrets-manager"
 contents = """
 {
     "Version": "2012-10-17",

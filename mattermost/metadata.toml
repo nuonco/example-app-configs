@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Mattermost App Config"
-display_name = "Mattermost"
+description = "Mattermost app"
+display_name = "Mattermost app"
 readme       = "./README.md"

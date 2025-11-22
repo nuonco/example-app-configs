@@ -1,7 +1,7 @@
 [[role]]
 name                 = "{{.nuon.install.id}}-grafana-sandbox-break-glass"
-description          = "Grants access to the sandbox for install {{.nuon.install.id}}."
-display_name         = "{{.nuon.install.id}} - Grafana Sandbox Break Glass"
+description          = "grants access to the sandbox for install {{.nuon.install.id}}."
+display_name         = "break glass role"
 permissions_boundary = ""
 
 [[role.policies]]

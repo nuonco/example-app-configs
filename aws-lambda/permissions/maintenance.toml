@@ -1,7 +1,7 @@
-type                 = "maintenance"
+type = "maintenance"
 name                 = "{{ .nuon.install.id }}-maintenance"
-description          = "{{ .nuon.install.id }} maintenance role for nuonco/example-app-configs/aws-lambda install"
-display_name         = "{{ .nuon.install.id }}-maintenance"
+description          = "operate and remediate the app's components and use actions."
+display_name         = "maintenance role"
 permissions_boundary = "./maintenance_boundary.json"
 
 [[policies]]
