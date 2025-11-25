@@ -1,4 +1,4 @@
-# Example App Configurations for Nuon
+# Example Apps on Nuon
 
 [Apps](https://docs.nuon.co/concepts/apps) are versions of a software provider's application that can be deployed on a customer's cloud infrastructure with Nuon. Apps are a set of .toml files that point to your existing Terraform modules, Helm charts, Kubernetes manifests, and container images. Nuon provides a set of example apps that can be used as a starting point for configuring and deploying applications using Nuon.
 
@@ -16,7 +16,8 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 ## grafana
 
-[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class.
+[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class. Read this blog post about: [installing Grafana with Nuon](https://nuon.co/blog/installing-grafana-with-nuon/).
+
 
 ## coder
 
@@ -28,11 +29,13 @@ Creates an AWS Lambda function based on a Go app image built from a Dockerfile. 
 
 ## mattermost
 
-[Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class.
+[Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Mattermost with Nuon](https://nuon.co/blog/installing-mattermost-with-nuon/).
+
 
 ## twenty
 
-[Twenty](https://twenty.com) is an open-source CRM platform designed to help businesses manage customer relationships, sales, and marketing activities. It offers a range of features including contact management, sales pipeline tracking, email marketing, and reporting tools. Twenty's user-friendly interface and customizable workflows enable teams to streamline their processes and improve customer engagement.
+[Twenty](https://twenty.com) is an open-source CRM platform designed to help businesses manage customer relationships, sales, and marketing activities. It offers a range of features including contact management, sales pipeline tracking, email marketing, and reporting tools. Twenty's user-friendly interface and customizable workflows enable teams to streamline their processes and improve customer engagement. Read this blog post about: [installing Twenty with Nuon](https://nuon.co/blog/installing-salesforce-alternative-twenty-with-nuon/).
+
 
 ## penpot
 
@@ -40,7 +43,8 @@ Creates an AWS Lambda function based on a Go app image built from a Dockerfile. 
 
 ## baserow
 
-[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access.
+[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access. Read this blog post about: [installing Baserow with Nuon](https://nuon.co/blog/installing-airtable-alternative-baserow-with-nuon/).
+
 
 # How to Use
 
