@@ -1,6 +1,8 @@
 # Example App Configurations for Nuon
 
-[App Configs](https://docs.nuon.co/concepts/apps) are versions of a software provider's application that can be deployed on a customer's infrastructure with Nuon. Nuon provides a set of example app configurations "App Configs" that can be used as a starting point for configuring and deploying applications using Nuon.
+[Apps](https://docs.nuon.co/concepts/apps) are versions of a software provider's application that can be deployed on a customer's cloud infrastructure with Nuon. Apps are a set of .toml files that point to your existing Terraform modules, Helm charts, Kubernetes manifests, and container images. Nuon provides a set of example apps that can be used as a starting point for configuring and deploying applications using Nuon.
+
+> These example apps are designed for demonstration and learning purposes and not meant for production. [Contact Nuon](https://nuon.co/contact-sales) or join the [Slack community](https://nuon-byoc.slack.com) to discuss your app's requirements and our technical staff can advise you on how to configure the Nuon app.
 
 # Example Apps
 
@@ -10,23 +12,23 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 
 ## httpbin
 
-[httpbin](https://httpbingo.org) is a simple HTTP request and response debugging service. This app config deploys an ec2 instance and runs the httpbin service using a docker container.
+[httpbin](https://httpbingo.org) is a simple HTTP request and response debugging service. This app deploys an ec2 instance and runs the httpbin service using a docker container. This app does not use Kubernetes, so is quicker and less expensive to make installs from it.
 
 ## grafana
 
-[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app config deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class.
+[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class.
 
 ## coder
 
-[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app config deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
+[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
 
 ## aws-lambda
 
-Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app config also includes a DynamoDB table, a certificate and an API Gateway. The user `curl`s a POST endpoint to add an integer, which is stored in the DynamoDB table. Then `curl` a GET endpoint to retrieve the integer from the DynamoDB table. We built this app config to demonstrate how Nuon can work with serverless apps and not Kubernetes. See the [minimum sandbox](https://github.com/nuonco/aws-min-sandbox) repository used by the AWS Lambda app config and which does not include Kubernetes resources.
+Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table, a certificate and an API Gateway. The user `curl`s a POST endpoint to add an integer, which is stored in the DynamoDB table. Then `curl` a GET endpoint to retrieve the integer from the DynamoDB table. We built this app to demonstrate how Nuon can work with serverless apps and not Kubernetes. See the [minimum sandbox](https://github.com/nuonco/aws-min-sandbox) repository used by the AWS Lambda app and which does not include Kubernetes resources.
 
 ## mattermost
 
-[Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app config deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class.
+[Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class.
 
 ## twenty
 
@@ -34,22 +36,24 @@ Creates an AWS Lambda function based on a Go app image built from a Dockerfile. 
 
 ## penpot
 
-[Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app config deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
+[Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
 
 ## baserow
 
-[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app config deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access.
+[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access.
 
 # How to Use
 
-Clone this repo and cd into the app config directory you want to use, e.g. `cd example-app-configs/<app directory>`. Then run the following commands to create and sync the app config to the Nuon cloud:
+Clone this repo and cd into the app directory you want to use, e.g. `cd example-app-configs/<app directory>`. Then run the following commands to create and sync the app to the Nuon cloud:
 
 ```bash
 brew install nuonco/tap/nuon
 nuon login
 nuon apps create --name <app directory>
-nuon apps sync .
+nuon apps sync 
 ```
+
+Nuon's [self-service trial experience](https://app.nuon.co) also presents some of these example apps in the dashboard UI with instructions on how to use the Nuon CLI.
 
 > If you are requesting a Nuon login for the first time, authenticate with your Google account, fill out the form, and wait for follow-up from the Nuon team. Once you receive access, you can proceed with the `nuon apps` commands above.
 
