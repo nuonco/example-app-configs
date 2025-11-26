@@ -111,6 +111,9 @@ persistence:
 
 postgresql:
   enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
   auth:
     database: baserow
     username: baserow
@@ -118,6 +121,9 @@ postgresql:
 
 redis:
   enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis
   auth:
     enabled: true
     password: baserow
