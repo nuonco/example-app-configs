@@ -4,48 +4,6 @@
 
 > These example apps are designed for demonstration and learning purposes and not meant for production. [Contact Nuon](https://nuon.co/contact-sales) or join the [Slack community](https://nuon-byoc.slack.com) to discuss your app's requirements and our technical staff can advise you on how to configure the Nuon app.
 
-# Example Apps
-
-## eks-simple
-
-Creates an EKS cluster with a `whoami` application deployed on it, an Application Load Balancer and a Certificate. The App Install is accessible from https://<subdomain input>.<install id>.nuon.run. See the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
-
-## httpbin
-
-[httpbin](https://httpbingo.org) is a simple HTTP request and response debugging service. This app deploys an ec2 instance and runs the httpbin service using a docker container. This app does not use Kubernetes, so is quicker and less expensive to make installs from it.
-
-## grafana
-
-[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class. Read this blog post about: [installing Grafana with Nuon](https://nuon.co/blog/installing-grafana-with-nuon/).
-
-
-## coder
-
-[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
-
-## aws-lambda
-
-Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table, a certificate and an API Gateway. The user `curl`s a POST endpoint to add an integer, which is stored in the DynamoDB table. Then `curl` a GET endpoint to retrieve the integer from the DynamoDB table. We built this app to demonstrate how Nuon can work with serverless apps and not Kubernetes. See the [minimum sandbox](https://github.com/nuonco/aws-min-sandbox) repository used by the AWS Lambda app and which does not include Kubernetes resources.
-
-## mattermost
-
-[Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Mattermost with Nuon](https://nuon.co/blog/installing-mattermost-with-nuon/).
-
-
-## twenty
-
-[Twenty](https://twenty.com) is an open-source CRM platform designed to help businesses manage customer relationships, sales, and marketing activities. It offers a range of features including contact management, sales pipeline tracking, email marketing, and reporting tools. Twenty's user-friendly interface and customizable workflows enable teams to streamline their processes and improve customer engagement. Read this blog post about: [installing Twenty with Nuon](https://nuon.co/blog/installing-salesforce-alternative-twenty-with-nuon/).
-
-
-## penpot
-
-[Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
-
-## baserow
-
-[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access. Read this blog post about: [installing Baserow with Nuon](https://nuon.co/blog/installing-airtable-alternative-baserow-with-nuon/).
-
-
 # How to Use
 
 Clone this repo and cd into the app directory you want to use, e.g. `cd example-app-configs/<app directory>`. Then run the following commands to create and sync the app to the Nuon cloud:
@@ -57,11 +15,45 @@ nuon apps create --name <app directory>
 nuon apps sync 
 ```
 
-Nuon's [self-service trial experience](https://app.nuon.co) also presents some of these example apps in the dashboard UI with instructions on how to use the Nuon CLI.
-
-> If you are requesting a Nuon login for the first time, authenticate with your Google account, fill out the form, and wait for follow-up from the Nuon team. Once you receive access, you can proceed with the `nuon apps` commands above.
-
 Go to the Nuon dashboard at https://app.nuon.co, select your app, and click "Install". Follow the prompts to complete your first app install in AWS.
+
+# Example Apps
+
+## httpbin
+
+[httpbin](https://httpbingo.org) is a simple HTTP request and response debugging service. This app deploys an ec2 instance and runs the httpbin service using a docker container. This app does not use Kubernetes, so is quicker and less expensive to make installs from it.
+
+## aws-lambda
+
+Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table, a certificate and an API Gateway. See the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
+
+## eks-simple
+
+Creates an EKS cluster with a `whoami` application deployed on it, an Application Load Balancer and a Certificate. See the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
+
+## grafana
+
+[Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Grafana access. It deploys PostgreSQL Exporter and [Prometheus](https://prometheus.io/) with Helm and has 2 PostgreSQL databases: one for Grafana metadata, the other is an example DB for Grafana to monitor. It has several Action scripts including creating sample Postgres data to simulate load for Grafana and a default storage class. Read this blog post about: [installing Grafana with Nuon](https://nuon.co/blog/installing-grafana-with-nuon/).
+
+## mattermost
+
+[Mattermost](https://mattermost.com) is an open-source, self-hostable collaboration platform. This app deploys the Mattermost operator and a Mattermost instance in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Mattermost access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Mattermost with Nuon](https://nuon.co/blog/installing-mattermost-with-nuon/).
+
+## coder
+
+[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform that allows developers and their agents to develop and build code remotely in the cloud with container or VM workspaces. This app deploys a Postgres database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Coder access. It has several Action scripts including creating a base64 Postgres secret, an ALB health check, and a default storage class. Read this blog post about: [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
+
+## twenty
+
+[Twenty](https://twenty.com) is an open-source CRM platform designed to help businesses manage customer relationships, sales, and marketing activities. It offers a range of features including contact management, sales pipeline tracking, email marketing, and reporting tools. Twenty's user-friendly interface and customizable workflows enable teams to streamline their processes and improve customer engagement. Read this blog post about: [installing Twenty with Nuon](https://nuon.co/blog/installing-salesforce-alternative-twenty-with-nuon/).
+
+## penpot
+
+[Penpot](https://penpot.app) is an open-source design and prototyping platform comparable to Figma. This app deploys a Postgres database container and several Penpot control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Penpot access.
+
+## baserow
+
+[Baserow](https://baserow.io) is an open-source no-code database and Airtable alternative. This app deploys a Postgres database container and several Baserow control plane containers in an EKS cluster as well as an ALB and certificate in the VPC for cluster and Baserow access. Read this blog post about: [installing Baserow with Nuon](https://nuon.co/blog/installing-airtable-alternative-baserow-with-nuon/).
 
 # Resources
 
