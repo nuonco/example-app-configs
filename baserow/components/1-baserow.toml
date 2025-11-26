@@ -7,7 +7,7 @@ storage_driver = "configmap"
 dependencies   = ["default_storage_class", "baserow_s3_bucket"]
 
 [helm_repo]
-repo_url = "https://baserow.gitlab.io/baserow-chart"
+repo_url = "https://charts.christianhuth.de"
 chart    = "baserow"
 
 [[values_file]]

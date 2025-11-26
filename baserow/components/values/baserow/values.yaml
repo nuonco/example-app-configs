@@ -1,6 +1,10 @@
 # https://github.com/christianhuth/helm-charts/blob/main/charts/baserow/values.yaml
 # https://hub.docker.com/r/baserow/baserow/tags
 
+# Disable global image registry so we can use full paths
+global:
+  imageRegistry: ""
+
 frontend:
   image:
     repository: "baserow/web-frontend"
@@ -80,7 +84,7 @@ backend:
     serviceAccount:
       create: true
       annotations:
-        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}" 
+        eks.amazonaws.com/role-arn: "{{.nuon.components.baserow_s3_bucket.outputs.role_arn}}"
 
   config:
     aws:
@@ -112,8 +116,8 @@ persistence:
 postgresql:
   enabled: true
   image:
-    registry: docker.io
-    repository: bitnamilegacy/postgresql
+    registry: ""
+    repository: docker.io/bitnamilegacy/postgresql
   auth:
     database: baserow
     username: baserow
@@ -122,8 +126,8 @@ postgresql:
 redis:
   enabled: true
   image:
-    registry: docker.io
-    repository: bitnamilegacy/redis
+    registry: ""
+    repository: docker.io/bitnamilegacy/redis
   auth:
     enabled: true
     password: baserow
