@@ -6,10 +6,9 @@ namespace      = "baserow"
 storage_driver = "configmap"
 dependencies   = ["default_storage_class", "baserow_s3_bucket"]
 
-[public_repo]
-repo      = "christianhuth/helm-charts"
-directory = "charts/baserow"
-branch    = "main"
+[helm_repo]
+repo_url = "https://baserow.gitlab.io/baserow-chart"
+chart    = "baserow"
 
 [[values_file]]
 contents = "./values/baserow/values.yaml"
