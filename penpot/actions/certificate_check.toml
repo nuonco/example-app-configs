@@ -1,0 +1,26 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+
+name = "certificate_check"
+timeout = "3m"
+
+[[triggers]]
+type = "cron"
+cron_schedule = "50 22 * * 4"  # Weekly on Thursday at 3:50 PM PST
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_certificates"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+echo "=== Checking SSL certificates ==="
+kubectl get certificates -n penpot
+kubectl describe certificate -n penpot
+echo "=== Yooo!!!! We are certifcate expiry checking here lol ==="
+openssl s_client -connect $ENDPOINT:443 -servername $ENDPOINT < /dev/null 2>/dev/null | openssl x509 -noout -dates
+"""
+
+[steps.env_vars]
+ENDPOINT = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"

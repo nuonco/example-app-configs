@@ -1,0 +1,31 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "scale_workers"
+timeout = "5m"
+description = "Scale n8n worker replicas up or down based on workload"
+
+[[triggers]]
+type = "manual"
+
+[[inputs]]
+name = "worker_count"
+description = "Number of worker replicas to scale to"
+required = true
+
+[[steps]]
+name = "scale_workers"
+inline_contents = """
+#!/bin/bash
+WORKER_COUNT="{{ .action.inputs.worker_count }}"
+
+echo "Scaling n8n workers to $WORKER_COUNT replicas..."
+kubectl scale deployment/n8n-workers -n n8n --replicas=$WORKER_COUNT
+
+echo "Waiting for workers to be ready..."
+kubectl rollout status deployment/n8n-workers -n n8n --timeout=300s
+
+echo ""
+echo "Current worker status:"
+kubectl get pods -n n8n -l app=n8n-worker -o wide
+"""
+

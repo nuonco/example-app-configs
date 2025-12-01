@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "n8n_main"
+type           = "helm_chart"
+chart_name     = "n8n-main"
+namespace      = "n8n"
+storage_driver = "configmap"
+dependencies   = ["postgres_db", "redis", "ollama_server"]
+timeout        = "15m"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/helm/n8n"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/n8n/n8n.yaml"
+

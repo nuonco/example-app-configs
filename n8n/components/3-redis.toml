@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "redis"
+type           = "helm_chart"
+chart_name     = "redis"
+namespace      = "n8n"
+storage_driver = "configmap"
+dependencies   = []
+timeout        = "10m"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/helm/redis"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/redis/redis.yaml"
+

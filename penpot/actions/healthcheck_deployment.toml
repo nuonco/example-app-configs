@@ -1,0 +1,47 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+
+name    = "healthcheck_deployment"
+timeout = "5m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Check ALB health"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking ALB health endpoint: $ENDPOINT"
+
+# Get HTTP status code
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$ENDPOINT")
+echo "HTTP status code: $HTTP_CODE"
+
+if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 307 ]; then
+  echo "external health check is working! Status code: $HTTP_CODE"
+  exit 0
+else
+  echo "external health check is not working and failed! Status code: $HTTP_CODE"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+ENDPOINT = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+
+[[steps]]
+name    = "Check pod status"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+kubectl get pods -n penpot
+"""
+
+[[steps]]
+name    = "Check service external endpoint"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+kubectl get svc -n penpot
+"""

@@ -1,0 +1,53 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "install_community_node"
+timeout = "10m"
+description = "Install a community node package in n8n"
+
+[[triggers]]
+type = "manual"
+
+[[inputs]]
+name = "package_name"
+description = "npm package name of the community node (e.g., n8n-nodes-telegram)"
+required = true
+
+[[steps]]
+name = "install_node"
+inline_contents = """
+#!/bin/bash
+PACKAGE="{{ .action.inputs.package_name }}"
+
+echo "Installing community node: $PACKAGE"
+
+# Check if community nodes are enabled
+if [ "{{ .nuon.inputs.inputs.enable_community_nodes }}" != "true" ]; then
+    echo "Error: Community nodes are not enabled"
+    echo "Enable them in the application configuration first"
+    exit 1
+fi
+
+# Get n8n main pod
+N8N_POD=$(kubectl get pods -n n8n -l app.kubernetes.io/name=n8n-main -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$N8N_POD" ]; then
+    echo "Error: n8n main pod not found"
+    exit 1
+fi
+
+# Install the package
+echo "Installing $PACKAGE via npm..."
+kubectl exec -n n8n $N8N_POD -- npm install -g $PACKAGE
+
+echo ""
+echo "Installation completed"
+echo "Restarting n8n to load the new node..."
+
+kubectl rollout restart deployment/n8n-main -n n8n
+kubectl rollout status deployment/n8n-main -n n8n --timeout=300s
+
+echo ""
+echo "Community node $PACKAGE installed successfully"
+echo "It should now be available in the n8n interface"
+"""
+

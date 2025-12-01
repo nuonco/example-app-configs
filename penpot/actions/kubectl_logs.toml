@@ -1,0 +1,19 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+
+name    = "kubectl_logs"
+timeout = "30s"
+
+[[triggers]]
+type = "cron"
+cron_schedule = "50 22 * * 4"  # Weekly on Thursday at 3:50 PM PST
+
+[[steps]]
+name = "kubectl logs"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+kubectl logs -n $NAMESPACE --all-containers=true -l app.kubernetes.io/name=penpot
+"""
+
+[steps.env_vars]
+NAMESPACE = "penpot"

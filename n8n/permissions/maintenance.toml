@@ -1,0 +1,8 @@
+type = "maintenance"
+name = "{{ .nuon.install.id }}-maintenance"
+description = "maintenance"
+display_name = "maintenance"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

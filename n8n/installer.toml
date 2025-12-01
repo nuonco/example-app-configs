@@ -1,0 +1,58 @@
+name                  = "n8n-installer"
+description           = "One-click installer for n8n Workflow Automation Platform"
+documentation_url     = "https://docs.n8n.io"
+community_url         = "https://community.n8n.io"
+homepage_url          = "https://n8n.io"
+github_url            = "https://github.com/nuonco/example-app-configs"
+logo_url              = "https://n8n.io/favicon.ico"
+demo_url              = "https://demo.n8n.io"
+favicon_url           = "https://n8n.io/favicon.ico"
+
+post_install_markdown = """
+# 🎉 n8n Workflow Automation Successfully Installed!
+
+Your self-hosted workflow automation platform is now ready. Here's what was deployed:
+
+## 🔗 Access Points
+- **n8n Interface**: {{.nuon.outputs.n8n_url}}
+- **Webhook URL**: {{.nuon.outputs.webhook_url}}
+- **API Endpoint**: {{.nuon.outputs.api_url}}
+
+## 🔑 Default Login Credentials
+- **Username**: {{.nuon.install.inputs.basic_auth_user}}
+- **Password**: Check your secrets management
+
+## 📚 Getting Started
+1. Visit the n8n interface at {{.nuon.outputs.n8n_url}}
+2. Log in with your credentials
+3. Create your first workflow!
+4. Connect to 350+ apps and services
+
+## 🔧 Workflow Management
+- **Execution Mode**: {{.nuon.install.inputs.executions_mode}}
+- **Worker Replicas**: {{.nuon.install.inputs.worker_replicas}}
+- **Max Execution Time**: {{.nuon.install.inputs.executions_timeout}}s
+
+## 🌐 Webhook Configuration
+Use this base URL for your webhook triggers:
+```
+{{.nuon.outputs.webhook_url}}/webhook/
+```
+
+## 📖 Documentation
+- Official Docs: https://docs.n8n.io
+- Community Forum: https://community.n8n.io
+- Workflow Templates: https://n8n.io/workflows
+"""
+
+footer_markdown = """
+---
+*Powered by n8n - Fair-code licensed workflow automation*
+"""
+
+copyright_markdown = "© 2024 n8n GmbH. All rights reserved."
+
+og_image_url = "https://n8n.io/og-image.png"
+
+apps = []
+

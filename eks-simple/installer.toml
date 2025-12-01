@@ -12,4 +12,4 @@ footer_markdown       = "test"
 copyright_markdown    = "test"
 og_image_url          = "foo"
 
-apps = []
+apps = ["eks-simple"]

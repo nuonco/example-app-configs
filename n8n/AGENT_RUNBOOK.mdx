@@ -1,0 +1,1402 @@
+# Agent Runbook: Creating Nuon Applications
+
+**Version:** 1.0  
+**Last Updated:** November 12, 2025  
+**Purpose:** A comprehensive guide for AI agents and LLMs to successfully create, configure, and deploy applications on the Nuon platform.
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Understanding Nuon Architecture](#understanding-nuon-architecture)
+3. [Phase 1: Discovery & Planning](#phase-1-discovery--planning)
+4. [Phase 2: Component Configuration](#phase-2-component-configuration)
+5. [Phase 3: Dependency Management](#phase-3-dependency-management)
+6. [Phase 4: Templating & Variables](#phase-4-templating--variables)
+7. [Phase 5: Actions & Automation](#phase-5-actions--automation)
+8. [Phase 6: Testing & Validation](#phase-6-testing--validation)
+9. [Common Pitfalls & Solutions](#common-pitfalls--solutions)
+10. [Best Practices](#best-practices)
+
+---
+
+## Overview
+
+This runbook documents the systematic approach to creating Nuon applications based on real-world deployment experience with n8n, PostgreSQL, Redis, and Ollama AI integration.
+
+### What is Nuon?
+
+Nuon is a platform for deploying and managing multi-tenant SaaS applications on Kubernetes. It uses:
+- **TOML configuration files** for declarative infrastructure
+- **Helm charts** for Kubernetes deployments
+- **Template variables** for dynamic configuration
+- **Components** as deployment units
+- **Actions** for operational tasks
+
+### Key Success Factors
+
+1. **Start with working examples** - Always reference existing Nuon apps
+2. **Understand dependencies** - Map out the deployment order
+3. **Use custom Helm charts** - More control than public charts
+4. **Test incrementally** - Deploy components one at a time
+5. **Git is the source of truth** - Nuon pulls from repositories
+
+---
+
+## Phase 1: Discovery & Planning
+
+### Step 1.1: Analyze the Application
+
+**Goal:** Understand what you're deploying and its dependencies.
+
+#### Questions to Answer:
+- What is the main application? (e.g., n8n, WordPress, GitLab)
+- What databases does it need? (PostgreSQL, MySQL, MongoDB)
+- What caching layers? (Redis, Memcached)
+- What external services? (S3, AI models, message queues)
+- What are the networking requirements? (Ingress, load balancers)
+
+#### Information Sources:
+1. **Official documentation** - Docker Compose files, Helm charts
+2. **Docker Hub** - Environment variables, volumes, ports
+3. **GitHub repositories** - Configuration examples
+4. **Existing Nuon apps** - Similar application patterns
+
+**Example from n8n deployment:**
+```yaml
+# From n8n's docker-compose.yml
+services:
+  n8n:
+    image: n8nio/n8n
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - QUEUE_BULL_REDIS_HOST=redis
+    depends_on:
+      - postgres
+      - redis
+```
+
+**Identified Dependencies:**
+- ✅ PostgreSQL (database)
+- ✅ Redis (queue management)
+- ✅ S3 (workflow backups)
+- ✅ Ingress (web access)
+- ✅ Certificate (HTTPS)
+- ⭐ Ollama (AI integration - optional enhancement)
+
+### Step 1.2: Find a Reference Nuon App
+
+**Critical:** Always start with a working Nuon application as a template.
+
+**How to find reference apps:**
+1. Ask the user if they have existing Nuon apps
+2. Look for similar applications in Nuon's ecosystem
+3. Use the simplest working example that matches your architecture
+
+**In our case:**
+- User provided `ollama-chat` app as reference
+- Used it to understand Nuon's patterns and conventions
+- Adapted its structure for n8n deployment
+
+### Step 1.3: Create Component Map
+
+**Goal:** List all components and their deployment order.
+
+**Component Types in Nuon:**
+- `terraform_module` - Cloud resources (S3, RDS, etc.)
+- `helm_chart` - Kubernetes applications
+- `kubernetes_manifest` - Raw K8s YAML
+- `external_image` - Container images
+- `job` - One-time tasks
+
+**Example Component Map for n8n:**
+```
+1. s3_buckets          (terraform_module)  - Storage for backups
+2. postgres_db         (helm_chart)        - Database
+3. redis               (helm_chart)        - Queue/cache
+4. certificate         (terraform_module)  - SSL/TLS
+5. n8n_main            (helm_chart)        - Main application
+6. n8n_workers         (helm_chart)        - Background workers
+7. alb_ingress         (kubernetes_manifest) - Load balancer
+8. ollama_server       (helm_chart)        - AI server
+```
+
+**Dependency Rules:**
+- Databases before applications
+- Storage before applications that use it
+- Certificates before ingress
+- Core services before optional services
+
+---
+
+## Phase 2: Component Configuration
+
+### Step 2.1: Directory Structure
+
+**Standard Nuon App Layout:**
+```
+app-name/
+├── components/           # Component definitions
+│   ├── 1-s3-buckets.toml
+│   ├── 2-postgres-db.toml
+│   ├── 3-redis.toml
+│   ├── ...
+│   └── values/          # Helm values files
+│       ├── postgres/
+│       ├── redis/
+│       └── n8n/
+├── src/
+│   └── helm/            # Custom Helm charts
+│       ├── postgresql/
+│       │   ├── Chart.yaml
+│       │   ├── values.yaml
+│       │   └── templates/
+│       ├── redis/
+│       ├── n8n/
+│       └── ollama/
+├── actions/             # Operational tasks
+│   ├── backup-workflows.toml
+│   └── pull-ollama-model.toml
+├── permissions/         # IAM policies
+│   ├── provision.toml
+│   ├── maintenance.toml
+│   └── deprovision.toml
+├── inputs.toml          # User-configurable settings
+├── secrets.toml         # Sensitive configuration
+└── app.toml            # App metadata
+```
+
+### Step 2.2: Component TOML Structure
+
+**Every component TOML must have:**
+
+```toml
+#:schema https://api.nuon.co/v1/general/config-schema?type=<TYPE>
+name           = "component_name"
+type           = "helm_chart"  # or terraform_module, kubernetes_manifest
+dependencies   = ["other_component"]  # Components that must deploy first
+
+# For Helm charts:
+chart_name     = "chart-name"
+namespace      = "namespace-name"
+storage_driver = "configmap"  # or "secret"
+timeout        = "15m"
+
+[connected_repo]
+repo      = "github-org/repo-name"
+directory = "src/helm/chart-name"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/chart-name/values.yaml"
+```
+
+**Critical Fields:**
+- `name` - Must be unique, use snake_case
+- `dependencies` - Array of component names (not display names)
+- `namespace` - Kubernetes namespace (usually app name)
+- `connected_repo.repo` - Must match your GitHub repo
+- `connected_repo.directory` - Path to Helm chart in repo
+- `values_file.contents` - Path to values file (relative to component file)
+
+### Step 2.3: Helm Chart vs Public Chart
+
+**❌ Don't use `public_chart` (deprecated pattern):**
+```toml
+# AVOID THIS
+[public_chart]
+name    = "postgresql"
+version = "12.1.0"
+url     = "https://charts.bitnami.com/bitnami"
+```
+
+**✅ Use custom Helm charts with `connected_repo`:**
+```toml
+# PREFERRED APPROACH
+[connected_repo]
+repo      = "your-org/your-app"
+directory = "src/helm/postgresql"
+branch    = "main"
+```
+
+**Why custom charts?**
+1. Full control over templates
+2. Better integration with Nuon variables
+3. Easier to customize and maintain
+4. Consistent with Nuon best practices
+
+### Step 2.4: Creating Minimal Helm Charts
+
+**Every custom Helm chart needs:**
+
+**1. Chart.yaml** (metadata)
+```yaml
+apiVersion: v2
+name: postgresql
+description: PostgreSQL Database
+type: application
+version: 0.1.0
+appVersion: "15"
+```
+
+**2. values.yaml** (default configuration)
+```yaml
+image:
+  repository: postgres
+  tag: "15-alpine"
+  pullPolicy: IfNotPresent
+
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClass: "gp3"
+
+auth:
+  username: postgres
+  password: changeme
+  database: n8n
+```
+
+**3. templates/** (Kubernetes manifests)
+- `deployment.yaml` or `statefulset.yaml`
+- `service.yaml`
+- `pvc.yaml` (if persistence needed)
+- `configmap.yaml` (if config needed)
+
+**Minimal Deployment Template:**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.auth.username }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.auth.password }}
+        - name: POSTGRES_DB
+          value: {{ .Values.auth.database }}
+```
+
+---
+
+## Phase 3: Dependency Management
+
+### Step 3.1: Understanding Dependency Order
+
+**Rule:** A component can only reference components listed in its `dependencies` array.
+
+**Example from n8n:**
+```toml
+# components/5-n8n-main.toml
+dependencies = ["postgres_db", "redis", "ollama_server"]
+
+# This component will deploy AFTER postgres_db, redis, and ollama_server
+```
+
+**Common Dependency Patterns:**
+
+```
+Infrastructure Layer:
+├── S3 Buckets (no dependencies)
+├── Certificates (no dependencies)
+└── Databases (no dependencies)
+    ↓
+Application Layer:
+├── Main App (depends on: databases, storage, certificates)
+└── Workers (depends on: databases, main app)
+    ↓
+Networking Layer:
+└── Ingress (depends on: main app, certificates)
+```
+
+### Step 3.2: Component Naming Conventions
+
+**Component names in TOML:**
+- Use `snake_case` (e.g., `postgres_db`, `n8n_main`)
+- Be descriptive but concise
+- Match the `name` field in the component TOML
+
+**File naming:**
+- Prefix with numbers for deployment order: `1-`, `2-`, `3-`
+- Use kebab-case: `1-s3-buckets.toml`
+- Numbers help visualize dependencies
+
+### Step 3.3: Referencing Component Outputs
+
+**Syntax for accessing component outputs:**
+```
+{{ .nuon.components.<component_name>.outputs.<output_key> }}
+```
+
+**Example - Certificate ARN in Ingress:**
+```yaml
+annotations:
+  alb.ingress.kubernetes.io/certificate-arn: "{{ .nuon.components.certificate.outputs.certificate_arn }}"
+```
+
+**Example - S3 Bucket Name:**
+```yaml
+env:
+- name: S3_BUCKET
+  value: "{{ .nuon.components.s3_buckets.outputs.backup_bucket_name }}"
+```
+
+---
+
+## Phase 4: Templating & Variables
+
+### Step 4.1: Variable Types in Nuon
+
+**1. Inputs** (user-configurable)
+```toml
+# inputs.toml
+[[input]]
+name         = "log_level"
+description  = "Application log level"
+default      = "info"
+display_name = "Log Level"
+```
+
+**Access in templates:**
+```yaml
+env:
+- name: LOG_LEVEL
+  value: {{ .nuon.install.inputs.log_level }}
+```
+
+**2. Secrets** (sensitive data)
+```toml
+# secrets.toml
+[[secret]]
+name         = "postgres_password"
+display_name = "PostgreSQL Password"
+description  = "Database password"
+```
+
+**Access in templates:**
+```yaml
+env:
+- name: POSTGRES_PASSWORD
+  value: {{ .nuon.install.secrets.postgres_password }}
+```
+
+**3. Component Outputs** (from other components)
+```yaml
+env:
+- name: CERTIFICATE_ARN
+  value: {{ .nuon.components.certificate.outputs.certificate_arn }}
+```
+
+**4. Sandbox Outputs** (Nuon-provided)
+```yaml
+spec:
+  rules:
+  - host: "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+```
+
+### Step 4.2: Template Variable Syntax Rules
+
+**✅ Correct Syntax:**
+```yaml
+# No quotes around template variables
+value: {{ .nuon.install.inputs.log_level }}
+
+# In strings, use quotes around the whole value
+value: "{{ .nuon.install.inputs.database_url }}"
+
+# Multiple variables in one string
+value: "postgres://{{ .nuon.install.inputs.db_user }}:{{ .nuon.install.secrets.db_password }}@{{ .nuon.components.postgres_db.outputs.host }}/n8n"
+```
+
+**❌ Incorrect Syntax:**
+```yaml
+# Don't quote the template itself
+value: "{{ .nuon.install.inputs.log_level }}"  # Wrong if log_level is not a string
+
+# Don't use old syntax
+value: {{ .nuon.inputs.inputs.log_level }}  # Old, deprecated
+value: {{ .nuon.secrets.postgres_password }}  # Old, deprecated
+```
+
+**Modern Template Paths:**
+- ✅ `.nuon.install.inputs.<name>`
+- ✅ `.nuon.install.secrets.<name>`
+- ✅ `.nuon.components.<name>.outputs.<key>`
+- ✅ `.nuon.install.sandbox.outputs.<key>`
+- ❌ `.nuon.inputs.inputs.<name>` (old)
+- ❌ `.nuon.secrets.<name>` (old)
+
+### Step 4.3: Inputs Configuration
+
+**Structure of inputs.toml:**
+```toml
+[[group]]
+name         = "database"
+description  = "Database configuration"
+display_name = "Database Settings"
+
+[[input]]
+name         = "postgres_storage_gb"
+description  = "PostgreSQL storage size in GB"
+default      = "20"
+display_name = "PostgreSQL Storage (GB)"
+group        = "database"
+
+[[input]]
+name         = "log_level"
+description  = "Application log level (debug, info, warn, error)"
+default      = "info"
+display_name = "Log Level"
+group        = "general"
+```
+
+**Best Practices:**
+- Group related inputs together
+- Provide sensible defaults
+- Use clear descriptions
+- Include units in display names (GB, MB, etc.)
+- Validate in application code, not in Nuon
+
+### Step 4.4: Secrets Configuration
+
+**Structure of secrets.toml:**
+```toml
+[[secret]]
+name         = "postgres_password"
+display_name = "PostgreSQL Password"
+description  = "PostgreSQL database password for n8n"
+
+[[secret]]
+name         = "encryption_key"
+display_name = "Encryption Key"
+description  = "Key for encrypting credentials in n8n"
+```
+
+**Development Strategy:**
+1. **Initial deployment:** Comment out secrets, use hardcoded values
+2. **Testing:** Verify application works with hardcoded values
+3. **Production:** Uncomment secrets, use proper secret management
+
+**Example - Hardcoded for testing:**
+```yaml
+# values/postgres/postgres.yaml
+auth:
+  password: "changeme123"  # TODO: Use {{ .nuon.install.secrets.postgres_password }} in production
+```
+
+---
+
+## Phase 5: Actions & Automation
+
+### Step 5.1: Action Types
+
+**Actions are operational tasks that run on deployed infrastructure.**
+
+**Common action types:**
+1. **Backup** - Save application data
+2. **Restore** - Restore from backup
+3. **Maintenance** - Update, clean, optimize
+4. **Configuration** - Pull models, sync data
+5. **Monitoring** - Health checks, reports
+
+### Step 5.2: Action Structure
+
+**Basic action TOML:**
+```toml
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name         = "backup_workflows"
+description  = "Backup n8n workflows to S3"
+display_name = "Backup Workflows"
+
+[[triggers]]
+type     = "cron"
+schedule = "0 2 * * *"  # Daily at 2 AM
+
+[[steps]]
+name = "backup_to_s3"
+inline_contents = """
+#!/bin/bash
+set -e
+
+echo "Starting backup..."
+# Your backup script here
+"""
+```
+
+**Trigger Types:**
+- `manual` - Run on demand
+- `cron` - Scheduled (use cron syntax)
+- `webhook` - Triggered by external event
+
+### Step 5.3: Action Best Practices
+
+**1. Use kubectl for Kubernetes operations:**
+```bash
+#!/bin/bash
+set -e
+
+# Get pod name
+POD=$(kubectl get pods -n n8n -l app=n8n -o jsonpath='{.items[0].metadata.name}')
+
+# Execute command in pod
+kubectl exec -n n8n $POD -- n8n export:workflow --all --output=/tmp/backup.json
+```
+
+**2. Provide clear output:**
+```bash
+echo "=== BACKUP STARTING ==="
+echo "Timestamp: $(date)"
+echo "Namespace: n8n"
+echo ""
+
+# ... backup logic ...
+
+echo "✅ Backup completed successfully"
+echo "Location: s3://bucket/backup-$(date +%Y%m%d).json"
+```
+
+**3. Handle errors gracefully:**
+```bash
+set -e  # Exit on error
+
+if [ -z "$POD" ]; then
+    echo "❌ Error: No n8n pod found"
+    exit 1
+fi
+
+if ! kubectl exec -n n8n $POD -- test -f /data/workflows.json; then
+    echo "⚠️  Warning: No workflows found, skipping backup"
+    exit 0
+fi
+```
+
+**4. Make actions idempotent:**
+```bash
+# Check if model already exists
+if kubectl exec -n n8n $OLLAMA_POD -- ollama list | grep -q "$MODEL"; then
+    echo "✅ Model $MODEL already downloaded"
+    exit 0
+fi
+
+# Download model
+kubectl exec -n n8n $OLLAMA_POD -- ollama pull $MODEL
+```
+
+### Step 5.4: Example Action - Pull AI Model
+
+**From our n8n deployment:**
+```toml
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name         = "pull_ollama_model"
+description  = "Download AI model for n8n"
+display_name = "Pull Ollama Model"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "manage_models"
+inline_contents = """
+#!/bin/bash
+set -e
+
+echo "=== DOWNLOADING AI MODEL FOR N8N ==="
+echo "Model: tinyllama:1.1b"
+echo ""
+
+# Get the ollama pod
+OLLAMA_POD=$(kubectl get pods -n n8n -l app=ollama -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$OLLAMA_POD" ]; then
+    echo "❌ Error: No Ollama pod found"
+    exit 1
+fi
+
+echo "Found Ollama pod: $OLLAMA_POD"
+echo ""
+
+echo "=== CURRENT MODELS ==="
+kubectl exec -n n8n $OLLAMA_POD -- ollama list || echo "No models currently loaded"
+echo ""
+
+MODEL="tinyllama:1.1b"
+
+echo "=== DOWNLOADING MODEL ==="
+echo ""
+echo "🔄 Downloading $MODEL..."
+echo "This may take a few minutes..."
+
+if kubectl exec -n n8n $OLLAMA_POD -- ollama pull $MODEL; then
+    echo "✅ Successfully downloaded $MODEL"
+else
+    echo "⚠️  Failed to download $MODEL"
+    exit 1
+fi
+
+echo ""
+echo "=== FINAL MODEL LIST ==="
+kubectl exec -n n8n $OLLAMA_POD -- ollama list
+
+echo ""
+echo "🎉 Model download completed!"
+echo ""
+echo "📋 Available model: $MODEL"
+echo "🎯 Ollama endpoint: http://ollama-server.n8n.svc.cluster.local:11434"
+echo "💡 Use this URL in your n8n AI nodes!"
+"""
+```
+
+---
+
+## Phase 6: Testing & Validation
+
+### Step 6.1: Pre-Deployment Validation
+
+**1. TOML Syntax Validation**
+
+**Common TOML errors:**
+- Missing trailing newline (add one blank line at end of file)
+- Unescaped backslashes (use `\\` instead of `\`)
+- Incorrect multiline strings (use `"""` for multiline)
+- Missing quotes around strings with special characters
+
+**Validation checklist:**
+```bash
+# Check all TOML files have trailing newlines
+for file in $(find . -name "*.toml"); do
+    if [ -n "$(tail -c 1 "$file")" ]; then
+        echo "Missing newline: $file"
+    fi
+done
+
+# Validate TOML syntax (if you have a validator)
+toml-validator components/*.toml
+```
+
+**2. Git Commit Status**
+
+**Critical:** Nuon pulls from Git, so all changes must be committed and pushed.
+
+```bash
+# Check what's not committed
+git status
+
+# Add all changes
+git add -A
+
+# Commit
+git commit -m "Update component configuration"
+
+# Push to remote
+git push origin main
+```
+
+**3. Component Dependencies**
+
+**Verify dependency graph:**
+```
+1. s3_buckets (no deps)
+2. postgres_db (no deps)
+3. redis (no deps)
+4. certificate (no deps)
+5. ollama_server (no deps)
+6. n8n_main (deps: postgres_db, redis, ollama_server)
+7. n8n_workers (deps: postgres_db, redis, ollama_server)
+8. alb_ingress (deps: n8n_main, certificate)
+```
+
+**Check for circular dependencies:**
+- Component A depends on B
+- Component B depends on C
+- Component C depends on A ❌ (circular!)
+
+### Step 6.2: Incremental Deployment
+
+**Strategy: Deploy one component at a time**
+
+**1. Start with infrastructure:**
+```bash
+nuon sync
+nuon plan s3_buckets
+nuon apply s3_buckets
+```
+
+**2. Deploy databases:**
+```bash
+nuon plan postgres_db
+nuon apply postgres_db
+
+nuon plan redis
+nuon apply redis
+```
+
+**3. Deploy application:**
+```bash
+nuon plan n8n_main
+nuon apply n8n_main
+```
+
+**4. Deploy supporting services:**
+```bash
+nuon plan n8n_workers
+nuon apply n8n_workers
+
+nuon plan alb_ingress
+nuon apply alb_ingress
+```
+
+**Benefits of incremental deployment:**
+- Easier to identify which component has issues
+- Faster iteration on fixes
+- Better understanding of dependencies
+- Reduced blast radius of errors
+
+### Step 6.3: Common Deployment Errors
+
+**Error 1: "unable to parse configuration file"**
+
+**Causes:**
+- Missing trailing newline in TOML file
+- Unescaped special characters
+- Incorrect multiline string syntax
+
+**Solution:**
+```bash
+# Add trailing newline to all TOML files
+for file in $(find . -name "*.toml"); do
+    echo "" >> "$file"
+done
+```
+
+**Error 2: "ChartName: Field validation for 'ChartName' failed on the 'min' tag"**
+
+**Causes:**
+- Helm chart files not committed to Git
+- Wrong `connected_repo.directory` path
+- Chart.yaml missing or invalid
+
+**Solution:**
+```bash
+# Verify Helm chart structure
+ls -la src/helm/your-chart/
+# Should have: Chart.yaml, values.yaml, templates/
+
+# Commit and push
+git add src/helm/
+git commit -m "Add Helm charts"
+git push origin main
+```
+
+**Error 3: "map has no entry for key 'secrets'"**
+
+**Causes:**
+- Referencing undefined secrets
+- Wrong template variable syntax
+- Secrets not configured in secrets.toml
+
+**Solution:**
+```yaml
+# Option 1: Use hardcoded values for testing
+password: "changeme123"
+
+# Option 2: Fix template syntax
+password: {{ .nuon.install.secrets.postgres_password }}
+
+# Option 3: Define secret in secrets.toml
+[[secret]]
+name = "postgres_password"
+```
+
+**Error 4: "EACCES: permission denied"**
+
+**Causes:**
+- Container running as non-root user
+- Volume owned by root
+- Missing securityContext
+
+**Solution:**
+```yaml
+# Add to deployment template
+spec:
+  securityContext:
+    fsGroup: 1000      # Group ID for volume ownership
+    runAsUser: 1000    # User ID to run container
+    runAsGroup: 1000   # Group ID to run container
+```
+
+**Error 5: "duplicate entries for key"**
+
+**Causes:**
+- Environment variable defined multiple times
+- Conflicting values in different sections
+
+**Solution:**
+```yaml
+# Remove duplicate entries
+env:
+- name: EXECUTIONS_MODE
+  value: "queue"  # Only define once
+
+# Or use extraEnv in values.yaml
+extraEnv:
+  EXECUTIONS_MODE: "queue"
+```
+
+### Step 6.4: Post-Deployment Verification
+
+**1. Check pod status:**
+```bash
+kubectl get pods -n n8n
+# All pods should be Running
+
+kubectl describe pod <pod-name> -n n8n
+# Check events for errors
+```
+
+**2. Check logs:**
+```bash
+kubectl logs -n n8n <pod-name>
+# Look for startup errors
+```
+
+**3. Test connectivity:**
+```bash
+# Test internal service
+kubectl run -n n8n test-pod --image=curlimages/curl --rm -it -- curl http://n8n-main:5678/healthz
+
+# Test external access
+curl https://your-app-url.nuon.run/healthz
+```
+
+**4. Verify integrations:**
+```bash
+# Test database connection
+kubectl exec -n n8n <n8n-pod> -- n8n execute --workflow=test-db
+
+# Test AI integration
+kubectl exec -n n8n <ollama-pod> -- ollama list
+```
+
+---
+
+## Common Pitfalls & Solutions
+
+### Pitfall 1: Using Public Charts Incorrectly
+
+**Problem:**
+```toml
+# This pattern is deprecated/problematic
+[public_chart]
+name    = "postgresql"
+version = "12.1.0"
+url     = "https://charts.bitnami.com/bitnami"
+```
+
+**Solution:**
+Always use custom Helm charts with `connected_repo`:
+```toml
+[connected_repo]
+repo      = "your-org/your-app"
+directory = "src/helm/postgresql"
+branch    = "main"
+```
+
+### Pitfall 2: Forgetting to Commit Helm Charts
+
+**Problem:**
+```
+Error: ChartName validation failed
+```
+
+**Root cause:** Helm chart files exist locally but not in Git.
+
+**Solution:**
+```bash
+# Always commit Helm charts before deploying
+git add src/helm/
+git commit -m "Add Helm charts"
+git push origin main
+
+# Then sync Nuon
+nuon sync
+```
+
+### Pitfall 3: Incorrect Template Variable Syntax
+
+**Problem:**
+```yaml
+# Old syntax (doesn't work)
+value: {{ .nuon.inputs.inputs.log_level }}
+value: {{ .nuon.secrets.postgres_password }}
+```
+
+**Solution:**
+```yaml
+# Modern syntax
+value: {{ .nuon.install.inputs.log_level }}
+value: {{ .nuon.install.secrets.postgres_password }}
+```
+
+### Pitfall 4: Missing Dependencies
+
+**Problem:**
+Application fails to start because database isn't ready.
+
+**Solution:**
+```toml
+# In application component
+dependencies = ["postgres_db", "redis"]
+
+# Nuon will deploy postgres_db and redis first
+```
+
+### Pitfall 5: Resource Constraints
+
+**Problem:**
+Pods stuck in "Pending" state due to insufficient resources.
+
+**Solution:**
+```yaml
+# Start with minimal resources
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+# Scale up as needed
+```
+
+### Pitfall 6: Hardcoded Values in Templates
+
+**Problem:**
+```yaml
+# Bad: Hardcoded namespace
+namespace: n8n
+
+# Bad: Hardcoded domain
+host: "my-app.example.com"
+```
+
+**Solution:**
+```yaml
+# Use Helm values
+namespace: {{ .Release.Namespace }}
+
+# Use Nuon variables
+host: "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+```
+
+### Pitfall 7: Missing Trailing Newlines
+
+**Problem:**
+```
+Error: unable to parse configuration file
+```
+
+**Solution:**
+Every TOML file must end with exactly one blank line:
+```toml
+[[input]]
+name = "log_level"
+default = "info"
+
+```
+← This blank line is required!
+
+### Pitfall 8: Unescaped Special Characters
+
+**Problem:**
+```toml
+# Unescaped backslash in regex
+inline_contents = """
+FILE_DATE=$(echo $FILE | grep -oP '\d{8}')
+"""
+```
+
+**Solution:**
+```toml
+# Escape backslashes
+inline_contents = """
+FILE_DATE=$(echo $FILE | grep -oP '\\d{8}')
+"""
+```
+
+---
+
+## Best Practices
+
+### 1. Start with a Reference App
+
+**Always begin with a working Nuon application:**
+- Copy its structure
+- Understand its patterns
+- Adapt to your needs
+- Don't reinvent the wheel
+
+### 2. Use Consistent Naming
+
+**Component names:**
+- snake_case: `postgres_db`, `n8n_main`
+- Descriptive: `ollama_server` not `server1`
+- Unique: No duplicate names across components
+
+**File names:**
+- Prefix with deployment order: `1-`, `2-`, `3-`
+- kebab-case: `1-s3-buckets.toml`
+- Match component purpose
+
+### 3. Document Your Configuration
+
+**Add comments to TOML files:**
+```toml
+# PostgreSQL database for n8n
+# Stores workflows, credentials, and execution history
+# Requires 20GB minimum for production workloads
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name = "postgres_db"
+```
+
+**Add README sections:**
+```markdown
+## Components
+
+1. **PostgreSQL** - Primary database
+   - Storage: 20GB (configurable)
+   - Version: 15
+   - Dependencies: None
+
+2. **n8n Main** - Workflow engine
+   - Dependencies: PostgreSQL, Redis
+   - Exposed via: ALB Ingress
+```
+
+### 4. Use Meaningful Defaults
+
+**Good defaults in inputs.toml:**
+```toml
+[[input]]
+name    = "postgres_storage_gb"
+default = "20"  # Reasonable for most workloads
+
+[[input]]
+name    = "log_level"
+default = "info"  # Not too verbose, not too quiet
+
+[[input]]
+name    = "ollama_model"
+default = "tinyllama"  # Smallest, fastest model
+```
+
+### 5. Implement Health Checks
+
+**In Kubernetes manifests:**
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 5678
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 5678
+  initialDelaySeconds: 10
+  periodSeconds: 5
+```
+
+### 6. Plan for Scaling
+
+**Design for horizontal scaling:**
+```yaml
+# Use StatefulSet for stateful components
+kind: StatefulSet
+spec:
+  replicas: 1  # Can scale to 3+ later
+
+# Use Deployment for stateless components
+kind: Deployment
+spec:
+  replicas: 2  # Multiple replicas for HA
+```
+
+### 7. Secure by Default
+
+**Use secrets for sensitive data:**
+```yaml
+# Don't do this
+password: "changeme123"
+
+# Do this
+password: {{ .nuon.install.secrets.postgres_password }}
+```
+
+**Implement RBAC:**
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: n8n
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: n8n-role
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list"]
+```
+
+### 8. Monitor and Alert
+
+**Add monitoring labels:**
+```yaml
+metadata:
+  labels:
+    app: n8n
+    component: main
+    monitoring: enabled
+```
+
+**Expose metrics:**
+```yaml
+env:
+- name: N8N_METRICS
+  value: "true"
+
+# Add metrics port
+ports:
+- name: metrics
+  containerPort: 9090
+```
+
+### 9. Test Incrementally
+
+**Deploy in stages:**
+1. Infrastructure (S3, certificates)
+2. Data layer (databases, caches)
+3. Application layer (main app)
+4. Supporting services (workers, ingress)
+5. Optional features (AI, monitoring)
+
+**Verify each stage:**
+```bash
+# After each deployment
+kubectl get pods -n n8n
+kubectl logs -n n8n <pod-name>
+curl https://app-url/healthz
+```
+
+### 10. Version Everything
+
+**Tag your releases:**
+```bash
+git tag -a v1.0.0 -m "Initial production release"
+git push origin v1.0.0
+```
+
+**Document changes:**
+```markdown
+## Changelog
+
+### v1.0.0 (2025-11-12)
+- Initial release
+- PostgreSQL 15
+- n8n latest
+- Ollama AI integration
+```
+
+---
+
+## Agent Workflow Summary
+
+### Phase 1: Discovery (15 minutes)
+1. ✅ Analyze application architecture
+2. ✅ Identify dependencies
+3. ✅ Find reference Nuon app
+4. ✅ Create component map
+
+### Phase 2: Setup (30 minutes)
+1. ✅ Create directory structure
+2. ✅ Copy reference app structure
+3. ✅ Create minimal Helm charts
+4. ✅ Write component TOML files
+
+### Phase 3: Configuration (45 minutes)
+1. ✅ Configure inputs.toml
+2. ✅ Configure secrets.toml (optional for initial deploy)
+3. ✅ Write Helm values files
+4. ✅ Create Kubernetes templates
+
+### Phase 4: Integration (30 minutes)
+1. ✅ Set up component dependencies
+2. ✅ Configure template variables
+3. ✅ Create ingress configuration
+4. ✅ Add health checks
+
+### Phase 5: Actions (20 minutes)
+1. ✅ Create backup action
+2. ✅ Create maintenance actions
+3. ✅ Test action scripts locally
+
+### Phase 6: Validation (30 minutes)
+1. ✅ Validate TOML syntax
+2. ✅ Commit all files to Git
+3. ✅ Run `nuon sync`
+4. ✅ Deploy incrementally
+5. ✅ Verify each component
+
+### Phase 7: Testing (45 minutes)
+1. ✅ Test application functionality
+2. ✅ Verify integrations
+3. ✅ Run actions
+4. ✅ Check logs and metrics
+
+**Total Time: ~3.5 hours for a complete application**
+
+---
+
+## Quick Reference Commands
+
+### Nuon CLI
+```bash
+# Sync configuration from Git
+nuon sync
+
+# Plan deployment (dry-run)
+nuon plan <component-name>
+
+# Deploy component
+nuon apply <component-name>
+
+# List components
+nuon components list
+
+# Run action
+nuon action run <action-name>
+```
+
+### Kubernetes
+```bash
+# Get pods
+kubectl get pods -n <namespace>
+
+# Describe pod
+kubectl describe pod <pod-name> -n <namespace>
+
+# Get logs
+kubectl logs -n <namespace> <pod-name>
+
+# Execute command in pod
+kubectl exec -n <namespace> <pod-name> -- <command>
+
+# Port forward
+kubectl port-forward -n <namespace> <pod-name> 5678:5678
+```
+
+### Git
+```bash
+# Check status
+git status
+
+# Add all files
+git add -A
+
+# Commit
+git commit -m "Description"
+
+# Push
+git push origin main
+
+# Check remote
+git remote -v
+```
+
+---
+
+## Conclusion
+
+Creating Nuon applications requires:
+1. **Understanding** the application architecture
+2. **Following** Nuon conventions and patterns
+3. **Using** custom Helm charts with connected_repo
+4. **Managing** dependencies carefully
+5. **Testing** incrementally
+6. **Committing** everything to Git
+
+**Key Success Factors:**
+- Start with a reference app
+- Use custom Helm charts
+- Test one component at a time
+- Commit and push before deploying
+- Use modern template variable syntax
+- Document your configuration
+
+**Remember:** Nuon pulls from Git, so always commit and push before running `nuon sync`.
+
+---
+
+## Additional Resources
+
+- **Nuon Documentation:** https://docs.nuon.co
+- **Helm Documentation:** https://helm.sh/docs
+- **Kubernetes Documentation:** https://kubernetes.io/docs
+- **TOML Specification:** https://toml.io
+
+---
+
+**Document Version:** 1.0  
+**Last Updated:** November 12, 2025  
+**Maintained By:** AI Agent Team  
+**Based On:** Successful n8n + Ollama deployment
+
+---
+
+## Appendix: Real-World Example
+
+This runbook was created based on a successful deployment of:
+- **Application:** n8n (workflow automation)
+- **Database:** PostgreSQL 15
+- **Cache:** Redis 7
+- **AI:** Ollama with tinyllama:1.1b
+- **Storage:** S3 for backups
+- **Networking:** ALB Ingress with HTTPS
+
+**Deployment time:** ~3 hours from start to working application  
+**Components:** 8 total (infrastructure, data, application, networking)  
+**Actions:** 2 (backup workflows, pull AI model)  
+**Lines of configuration:** ~1,500 across all TOML and YAML files
+
+**Key learnings:**
+1. Custom Helm charts are essential
+2. Git commits are critical
+3. Incremental deployment saves time
+4. Reference apps accelerate development
+5. Template variable syntax matters
+
+This deployment serves as a proven pattern for similar applications.
+

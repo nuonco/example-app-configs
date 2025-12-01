@@ -1,0 +1,54 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "view_queue_stats"
+timeout = "3m"
+description = "View detailed statistics about the n8n workflow execution queue"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "queue_statistics"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "n8n Queue Statistics"
+echo "=========================================="
+
+# Get Redis pod
+REDIS_POD=$(kubectl get pods -n n8n -l app.kubernetes.io/name=redis -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$REDIS_POD" ]; then
+    echo "Error: Redis pod not found"
+    exit 1
+fi
+
+echo ""
+echo "Redis Server Info:"
+kubectl exec -n n8n $REDIS_POD -- redis-cli INFO server | grep -E "redis_version|uptime_in_days"
+
+echo ""
+echo "Memory Usage:"
+kubectl exec -n n8n $REDIS_POD -- redis-cli INFO memory | grep -E "used_memory_human|maxmemory_human"
+
+echo ""
+echo "Queue Keys:"
+kubectl exec -n n8n $REDIS_POD -- redis-cli KEYS "bull:*" | head -20
+
+echo ""
+echo "Queue Lengths:"
+for queue in $(kubectl exec -n n8n $REDIS_POD -- redis-cli KEYS "bull:*:wait" 2>/dev/null); do
+    if [ ! -z "$queue" ]; then
+        LENGTH=$(kubectl exec -n n8n $REDIS_POD -- redis-cli LLEN "$queue" 2>/dev/null)
+        echo "  $queue: $LENGTH jobs"
+    fi
+done
+
+echo ""
+echo "Active Workers:"
+kubectl get pods -n n8n -l app.kubernetes.io/name=n8n-worker --field-selector=status.phase=Running --no-headers | wc -l
+
+echo ""
+echo "=========================================="
+"""
+

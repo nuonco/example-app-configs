@@ -1,0 +1,74 @@
+version = "v1"
+description = "EKS Simple Demo App"
+display_name = "EKS Simple Demo"
+slack_webhook_url = "https://slack.nuon.co"
+
+[installer]
+name               = "EKS Simple Demo"
+description        = "A simple demo app that runs on EKS with ALB and certificate."
+documentation_url  = "https://docs.nuon.co/"
+community_url      = "https://join.slack.com/t/nuoncommunity/shared_invite/zt-1q323vw9z-C8ztRP~HfWjZx6AXi50VRA"
+github_url         = "https://github.com/nuonco"
+homepage_url       = "https://www.nuon.co/"
+demo_url           = "https://www.nuon.co/"
+logo_url           = "https://assets-global.website-files.com/62a2c1332b518a9eedc6de2f/651df2030c43865b9b16046b_Group.png"
+og_image_url       = "https://assets-global.website-files.com/62a2c1332b518a9eedc6de2f/651df2030c43865b9b16046b_Group.png"
+favicon_url        = "https://assets-global.website-files.com/62a2c1332b518a9eedc6de2f/651df2030c43865b9b16046b_Group.png"
+copyright_markdown = """
+© 2024 Nuon.
+"""
+footer_markdown = """
+[Terms of Service](https://nuon.co/terms)
+"""
+post_install_markdown = """
+# EKS Simple Demo
+
+Your EKS Simple Demo is being deployed.
+"""
+apps = ["eks-simple"]
+
+[sandbox]
+terraform_version = "1.7.5"
+[sandbox.public_repo]
+directory = "aws-eks-sandbox"
+repo = "nuonco/aws-eks-sandbox"
+branch = "main"
+
+[runner]
+runner_type = "aws-eks"
+
+[[components]]
+name   = "whoami"
+type = "helm"
+[components.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/whoami"
+branch    = "main"
+[components.vars]
+install_name = "{{.nuon.install.id}}"
+
+[[components]]
+name   = "certificate"
+type = "terraform_module"
+terraform_version = "1.7.5"
+[components.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/certificate"
+branch    = "main"
+[components.vars]
+install_name = "{{.nuon.install.id}}"
+domain_name = "{{.nuon.install.sandbox.outputs.public_domain.name}}"
+zone_id = "{{.nuon.install.sandbox.outputs.public_domain.zone_id}}"
+
+[[components]]
+name   = "alb"
+type = "helm"
+[components.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/alb"
+branch    = "main"
+[components.vars]
+install_name = "{{.nuon.install.id}}"
+domain_name = "{{.nuon.install.sandbox.outputs.public_domain.name}}"
+zone_id = "{{.nuon.install.sandbox.outputs.public_domain.zone_id}}"
+certificate_arn = "{{.nuon.components.certificate.certificate.arn}}"
