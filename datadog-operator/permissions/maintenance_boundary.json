@@ -1,0 +1,33 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "Route53:*",
+        "acm:*",
+        "autoscaling:DescribeAutoScalingGroups",
+        "cloudwatch:*",
+        "ec2:*",
+        "ecr:*",
+        "eks:*",
+        "iam:*",
+        "kms:*",
+        "organizations:DescribeOrganization",
+        "secretsmanager:*",
+        "sqs:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["autoscaling:StartInstanceRefresh"],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/nuon_install_id": "{{ .nuon.install.id }}"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[[role]]
+name         = "{{ .nuon.install.id }}_nuon_clickhouse_demo_breakglass"
+description  = "Grant elevanted access to the environment for install {{.nuon.install.id}}."
+display_name = "Sandbox Break Glass for install {{.nuon.install.id}}"
+permissions_boundary = ""
+
+[[role.policies]]
+managed_policy_name = "AdministratorAccess"
+
+[[role.policies]]
+name = "{{ .nuon.install.id }}-remove-secrets-manager"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenySecretsManagerAccess",
+            "Effect": "Deny",
+            "Action": [
+                "secretsmanager:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""

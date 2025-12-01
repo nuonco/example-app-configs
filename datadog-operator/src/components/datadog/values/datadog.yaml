@@ -1,0 +1,38 @@
+---
+targetSystem: "linux"
+datadog:
+  site: us5.datadoghq.com
+  confd:
+    "temporal.yaml": |-
+      init_config:
+      instances:
+        - openmetrics_endpoint: "http://temporal-frontend-headless.temporal.svc.cluster.local:9090/metrics"
+        - openmetrics_endpoint: "http://temporal-worker-headless.temporal.svc.cluster.local:9090/metrics"
+        - openmetrics_endpoint: "http://temporal-matching-headless.temporal.svc.cluster.local:9090/metrics"
+        - openmetrics_endpoint: "http://temporal-history-headless.temporal.svc.cluster.local:9090/metrics"
+  logs:
+    enabled: true
+    containerCollectAll: true
+  apm:
+    portEnabled: true
+    socketPath: /var/run/datadog/apm.socket
+    hostSocketPath: /var/run/datadog/
+  processAgent:
+    enabled: true
+    processCollection: false
+  systemProbe:
+    enableTCPQueueLength: false
+    enableOOMKill: true
+    collectDNSStats: false
+  dogstatsd:
+    useHostPort: true
+    port: 8125
+agents:
+  tolerations:
+    # allowed to run on default ASG alongside critical worklaods
+    - effect: NoSchedule
+      key: CriticalAddonsOnly
+    # allowed to rub on every custom nodepool
+    - key: "pool.nuon.co"
+      operator: "Exists"
+      effect: "NoSchedule"
