@@ -1,0 +1,7 @@
+type        = "aws-cloudformation"
+name        = "{{.nuon.install.id}}-ecs-simple"
+description = "QuickLink to install runner for ECS Simple for Install {{.nuon.install.id}}"
+
+# nested stack
+vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.8/vpc/eks/default/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.8/runner/asg/stack.yaml"
