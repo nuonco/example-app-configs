@@ -1,0 +1,18 @@
+type         = "helm_chart"
+name         = "application_load_balancer"
+chart_name   = "application-load-balancer"
+namespace    = "whoami"
+dependencies = ["whoami"]
+
+[public_repo]
+repo      = "nuonco/components"
+branch    = "main"
+directory = "aws/alb"
+
+[values]
+domain_certificate = "{{ .nuon.components.certificate.outputs.public_domain_certificate_arn }}"
+domain             = "{{ .nuon.inputs.inputs.subdomain }}.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+https_port         = "443"
+service_name       = "whoami"
+service_port       = "80"
+install_name       = "{{ .nuon.install.id }}"
