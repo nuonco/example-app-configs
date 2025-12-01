@@ -1,0 +1,8 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+name      = "temporal_ai_agent"
+type      = "kubernetes_manifest"
+namespace = "temporal-ai-agent"
+
+dependencies = ["temporal"]
+
+manifest  = "./manifests/temporal_ai_agent.yaml"

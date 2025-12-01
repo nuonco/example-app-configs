@@ -1,0 +1,15 @@
+name           = "temporal_init_db"
+type           = "helm_chart"
+chart_name     = "temporal-init-db"
+storage_driver = "configmap"
+namespace      = "temporal"
+
+dependencies   = ["karpenter_nodepools", "rds_cluster_temporal"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "data-ops/src/components/temporal_init_db"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/temporal-init.yaml"

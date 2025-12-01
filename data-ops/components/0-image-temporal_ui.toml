@@ -1,0 +1,6 @@
+name   = "img_temporal_ui"
+type   = "container_image"
+
+[public]
+image_url = "temporalio/ui"
+tag       = "2.43.3"

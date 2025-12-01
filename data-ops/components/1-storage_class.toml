@@ -1,0 +1,26 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=kubernetes-manifest
+name      = "storage_class"
+type      = "kubernetes_manifest"
+namespace = "default"
+
+manifest = """
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebi
+parameters:
+  fsType: ext4
+  type: gp2
+allowedTopologies:
+- matchLabelExpressions:
+  - key: topology.ebs.csi.aws.com/zone
+    # TODO(fd): this approach to az's is likely too brittle
+    values:
+    - {{ .nuon.install_stack.outputs.region }}a
+    - {{ .nuon.install_stack.outputs.region }}b
+    - {{ .nuon.install_stack.outputs.region }}c
+provisioner: kubernetes.io/aws-ebs
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+"""

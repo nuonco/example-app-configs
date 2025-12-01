@@ -1,0 +1,197 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: temporal-ai-agent
+  namespace: temporal-ai-agent
+data:
+  # LLM configuration
+  LLM_MODEL: '{{ .nuon.inputs.inputs.llm_model }}'
+
+  # Tool API keys
+  RAPIDAPI_HOST_PACKAGE: 'trackingpackage.p.rapidapi.com'
+  FOOTBALL_DATA_API_KEY: ''
+  STRIPE_API_KEY: ''
+
+  # Agent goal configuration
+  AGENT_GOAL: 'goal_event_flight_invoice'
+  GOAL_CATEGORIES: 'all'
+
+  # Other settings
+  SHOW_CONFIRM: 'True'
+  FIN_START_REAL_WORKFLOW: 'FALSE'
+
+  TEMPORAL_ADDRESS: temporal-frontend.temporal.svc.cluster.local:7233
+  TEMPORAL_NAMESPACE: default
+
+  # our additions
+  # must be accessible to the ui (via an ingress, usually)
+  # TODO(fd): get the tailnet for interpolation
+  API_BASE_URL: "https://api-{{.nuon.install.id}}.{{.nuon.actions.workflows.ts_tailnet.outputs.steps.get.tailnet }}"
+  VITE_API_BASE_URL: "https://api-{{.nuon.install.id}}.{{.nuon.actions.workflows.ts_tailnet.outputs.steps.get.tailnet }}"
+  VITE_HOST: 0.0.0.0
+  VITE_ALLOWED_HOST_0: "agent-{{.nuon.install.id}}.{{.nuon.actions.workflows.ts_tailnet.outputs.steps.get.tailnet }}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ai-agent-api
+  namespace: temporal-ai-agent
+  labels:
+    app: temporal-ai-agent-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-ai-agent-api
+  template:
+    metadata:
+      labels:
+        app: temporal-ai-agent-api
+    spec:
+      containers:
+        - name: temporal-ai-agent-api
+          image: nuonfred/temporal-ai-agent:latest
+          imagePullPolicy: Always
+          command:
+            - "uv"
+            - "run"
+            - "uvicorn"
+            - --host
+            - 0.0.0.0
+            - "api.main:app"
+            - "--reload"
+          envFrom:
+            - configMapRef:
+                name: temporal-ai-agent
+          env:
+            - name: LLM_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-key
+                  key: value
+                  optional: true
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '500m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ai-agent-worker
+  namespace: temporal-ai-agent
+  labels:
+    app: temporal-ai-agent-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-ai-agent-worker
+  template:
+    metadata:
+      labels:
+        app: temporal-ai-agent-worker
+    spec:
+      containers:
+        - name: temporal-ai-agent-worker
+          image: nuonfred/temporal-ai-agent:latest
+          imagePullPolicy: Always
+          command:
+            - "uv"
+            - "run"
+            - "scripts/run_worker.py"
+          envFrom:
+            - configMapRef:
+                name: temporal-ai-agent
+          env:
+            - name: LLM_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-key
+                  key: value
+                  optional: true
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '500m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ai-agent-frontend
+  namespace: temporal-ai-agent
+  labels:
+    app: temporal-ai-agent-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-ai-agent-frontend
+  template:
+    metadata:
+      labels:
+        app: temporal-ai-agent-frontend
+    spec:
+      containers:
+        - name: temporal-ai-agent-frontend
+          command: ["npx", "vite", "--host", "0.0.0.0"]
+          image: nuonfred/temporal-ai-agent-fe:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: temporal-ai-agent
+          env:
+            - name: LLM_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-key
+                  key: value
+                  optional: true
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '500m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-ai-agent-api
+  namespace: temporal-ai-agent
+  labels:
+    app: temporal-ai-agent-api
+spec:
+  selector:
+    app: temporal-ai-agent-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-ai-agent-frontend
+  namespace: temporal-ai-agent
+  labels:
+    app: temporal-ai-agent-frontend
+spec:
+  selector:
+    app: temporal-ai-agent-frontend
+  ports:
+    - protocol: TCP
+      port: 5173
+      targetPort: 5173
+      name: http
+  type: ClusterIP

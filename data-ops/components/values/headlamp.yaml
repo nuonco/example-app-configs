@@ -1,0 +1,33 @@
+# https://github.com/kubernetes-sigs/headlamp/blob/v0.38.0/charts/headlamp/values.yaml
+
+tolerations:
+  - effect: NoSchedule
+    key: CriticalAddonsOnly
+    value: "true"
+  - effect: NoSchedule
+    key: karpenter.sh/controller
+    value: "true"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+ingress:
+  enabled: true
+  annotations:
+    {}
+  labels: {}
+  ingressClassName: "tailscale"
+  tls:
+    - hosts:
+        - 'headlamp-{{ .nuon.install.id }}'
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: headlamp
+                port:
+                  name: http

@@ -1,0 +1,6 @@
+name   = "img_temporal_ai_agent_fe"
+type   = "container_image"
+
+[public]
+image_url = "nuonfred/temporal-ai-agent-fe"
+tag       = "latest"

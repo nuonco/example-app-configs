@@ -1,0 +1,6 @@
+name   = "img_ch_ui"
+type   = "container_image"
+
+[public]
+image_url = "nuonfred/ch-ui"
+tag       = "latest"

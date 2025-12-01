@@ -1,0 +1,11 @@
+# https://github.com/DataDog/helm-charts/blob/datadog-3.146.3/charts/datadog-operator/values.yaml
+replicaCount: 1
+
+apiKeyExistingSecret: datadog
+appKeyExistingSecret: datadog
+
+datadogMonitor:
+  enabled: true
+
+# configured dynamically with tf variables
+# clusterName: my-cluster

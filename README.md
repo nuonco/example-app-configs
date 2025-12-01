@@ -105,6 +105,12 @@ operator enables exposing the ClickHouse dbs and the ch-ui's to a [tailscale](ht
 This demo provides an example for deploying the
 [datadog operator](https://docs.datadoghq.com/containers/datadog_operator/) and agent to an EKS cluster.
 
+## Data-ops
+
+A fully featured application deploying an RDS Cluster, ClickHouse, datadog,
+[temporal](https://github.com/temporalio/helm-charts), and a
+[temporal-ai-agent](https://github.com/temporal-community/temporal-ai-agent/).
+
 # Resources
 
 [Nuon docs](https://docs.nuon.co)

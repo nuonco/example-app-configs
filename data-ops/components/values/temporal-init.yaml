@@ -1,0 +1,13 @@
+---
+image:
+  repository: "{{ .nuon.components.img_temporal_admin_tools.outputs.image.repository }}"
+  tag: "{{ .nuon.components.img_temporal_admin_tools.outputs.image.tag }}"
+
+db:
+  host:  "{{ .nuon.components.rds_cluster_temporal.outputs.address }}"
+  port: "{{ .nuon.components.rds_cluster_temporal.outputs.db_instance_port }}"
+  username: "{{ .nuon.components.rds_cluster_temporal.outputs.db_instance_username }}"
+
+temporal:
+  sql:
+    plugin: "postgres12"

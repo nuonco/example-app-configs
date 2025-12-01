@@ -1,0 +1,44 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  # we use a unique name and host since we would like for these to be unique across installs
+  name: 'agent-{{ .nuon.install.id }}'
+  namespace: temporal-ai-agent
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - 'agent-{{ .nuon.install.id }}'
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: temporal-ai-agent-frontend
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  # we use a unique name and host since we would like for these to be unique across installs
+  name: 'api-{{ .nuon.install.id }}'
+  namespace: temporal-ai-agent
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - 'api-{{ .nuon.install.id }}'
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: temporal-ai-agent-api
+                port:
+                  name: http

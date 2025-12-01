@@ -1,0 +1,6 @@
+name   = "img_clickhouse_keeper"
+type   = "container_image"
+
+[public]
+image_url = "clickhouse/clickhouse-keeper"
+tag       = "25.10.2.65"
