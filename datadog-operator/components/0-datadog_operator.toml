@@ -1,0 +1,21 @@
+name              = "datadog_operator"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "datadog-operator/src/components/datadog"
+branch    = "main"
+
+[vars]
+cluster_name                       = "{{ .nuon.install.sandbox.outputs.cluster.name }}"
+cluster_endpoint                   = "{{ .nuon.install.sandbox.outputs.cluster.endpoint }}"
+cluster_certificate_authority_data = "{{ .nuon.install.sandbox.outputs.cluster.certificate_authority_data }}"
+region                             = "{{ .nuon.install_stack.outputs.region }}"
+
+install_name = "{{ .nuon.install.name }}"
+install_id   = "{{ .nuon.install.id }}"
+org_id       = "{{ .nuon.org.id }}"
+org_name     = "{{ .nuon.org.name }}"
+
+site = "{{ .nuon.inputs.inputs.datadog_site }}"

@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+name              = "certificate"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/components"
+directory = "aws/certificate-v2"
+branch    = "main"
+
+[vars]
+install_id  = "{{ .nuon.install.id }}"
+region      = "{{ .nuon.install_stack.outputs.region }}"
+zone_id     = "{{ .nuon.sandbox.outputs.nuon_dns.public_domain.zone_id }}"
+domain_name = "*.{{ .nuon.sandbox.outputs.nuon_dns.public_domain.name }}"
