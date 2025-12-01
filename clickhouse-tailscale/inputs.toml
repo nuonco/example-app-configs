@@ -1,0 +1,33 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+[[group]]
+name         = "clickhouse"
+description  = "configuration for clickhouse cluster"
+display_name = "ClickHouse Config"
+
+[[input]]
+name         = "cluster_name"
+description  = "name for the default clickhouse cluster"
+default      = "cluster"
+display_name = "Cluster Name"
+group        = "clickhouse"
+
+[[input]]
+name         = "username"
+description  = "Username for the default user."
+default      = "clickhouse"
+display_name = "Username"
+group        = "clickhouse"
+
+[[input]]
+name         = "keeper_node_instance_type"
+description  = "Instance Type for the keeper nodes."
+default      = "t4g.medium"
+display_name = "Keeper Instance Type"
+group        = "clickhouse"
+
+[[input]]
+name         = "cluster_node_instance_type"
+description  = "Instance Type for the cluster nodes."
+default      = "t4g.large"
+display_name = "Cluster Instance Type"
+group        = "clickhouse"

@@ -1,0 +1,8 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+name      = "clickhouse_keeper"
+type      = "kubernetes_manifest"
+namespace = "clickhouse"
+
+dependencies = ["crd_clickhouse_operator", "karpenter_nodepools", "tailscale_proxy"]
+
+manifest = "./manifests/clickhouse_keeper.yaml"

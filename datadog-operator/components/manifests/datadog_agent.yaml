@@ -1,0 +1,17 @@
+---
+apiVersion: datadoghq.com/v2alpha1
+kind: DatadogAgent
+metadata:
+  name: datadog
+spec:
+  global:
+    clusterName: "{{ .nuon.install.sandbox.outputs.cluster.name }}"
+    site: "{{ .nuon.inputs.inputs.datadog_site }}"
+    credentials:
+      apiSecret:
+        secretName: datadog-api-key
+        keyName: value
+  features:
+    logCollection:
+      enabled: {{ .nuon.inputs.inputs.datadog_log_collection_enabled }}
+      containerCollectAll: {{ .nuon.inputs.inputs.datadog_log_colletion_container_collect_all }}

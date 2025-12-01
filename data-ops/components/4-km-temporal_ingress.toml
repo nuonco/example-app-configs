@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=kubernetes-manifest
+name      = "temporal_ingress"
+type      = "kubernetes_manifest"
+namespace = "temporal"
+
+dependencies = ["temporal"]
+manifest = "./manifests/temporal_ingress.yaml"

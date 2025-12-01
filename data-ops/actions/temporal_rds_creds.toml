@@ -1,0 +1,24 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name    = "temporal_rds_creds"
+timeout = "1m"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_cluster_temporal"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "admin"
+inline_contents = "./src/temporal/rds_admin_credentials.sh"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_cluster_temporal.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "temporal-db"
+TARGET_NAMESPACE = "temporal"
+
+[[steps]]
+name    = "users"
+inline_contents = "./src/temporal/rds_user_credentials.sh"

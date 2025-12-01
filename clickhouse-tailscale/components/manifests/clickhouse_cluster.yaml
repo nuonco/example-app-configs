@@ -1,0 +1,122 @@
+apiVersion: 'clickhouse.altinity.com/v1'
+kind: 'ClickHouseInstallation'
+metadata:
+  name: 'clickhouse-installation'
+  namespace: 'clickhouse'
+spec:
+  configuration:
+    clusters:
+      - name: '{{ .nuon.inputs.inputs.cluster_name }}' # TODO(fd): add validation to the input
+        layout:
+          replicasCount: 2
+          shardsCount: 1
+        templates:
+          podTemplate: clickhouse-cluster
+          serviceTemplate: clickhouse-cluster
+    users:
+      '{{ .nuon.inputs.inputs.username }}/networks/ip': '0.0.0.0/0'
+      '{{ .nuon.inputs.inputs.username }}/password':
+        valueFrom:
+          secretKeyRef:
+            name: clickhouse-cluster-pw
+            key: value
+    settings:
+      logger/console: true
+      logger/level: information
+      max_concurrent_queries: 2500
+      prometheus/asynchronous_metrics: true
+      prometheus/endpoint: /metrics
+      prometheus/events: true
+      prometheus/metrics: true
+      prometheus/port: 9363
+      prometheus/status_info: true
+    # NOTE(fd): the keepers are hardcoded
+    zookeeper:
+      nodes:
+        - host: chk-clickhouse-keeper-chk-simple-0-0.clickhouse.svc.cluster.local
+        - host: chk-clickhouse-keeper-chk-simple-0-1.clickhouse.svc.cluster.local
+        - host: chk-clickhouse-keeper-chk-simple-0-2.clickhouse.svc.cluster.local
+    # NOTE(fd): here is where we can customize disks to add s3 for backups or cold storage
+    # files:
+    #   "config.d/disks.xml": |-
+    #       <clickhouse>
+    #         <storage_configuration>
+    #           <disks>
+    #           </disks>
+    #           <policies>
+    #             <s3_main>
+    #               <volumes>
+    #                 <main>
+    #                   <disk>s3_disk</disk>
+    #                 </main>
+    #               </volumes>
+    #             </s3_main>
+    #           </policies>
+    #         </storage_configuration>
+    #       </clickhouse>
+
+  defaults:
+    templates:
+      dataVolumeClaimTemplate: clickhouse-cluster
+      serviceTemplate: clickhouse-cluster
+  templates:
+    podTemplates:
+      - name: clickhouse-cluster
+        spec:
+          containers:
+            - name: clickhouse
+              image:
+                '{{ .nuon.components.img_clickhouse_server.outputs.image.repository }}:{{
+                .nuon.components.img_clickhouse_server.outputs.image.tag }}'
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS
+                  value: 'true'
+              volumeMounts:
+                - mountPath: /var/lib/clickhouse
+                  name: clickhouse-cluster
+          nodeSelector:
+            pool.nuon.co: clickhouse-installation
+          tolerations:
+            - effect: NoSchedule
+              key: pool.nuon.co
+              operator: Equal
+              value: clickhouse-installation
+
+          topologySpreadConstraints:
+          - labelSelector:
+              matchLabels:
+                clickhouse.altinity.com/chi: clickhouse-installation
+            maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: ScheduleAnyway
+
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    clickhouse.altinity.com/chi: clickhouse-installation
+                topologyKey: kubernetes.io/hostname
+
+          # volumes:
+          #   - name: bootstrap-configmap-volume
+          #     configMap:
+          #       name: bootstrap-configmap
+    serviceTemplates:
+      - name: clickhouse-cluster
+        spec:
+          ports:
+            - name: http
+              port: 8123
+            - name: client
+              port: 9000
+    volumeClaimTemplates:
+      - name: clickhouse-cluster
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 20Gi
+          storageClassName: ebi

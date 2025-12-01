@@ -1,0 +1,19 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+name           = "crd_clickhouse_operator"
+type           = "helm_chart"
+chart_name     = "clickhouse-operator"
+namespace      = "kube-system"
+storage_driver = "configmap"
+
+dependencies   = ["storage_class"]
+
+[public_repo]
+repo      = "Altinity/clickhouse-operator"
+directory = "deploy/helm/clickhouse-operator"
+branch    = "0.25.5"
+
+[[values_file]]
+contents = "./values/clickhouse-operator.yaml"
+
+# NOTE: these CRDs are installed via helm because we must explicitly set a toleration
+# TODO: test the upgrade story

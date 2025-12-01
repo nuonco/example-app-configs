@@ -1,0 +1,6 @@
+name   = "img_altinity_clickhouse_operator"
+type   = "container_image"
+
+[public]
+image_url = "altinity/clickhouse-operator"
+tag       = "0.25.5"

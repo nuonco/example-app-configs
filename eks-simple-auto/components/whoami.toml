@@ -1,0 +1,6 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+name      = "whoami"
+type      = "kubernetes_manifest"
+namespace = "whoami"
+
+manifest = "./manifests/whoami.yaml"

@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ch-ui
+  namespace: clickhouse
+  labels:
+    app.kubernetes.io/name: clickhouse-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: clickhouse-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: clickhouse-ui
+    spec:
+      containers:
+        - name: ch-ui
+          env:
+            - name: VITE_CLICKHOUSE_URL
+              value: "https://{{ .nuon.actions.workflows.ch_ingress_healthcheck.outputs.steps.check.address }}"
+            - name: VITE_CLICKHOUSE_USER
+              value: clickhouse
+            - name: VITE_CLICKHOUSE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: clickhouse-cluster-pw
+                  key: value
+          image:
+            '{{ .nuon.components.img_ch_ui.outputs.image.repository }}:{{ .nuon.components.img_ch_ui.outputs.image.tag
+            }}'
+          ports:
+            - containerPort: 5521
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ch-ui
+  namespace: clickhouse
+spec:
+  ports:
+    - name: http
+      port: 5521
+      protocol: TCP
+      targetPort: 5521
+  selector:
+    app.kubernetes.io/name: clickhouse-ui
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "ch-ui-{{.nuon.install.id}}"
+  namespace: clickhouse
+  labels:
+    app.nuon.co/name: ch-ui
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - "ch-ui-{{.nuon.install.id}}"
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ch-ui
+                port:
+                  name: http

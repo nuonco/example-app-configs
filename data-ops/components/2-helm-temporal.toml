@@ -1,0 +1,15 @@
+name           = "temporal"
+type           = "helm_chart"
+chart_name     = "temporal"
+storage_driver = "configmap"
+namespace      = "temporal"
+
+dependencies   = ["karpenter_nodepools", "rds_cluster_temporal", "temporal_init_db"]
+
+[public_repo]
+repo      = "temporalio/helm-charts"
+directory = "charts/temporal"
+branch    = "0488a8f9d542792c4bd8f331dcf19a92b8538255" # "temporal-0.72.0"
+
+[[values_file]]
+contents = "./values/temporal.yaml"

@@ -1,0 +1,8 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+name      = "datadog_agent"
+type      = "kubernetes_manifest"
+namespace = "datadog"
+
+dependencies = ["datadog_operator"]
+
+manifest = "./manifests/datadog_agent.yaml"

@@ -1,0 +1,64 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+[[group]]
+name         = "clickhouse"
+description  = "configuration for clickhouse cluster"
+display_name = "ClickHouse Configs"
+
+[[input]]
+name         = "cluster_name"
+description  = "name for the default clickhouse cluster"
+default      = "cluster"
+display_name = "Cluster Name"
+group        = "clickhouse"
+
+[[input]]
+name         = "username"
+description  = "Username for the default user."
+default      = "clickhouse"
+display_name = "Username"
+group        = "clickhouse"
+
+[[input]]
+name         = "keeper_node_instance_type"
+description  = "Instance Type for the keeper nodes."
+default      = "t4g.medium"
+display_name = "Keeper Instance Type"
+group        = "clickhouse"
+
+[[input]]
+name         = "cluster_node_instance_type"
+description  = "instance type for the cluster nodes."
+default      = "t4g.large"
+display_name = "cluster instance type"
+group        = "clickhouse"
+
+[[group]]
+name         = "datadog"
+description  = "configuration for datadog"
+display_name = "Datadog Configs"
+
+[[input]]
+name         = "datadog_site"
+description  = "Value for datadog.site in the helm chart. Set to '' if datadog should be disabled."
+default      = "us5.datadoghq.com"
+display_name = "Datadog Site"
+group        = "datadog"
+
+[[group]]
+name         = "temporal_ai_agent"
+description  = "configuration for the temporal ai agent"
+display_name = "Temporal AI Agent Config"
+
+[[input]]
+name         = "llm_model"
+description  = "The model to use (e.g., \"openai/gpt-4o\", \"anthropic/claude-sonnet-4-5-20250929\", \"google/gemini-pro\", etc.)"
+default      = "anthropic/claude-4"
+display_name = "LLM MODEL"
+group        = "temporal_ai_agent"
+
+[[input]]
+name         = "llm_base_url"
+description  = "(Optional) Custom base URL for the LLM provider. "
+default      = ""
+display_name = "LLM BASE URL"
+group        = "temporal_ai_agent"
