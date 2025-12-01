@@ -1,0 +1,8 @@
+---
+apiVersion: v2
+name: karpenter-nodepools
+description: A helm chart to create the nodepools used by the nuon deployment.s
+type: application
+version: v0.0.1
+appVersion: "0.0.1"
+dependencies: []
