@@ -1,0 +1,6 @@
+name   = "img_temporal_server"
+type   = "container_image"
+
+[public]
+image_url = "temporalio/server"
+tag       = "1.29.1"

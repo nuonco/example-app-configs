@@ -1,0 +1,90 @@
+---
+apiVersion: "clickhouse-keeper.altinity.com/v1"
+kind: "ClickHouseKeeperInstallation"
+metadata:
+  name: "clickhouse-keeper"
+  namespace: "clickhouse"
+spec:
+  defaults:
+    templates:
+      podTemplate: clickhouse-keeper
+      dataVolumeClaimTemplate: clickhouse-keeper
+      serviceTemplate: clickhouse-keeper
+  configuration:
+    clusters:
+      - name: chk-simple
+        layout:
+          replicasCount: 3
+        templates:
+          podTemplate: clickhouse-keeper
+          dataVolumeClaimTemplate: clickhouse-keeper
+          serviceTemplate: clickhouse-keeper
+        settings:
+          keeper_server/coordination_settings/raft_logs_level: information
+          keeper_server/four_letter_word_white_list: '*'
+          keeper_server/raft_configuration/server/port: '9444'
+          keeper_server/storage_path: '/var/lib/clickhouse-keeper'
+          keeper_server/tcp_port: '2181'
+          listen_host: 0.0.0.0
+          logger/console: 'true'
+          logger/level: information
+          prometheus/asynchronous_metrics: 'true'
+          prometheus/endpoint: /metrics
+          prometheus/events: 'true'
+          prometheus/metrics: 'true'
+          prometheus/port: '7000'
+          prometheus/status_info: 'false'
+  templates:
+    podTemplates:
+    - name: clickhouse-keeper
+      spec:
+        containers:
+          - name: clickhouse-keeper
+            image: "{{ .nuon.components.img_clickhouse_keeper.outputs.image.repository }}:{{ .nuon.components.img_clickhouse_keeper.outputs.image.tag }}"
+            imagePullPolicy: IfNotPresent
+            # these should scale proportionate to the instance type
+            # resources:
+            #   requests:
+            #     cpu: 3 # take most of the cpu
+            #     memory: 3Gi # take of the memory
+            #   limits:
+            #     cpu: 3 # take most of the cpu
+            #     memory: 3Gi # take of the memory
+        nodeSelector:
+          "pool.nuon.co": "clickhouse-keeper"
+        tolerations:
+          - effect: NoSchedule
+            key: pool.nuon.co
+            operator: Equal
+            value: "clickhouse-keeper"
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: clickhouse-keeper.altinity.com/cluster
+                      operator: In
+                      values:
+                        - chk-simple
+                topologyKey: kubernetes.io/hostname
+        securityContext:
+          fsGroup: 101
+          runAsUser: 101
+    serviceTemplates:
+      - name: clickhouse-keeper
+        metadata:
+          namespace: clickhouse
+        spec:
+          ports:
+            - name: tcp
+              port: 2181
+              targetPort: 2181
+    volumeClaimTemplates:
+      - name: clickhouse-keeper
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+          storageClassName: ebi

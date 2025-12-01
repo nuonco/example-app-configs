@@ -1,0 +1,27 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+name              = "rds_cluster_temporal"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+drift_schedule = "0 0 * * *"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "data-ops/src/components/rds_cluster_temporal"
+branch    = "main"
+
+[vars]
+identifier      = "temporal-{{ .nuon.install.id }}"
+port            = "5432"
+db_name         = "temporaladmin"
+db_user         = "temporaladmin"
+instance_class  = "db.t4g.medium"
+subnet_group_id = "{{ .nuon.components.rds_subnet.outputs.id }}"
+
+allocated_storage = "100"
+apply_immediately = "true"
+
+region     = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id     = "{{ .nuon.install_stack.outputs.vpc_id }}"
+subnet_ids = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+
+nuon_id = "{{ .nuon.install.id }}"

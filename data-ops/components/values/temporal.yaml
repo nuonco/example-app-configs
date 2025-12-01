@@ -1,0 +1,180 @@
+# https://raw.githubusercontent.com/temporalio/helm-charts/refs/tags/temporal-0.72.0/charts/temporal/values.yaml
+fullnameOverride: temporal
+
+debug: false
+
+cassandra:
+  enabled: false
+elasticsearch:
+  enabled: false
+grafana:
+  enabled: false
+mysql:
+  enabled: false
+postgresql:
+  enabled: true
+prometheus:
+  enabled: false
+
+schema:
+  setup:
+    enabled: false
+  update:
+    enabled: false
+
+server:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: "{{ .nuon.components.img_temporal_server.outputs.image.repository }}"
+    tag: "{{ .nuon.components.img_temporal_server.outputs.image.tag }}"
+    pullPolicy: Always
+  # dynamicConfig:
+  #    limit.historySize.error:
+  #     - value: 209715200
+  #    limit.blobSize.error:
+  #     - value: 5242880
+
+  config:
+    prometheus:
+      framework: opentelemetry
+      listenAddress: "0.0.0.0:9090"
+    persistence:
+      default:
+        driver: sql
+        sql:
+          database: temporal
+          driver: postgres12
+          maxConnLifetime: 1h
+          maxConns: 20
+          host: "{{ .nuon.components.rds_cluster_temporal.outputs.address }}"
+          port: "{{ .nuon.components.rds_cluster_temporal.outputs.db_instance_port }}"
+          user: temporal
+          existingSecret: "temporal-db-pw"
+      visibility:
+        driver: sql
+        sql:
+          database: temporal_visibility
+          driver: postgres12
+          maxConnLifetime: 1h
+          maxConns: 20
+          host: "{{ .nuon.components.rds_cluster_temporal.outputs.address }}"
+          port: "{{ .nuon.components.rds_cluster_temporal.outputs.db_instance_port }}"
+          user: temporal_visibility
+          existingSecret: "visibility-db-pw"
+  frontend:
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/component: frontend
+    nodeSelector:
+      pool.nuon.co: temporal
+    tolerations:
+      - key: pool.nuon.co
+        operator: Equal
+        value: temporal
+        effect: NoSchedule
+
+  worker:
+    topologySpreadConstraints:
+      - maxSkew: 2
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/component: worker
+    nodeSelector:
+      pool.nuon.co: temporal
+    tolerations:
+      - key: pool.nuon.co
+        operator: Equal
+        value: temporal
+        effect: NoSchedule
+
+  matching:
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/component: matching
+    nodeSelector:
+      pool.nuon.co: temporal
+    tolerations:
+      - key: pool.nuon.co
+        operator: Equal
+        value: temporal
+        effect: NoSchedule
+
+  history:
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/component: history
+    nodeSelector:
+      pool.nuon.co: temporal
+    tolerations:
+      - key: pool.nuon.co
+        operator: Equal
+        value: temporal
+        effect: NoSchedule
+
+admintools:
+  image:
+    repository: "{{ .nuon.components.img_temporal_admin_tools.outputs.image.repository }}"
+    tag: "{{ .nuon.components.img_temporal_admin_tools.outputs.image.tag }}"
+    pullPolicy: Always
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: temporal
+          app.kubernetes.io/component: admintools
+  nodeSelector:
+    pool.nuon.co: temporal
+  tolerations:
+    - key: pool.nuon.co
+      operator: Equal
+      value: temporal
+      effect: NoSchedule
+
+web:
+  image:
+    repository: "{{ .nuon.components.img_temporal_ui.outputs.image.repository }}"
+    tag: "{{ .nuon.components.img_temporal_ui.outputs.image.tag }}"
+    pullPolicy: Always
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: temporal
+          app.kubernetes.io/component: web
+  nodeSelector:
+    pool.nuon.co: temporal
+  tolerations:
+    - key: pool.nuon.co
+      operator: Equal
+      value: temporal
+      effect: NoSchedule
+  # additionalEnv:
+  #   - name: TEMPORAL_CODEC_ENDPOINT
+  #     value: ${var.codec_endpoint}
+    # - name: TEMPORAL_CSRF_COOKIE_INSECURE
+    #   value: "true"
+  #   - name: TEMPORAL_UI_PUBLIC_PATH
+  #     value: /admin/temporal
