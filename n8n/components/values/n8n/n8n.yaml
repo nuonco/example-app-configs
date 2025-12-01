@@ -1,0 +1,56 @@
+# n8n Main Application Configuration
+# Based on official n8n self-hosted setup: https://github.com/n8n-io/self-hosted-ai-starter-kit
+replicaCount: 1
+
+image:
+  repository: n8nio/n8n
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5678
+
+persistence:
+  enabled: true
+  size: {{ .nuon.install.inputs.workflow_storage_gb }}Gi
+  storageClass: gp2
+
+config:
+  database:
+    postgresdb:
+      database: n8n
+      user: n8n
+      password: changeme123
+  
+  executions:
+    mode: {{ .nuon.install.inputs.executions_mode }}
+    timeout: {{ .nuon.install.inputs.executions_timeout }}
+    timeoutMax: {{ .nuon.install.inputs.executions_timeout_max }}
+  
+  redis:
+    host: redis-master
+    port: "6379"
+    password: changeme123
+    db: "0"
+
+secret:
+  encryption_key: changeme-encryption-key-32chars
+  jwt_secret: changeme-jwt-secret-32chars
+
+extraEnv:
+  N8N_DIAGNOSTICS_ENABLED: "false"
+  N8N_PERSONALIZATION_ENABLED: "false"
+  N8N_LOG_LEVEL: {{ .nuon.install.inputs.log_level }}
+  N8N_METRICS: {{ .nuon.install.inputs.enable_metrics }}
+  OLLAMA_HOST: "http://ollama-server.n8n.svc.cluster.local:11434"
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "2Gi"
+    cpu: "2000m"
+
+

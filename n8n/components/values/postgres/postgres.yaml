@@ -1,0 +1,26 @@
+# PostgreSQL Configuration for n8n
+# Based on official n8n setup: https://github.com/n8n-io/self-hosted-ai-starter-kit
+image:
+  repository: postgres
+  tag: "16-alpine"
+  pullPolicy: IfNotPresent
+
+auth:
+  username: n8n
+  password: changeme123
+  database: n8n
+
+persistence:
+  enabled: true
+  size: {{ .nuon.install.inputs.db_storage_gb }}Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+
+

@@ -1,0 +1,16 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "postgres_db"
+type           = "helm_chart"
+chart_name     = "postgresql"
+namespace      = "n8n"
+storage_driver = "configmap"
+timeout        = "15m"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/helm/postgresql"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/postgres/postgres.yaml"
+

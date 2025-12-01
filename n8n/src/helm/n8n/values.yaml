@@ -1,0 +1,52 @@
+replicaCount: 1
+
+image:
+  repository: n8nio/n8n
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5678
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: gp2
+
+config:
+  database:
+    postgresdb:
+      database: n8n
+      user: n8n
+      password: ""
+  
+  executions:
+    mode: "queue"
+    timeout: "3600"
+    timeoutMax: "7200"
+  
+  redis:
+    host: redis-master
+    port: "6379"
+    password: ""
+    db: "0"
+
+secret:
+  encryption_key: ""
+  jwt_secret: ""
+
+extraEnv:
+  N8N_DIAGNOSTICS_ENABLED: "false"
+  N8N_PERSONALIZATION_ENABLED: "false"
+  N8N_LOG_LEVEL: "info"
+  N8N_METRICS: "true"
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "2Gi"
+    cpu: "2000m"
+

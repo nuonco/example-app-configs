@@ -1,0 +1,831 @@
+# Deploying n8n with AI Capabilities Using Nuon
+
+Learn how to deploy the open-source workflow automation platform n8n with integrated Ollama AI server using the Nuon platform
+
+**Author:** AI Engineering Team  
+**Date:** November 14, 2025  
+**Reading Time:** 15 min
+
+---
+
+## Introduction
+
+Workflow automation has become essential for modern businesses, but deploying and managing these systems at scale—especially with AI capabilities—presents unique challenges. n8n, an open-source workflow automation platform, offers a powerful alternative to tools like Zapier and Make.com, with the added benefit of self-hosting for data sovereignty and customization.
+
+In this guide, we'll walk through deploying n8n with an integrated Ollama AI server using Nuon. This setup demonstrates how software vendors can deliver enterprise-grade, AI-powered workflow automation as a fully managed, self-hosted solution directly into customer cloud accounts.
+
+## What is n8n?
+
+n8n is a fair-code licensed workflow automation tool that lets users create complex automations by connecting different services and APIs. Think of it as a self-hosted alternative to Zapier, but with more flexibility, transparency, and control over your data.
+
+Key features include:
+- **Visual workflow builder** with 400+ integrations
+- **Custom code execution** (JavaScript/Python)
+- **AI and LLM nodes** for intelligent automation
+- **Webhook support** for real-time triggers
+- **Self-hosted deployment** for data privacy
+
+By integrating Ollama, we add local AI model inference capabilities, enabling workflows to leverage language models without external API dependencies or costs.
+
+## Why Self-Host n8n with AI?
+
+For enterprises and software vendors, self-hosting n8n with Ollama offers several advantages:
+
+1. **Data Sovereignty**: All workflow data and AI processing stays within the customer's infrastructure
+2. **Cost Control**: No per-execution pricing or API call charges for AI features
+3. **Customization**: Full control over AI models, workflow configurations, and integrations
+4. **Compliance**: Meet strict regulatory requirements by keeping data in-house
+5. **Performance**: Reduced latency with local AI inference
+
+However, deploying a multi-service application like n8n—with PostgreSQL, Redis, worker nodes, and an AI server—across multiple customer environments can be operationally complex. This is where Nuon comes in.
+
+## Architecture Overview
+
+The n8n application on Nuon consists of several interconnected components:
+
+### Core Application Services
+
+- **n8n Main**: The primary web interface and API server
+- **n8n Workers**: Background job processors for workflow execution
+- **PostgreSQL**: Persistent storage for workflows, credentials, and execution history
+- **Redis**: Message queue and caching layer for distributed execution
+- **Ollama Server**: Local AI model inference server
+
+### Infrastructure Components
+
+Each installation runs in an isolated Amazon EKS cluster with:
+- **VPC and Networking**: Isolated network environment per customer
+- **Ingress Controller**: HTTPS access to the n8n web interface
+- **Persistent Storage**: EBS volumes for database and AI model storage
+- **IAM Roles**: Secure, scoped permissions via IRSA
+
+```
+┌─────────────────────────────────────────────────┐
+│           Customer AWS Account                  │
+│                                                 │
+│  ┌───────────────────────────────────────────┐ │
+│  │         EKS Cluster (n8n namespace)       │ │
+│  │                                           │ │
+│  │  ┌──────────┐    ┌──────────┐           │ │
+│  │  │ n8n Main │───▶│PostgreSQL│           │ │
+│  │  └────┬─────┘    └──────────┘           │ │
+│  │       │                                  │ │
+│  │       │          ┌──────────┐           │ │
+│  │       └─────────▶│  Redis   │           │ │
+│  │                  └──────────┘           │ │
+│  │                       ▲                  │ │
+│  │  ┌──────────┐        │                  │ │
+│  │  │n8n Worker│────────┘                  │ │
+│  │  └────┬─────┘                           │ │
+│  │       │                                  │ │
+│  │       │          ┌──────────┐           │ │
+│  │       └─────────▶│  Ollama  │           │ │
+│  │                  │  Server  │           │ │
+│  │                  └──────────┘           │ │
+│  │                                           │ │
+│  └───────────────────────────────────────────┘ │
+│                                                 │
+│  ┌───────────────┐                             │
+│  │   Ingress     │◀── HTTPS Traffic            │
+│  └───────────────┘                             │
+└─────────────────────────────────────────────────┘
+```
+
+## Component Configuration
+
+The n8n app is defined declaratively using Nuon's component system. Each component represents a deployable unit with its own configuration, dependencies, and lifecycle.
+
+### PostgreSQL Database
+
+PostgreSQL serves as the primary data store for n8n, holding workflows, credentials, execution history, and user data.
+
+```toml
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "postgres_db"
+type           = "helm_chart"
+chart_name     = "postgresql"
+namespace      = "n8n"
+storage_driver = "configmap"
+timeout        = "15m"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/helm/postgresql"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/postgres/postgres.yaml"
+```
+
+The PostgreSQL configuration includes:
+- **Persistent storage** with 20GB default (configurable via inputs)
+- **Resource limits** tuned for workflow execution patterns
+- **Security context** for proper file permissions
+- **Alpine-based image** for smaller footprint
+
+### Redis Cache and Queue
+
+Redis handles two critical functions: caching for performance and message queuing for distributed workflow execution.
+
+```yaml
+image:
+  repository: redis
+  tag: "7-alpine"
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+```
+
+### n8n Main Application
+
+The main n8n service provides the web interface and API. It's configured with environment variables that control behavior, logging, and integrations.
+
+Key configuration highlights:
+
+```yaml
+image:
+  repository: n8nio/n8n
+  tag: latest
+
+replicas: 1
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: gp2
+
+securityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+  runAsGroup: 1000
+```
+
+The `securityContext` is crucial—it ensures the n8n process (running as user ID 1000) has write permissions to the persistent volume for storing workflow data and configurations.
+
+### n8n Workers
+
+Worker nodes execute workflows in the background, allowing the main application to remain responsive. They connect to the same PostgreSQL and Redis instances.
+
+```yaml
+replicas: 2  # Scale based on workload
+
+env:
+  EXECUTIONS_MODE: "queue"
+  QUEUE_BULL_REDIS_HOST: "redis-master"
+  QUEUE_BULL_REDIS_PORT: "6379"
+```
+
+Workers can be scaled independently based on workflow execution volume, providing flexibility for different customer workloads.
+
+### Ollama AI Server
+
+The Ollama component provides local AI model inference capabilities. This is where the magic happens for AI-powered workflows.
+
+```yaml
+image:
+  repository: ollama/ollama
+  tag: latest
+
+replicas: 1
+
+persistence:
+  enabled: true
+  size: 50Gi  # AI models require significant storage
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "4Gi"
+    cpu: "2000m"
+```
+
+The Ollama server is configured for CPU-only inference by default, making it cost-effective for most use cases. For GPU acceleration, the configuration can be extended with node selectors and device plugins.
+
+## Configuration Templating and Inputs
+
+One of Nuon's strengths is its templating system, which allows a single app configuration to work across multiple customer environments with different requirements.
+
+### User-Configurable Inputs
+
+The `inputs.toml` file defines parameters that can be customized per installation:
+
+```toml
+[[group]]
+name         = "infrastructure"
+description  = "Core infrastructure settings"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "db_storage_gb"
+description  = "PostgreSQL storage size in GB"
+default      = "20"
+display_name = "Database Storage (GB)"
+group        = "infrastructure"
+
+[[input]]
+name         = "log_level"
+description  = "Application log level"
+default      = "info"
+display_name = "Log Level"
+group        = "infrastructure"
+
+[[group]]
+name         = "ai"
+description  = "AI and LLM configuration with Ollama"
+display_name = "AI Settings"
+
+[[input]]
+name         = "ollama_storage_gb"
+description  = "Storage size for Ollama models in GB"
+default      = "50"
+display_name = "Ollama Storage (GB)"
+group        = "ai"
+
+[[input]]
+name         = "ollama_model"
+description  = "Ollama model to pull and use"
+default      = "tinyllama"
+display_name = "Ollama Model"
+group        = "ai"
+```
+
+These inputs are then referenced throughout the configuration using Go template syntax:
+
+```yaml
+persistence:
+  size: {{ .nuon.install.inputs.db_storage_gb }}Gi
+
+env:
+  N8N_LOG_LEVEL: {{ .nuon.install.inputs.log_level }}
+```
+
+### Component Dependencies
+
+Components can depend on each other, ensuring proper deployment order:
+
+```toml
+[[components]]
+name = "n8n_main"
+type = "helm_chart"
+dependencies = ["postgres_db", "redis", "ollama_server"]
+```
+
+This ensures PostgreSQL, Redis, and Ollama are fully deployed before n8n attempts to start.
+
+## Networking and Ingress
+
+The n8n web interface is exposed via a Kubernetes Ingress resource, which automatically provisions an AWS Application Load Balancer.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: n8n-ingress
+  namespace: n8n
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+spec:
+  rules:
+    - host: "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: n8n-main
+                port:
+                  number: 5678
+```
+
+Nuon automatically:
+- Provisions the ALB
+- Configures DNS records
+- Manages TLS certificates
+- Routes traffic to the n8n service
+
+Importantly, **Ollama is not exposed externally**. It's only accessible within the Kubernetes cluster via the internal service URL:
+
+```
+http://ollama-server.n8n.svc.cluster.local:11434
+```
+
+This keeps AI inference secure and isolated within the customer's environment.
+
+## AI Model Management
+
+One of the unique aspects of this deployment is automated AI model management. When a customer installs n8n, they can specify which Ollama model to use. A Nuon action then automatically downloads and configures that model.
+
+### Pull Ollama Model Action
+
+```toml
+name    = "pull_ollama_model"
+timeout = "30m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "manage_models"
+inline_contents = """
+#!/bin/bash
+set -e
+
+echo "=== DOWNLOADING AI MODEL FOR N8N ==="
+
+# Get the ollama pod
+OLLAMA_POD=$(kubectl get pods -n n8n -l app=ollama -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$OLLAMA_POD" ]; then
+    echo "❌ Error: No Ollama pod found"
+    exit 1
+fi
+
+MODEL="tinyllama:1.1b"
+
+echo "🔄 Downloading $MODEL..."
+echo "This may take a few minutes..."
+
+if kubectl exec -n n8n $OLLAMA_POD -- ollama pull $MODEL; then
+    echo "✅ Successfully downloaded $MODEL"
+else
+    echo "⚠️  Failed to download $MODEL"
+    exit 1
+fi
+
+echo ""
+echo "🎉 Model download completed!"
+echo "🎯 Ollama endpoint: http://ollama-server.n8n.svc.cluster.local:11434"
+echo "💡 Use this URL in your n8n AI nodes!"
+"""
+```
+
+This action can be triggered manually after installation or automated as part of the deployment workflow.
+
+## Building AI-Powered Workflows
+
+Once deployed, users can create workflows that leverage the Ollama AI server. Here's a simple example of a chat automation:
+
+### Example: AI Chat Workflow
+
+1. **Chat Trigger**: Receives messages from users
+2. **HTTP Request**: Sends the message to Ollama for processing
+   - URL: `http://ollama-server.n8n.svc.cluster.local:11434/api/generate`
+   - Method: POST
+   - Body: 
+     ```json
+     {
+       "model": "tinyllama:1.1b",
+       "prompt": "{{ $json.chatInput }}",
+       "stream": false
+     }
+     ```
+3. **Respond to Chat**: Returns the AI-generated response to the user
+
+This workflow enables conversational AI capabilities entirely within the customer's infrastructure, with no external API calls or data leaving their environment.
+
+## Deployment Workflow
+
+Deploying n8n with Nuon follows a structured, approval-based process that gives vendors control while automating the heavy lifting.
+
+### 1. Vendor Initiates Installation
+
+The process begins in the Nuon dashboard:
+- Select the n8n app
+- Configure installation inputs (region, storage sizes, AI model, etc.)
+- Specify the target customer account
+
+### 2. Customer Onboarding
+
+The customer connects their AWS account using a CloudFormation stack that grants Nuon the necessary IAM permissions. This is a one-time setup that establishes trust between Nuon and the customer's account.
+
+### 3. Infrastructure Provisioning
+
+Nuon automatically provisions:
+- VPC and networking components
+- EKS cluster with appropriate node groups
+- IAM roles and service accounts
+- Storage classes and persistent volumes
+
+### 4. Component Deployment
+
+Components are deployed in dependency order:
+1. PostgreSQL database
+2. Redis cache
+3. Ollama AI server
+4. n8n main application
+5. n8n workers
+6. Ingress and networking
+
+At each stage, vendors can review and approve changes through the Nuon dashboard, with detailed diffs showing exactly what will be created or modified.
+
+### 5. Post-Deployment Configuration
+
+After deployment:
+- The AI model is automatically downloaded via the pull action
+- DNS records are configured
+- TLS certificates are provisioned
+- The n8n instance is accessible at the configured domain
+
+## Day-2 Operations
+
+Beyond initial deployment, Nuon provides tools for ongoing management and maintenance.
+
+### Health Checks
+
+Built-in health check actions verify that all components are running correctly:
+
+```toml
+name = "health_check"
+timeout = "5m"
+
+[[steps]]
+name = "check_all_pods"
+inline_contents = """
+#!/bin/bash
+echo "=== Checking n8n Components ==="
+kubectl get pods -n n8n
+kubectl get svc -n n8n
+kubectl get ingress -n n8n
+"""
+```
+
+### Workflow Backups
+
+Automated backup actions protect customer workflow data:
+
+```toml
+name = "backup_workflows"
+timeout = "10m"
+
+[[triggers]]
+type = "cron"
+schedule = "0 2 * * *"  # Daily at 2 AM
+
+[[steps]]
+name = "backup_database"
+inline_contents = """
+#!/bin/bash
+BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
+kubectl exec -n n8n postgres-0 -- pg_dump -U n8n n8n > backup_${BACKUP_DATE}.sql
+# Upload to S3 or customer's backup solution
+"""
+```
+
+### Scaling and Updates
+
+Vendors can adjust resources dynamically:
+- Scale worker replicas based on workload
+- Update to new n8n versions
+- Change AI models
+- Adjust storage allocations
+
+All changes go through the same approval workflow, ensuring visibility and control.
+
+## Key Technical Challenges and Solutions
+
+Building this n8n app involved solving several interesting challenges:
+
+### 1. File Permissions
+
+**Challenge**: n8n runs as user ID 1000 (the `node` user), but Kubernetes persistent volumes default to root ownership.
+
+**Solution**: Set `securityContext` in the deployment:
+```yaml
+securityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+  runAsGroup: 1000
+```
+
+This ensures the n8n process has write access to its data directory.
+
+### 2. Worker Queue Configuration
+
+**Challenge**: Coordinating multiple worker nodes with the main application for distributed execution.
+
+**Solution**: Use Redis as a message queue with Bull, configured via environment variables:
+```yaml
+env:
+  EXECUTIONS_MODE: "queue"
+  QUEUE_BULL_REDIS_HOST: "redis-master"
+  QUEUE_BULL_REDIS_PORT: "6379"
+```
+
+### 3. AI Model Storage
+
+**Challenge**: AI models can be several gigabytes in size and need persistent storage.
+
+**Solution**: Provision a dedicated 50GB persistent volume for Ollama with the `gp2` storage class, ensuring models persist across pod restarts.
+
+### 4. Internal Service Communication
+
+**Challenge**: n8n workflows need to communicate with Ollama without exposing it externally.
+
+**Solution**: Use Kubernetes internal DNS:
+```
+http://ollama-server.n8n.svc.cluster.local:11434
+```
+
+This keeps AI inference traffic within the cluster while allowing n8n to access it.
+
+### 5. Resource Optimization
+
+**Challenge**: Balancing performance with cost, especially for CPU-intensive AI workloads.
+
+**Solution**: Carefully tuned resource requests and limits:
+- Ollama: 500m CPU request, 2 CPU limit (burst capability)
+- n8n Main: 500m CPU request, 1.5 CPU limit
+- Workers: 250m CPU request, 1 CPU limit
+
+This provides good performance while keeping costs reasonable for most workloads.
+
+## Security Considerations
+
+Security is built into every layer of the deployment:
+
+### Network Isolation
+
+- Each installation runs in its own VPC
+- Ollama is not exposed externally
+- Only the n8n web interface is accessible via HTTPS
+
+### IAM and Permissions
+
+- IRSA (IAM Roles for Service Accounts) for secure AWS API access
+- Scoped permissions per component
+- No long-lived AWS credentials stored in pods
+
+### Data Encryption
+
+- TLS for all external traffic
+- Encrypted persistent volumes
+- Secrets management via Kubernetes secrets (can be integrated with AWS Secrets Manager)
+
+### Secrets Management
+
+For production deployments, sensitive values like database passwords and encryption keys should be managed through Nuon's secrets system:
+
+```toml
+[[secret]]
+name = "postgres_password"
+display_name = "PostgreSQL Password"
+description = "PostgreSQL database password for n8n"
+
+[[secret]]
+name = "n8n_encryption_key"
+display_name = "n8n Encryption Key"
+description = "Encryption key for n8n credentials storage"
+```
+
+These can be set via the Nuon dashboard and are securely injected at runtime.
+
+## Performance and Scaling
+
+The architecture is designed to scale with customer needs:
+
+### Horizontal Scaling
+
+- **Workers**: Scale from 1 to 10+ based on workflow execution volume
+- **Redis**: Can be configured with replicas for high availability
+- **PostgreSQL**: Can be upgraded to larger instance types or migrated to RDS
+
+### Vertical Scaling
+
+- Node instance types can be adjusted via inputs
+- Resource requests/limits can be tuned per customer
+- Storage can be expanded without downtime
+
+### Monitoring
+
+Integration with customer monitoring tools:
+- Prometheus metrics from n8n
+- Kubernetes metrics via metrics-server
+- Custom CloudWatch dashboards
+- Log aggregation via CloudWatch Logs or customer SIEM
+
+## Cost Optimization
+
+Running n8n with AI capabilities can be cost-effective with the right configuration:
+
+### Infrastructure Costs
+
+For a typical small-to-medium deployment:
+- **EKS Cluster**: ~$75/month (control plane)
+- **EC2 Nodes**: ~$150-300/month (2-3 t3a.large instances)
+- **Storage**: ~$20-30/month (EBS volumes)
+- **Load Balancer**: ~$20/month
+- **Data Transfer**: Variable based on usage
+
+**Total**: ~$265-425/month per customer installation
+
+### AI Model Selection
+
+Model choice significantly impacts resource requirements:
+- **tinyllama (1.1B params)**: Minimal resources, fast inference, good for simple tasks
+- **llama3.2:3b**: Moderate resources, better quality
+- **mistral (7B params)**: Higher resources, production-quality responses
+
+Customers can choose based on their quality/cost tradeoff.
+
+### Optimization Tips
+
+1. **Use CPU-only inference** for most workloads (GPU adds significant cost)
+2. **Scale workers dynamically** based on actual workflow volume
+3. **Use spot instances** for worker nodes (workflows can tolerate interruptions)
+4. **Implement workflow execution limits** to prevent runaway costs
+5. **Archive old execution data** to reduce database storage
+
+## Getting Started
+
+Ready to deploy n8n with AI capabilities? Here's how to get started:
+
+### Prerequisites
+
+- Nuon account and CLI installed
+- Git repository for your app configuration
+- AWS account for testing
+
+### Quick Start
+
+1. **Clone the n8n app configuration**:
+```bash
+git clone https://github.com/nuonco/example-app-configs
+cd example-app-configs/n8n
+```
+
+2. **Authenticate with Nuon**:
+```bash
+nuon auth login
+nuon orgs select
+```
+
+3. **Create the app**:
+```bash
+nuon apps create -n n8n-ai
+```
+
+4. **Sync the configuration**:
+```bash
+nuon apps sync
+```
+
+5. **Deploy to a customer account**:
+- Navigate to the Nuon dashboard
+- Select the n8n app
+- Click "New Installation"
+- Configure inputs and approve deployment stages
+
+### Customization
+
+The app configuration is fully customizable:
+- Adjust resource limits in `values.yaml` files
+- Add custom actions for your operational needs
+- Modify the AI model selection
+- Integrate with customer identity providers
+- Add custom n8n nodes or workflows
+
+## Real-World Use Cases
+
+Here are some practical applications of n8n with AI:
+
+### 1. Intelligent Customer Support
+
+Automate ticket triage and response:
+- Webhook receives support tickets
+- AI analyzes and categorizes the issue
+- Routes to appropriate team or generates draft response
+- Updates ticketing system automatically
+
+### 2. Content Generation Pipeline
+
+Automated content workflows:
+- Trigger on schedule or event
+- AI generates blog post drafts, social media content, or product descriptions
+- Human review and approval step
+- Publish to CMS or social platforms
+
+### 3. Data Processing and Analysis
+
+Extract insights from unstructured data:
+- Ingest documents, emails, or chat logs
+- AI extracts key information and sentiment
+- Store structured data in database
+- Generate reports or trigger alerts
+
+### 4. DevOps Automation
+
+Intelligent incident response:
+- Monitor logs and metrics
+- AI analyzes anomalies and suggests remediation
+- Execute automated fixes or escalate to on-call
+- Document incident and resolution
+
+## Comparison with Alternatives
+
+How does this approach compare to other options?
+
+### vs. Managed n8n Cloud
+
+**Pros of Self-Hosted**:
+- Complete data control
+- No per-execution pricing
+- Customizable infrastructure
+- Local AI inference (no API costs)
+
+**Cons**:
+- More operational overhead (mitigated by Nuon)
+- Upfront infrastructure costs
+
+### vs. DIY Kubernetes Deployment
+
+**Pros of Nuon**:
+- Automated multi-tenant deployment
+- Built-in approval workflows
+- Standardized operations
+- Faster time to market
+
+**Cons**:
+- Platform dependency
+- Less flexibility for edge cases
+
+### vs. Docker Compose
+
+**Pros of Kubernetes + Nuon**:
+- Production-grade orchestration
+- Better scalability
+- High availability
+- Enterprise security features
+
+**Cons**:
+- More complex architecture
+- Higher resource requirements
+
+## Future Enhancements
+
+The n8n app can be extended in many ways:
+
+### Advanced AI Features
+
+- **GPU support** for larger models and faster inference
+- **Multiple AI models** running simultaneously
+- **Vector database integration** for RAG (Retrieval-Augmented Generation)
+- **Fine-tuned models** for customer-specific use cases
+
+### High Availability
+
+- **Multi-AZ PostgreSQL** with automatic failover
+- **Redis Sentinel** for cache high availability
+- **Active-active n8n instances** with session affinity
+- **Automated backups** to S3 with point-in-time recovery
+
+### Observability
+
+- **Grafana dashboards** for workflow metrics
+- **Distributed tracing** for workflow execution
+- **Custom alerting** based on workflow patterns
+- **Cost attribution** per workflow or user
+
+### Enterprise Features
+
+- **SSO integration** (SAML, OAuth)
+- **RBAC** for workflow access control
+- **Audit logging** for compliance
+- **Multi-region deployment** for global customers
+
+## Conclusion
+
+Deploying n8n with AI capabilities across multiple customer environments traditionally requires significant DevOps expertise and ongoing operational effort. By using Nuon, software vendors can transform this into a streamlined, repeatable process that delivers value quickly while maintaining the control and customization that enterprise customers demand.
+
+The patterns demonstrated here—from component dependencies and templating to AI model management and internal service networking—apply broadly to many self-hosted, AI-powered applications. Whether you're deploying workflow automation, data processing pipelines, or custom AI applications, Nuon provides the infrastructure automation and lifecycle management to make it practical at scale.
+
+For enterprises, this approach offers the best of both worlds: the power and flexibility of self-hosted software with the operational simplicity of managed services. Data stays in your environment, costs are predictable, and you maintain full control over your automation infrastructure.
+
+## Resources
+
+- **n8n Documentation**: [https://docs.n8n.io](https://docs.n8n.io)
+- **Ollama Documentation**: [https://ollama.ai/docs](https://ollama.ai/docs)
+- **Nuon Documentation**: [https://docs.nuon.co](https://docs.nuon.co)
+- **Example App Repository**: [https://github.com/nuonco/example-app-configs](https://github.com/nuonco/example-app-configs)
+- **Community Support**: Join our Slack community for questions and discussions
+
+---
+
+*Have questions about deploying n8n with Nuon? Reach out to our team or join our community Slack channel. We'd love to hear about your workflow automation use cases and help you get started.*
+

@@ -1,0 +1,21 @@
+image:
+  repository: redis
+  tag: "7-alpine"
+  pullPolicy: IfNotPresent
+
+auth:
+  password: ""
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+

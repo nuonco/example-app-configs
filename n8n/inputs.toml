@@ -1,0 +1,320 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+
+# Application Configuration Group
+[[group]]
+name         = "application"
+description  = "Core application settings for n8n workflow automation platform"
+display_name = "Application Settings"
+
+[[input]]
+name         = "domain"
+description  = "Domain name for the n8n platform (e.g., workflows.company.com)"
+required     = true
+display_name = "Application Domain"
+group        = "application"
+
+[[input]]
+name         = "timezone"
+description  = "Timezone for n8n (e.g., America/New_York, Europe/London, UTC)"
+default      = "UTC"
+display_name = "Timezone"
+group        = "application"
+
+[[input]]
+name         = "webhook_url"
+description  = "Base URL for webhooks (auto-configured if empty)"
+default      = ""
+display_name = "Webhook URL"
+group        = "application"
+
+# Security Configuration Group
+[[group]]
+name         = "security"
+description  = "Security and authentication settings"
+display_name = "Security Settings"
+
+[[input]]
+name         = "basic_auth_enabled"
+description  = "Enable basic authentication (true/false)"
+default      = "true"
+display_name = "Enable Basic Auth"
+group        = "security"
+
+[[input]]
+name         = "basic_auth_user"
+description  = "Basic auth username"
+default      = "admin"
+display_name = "Basic Auth Username"
+group        = "security"
+
+[[input]]
+name         = "jwt_enabled"
+description  = "Enable JWT authentication (true/false)"
+default      = "false"
+display_name = "Enable JWT Auth"
+group        = "security"
+
+[[input]]
+name         = "encryption_key_auto_generate"
+description  = "Auto-generate encryption key for credentials (true/false)"
+default      = "true"
+display_name = "Auto-generate Encryption Key"
+group        = "security"
+
+# Workflow Execution Configuration
+[[group]]
+name         = "execution"
+description  = "Configure workflow execution settings"
+display_name = "Workflow Execution"
+
+[[input]]
+name         = "executions_mode"
+description  = "Execution mode: 'regular' or 'queue' (queue recommended for production)"
+default      = "queue"
+display_name = "Execution Mode"
+group        = "execution"
+
+[[input]]
+name         = "executions_timeout"
+description  = "Maximum execution time in seconds (-1 for no timeout)"
+default      = "3600"
+display_name = "Execution Timeout (seconds)"
+group        = "execution"
+
+[[input]]
+name         = "executions_timeout_max"
+description  = "Maximum execution timeout limit in seconds"
+default      = "7200"
+display_name = "Max Execution Timeout (seconds)"
+group        = "execution"
+
+[[input]]
+name         = "executions_data_prune"
+description  = "Enable automatic pruning of old execution data (true/false)"
+default      = "true"
+display_name = "Enable Data Pruning"
+group        = "execution"
+
+[[input]]
+name         = "executions_data_max_age"
+description  = "Maximum age of execution data in hours (168 = 7 days)"
+default      = "168"
+display_name = "Max Data Age (hours)"
+group        = "execution"
+
+# Standard Compute Configuration
+[[group]]
+name         = "compute"
+description  = "Standard compute nodes for workflow execution"
+display_name = "Compute Resources"
+
+[[input]]
+name         = "instance_size"
+description  = "AWS instance size for nodes (t3.medium, t3.large, t3.xlarge, t3.2xlarge, m5.large, m5.xlarge)"
+default      = "t3.large"
+display_name = "Node Instance Size"
+group        = "compute"
+
+[[input]]
+name         = "min_size"
+description  = "Minimum number of nodes"
+default      = "2"
+display_name = "Minimum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "max_size"
+description  = "Maximum number of nodes"
+default      = "5"
+display_name = "Maximum Node Count"
+group        = "compute"
+
+[[input]]
+name         = "desired_capacity"
+description  = "Desired number of nodes"
+default      = "2"
+display_name = "Desired Node Count"
+group        = "compute"
+
+# Worker Configuration
+[[group]]
+name         = "workers"
+description  = "Worker nodes for processing workflow queue"
+display_name = "Worker Configuration"
+
+[[input]]
+name         = "worker_replicas"
+description  = "Number of worker replicas for queue processing"
+default      = "2"
+display_name = "Worker Replicas"
+group        = "workers"
+
+[[input]]
+name         = "worker_concurrency"
+description  = "Number of concurrent jobs per worker"
+default      = "10"
+display_name = "Worker Concurrency"
+group        = "workers"
+
+# Database Configuration
+[[group]]
+name         = "database"
+description  = "PostgreSQL database configuration for n8n data"
+display_name = "Database Settings"
+
+[[input]]
+name         = "db_type"
+description  = "Database type (postgres recommended for production)"
+default      = "postgres"
+display_name = "Database Type"
+group        = "database"
+
+[[input]]
+name         = "db_storage_gb"
+description  = "Database storage size in GB"
+default      = "50"
+display_name = "Database Storage (GB)"
+group        = "database"
+
+[[input]]
+name         = "enable_db_backup"
+description  = "Enable automated database backups (true/false)"
+default      = "true"
+display_name = "Enable Database Backups"
+group        = "database"
+
+[[input]]
+name         = "db_backup_retention_days"
+description  = "Number of days to retain backups"
+default      = "7"
+display_name = "Backup Retention (days)"
+group        = "database"
+
+# Cache Configuration
+[[group]]
+name         = "cache"
+description  = "Redis cache configuration for queue management"
+display_name = "Cache Settings"
+
+[[input]]
+name         = "redis_storage_gb"
+description  = "Redis storage size in GB"
+default      = "10"
+display_name = "Redis Storage (GB)"
+group        = "cache"
+
+[[input]]
+name         = "redis_persistence_enabled"
+description  = "Enable Redis persistence (true/false)"
+default      = "true"
+display_name = "Enable Redis Persistence"
+group        = "cache"
+
+# Storage Configuration
+[[group]]
+name         = "storage"
+description  = "Storage configuration for workflow files and data"
+display_name = "Storage Settings"
+
+[[input]]
+name         = "workflow_storage_gb"
+description  = "Storage size for workflow files and attachments in GB"
+default      = "20"
+display_name = "Workflow Storage (GB)"
+group        = "storage"
+
+[[input]]
+name         = "enable_s3_backup"
+description  = "Enable S3 backups for workflow data (true/false)"
+default      = "false"
+display_name = "Enable S3 Backups"
+group        = "storage"
+
+# Monitoring Configuration
+[[group]]
+name         = "monitoring"
+description  = "Monitoring and observability settings"
+display_name = "Monitoring Settings"
+
+[[input]]
+name         = "enable_monitoring"
+description  = "Enable CloudWatch monitoring and metrics (true/false)"
+default      = "true"
+display_name = "Enable Monitoring"
+group        = "monitoring"
+
+[[input]]
+name         = "log_level"
+description  = "Log level (error, warn, info, debug, verbose)"
+default      = "info"
+display_name = "Log Level"
+group        = "monitoring"
+
+[[input]]
+name         = "retention_days"
+description  = "Log retention period in days"
+default      = "30"
+display_name = "Log Retention Days"
+group        = "monitoring"
+
+[[input]]
+name         = "enable_metrics"
+description  = "Enable Prometheus metrics endpoint (true/false)"
+default      = "true"
+display_name = "Enable Metrics"
+group        = "monitoring"
+
+# Features Configuration
+[[group]]
+name         = "features"
+description  = "Enable or disable platform features"
+display_name = "Platform Features"
+
+[[input]]
+name         = "enable_community_nodes"
+description  = "Enable community nodes installation (true/false)"
+default      = "true"
+display_name = "Enable Community Nodes"
+group        = "features"
+
+[[input]]
+name         = "enable_versioning"
+description  = "Enable workflow versioning (true/false)"
+default      = "true"
+display_name = "Enable Versioning"
+group        = "features"
+
+[[input]]
+name         = "enable_public_api"
+description  = "Enable public REST API (true/false)"
+default      = "true"
+display_name = "Enable Public API"
+group        = "features"
+
+[[input]]
+name         = "enable_templates"
+description  = "Enable workflow templates (true/false)"
+default      = "true"
+display_name = "Enable Templates"
+group        = "features"
+
+# AI/Ollama Configuration
+[[group]]
+name         = "ai"
+description  = "AI and LLM configuration with Ollama"
+display_name = "AI Settings"
+
+[[input]]
+name         = "ollama_storage_gb"
+description  = "Storage size for Ollama models in GB"
+default      = "50"
+display_name = "Ollama Storage (GB)"
+group        = "ai"
+
+[[input]]
+name         = "ollama_model"
+description  = "Ollama model to pull and use (e.g., tinyllama, llama3.2:1b, llama3.2:3b, mistral, codellama)"
+default      = "tinyllama"
+display_name = "Ollama Model"
+group        = "ai"
+
