@@ -1,6 +1,0 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=runner
-runner_type = "azure"
-helm_driver = "configmap"
-
-[env_vars]
-foo = "bar"
