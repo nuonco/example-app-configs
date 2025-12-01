@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "Clickhouse"
+display_name = "Deploy clickhouse on an eks cluster."
+readme       = "./readme.md"

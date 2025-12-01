@@ -1,0 +1,48 @@
+karpenter:
+  discovery_key: "{{ .nuon.sandbox.outputs.karpenter.discovery_key }}"
+  discovery_value: "{{ .nuon.sandbox.outputs.karpenter.discovery_value }}"
+  instance_profile: "{{ .nuon.sandbox.outputs.karpenter.instance_profile.name }}"
+
+cluster_name: "{{ .nuon.sandbox.outputs.cluster.name }}"
+
+region: "{{ .nuon.install_stack.outputs.region }}"
+
+nodepools:
+  - name: clickhouse-keeper
+    instance_types:
+      - t3a.medium
+    limits:
+      cpu: 8
+      memory: "32Gi"
+    expireAfter: "2160h"
+    disruption:
+      budgets:
+        - nodes: "0"
+      consolidationPolicy: "WhenEmptyOrUnderutilized"
+      consolidateAfter: "15m"
+
+  - name: clickhouse-installation
+    instance_types:
+      - t3a.large
+    limits:
+      cpu: 14
+      memory: "1000Gi"
+    expireAfter: "Never"
+    disruption:
+      budgets:
+        - nodes: "0"
+      consolidationPolicy: "WhenEmpty"
+      consolidateAfter: "15m"
+
+  - name: clickhouse-ui
+    instance_types:
+      - t3a.small
+    limits:
+      cpu: 14
+      memory: "20Gi"
+    expireAfter: "2h"
+    disruption:
+      budgets:
+        - nodes: "0"
+      consolidationPolicy: "WhenEmptyOrUnderutilized"
+      consolidateAfter: "15m"

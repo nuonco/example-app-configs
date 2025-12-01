@@ -1,0 +1,32 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+[[group]]
+name         = "datadog"
+description  = "configuration for datadog"
+display_name = "Datadog Configs"
+
+[[input]]
+name         = "datadog_site"
+description  = "Value for datadog.site in the helm chart."
+default      = "us5.datadoghq.com"
+display_name = "Datadog Site"
+type         = "string"
+required     = true
+group        = "datadog"
+
+[[input]]
+name         = "datadog_log_collection_enabled"
+description  = "Value for datadog.spec.features.logCollection.enabled in the DatadogAgent."
+default      = "true"
+display_name = "Datadog Log Collection Enabled"
+type         = "bool"
+required     = true
+group        = "datadog"
+
+[[input]]
+name         = "datadog_log_colletion_container_collect_all"
+description  = "Value for datadog.spec.features.logCollection.containerCollectAll in the DatadogAgent."
+default      = "true"
+display_name = "Datadog Log Collection Container Collect All"
+type         = "bool"
+required     = true
+group        = "datadog"

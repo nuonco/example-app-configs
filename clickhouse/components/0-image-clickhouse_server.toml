@@ -1,0 +1,6 @@
+name   = "img_clickhouse_server"
+type   = "container_image"
+
+[public]
+image_url = "clickhouse/clickhouse-server"
+tag       = "24.3.12.75-alpine"

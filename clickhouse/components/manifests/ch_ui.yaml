@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ch-ui
+  namespace: clickhouse
+  labels:
+    app.kubernetes.io/name: clickhouse-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: clickhouse-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: clickhouse-ui
+    spec:
+      containers:
+        - name: ch-ui
+          env:
+            - name: VITE_CLICKHOUSE_URL
+              value: "https://ch.{{ .nuon.sandbox.outputs.nuon_dns.public_domain.name }}"
+            - name: VITE_CLICKHOUSE_USER
+              value: clickhouse
+            - name: VITE_CLICKHOUSE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: clickhouse-cluster-pw
+                  key: value
+          image:
+            '{{ .nuon.components.img_ch_ui.outputs.image.repository }}:{{ .nuon.components.img_ch_ui.outputs.image.tag
+            }}'
+          ports:
+            - containerPort: 5521
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ch-ui
+  namespace: clickhouse
+spec:
+  ports:
+    - name: http
+      port: 5521
+      protocol: TCP
+      targetPort: 5521
+  selector:
+    app.kubernetes.io/name: clickhouse-ui
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ch-ui-public
+  namespace: clickhouse
+  labels:
+    app.nuon.co/name: ch-ui
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: '{{ .nuon.components.certificate.outputs.arn }}'
+    alb.ingress.kubernetes.io/aws-load-balancer-ssl-ports: https
+    alb.ingress.kubernetes.io/healthcheck-path: /livez
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '5'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/tags: 'service.name=ch-ui,service.type=ui,env=byoc'
+    external-dns.alpha.kubernetes.io/hostname: 'ch-ui.{{ .nuon.sandbox.outputs.nuon_dns.public_domain.name }}'
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ch-ui
+                port:
+                  name: http

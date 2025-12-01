@@ -1,0 +1,8 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+name      = "ch_ui"
+type      = "kubernetes_manifest"
+namespace = "clickhouse"
+
+dependencies = ["clickhouse_ingress", "crd_tailscale_operator"]
+
+manifest  = "./manifests/ch_ui.yaml"

@@ -1,0 +1,8 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=kubernetes-manifest
+name      = "clickhouse_cluster"
+type      = "kubernetes_manifest"
+namespace = "clickhouse"
+
+dependencies = ["clickhouse_keeper"]
+
+manifest = "./manifests/clickhouse_cluster.yaml"

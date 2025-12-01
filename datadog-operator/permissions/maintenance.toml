@@ -1,0 +1,58 @@
+type                 = "maintenance"
+name                 = "{{.nuon.install.id}}-maintenance"
+description          = "maintenance role for dd-{{nuon.install.id}} install"
+display_name         = "maintenance dd-{{nuon.install.id}}"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"
+
+# limits secret access to secrets created for this install by the cloudformation stack
+# the naming convention is `{{.nuon.install.id}}/$secret_name
+[[policies]]
+name = "{{ .nuon.install.id }}-limited-secrets-manage"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowSecretsManagerReadScoped",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:CreateSecret",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:TagResource",
+                "secretsmanager:UpdateSecret",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:GetResourcePolicy",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:ListSecretVersionIds"
+            ],
+            "Resource": "arn:aws:secretsmanager:{{ .nuon.cloud_account.aws.region }}::secret:{{ .nuon.install.id }}/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:ResourceTag/install.nuon.co/id": "{{ .nuon.install.id }}"
+                }
+            }
+        }
+    ]
+}
+"""
+
+[[policies]]
+name = "{{ .nuon.install.id }}-allow-secret-list"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowListSecrets",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:ListSecrets"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""
