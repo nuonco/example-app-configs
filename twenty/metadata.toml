@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Twenty app"
-display_name = "Twenty app"
+description  = "Twenty"
+display_name = "Twenty open-source CRM on AWS EKS"
 readme       = "./README.md"

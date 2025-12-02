@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Coder app"
-display_name = "Coder app"
+display_name = "Coder"
+description  = "Coder on AWS EKS"
 readme       = "./README.md"

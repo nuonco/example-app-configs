@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Clickhouse"
-display_name = "Deploy clickhouse on an eks cluster."
+display_name = "Data Ops"
+description  = "Clickhouse, RDS-backed Temporal, and temporal-ai-agent on AWS EKS + karpenter."
 readme       = "./readme.md"

@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Clickhouse"
-display_name = "Deploy clickhouse on an eks cluster."
+display_name = "Clickhouse + Tailscale"
+description  = "Clickhouse on EKS with Tailscale for private ingress via tailnet"
 readme       = "./readme.md"

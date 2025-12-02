@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Clickhouse"
-display_name = "Deploy clickhouse on an eks cluster."
+display_name = "Datadog Operator"
+description  = "Datadog Operator and Agent on AWS EKS"
 readme       = "./readme.md"

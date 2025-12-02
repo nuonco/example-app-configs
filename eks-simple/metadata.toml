@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Simple EKS app"
-display_name = "Simple EKS app"
+display_name = "EKS Simple"
+description  = "Whoami on AWS EKS"
 readme       = "./README.md"

@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Grafana app"
-display_name = "Grafana app"
+display_name = "Grafana"
+description  = "Grafana observability stack on AWS EKS"
 readme       = "./README.md"

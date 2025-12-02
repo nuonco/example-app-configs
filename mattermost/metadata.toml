@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Mattermost app"
-display_name = "Mattermost app"
+display_name = "Mattermost"
+description  = "Secure messaging & collaboration tool on AWS EKS"
 readme       = "./README.md"

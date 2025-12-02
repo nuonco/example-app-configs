@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Baserow app"
-display_name = "Baserow app"
+display_name = "Baserow"
+description  = "Baserow open source no-code tool on AWS EKS"
 readme       = "./README.md"
