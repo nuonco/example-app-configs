@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+name              = "alb"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+branch    = "fd/new-demo/ecs-simple"
+directory = "ecs-simple/src/alb"
+
+[vars]
+region          = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id          = "{{ .nuon.install_stack.outputs.vpc_id }}"
+nuon_id         = "{{ .nuon.install.id }}"
+certificate_arn = "{{ .nuon.components.certificate.outputs.arn }}"
+hosted_zone_id  = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id }}"
+domain_name     = "whoami.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
