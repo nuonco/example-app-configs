@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "AWS BYO-LLM Open WebUI"
+description  = "AWS ECS Application deploying simple Whoami service."
+readme       = "./readme.md"
