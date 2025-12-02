@@ -1,0 +1,11 @@
+tags:
+  - eks
+  - kubernetes
+  - datadog
+  - monitoring
+  - observability
+  - operator
+  - karpenter
+links:
+  docs: https://docs.datadoghq.com/containers/datadog_operator/
+  upstream: https://datadoghq.com

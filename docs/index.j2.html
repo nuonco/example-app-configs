@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Example Apps | Nuon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            nuon: {
+              bg: '#0a0a0a',
+              surface: '#141414',
+              border: '#262626',
+              'border-light': '#333333',
+              text: '#fafafa',
+              'text-muted': '#a1a1aa',
+              accent: '#c084fc',
+              'accent-hover': '#a855f7',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak] { display: none !important; }
+    body { 
+      background: #0a0a0a;
+      background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(192, 132, 252, 0.08), transparent);
+    }
+    .card-hover:hover {
+      border-color: #404040;
+      background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%);
+    }
+    .tag-pill:hover {
+      background: rgba(192, 132, 252, 0.15);
+      color: #c084fc;
+      border-color: rgba(192, 132, 252, 0.3);
+    }
+    .tag-active {
+      background: rgba(192, 132, 252, 0.2) !important;
+      color: #c084fc !important;
+      border-color: rgba(192, 132, 252, 0.4) !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans text-nuon-text antialiased">
+  <div x-data="demoApp()" x-init="init()" class="max-w-6xl mx-auto px-6 py-12">
+    
+    <!-- Header -->
+    <header class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <a href="https://nuon.co" class="hover:opacity-80 transition-opacity">
+          <svg class="h-7 w-7" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="nuon-gradient" gradientUnits="userSpaceOnUse" x1="359.74" y1="979.23" x2="717.77" y2="104.97">
+                <stop offset="0" style="stop-color:#F72585"/>
+                <stop offset="0.53" style="stop-color:#3A00FF"/>
+                <stop offset="1" style="stop-color:#4CC9F0"/>
+              </linearGradient>
+            </defs>
+            <path fill="url(#nuon-gradient)" d="M704.25,72.41L519.57,175.78v167.36l-149.5-83.72h-0.09l-178.2,99.74v548.81l178.12,99.74h0.09l191.24-107.09V740.61l143.02,80.01l184.68-103.37V175.78L704.25,72.41z M233.52,382.52l136.38-76.29h0.09l149.5,83.64v280.64L233.52,510.5V382.52z M519.48,877.25L369.9,960.89L233.52,884.6V557.23l285.96,160.01V877.25z M847.19,693.79L704.25,773.8l-142.94-79.92V413.24l285.96,160.01v120.54H847.19z M847.19,526.52L561.22,366.51V199.15l143.02-80.01l142.94,80.01V526.52z"/>
+          </svg>
+        </a>
+        <span class="text-nuon-border-light">/</span>
+        <span class="text-nuon-text font-medium">Example Apps</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold text-nuon-text mb-4 tracking-tight">
+        Example Apps
+      </h1>
+      <p class="text-lg text-nuon-text-muted max-w-2xl">
+        Explore example applications that can be deployed into customer cloud accounts with 
+        <a href="https://nuon.co" class="text-nuon-accent hover:underline">Nuon</a>.
+        These demos are designed for learning — not production.
+      </p>
+    </header>
+
+    <!-- Search & Filter -->
+    <div class="mb-10 space-y-6">
+      <!-- Search -->
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-nuon-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input 
+          type="text" 
+          x-model="search" 
+          placeholder="Search demos..."
+          class="w-full pl-12 pr-4 py-3 bg-nuon-surface border border-nuon-border rounded-lg text-nuon-text placeholder-nuon-text-muted focus:outline-none focus:border-nuon-border-light focus:ring-1 focus:ring-nuon-border-light transition-colors"
+        >
+      </div>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-2">
+        <button 
+          @click="selectedTags = []"
+          :class="selectedTags.length === 0 ? 'tag-active' : ''"
+          class="tag-pill px-3 py-1.5 bg-nuon-surface border border-nuon-border rounded-full text-sm font-medium text-nuon-text-muted transition-all cursor-pointer"
+        >
+          All
+        </button>
+        <template x-for="tag in allTags" :key="tag">
+          <button 
+            @click="toggleTag(tag)"
+            :class="selectedTags.includes(tag) ? 'tag-active' : ''"
+            class="tag-pill px-3 py-1.5 bg-nuon-surface border border-nuon-border rounded-full text-sm font-medium text-nuon-text-muted transition-all cursor-pointer"
+            x-text="tag"
+          ></button>
+        </template>
+      </div>
+
+      <!-- Results count -->
+      <p class="text-sm text-nuon-text-muted" x-show="filteredDemos.length !== demos.length" x-cloak>
+        Showing <span class="text-nuon-text" x-text="filteredDemos.length"></span> of <span x-text="demos.length"></span> demos
+      </p>
+    </div>
+
+    <!-- Demo Grid -->
+    <div x-cloak class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <template x-for="demo in filteredDemos" :key="demo.name">
+        <article class="card-hover bg-nuon-surface border border-nuon-border rounded-xl p-6 transition-all duration-200">
+          <!-- Title -->
+          <h2 class="text-lg font-semibold text-nuon-text mb-2">
+            <a :href="demo.github" class="hover:text-nuon-accent transition-colors" x-text="demo.title" target="_blank"></a>
+          </h2>
+          
+          <!-- Description -->
+          <p class="text-nuon-text-muted text-sm mb-4 line-clamp-2" x-text="demo.description"></p>
+          
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <template x-for="tag in demo.tags.slice(0, 5)" :key="tag">
+              <span 
+                @click="toggleTag(tag)"
+                class="px-2 py-0.5 bg-nuon-bg border border-nuon-border text-nuon-text-muted text-xs rounded-md cursor-pointer hover:border-nuon-accent hover:text-nuon-accent transition-colors"
+                x-text="tag"
+              ></span>
+            </template>
+            <template x-if="demo.tags.length > 5">
+              <span class="px-2 py-0.5 text-nuon-text-muted text-xs">+<span x-text="demo.tags.length - 5"></span></span>
+            </template>
+          </div>
+
+          <!-- Links -->
+          <div class="flex flex-wrap gap-4 text-sm pt-4 border-t border-nuon-border">
+            <a :href="demo.github" target="_blank" class="text-nuon-text-muted hover:text-nuon-accent transition-colors flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              Code
+            </a>
+            <template x-if="demo.sandbox">
+              <a :href="demo.sandbox" target="_blank" class="text-nuon-text-muted hover:text-nuon-accent transition-colors flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                Sandbox
+              </a>
+            </template>
+            <template x-for="(url, name) in demo.links" :key="name">
+              <a :href="url" target="_blank" class="text-nuon-text-muted hover:text-nuon-accent transition-colors capitalize flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <span x-text="name"></span>
+              </a>
+            </template>
+          </div>
+        </article>
+      </template>
+    </div>
+
+    <!-- Empty state -->
+    <div x-show="filteredDemos.length === 0" x-cloak class="text-center py-16">
+      <div class="text-nuon-text-muted">
+        <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-lg">No demos match your search criteria.</p>
+        <button @click="search = ''; selectedTags = []" class="mt-4 text-nuon-accent hover:underline">Clear filters</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-16 pt-8 border-t border-nuon-border">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-nuon-text-muted">
+        <div class="flex items-center gap-6">
+          <a href="https://docs.nuon.co" class="hover:text-nuon-text transition-colors">Docs</a>
+          <a href="https://github.com/nuonco/example-app-configs" class="hover:text-nuon-text transition-colors">GitHub</a>
+          <a href="https://nuon.co/demo-request" class="hover:text-nuon-text transition-colors">Book a Demo</a>
+          <a href="https://nuon-byoc.slack.com" class="hover:text-nuon-text transition-colors">Slack</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <span>© 2025 Nuon</span>
+          <a href="https://github.com/nuonco" class="hover:text-nuon-text transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/company/nuonco" class="hover:text-nuon-text transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script id="site-data" type="application/json">{{ site_data | tojson }}</script>
+  <script>
+    window.SITE_DATA = JSON.parse(document.getElementById('site-data').textContent);
+    function demoApp() {
+      return {
+        demos: [],
+        allTags: [],
+        search: '',
+        selectedTags: [],
+
+        init() {
+          const data = window.SITE_DATA;
+          this.demos = data.demos;
+          this.allTags = data.tags;
+        },
+
+        toggleTag(tag) {
+          if (this.selectedTags.includes(tag)) {
+            this.selectedTags = this.selectedTags.filter(t => t !== tag);
+          } else {
+            this.selectedTags.push(tag);
+          }
+        },
+
+        get filteredDemos() {
+          return this.demos.filter(demo => {
+            const matchesSearch = this.search === '' || 
+              demo.title.toLowerCase().includes(this.search.toLowerCase()) ||
+              demo.description.toLowerCase().includes(this.search.toLowerCase()) ||
+              demo.name.toLowerCase().includes(this.search.toLowerCase()) ||
+              demo.tags.some(t => t.toLowerCase().includes(this.search.toLowerCase()));
+            
+            const matchesTags = this.selectedTags.length === 0 ||
+              this.selectedTags.every(tag => demo.tags.includes(tag));
+            
+            return matchesSearch && matchesTags;
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>
