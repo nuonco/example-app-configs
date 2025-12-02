@@ -1,0 +1,11 @@
+tags:
+  - eks
+  - kubernetes
+  - helm
+  - monitoring
+  - observability
+  - prometheus
+  - postgresql
+links:
+  blog: https://nuon.co/blog/installing-grafana-with-nuon/
+  upstream: https://grafana.com

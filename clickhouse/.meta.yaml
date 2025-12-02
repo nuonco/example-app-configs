@@ -1,0 +1,10 @@
+tags:
+  - eks
+  - kubernetes
+  - clickhouse
+  - database
+  - analytics
+  - operator
+  - karpenter
+links:
+  upstream: https://clickhouse.com

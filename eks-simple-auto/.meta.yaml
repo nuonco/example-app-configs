@@ -1,0 +1,8 @@
+tags:
+  - eks
+  - eks-auto-mode
+  - kubernetes
+  - alb
+  - certificate
+links:
+  sandbox: https://github.com/nuonco/aws-eks-auto-sandbox

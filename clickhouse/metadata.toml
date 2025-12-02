@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "Clickhouse"
-display_name = "Deploy clickhouse on an eks cluster."
+display_name = "ClickHouse on EKS"
+description  = "ClickHouse on EKS with altinity/clickhouse-operator"
 readme       = "./readme.md"
