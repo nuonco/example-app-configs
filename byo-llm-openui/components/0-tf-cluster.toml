@@ -5,7 +5,7 @@ terraform_version = "1.13.5"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "ecs-simple/src/cluster"
+directory = "byo-llm-openui/src/cluster"
 branch    = "main"
 
 [vars]

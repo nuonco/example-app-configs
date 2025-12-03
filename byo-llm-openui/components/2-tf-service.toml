@@ -1,0 +1,23 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+name              = "open_webui"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "byo-llm-openui/src/service"
+branch    = "main"
+
+[vars]
+region                  = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id                  = "{{ .nuon.install_stack.outputs.vpc_id }}"
+nuon_id                 = "{{ .nuon.install.id }}"
+cluster_arn             = "{{ .nuon.components.cluster.outputs.cluster_arn }}"
+alb_security_group_id   = "{{ .nuon.components.alb.outputs.security_group_id }}"
+app_target_group_arn    = "{{ .nuon.components.alb.outputs.app_target_group_arn }}"
+
+app_image_repository = "{{ .nuon.components.img_open_webui.outputs.image.repository }}"
+app_image_tag        = "{{ .nuon.components.img_open_webui.outputs.image.tag }}"
+app_url              = "{{ .nuon.components.alb.outputs.app_url }}"
+
+openai_secret_arn = "{{ .nuon.install_stack.outputs.openai_api_key_arn }}"
