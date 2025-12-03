@@ -1,9 +1,3 @@
-data "aws_caller_identity" "current" {}
-
-data "aws_vpc" "vpc" {
-  id = var.vpc_id
-}
-
 data "aws_subnets" "public" {
   filter {
     name   = "vpc-id"
@@ -58,23 +52,6 @@ data "aws_subnet" "runner" {
   for_each = toset(data.aws_subnets.runner.ids)
   id       = each.key
 }
-
-data "aws_security_group" "default" {
-  name   = "default"
-  vpc_id = data.aws_vpc.vpc.id
-}
-
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-data "aws_security_groups" "runner" {
-  tags = {
-    "network.nuon.co/domain" = "runner"
-    "install.nuon.co/id"     = var.nuon_id
-  }
-}
-
 
 locals {
   subnets = {

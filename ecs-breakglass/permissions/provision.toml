@@ -1,0 +1,9 @@
+type                 = "provision"
+name                 = "{{.nuon.install.id}}-provision"
+description          = "{{ .nuon.install.id }} provision role for ecs-breakglass install"
+display_name         = "{{ .nuon.install.id }}-provision"
+permissions_boundary = "./provision_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"
+

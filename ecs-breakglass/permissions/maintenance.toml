@@ -1,0 +1,22 @@
+type                 = "maintenance"
+name                 = "{{ .nuon.install.id }}-maintenance"
+description          = "{{ .nuon.install.id }} maintenance role for ecs-breakglass install"
+display_name         = "{{ .nuon.install.id }}-maintenance"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-networking"
+contents = "./maintenance_policy_networking.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-runner"
+contents = "./maintenance_policy_runner.json"
+
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-core"
+contents = "./maintenance_policy_core.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-iam"
+contents = "./maintenance_policy_iam.json"

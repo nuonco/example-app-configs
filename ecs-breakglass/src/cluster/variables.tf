@@ -7,7 +7,12 @@ locals {
   ecs_min_size          = var.ecs_min_size
   ecs_max_size          = var.ecs_max_size
   ecs_desired_capacity  = var.ecs_desired_capacity
-  tags                  = var.tags
+  tags = merge(var.tags,
+    {
+      "install.nuon.co/id"     = var.nuon_id
+      "component.nuon.co/name" = "ecs-cluster"
+    }
+  )
 }
 
 
