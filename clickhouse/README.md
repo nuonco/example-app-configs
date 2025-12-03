@@ -1,4 +1,4 @@
-{{ $region := .nuon.cloud_account.aws.region }} set -e set -o pipefail set -u
+{{ $region := .nuon.cloud_account.aws.region }}
 
 <center>
   <img src="https://mintlify.s3-us-west-1.amazonaws.com/nuoninc/logo/dark.svg"/>
