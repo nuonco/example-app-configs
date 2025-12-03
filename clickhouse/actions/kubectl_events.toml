@@ -1,0 +1,13 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "kubectl_events"
+timeout = "2m30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "kubectl_events"
+inline_contents = "./src/kubectl-events.sh"
+
+[steps.env_vars]
+NAMESPACE = "kube-system"

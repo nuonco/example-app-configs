@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "deployment_logs"
+timeout = "2m30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "deployment-logs"
+inline_contents = "./src/deployment-logs.sh"
+
+[steps.env_vars]
+DEPLOYMENT_NAMESPACE = "kube-system"
+DEPLOYMENT_NAME      = "clickhouse-operator-altinity-clickhouse-operator"

@@ -3,6 +3,7 @@ name           = "karpenter_nodepools"
 type           = "helm_chart"
 chart_name     = "karpenter-nodepools"
 storage_driver = "configmap"
+drift_schedule = "17 * * * *"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
