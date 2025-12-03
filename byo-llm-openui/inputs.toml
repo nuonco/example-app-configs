@@ -10,17 +10,3 @@ description  = "domain for the AWS API Gateway e.g., nuon.run or stage.nuon.run"
 default      = "nuon.run"
 display_name = "Domain"
 group        = "dns"
-
-[[input]]
-name         = "api_subdomain"
-description  = "The subdomain for the API (e.g., 'api' for api.nuon.run)"
-default      = "api"
-display_name = "API Subdomain"
-group        = "dns"
-
-[[input]]
-name         = "ui_subdomain"
-description  = "The subdomain for the UI (e.g., 'openui' for openui.nuon.run)"
-default      = "openui"
-display_name = "UI Subdomain"
-group        = "dns"
