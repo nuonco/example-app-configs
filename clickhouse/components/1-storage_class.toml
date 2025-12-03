@@ -1,7 +1,8 @@
 #:schema https://api.nuon.co/v1/general/config-schema?source=kubernetes-manifest
-name      = "storage_class"
-type      = "kubernetes_manifest"
-namespace = "default"
+name           = "storage_class"
+type           = "kubernetes_manifest"
+namespace      = "default"
+drift_schedule = "0 */6 * * *"
 
 manifest = """
 ---
