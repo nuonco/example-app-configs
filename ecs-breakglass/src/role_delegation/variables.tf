@@ -23,12 +23,6 @@ variable "vendor_role_arn" {
   type        = string
 }
 
-variable "external_id" {
-  description = "External ID for additional security on the trust relationship"
-  type        = string
-  default     = ""
-}
-
 variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)

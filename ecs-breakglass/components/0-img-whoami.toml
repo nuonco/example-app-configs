@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=docker_build
+# docker-build
 name   = "img_whoami"
 type   = "container_image"
 

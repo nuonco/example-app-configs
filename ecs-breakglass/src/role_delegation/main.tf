@@ -1,24 +1,5 @@
 locals {
   prefix = var.nuon_id
-
-  trust_policy_statement = var.external_id != "" ? {
-    Effect = "Allow"
-    Principal = {
-      AWS = var.vendor_role_arn
-    }
-    Action = "sts:AssumeRole"
-    Condition = {
-      StringEquals = {
-        "sts:ExternalId" = var.external_id
-      }
-    }
-    } : {
-    Effect = "Allow"
-    Principal = {
-      AWS = var.vendor_role_arn
-    }
-    Action = "sts:AssumeRole"
-  }
 }
 
 resource "aws_iam_role" "delegated" {
@@ -27,8 +8,12 @@ resource "aws_iam_role" "delegated" {
   tags        = var.tags
 
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17"
-    Statement = [local.trust_policy_statement]
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { AWS = var.vendor_role_arn }
+      Action    = "sts:AssumeRole"
+    }]
   })
 }
 

@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+# terraform
 name              = "whoami"
 type              = "terraform_module"
 terraform_version = "1.13.5"
