@@ -1,0 +1,14 @@
+# terraform
+name              = "cluster"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "ecs-breakglass/src/cluster"
+branch    = "fd/new-app/ecs-breakglass"
+
+[vars]
+region  = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id  = "{{ .nuon.install_stack.outputs.vpc_id }}"
+nuon_id = "{{ .nuon.install.id }}"

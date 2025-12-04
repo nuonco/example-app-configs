@@ -1,0 +1,16 @@
+# terraform - role delegation for vendor access
+name              = "role_delegation"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "ecs-breakglass/src/role_delegation"
+branch    = "fd/new-app/ecs-breakglass"
+
+[vars]
+region                   = "{{ .nuon.install_stack.outputs.region }}"
+nuon_id                  = "{{ .nuon.install.id }}"
+cluster_arn              = "{{ .nuon.components.cluster.outputs.cluster_arn }}"
+cloudwatch_log_group_arn = "{{ .nuon.components.whoami.outputs.cloudwatch_log_group_arn }}"
+vendor_role_arn          = "{{ .nuon.install.inputs.vendor_role_arn }}"

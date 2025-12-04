@@ -1,0 +1,7 @@
+# docker-build
+name   = "img_whoami"
+type   = "container_image"
+
+[public]
+image_url = "containous/whoami"
+tag       = "v1.5.0"

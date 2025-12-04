@@ -1,0 +1,20 @@
+# terraform
+name              = "whoami"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "ecs-breakglass/src/service"
+branch    = "fd/new-app/ecs-breakglass"
+
+[vars]
+region                = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id                = "{{ .nuon.install_stack.outputs.vpc_id }}"
+nuon_id               = "{{ .nuon.install.id }}"
+cluster_arn           = "{{ .nuon.components.cluster.outputs.cluster_arn }}"
+alb_security_group_id = "{{ .nuon.components.alb.outputs.security_group_id }}"
+target_group_arn      = "{{ .nuon.components.alb.outputs.target_group_arn }}"
+
+image_repository = "{{ .nuon.components.img_whoami.outputs.image.repository }}"
+image_tag        = "{{ .nuon.components.img_whoami.outputs.image.tag }}"
