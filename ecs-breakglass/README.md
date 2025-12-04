@@ -13,6 +13,10 @@
 
 [https://whoami.{{.nuon.sandbox.outputs.nuon_dns.public_domain.name}}](https://whoami.{{.nuon.sandbox.outputs.nuon_dns.public_domain.name}})
 
+<small>
+[Break Glass Docs](https://docs.nuon.co/production-readiness/break-glass#break-glass_) |
+[Changelog](https://docs.nuon.co/updates/020-break-glass-actions#020-break-glass-actions)
+</small>
 </center>
 
 ## Description
@@ -142,7 +146,7 @@ Role delegation is enabled:
 2. assume the install role and get a shell
    ```bash
    # AWS_PROFILE=vendor.Delegation  # <- may be necessary, if you need it you probably know
-   ./scripts/install-shell {{ .nuon.inputs.inputs.vendor_role_arn }} {{ dig "outputs" "delegated_role_arn" "-" .nuon.components.role_delegation }}
+   ./scripts/install-shell.sh {{ .nuon.inputs.inputs.vendor_role_arn }} {{ dig "outputs" "delegated_role_arn" "-" .nuon.components.role_delegation }}
    ```
 
 <details>
@@ -187,7 +191,7 @@ script to open a shell w/ the delegated role credentials.
 
 ```bash
 # AWS_PROFILE=vendor.Delegation  # <- may be necessary, if you need it you probably know
-./scripts/install-shell {{ .nuon.inputs.inputs.vendor_role_arn }} {{ dig "outputs" "delegated_role_arn" "-" .nuon.components.role_delegation }}
+./scripts/install-shell.sh {{ .nuon.inputs.inputs.vendor_role_arn }} {{ dig "outputs" "delegated_role_arn" "-" .nuon.components.role_delegation }}
 ```
 
 <details>
