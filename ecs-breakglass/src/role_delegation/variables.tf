@@ -19,8 +19,9 @@ variable "cloudwatch_log_group_arn" {
 }
 
 variable "vendor_role_arn" {
-  description = "ARN of the vendor's IAM role to grant cross-account access"
+  description = "ARN of the vendor's IAM role to grant cross-account access. If empty, no resources are created."
   type        = string
+  default     = ""
 }
 
 variable "tags" {

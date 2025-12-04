@@ -1,8 +1,11 @@
 locals {
-  prefix = var.nuon_id
+  prefix  = var.nuon_id
+  enabled = var.vendor_role_arn != ""
 }
 
 resource "aws_iam_role" "delegated" {
+  count = local.enabled ? 1 : 0
+
   name        = "${local.prefix}-vendor-delegated"
   description = "Role allowing vendor cross-account access to this install's resources"
   tags        = var.tags
@@ -18,6 +21,8 @@ resource "aws_iam_role" "delegated" {
 }
 
 resource "aws_iam_policy" "cloudwatch_logs_access" {
+  count = local.enabled ? 1 : 0
+
   name        = "${local.prefix}-delegated-logs-access"
   description = "Policy granting read access to CloudWatch logs for delegated role"
   tags        = var.tags
@@ -49,6 +54,8 @@ resource "aws_iam_policy" "cloudwatch_logs_access" {
 }
 
 resource "aws_iam_policy" "ecs_cluster_read" {
+  count = local.enabled ? 1 : 0
+
   name        = "${local.prefix}-delegated-cluster-read"
   description = "Policy granting read access to ECS cluster for delegated role"
   tags        = var.tags
@@ -89,11 +96,15 @@ resource "aws_iam_policy" "ecs_cluster_read" {
 }
 
 resource "aws_iam_role_policy_attachment" "logs_access" {
-  role       = aws_iam_role.delegated.name
-  policy_arn = aws_iam_policy.cloudwatch_logs_access.arn
+  count = local.enabled ? 1 : 0
+
+  role       = aws_iam_role.delegated[0].name
+  policy_arn = aws_iam_policy.cloudwatch_logs_access[0].arn
 }
 
 resource "aws_iam_role_policy_attachment" "cluster_read" {
-  role       = aws_iam_role.delegated.name
-  policy_arn = aws_iam_policy.ecs_cluster_read.arn
+  count = local.enabled ? 1 : 0
+
+  role       = aws_iam_role.delegated[0].name
+  policy_arn = aws_iam_policy.ecs_cluster_read[0].arn
 }
