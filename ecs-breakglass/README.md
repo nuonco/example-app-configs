@@ -13,6 +13,10 @@
 
 [https://whoami.{{.nuon.sandbox.outputs.nuon_dns.public_domain.name}}](https://whoami.{{.nuon.sandbox.outputs.nuon_dns.public_domain.name}})
 
+<small>
+[Break Glass Docs](https://docs.nuon.co/production-readiness/break-glass#break-glass_) |
+[Changelog](https://docs.nuon.co/updates/020-break-glass-actions#020-break-glass-actions)
+</small>
 </center>
 
 ## Description
