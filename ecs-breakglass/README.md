@@ -17,13 +17,22 @@
 
 ## Description
 
-The purpose of this demo app is to show how a vendor can use break glass an can be used to provide elevated permissions.
+The purpose of this demo app is to show how a vendor can use Nuon's built in break-glass feature to provide elevated
+permissions. We also illustrate a method for persistent access to AWS resources created for an install using cross
+account access with role delegation.
 
 ### IAM Role Delegation for Cross Account Access
 
-Additionally, we include an example for AWS Iam Role Delegation by which a customer can grant a vendor's IAM role cross
-account permissions to a specific subset of resources. In this case, ECS Cluster and CloudWatch log read-access for the
-resources created for an install.
+In some scenarios, it is beneficial for a vendor and with a customer for the vendor to retain access to resources in the
+AWS account to which an install is deployed for debugging or monitoring purposes. To that end, we include an example for
+AWS Iam Role Delegation by which a customer can grant a vendor's IAM role cross account permissions to a specific subset
+of resources.
+
+In this demo app config, if a `vendor_role_arn` (originator) is provided during the installation, a component
+(`role_delegation`) will create a dedicated role in the target account and grant the `vendor_role` permission to assume
+it. The component explicitly grants the role acces to the ECS Cluster, its tasks and services, and their CloudWatch
+logs. This access is limited to the specific resources managed by this app config. For more details, see the
+[Role Delegation](#roledelegation) section.
 
 ### Granular Permissions
 
@@ -87,7 +96,22 @@ An ECS Service with a single container, `whoami`.
 Creates a delegated role in the customer's account that the vendor can assume for read-only access to the ECS cluster
 and CloudWatch logs.
 
-See [./src/role_delegation](./src/role_delegation) for additional details.
+See [./src/role_delegation](./src/role_delegation) and these
+[AWS Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html) for additional
+details
+
+**Notes for Vendor**
+
+If you, as the vendor, would like to enable role delegation, you will need an IAM role the end-user/customer can use
+during installation. We provide a script (`./scripts/vendor-role.sh`) which you can use to create one. Ensure the AWS
+profile is configured correctly.
+
+<!-- prettier-ignore-start -->
+
+> [!IMPORTANT]
+> This delegation demo assumes the vendor AWS account is distinct from the AWS account to which the install is deployed.
+
+<!-- prettier-ignore-end -->
 
 {{ if .nuon.inputs.inputs.vendor_role_arn }}
 
@@ -100,10 +124,15 @@ Role delegation is enabled:
 
 ### How to use this?
 
-> [!WARNING] When using the scripts for the role delegation bits, ensure you have properly configured your AWS_PROFILE.
+<!-- prettier-ignore-start -->
+> [!WARNING]
+> When using the scripts for the role delegation bits, ensure you have properly configured your AWS_PROFILE.
+<!-- prettier-ignore-end -->
 
-> [!WARNING] After you have dropped into the vendor or install shell, ensure your AWS_PROFILE is not being provided by
-> the calling context.
+<!-- prettier-ignore-start -->
+> [!WARNING]
+> After you have dropped into the vendor or install shell, ensure your AWS_PROFILE is not being provided by the calling context.
+<!-- prettier-ignore-end -->
 
 1. attach the policy to your vendor role.
    ```bash
