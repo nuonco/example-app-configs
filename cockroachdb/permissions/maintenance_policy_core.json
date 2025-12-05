@@ -17,6 +17,8 @@
         "eks:DescribeAddonVersions",
         "eks:ListAddons",
         "eks:UpdateAddon",
+        "eks:DescribeUpdate",
+        "eks:ListUpdates",
         "eks:AssociateEncryptionConfig",
         "eks:AssociateIdentityProviderConfig",
         "eks:DisassociateIdentityProviderConfig",
@@ -69,6 +71,44 @@
       "Resource": "*"
     },
     {
+      "Sid": "EKSPodIdentity",
+      "Effect": "Allow",
+      "Action": [
+        "eks:CreatePodIdentityAssociation",
+        "eks:DeletePodIdentityAssociation",
+        "eks:DescribePodIdentityAssociation",
+        "eks:ListPodIdentityAssociations"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSForEKSEncryption",
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateKey",
+        "kms:DescribeKey",
+        "kms:GetKeyPolicy",
+        "kms:GetKeyRotationStatus",
+        "kms:ListResourceTags",
+        "kms:ScheduleKeyDeletion",
+        "kms:CreateAlias",
+        "kms:DeleteAlias",
+        "kms:ListAliases",
+        "kms:UpdateAlias",
+        "kms:TagResource",
+        "kms:UntagResource",
+        "kms:EnableKeyRotation",
+        "kms:CreateGrant",
+        "kms:ListGrants",
+        "kms:RevokeGrant",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:GenerateDataKey",
+        "kms:GenerateDataKeyWithoutPlaintext"
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "KarpenterEC2Management",
       "Effect": "Allow",
       "Action": [
@@ -87,7 +127,17 @@
         "ec2:DescribeInstanceTypeOfferings",
         "ec2:DescribeSpotPriceHistory",
         "ec2:DescribeImages",
-        "ec2:DescribeAvailabilityZones"
+        "ec2:DescribeAvailabilityZones",
+        "ec2:DescribeVolumes",
+        "ec2:CreateVolume",
+        "ec2:DeleteVolume",
+        "ec2:AttachVolume",
+        "ec2:DetachVolume",
+        "ec2:ModifyVolume",
+        "ec2:DescribeVolumesModifications",
+        "ec2:CreateSnapshot",
+        "ec2:DeleteSnapshot",
+        "ec2:DescribeSnapshots"
       ],
       "Resource": "*"
     },
@@ -108,10 +158,12 @@
         "ec2:CreateSecurityGroup",
         "ec2:DeleteSecurityGroup",
         "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSecurityGroupRules",
         "ec2:AuthorizeSecurityGroupIngress",
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:RevokeSecurityGroupIngress",
-        "ec2:RevokeSecurityGroupEgress"
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:ModifySecurityGroupRules"
       ],
       "Resource": "*"
     },
@@ -122,7 +174,8 @@
         "ec2:DescribeVpcs",
         "ec2:DescribeSubnets",
         "ec2:DescribeNetworkInterfaces",
-        "ec2:DescribeRouteTables"
+        "ec2:DescribeRouteTables",
+        "ec2:DescribeKeyPairs"
       ],
       "Resource": "*"
     },
@@ -189,7 +242,8 @@
         "autoscaling:CreateOrUpdateTags",
         "autoscaling:DeleteTags",
         "autoscaling:DescribeTags",
-        "autoscaling:DescribeLaunchConfigurations"
+        "autoscaling:DescribeLaunchConfigurations",
+        "autoscaling:DescribeScalingActivities"
       ],
       "Resource": "*"
     },
@@ -278,6 +332,25 @@
       "Resource": "*"
     },
     {
+      "Sid": "ECRRepositoryManagement",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:CreateRepository",
+        "ecr:DeleteRepository",
+        "ecr:DescribeRepositories",
+        "ecr:ListTagsForResource",
+        "ecr:TagResource",
+        "ecr:UntagResource",
+        "ecr:PutLifecyclePolicy",
+        "ecr:GetLifecyclePolicy",
+        "ecr:DeleteLifecyclePolicy",
+        "ecr:SetRepositoryPolicy",
+        "ecr:GetRepositoryPolicy",
+        "ecr:DeleteRepositoryPolicy"
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "ECRImageRead",
       "Effect": "Allow",
       "Action": [
@@ -285,7 +358,6 @@
         "ecr:BatchCheckLayerAvailability",
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
-        "ecr:DescribeRepositories",
         "ecr:DescribeImages"
       ],
       "Resource": "*"
@@ -301,6 +373,15 @@
         "ecr:BatchCheckLayerAvailability"
       ],
       "Resource": "arn:aws:ecr:*:*:repository/{{.nuon.install.id}}"
+    },
+    {
+      "Sid": "STSForOIDC",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity",
+        "sts:AssumeRoleWithWebIdentity"
+      ],
+      "Resource": "*"
     }
   ]
 }
