@@ -12,11 +12,26 @@ contents = "./maintenance_policy_networking.json"
 name = "{{.nuon.install.id}}-maintenance-policy-runner"
 contents = "./maintenance_policy_runner.json"
 
-
-[[policies]] # policies needed for sandbox and components
-name = "{{.nuon.install.id}}-maintenance-policy-core"
-contents = "./maintenance_policy_core.json"
+[[policies]] # allow reading secrets for this install
+name = "{{.nuon.install.id}}-maintenance-policy-secrets"
+contents = "./maintenance_policy_secret.json"
 
 [[policies]]
 name = "{{.nuon.install.id}}-maintenance-policy-iam"
 contents = "./maintenance_policy_iam.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-route53"
+contents = "./maintenance_policy_route53.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-acm"
+contents = "./maintenance_policy_acm.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-alb"
+contents = "./maintenance_policy_alb.json"
+
+[[policies]] # policies needed for sandbox and components
+name = "{{.nuon.install.id}}-maintenance-policy-eks"
+contents = "./maintenance_policy_eks.json"

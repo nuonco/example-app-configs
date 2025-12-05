@@ -1,0 +1,7 @@
+# container-image
+name = "img_tailscale_operator"
+type = "container_image"
+
+[public]
+image_url = "tailscale/k8s-operator"
+tag       = "v1.90.6"

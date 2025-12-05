@@ -1,0 +1,30 @@
+# https://github.com/tailscale/tailscale/blob/v1.90.6/cmd/k8s-operator/deploy/chart/values.yaml
+installCRDs: "false"
+
+# NOTE(fd): the secret is created ahead of time so we do not need to provide these values.
+# see ../../actions/ts_operator_creds.toml to see how we set this up.
+# see # https://raw.githubusercontent.com/tailscale/tailscale/refs/tags/v1.90.6/cmd/k8s-operator/deploy/chart/templates/oauth-secret.yaml
+
+# Operator oauth credentials. If set a Kubernetes Secret with the provided
+# values will be created in the operator namespace. If unset a Secret named
+# operator-oauth must be precreated or oauthSecretVolume needs to be adjusted.
+# This block will be overridden by oauthSecretVolume, if set.
+# oauth:
+#   clientId: "<OAauth client ID>"
+#   clientSecret: "<OAuth client secret>"
+
+operatorConfig:
+  image:
+    # Repository defaults to DockerHub, but images are also synced to ghcr.io/tailscale/k8s-operator.
+    repository: "{{ .nuon.components.img_altinity_clickhouse_operator.outputs.image.repository }}"
+    tag: "{{ .nuon.components.img_altinity_clickhouse_operator.outputs.image.tag }}"
+    pullPolicy: Always
+
+  # allow the operator to run on the default node group (EKS ASG) alongside other critical workloads
+  tolerations:
+    - effect: NoSchedule
+      key: CriticalAddonsOnly
+      value: "true"
+    - effect: NoSchedule
+      key: karpenter.sh/controller
+      value: "true"

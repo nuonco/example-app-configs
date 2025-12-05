@@ -8,7 +8,6 @@
         "acm:*",
         "autoscaling:DescribeAutoScalingGroups",
         "cloudwatch:*",
-        "logs:*",
         "ec2:*",
         "ecr:*",
         "eks:*",

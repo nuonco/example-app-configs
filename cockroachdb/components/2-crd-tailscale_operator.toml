@@ -1,0 +1,6 @@
+# helm
+name      = "crd_tailscale_operator"
+type      = "kubernetes_manifest"
+namespace = "tailscale"
+
+manifest = "./manifests/tailscale_operator.yaml"

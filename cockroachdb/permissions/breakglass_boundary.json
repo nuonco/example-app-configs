@@ -6,31 +6,23 @@
       "Action": [
         "Route53:*",
         "acm:*",
-        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:*",
         "cloudwatch:*",
-        "logs:*",
         "ec2:*",
         "ecr:*",
-        "eks:*",
+        "ecs:*",
+        "elasticache:*",
         "iam:*",
         "kms:*",
+        "logs:*",
         "organizations:DescribeOrganization",
         "rds:*",
         "s3:*",
         "secretsmanager:*",
-        "sqs:*"
+        "ssm:*",
+        "elasticloadbalancing:*"
       ],
       "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["autoscaling:StartInstanceRefresh"],
-      "Resource": "*",
-      "Condition": {
-        "StringEquals": {
-          "aws:ResourceTag/nuon_install_id": "{{ .nuon.install.id }}"
-        }
-      }
     }
   ]
 }

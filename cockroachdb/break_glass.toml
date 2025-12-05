@@ -1,0 +1,33 @@
+[[role]]
+name                 = "{{.nuon.install.id}}-ecs-breakglass-break-glass-permission"
+description          = "{{.nuon.install.id}} grant elevated permissions"
+display_name         = "Break Glass for ECS Simple for Install {{.nuon.install.id}}"
+# this permission boundary is currently the same as the boundary for the maintenance role
+permissions_boundary = "./breakglass_boundary.json"
+
+[[role.policies]]
+managed_policy_name = "AdministratorAccess"
+
+[[role.policies]]
+name = "{{.nuon.install.id}}-bg-deny-non-install-secrets"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenySecretsManagerAccess",
+            "Effect": "Deny",
+            "Action": [
+                "secretsmanager:*"
+            ],
+            "Resource": "*",
+            "Condition": {
+              "StringNotEquals": {
+                "secretsmanager:ResourceTag/install.nuon.co/id": "{{ .nuon.install.id }}"
+              }
+            }
+
+        }
+    ]
+}
+"""
