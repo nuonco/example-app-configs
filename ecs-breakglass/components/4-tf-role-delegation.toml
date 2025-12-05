@@ -6,7 +6,7 @@ terraform_version = "1.13.5"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "ecs-breakglass/src/role_delegation"
-branch    = "fd/new-app/ecs-breakglass"
+branch    = "main"
 
 [vars]
 region                   = "{{ .nuon.install_stack.outputs.region }}"
