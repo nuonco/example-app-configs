@@ -1,0 +1,55 @@
+name: Sync Nuon App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_changes: ${{ steps.set-matrix.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed directories
+        id: set-matrix
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+
+          # Extract unique top-level directories (excluding .github)
+          CHANGED_DIRS=$(echo "$CHANGED_FILES" | cut -d'/' -f1 | sort -u | grep -v '^\.' | grep -v '^$' || true)
+
+          if [ -z "$CHANGED_DIRS" ]; then
+            echo "No app directories changed"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "matrix={\"app\":[]}" >> $GITHUB_OUTPUT
+          else
+            # Build JSON array for matrix
+            JSON_ARRAY=$(echo "$CHANGED_DIRS" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "Changed directories: $JSON_ARRAY"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "matrix={\"app\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+          fi
+
+  sync:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync ${{ matrix.app }}
+        uses: nuonco/actions-nuon@v0.2.0
+        with:
+          org_id: ${{ secrets.NUON_ORG_ID }}
+          api_token: ${{ secrets.NUON_API_TOKEN }}
+          command: apps sync -d ${{ matrix.app }}
