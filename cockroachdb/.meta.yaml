@@ -1,0 +1,13 @@
+tags:
+  - eks
+  - kubernetes
+  - cockroachdb
+  - database
+  - operator
+  - karpenter
+  - tailscale
+  - iam
+  - cross-account
+links:
+  upstream: https://www.cockroachlabs.com/docs/v25.4/deploy-cockroachdb-with-kubernetes#step-1-start-kubernetes
+  tailscale: https://tailscale.com

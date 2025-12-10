@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name      = "storage_class"
+type      = "kubernetes_manifest"
+namespace = "default"
+
+manifest = "./manifests/storage_class.yaml"

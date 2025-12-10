@@ -1,0 +1,43 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+[[group]]
+name         = "dns"
+description  = "DNS Configrations"
+display_name = "Configurations for the root domain for Route53"
+
+[[input]]
+name         = "domain"
+description  = "domain for the AWS API Gateway e.g., nuon.run or stage.nuon.run"
+default      = "nuon.run"
+display_name = "Domain"
+group        = "dns"
+
+[[input]]
+name         = "sub_domain"
+description  = "The sub domain for the AWS API Gateway"
+default      = "whoami"
+display_name = "Sub Domain"
+group        = "dns"
+
+[[group]]
+name         = "iam"
+description  = "Configurations for Delegated IAM Role"
+display_name = "IAM Role Delegation"
+
+[[input]]
+group        = "iam"
+name         = "vendor_role_arn"
+description  = "ARN of the vendor's IAM role to grant cross-account access to this install's ECS cluster and logs."
+default      = ""
+display_name = "Vendor Role ARN"
+
+[[group]]
+name         = "tailscale"
+description  = "Configuration for Tailscale"
+display_name = "Control your tailscale deployment"
+
+[[input]]
+group        = "tailscale"
+name         = "deploy_tailscale"
+display_name = "Deploy Tailscale"
+description  = "Toggle to enable tailscale for this cluster."
+type         = "bool"

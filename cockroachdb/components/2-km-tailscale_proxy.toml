@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name         = "tailscale_proxy"
+type         = "kubernetes_manifest"
+namespace    = "tailscale"
+dependencies = ["crd_tailscale_operator"]
+manifest     = "./manifests/tailscale_proxy.yaml"

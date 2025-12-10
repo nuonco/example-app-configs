@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name         = "cockroach_operator"
+type         = "kubernetes_manifest"
+namespace    = "cockroach-operator-system"
+manifest     = "./manifests/cockroach-operator.yaml"
+dependencies = ["cockroach_operator_crds"]

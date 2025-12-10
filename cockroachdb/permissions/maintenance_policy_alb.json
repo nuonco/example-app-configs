@@ -1,0 +1,35 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ALBCreate",
+      "Effect": "Allow",
+      "Action": ["elasticloadbalancing:Create*", "elasticloadbalancing:AddTags"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ALBReadOnly",
+      "Effect": "Allow",
+      "Action": ["elasticloadbalancing:Describe*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ALBModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:Delete*",
+        "elasticloadbalancing:Modify*",
+        "elasticloadbalancing:Set*",
+        "elasticloadbalancing:Register*",
+        "elasticloadbalancing:Deregister*",
+        "elasticloadbalancing:RemoveTags"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "elasticloadbalancing:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    }
+  ]
+}
