@@ -1,0 +1,41 @@
+type                 = "maintenance"
+name                 = "{{ .nuon.install.id }}-maintenance"
+description          = "{{ .nuon.install.id }} maintenance role for cockroachdb install"
+display_name         = "{{ .nuon.install.id }}-maintenance"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]] # we need to be able to gather facts about the vpc and subnets
+name = "{{.nuon.install.id}}-maintenance-policy-networking"
+contents = "./maintenance_policy_networking.json"
+
+[[policies]] # it is nice to be able to trigger an install runner ASG refresh via an action
+name = "{{.nuon.install.id}}-maintenance-policy-runner"
+contents = "./maintenance_policy_runner.json"
+
+[[policies]] # allow reading secrets for this install
+name = "{{.nuon.install.id}}-maintenance-policy-secrets"
+contents = "./maintenance_policy_secret.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-iam"
+contents = "./maintenance_policy_iam.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-ecr"
+contents = "./maintenance_policy_ecr.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-route53"
+contents = "./maintenance_policy_route53.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-acm"
+contents = "./maintenance_policy_acm.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-alb"
+contents = "./maintenance_policy_alb.json"
+
+[[policies]] # policies needed for sandbox and components
+name = "{{.nuon.install.id}}-maintenance-policy-eks"
+contents = "./maintenance_policy_eks.json"

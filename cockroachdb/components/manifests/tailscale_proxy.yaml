@@ -1,0 +1,8 @@
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyGroup
+metadata:
+  name: "tailnet-proxies-{{.nuon.install.id}}"
+spec:
+  type: ingress
+  replicas: {{ ternary 3 0 (eq "true" .nuon.inputs.inputs.deploy_tailscale) }}

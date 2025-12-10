@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name         = "cockroach_cluster"
+type         = "kubernetes_manifest"
+namespace    = "cockroach"
+manifest     = "./manifests/cockroach-cluster.yaml"
+dependencies = ["cockroach_operator"]

@@ -1,0 +1,16 @@
+# terraform - role delegation for vendor access
+name              = "role_delegation"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "cockroachdb/src/role_delegation"
+branch    = "main"
+
+[vars]
+region           = "{{ .nuon.install_stack.outputs.region }}"
+vendor_role_arn  = "{{ .nuon.install.inputs.vendor_role_arn }}"
+nuon_id          = "{{ .nuon.install.id }}"
+eks_cluster_name = "{{ .nuon.sandbox.outputs.cluster.name }}"
+eks_cluster_arn  = "{{ .nuon.sandbox.outputs.cluster.arn }}"

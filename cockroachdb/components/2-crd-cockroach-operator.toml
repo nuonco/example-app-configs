@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name         = "cockroach_operator_crds"
+type         = "kubernetes_manifest"
+namespace    = "cockroach-operator-system"
+manifest     = "https://raw.githubusercontent.com/cockroachdb/cockroach-operator/v2.18.2/install/crds.yaml"
+dependencies = ["karpenter_nodepools"]

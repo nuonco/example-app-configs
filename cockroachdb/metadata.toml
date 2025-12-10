@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "CockroachDB"
+description  = "CockroachDB on EKS. With support for Tailscale ingresses and (optional) role delegation."
+readme       = "./readme.md"

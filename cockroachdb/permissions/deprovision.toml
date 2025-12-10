@@ -1,0 +1,8 @@
+type                 = "deprovision"
+name                 = "{{.nuon.install.id}}-deprovision"
+description          = "deprovision role for ch-{{nuon.install.id}} install"
+display_name         = "deprovision ch-{{nuon.install.id}}"
+permissions_boundary = "./deprovision_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

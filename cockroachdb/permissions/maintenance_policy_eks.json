@@ -1,0 +1,218 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSCreate",
+      "Effect": "Allow",
+      "Action": [
+        "eks:Create*",
+        "eks:Associate*",
+        "eks:TagResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EKSReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "eks:Describe*",
+        "eks:List*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EKSModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "eks:Delete*",
+        "eks:Update*",
+        "eks:Disassociate*",
+        "eks:UntagResource"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    },
+    {
+      "Sid": "KMSCreate",
+      "Effect": "Allow",
+      "Action": ["kms:CreateKey", "kms:CreateAlias", "kms:TagResource"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSReadOnly",
+      "Effect": "Allow",
+      "Action": ["kms:Describe*", "kms:Get*", "kms:List*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "kms:ScheduleKeyDeletion",
+        "kms:DeleteAlias",
+        "kms:UpdateAlias",
+        "kms:UntagResource",
+        "kms:EnableKeyRotation",
+        "kms:CreateGrant",
+        "kms:RevokeGrant",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:GenerateDataKey*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    },
+    {
+      "Sid": "EC2Create",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateFleet",
+        "ec2:CreateLaunchTemplate",
+        "ec2:CreateLaunchTemplateVersion",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateSnapshot",
+        "ec2:CreateTags",
+        "ec2:CreateVolume",
+        "ec2:RunInstances"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EC2ReadOnly",
+      "Effect": "Allow",
+      "Action": ["ec2:Describe*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EC2ModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteLaunchTemplate",
+        "ec2:DeleteLaunchTemplateVersions",
+        "ec2:DeleteSecurityGroup",
+        "ec2:DeleteSnapshot",
+        "ec2:DeleteTags",
+        "ec2:DeleteVolume",
+        "ec2:ModifyLaunchTemplate",
+        "ec2:ModifySecurityGroupRules",
+        "ec2:ModifyVolume",
+        "ec2:TerminateInstances",
+        "ec2:AttachVolume",
+        "ec2:DetachVolume",
+        "ec2:AuthorizeSecurityGroup*",
+        "ec2:RevokeSecurityGroup*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    },
+    {
+      "Sid": "AutoScalingCreate",
+      "Effect": "Allow",
+      "Action": ["autoscaling:Create*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AutoScalingReadOnly",
+      "Effect": "Allow",
+      "Action": ["autoscaling:Describe*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AutoScalingModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:Delete*",
+        "autoscaling:Update*",
+        "autoscaling:SetDesiredCapacity"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    },
+    {
+      "Sid": "SQSCreate",
+      "Effect": "Allow",
+      "Action": ["sqs:CreateQueue", "sqs:TagQueue"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SQSReadOnly",
+      "Effect": "Allow",
+      "Action": ["sqs:Get*", "sqs:List*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SQSModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:DeleteQueue",
+        "sqs:SetQueueAttributes",
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:UntagQueue"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    },
+    {
+      "Sid": "EventBridgeCreate",
+      "Effect": "Allow",
+      "Action": ["events:Put*", "events:TagResource"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EventBridgeReadOnly",
+      "Effect": "Allow",
+      "Action": ["events:Describe*", "events:List*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EventBridgeModifyTagged",
+      "Effect": "Allow",
+      "Action": ["events:Delete*", "events:Remove*", "events:UntagResource"],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": ["logs:*LogGroup", "logs:*RetentionPolicy", "logs:*Tag*", "logs:ListTagsForResource"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SSMReadOnly",
+      "Effect": "Allow",
+      "Action": ["ssm:GetParameter*", "ssm:DescribeParameters"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "PricingReadOnly",
+      "Effect": "Allow",
+      "Action": ["pricing:GetProducts"],
+      "Resource": "*"
+    }
+  ]
+}

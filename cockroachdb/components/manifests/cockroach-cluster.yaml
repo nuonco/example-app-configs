@@ -1,0 +1,55 @@
+# src: https://raw.githubusercontent.com/cockroachdb/cockroach-operator/v2.18.2/examples/example.yaml
+apiVersion: crdb.cockroachlabs.com/v1alpha1
+kind: CrdbCluster
+metadata:
+  name: cockroachdb
+spec:
+  dataStore:
+    pvc:
+      spec:
+        storageClassName: ebi
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "10Gi" # this is a demo, after all
+        volumeMode: Filesystem
+  resources:
+    requests:
+      cpu: 2
+      memory: 2Gi
+    limits:
+      cpu: 2
+      memory: 2Gi
+  tlsEnabled: true
+  # this image could be imported into the install's ECR via an image component
+  image:
+    name: cockroachdb/cockroach:v25.2.2
+  # nodes refers to the number of crdb pods that are created
+  # via the statefulset
+  nodes: 3
+  additionalLabels:
+    crdb: cockroachdb
+
+  # The affinity field will accept any podSpec affinity rule.
+  # affinity:
+  #   podAntiAffinity:
+  #      preferredDuringSchedulingIgnoredDuringExecution:
+  #      - weight: 100
+  #        podAffinityTerm:
+  #          labelSelector:
+  #            matchExpressions:
+  #            - key: app.kubernetes.io/instance
+  #              operator: In
+  #              values:
+  #              - cockroachdb
+  #          topologyKey: kubernetes.io/hostname
+
+  # ideally, every cluster gets their own nodepool
+  nodeSelector:
+    pool.nuon.co: cockroachdb-clusters
+  tolerations:
+    - key: "pool.nuon.co"
+      operator: "Equal"
+      value: "cockroachdb-clusters"
+      effect: "NoSchedule"
