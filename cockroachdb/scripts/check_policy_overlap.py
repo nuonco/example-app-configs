@@ -49,7 +49,9 @@ def extract_actions(policy: dict) -> dict[str, set[str]]:
     return actions_by_sid
 
 
-def find_overlaps(policies: dict[str, dict[str, set[str]]]) -> dict[str, list[tuple[str, str, str, str]]]:
+def find_overlaps(
+    policies: dict[str, dict[str, set[str]]],
+) -> dict[str, list[tuple[str, str, str, str]]]:
     """Find overlapping actions between policies.
 
     Returns a dict mapping action -> list of (policy1, sid1, policy2, sid2) tuples.
@@ -72,7 +74,7 @@ def find_overlaps(policies: dict[str, dict[str, set[str]]]) -> dict[str, list[tu
             if len(unique_policies) > 1:
                 pairs = []
                 for i, (p1, s1) in enumerate(sources):
-                    for p2, s2 in sources[i + 1:]:
+                    for p2, s2 in sources[i + 1 :]:
                         if p1 != p2:
                             pairs.append((p1, s1, p2, s2))
                 if pairs:
@@ -102,7 +104,9 @@ def main():
         console.print("[yellow]No [[policies]] blocks found in the TOML file.[/yellow]")
         sys.exit(0)
 
-    console.print(Panel(f"Analyzing [bold]{toml_path}[/bold]", title="Policy Overlap Checker"))
+    console.print(
+        Panel(f"Analyzing [bold]{toml_path}[/bold]", title="Policy Overlap Checker")
+    )
 
     # Load all policy documents
     base_dir = toml_path.parent
@@ -121,7 +125,9 @@ def main():
         # Resolve relative path
         json_path = base_dir / contents_path
         if not json_path.exists():
-            console.print(f"[yellow]Warning: Policy file not found: {json_path}[/yellow]")
+            console.print(
+                f"[yellow]Warning: Policy file not found: {json_path}[/yellow]"
+            )
             continue
 
         try:
@@ -134,7 +140,7 @@ def main():
                 name.replace("{{.nuon.install.id}}", "<install>"),
                 json_path.name,
                 str(len(actions_by_sid)),
-                str(total_actions)
+                str(total_actions),
             )
         except json.JSONDecodeError as e:
             console.print(f"[red]Error parsing {json_path}: {e}[/red]")
@@ -147,24 +153,30 @@ def main():
     overlaps = find_overlaps(policies)
 
     if not overlaps:
-        console.print(Panel(
-            "[bold green]No overlapping actions found between policies.[/bold green]",
-            title="Result"
-        ))
+        console.print(
+            Panel(
+                "[bold green]No overlapping actions found between policies.[/bold green]",
+                title="Result",
+            )
+        )
         return
 
     # Report overlaps
-    console.print(Panel(
-        f"[bold yellow]Found {len(overlaps)} overlapping action(s)[/bold yellow]",
-        title="Overlap Report"
-    ))
+    console.print(
+        Panel(
+            f"[bold yellow]Found {len(overlaps)} overlapping action(s)[/bold yellow]",
+            title="Overlap Report",
+        )
+    )
 
     # Group overlaps by policy pair
     pair_overlaps: dict[tuple[str, str], list[tuple[str, str, str]]] = defaultdict(list)
     for action, pairs in overlaps.items():
         for p1, s1, p2, s2 in pairs:
             key = tuple(sorted([p1, p2]))
-            pair_overlaps[key].append((action, s1 if p1 == key[0] else s2, s2 if p1 == key[0] else s1))
+            pair_overlaps[key].append(
+                (action, s1 if p1 == key[0] else s2, s2 if p1 == key[0] else s1)
+            )
 
     for (p1, p2), actions in sorted(pair_overlaps.items()):
         overlap_table = Table(title=f"{p1} ↔ {p2}")
@@ -179,15 +191,17 @@ def main():
         console.print()
 
     # Summary
-    console.print(Panel(
-        Text.assemble(
-            ("Total overlapping actions: ", "bold"),
-            (str(len(overlaps)), "bold red"),
-            ("\nPolicy pairs with overlaps: ", "bold"),
-            (str(len(pair_overlaps)), "bold yellow"),
-        ),
-        title="Summary"
-    ))
+    console.print(
+        Panel(
+            Text.assemble(
+                ("Total overlapping actions: ", "bold"),
+                (str(len(overlaps)), "bold red"),
+                ("\nPolicy pairs with overlaps: ", "bold"),
+                (str(len(pair_overlaps)), "bold yellow"),
+            ),
+            title="Summary",
+        )
+    )
 
 
 if __name__ == "__main__":
