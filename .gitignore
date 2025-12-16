@@ -1,5 +1,8 @@
 **/.claude/
 
+# Generated files
+docs/index.html
+
 # Created by https://www.toptal.com/developers/gitignore/api/osx,vim
 # Edit at https://www.toptal.com/developers/gitignore?templates=osx,vim
 
