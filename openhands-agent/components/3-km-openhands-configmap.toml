@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name         = "openhands_configmap"
+type         = "kubernetes_manifest"
+namespace    = "openhands"
+manifest     = "./manifests/openhands-configmap.yaml"
+dependencies = ["openhands_rbac"]

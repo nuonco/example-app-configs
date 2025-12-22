@@ -1,0 +1,27 @@
+karpenter:
+  discovery_key: "{{ .nuon.sandbox.outputs.karpenter.discovery_key }}"
+  discovery_value: "{{ .nuon.sandbox.outputs.karpenter.discovery_value }}"
+  instance_profile: "{{ .nuon.sandbox.outputs.karpenter.instance_profile.name }}"
+
+cluster_name: "{{ .nuon.sandbox.outputs.cluster.name }}"
+
+region: "{{ .nuon.install_stack.outputs.region }}"
+
+nodepools:
+  - name: openhands
+    instance_types:
+      - t3a.medium
+      - t3a.large
+    limits:
+      cpu: 8
+      memory: "32Gi"
+    expireAfter: "Never"
+  - name: cockroachdb-clusters
+    instance_types:
+      - t3a.large
+      - t3a.xlarge
+      - t3a.2xlarge
+    limits:
+      cpu: 24
+      memory: "96Gi"
+    expireAfter: "Never"

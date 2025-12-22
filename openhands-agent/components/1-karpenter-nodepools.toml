@@ -1,0 +1,13 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+name           = "karpenter_nodepools"
+type           = "helm_chart"
+chart_name     = "karpenter-nodepools"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "openhands-agent/src/karpenter-nodepools"
+branch    = "f8990f91cc56005942d832240dafcaa1f9ae1618" # "fd/new-demo/openhands"
+
+[[values_file]]
+contents = "./values/karpenter-nodepools.yaml"

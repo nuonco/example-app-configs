@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "OpenHands"
+description  = "OpenHands on EKS. With support for Tailscale ingresses and (optional) role delegation."
+readme       = "./readme.md"

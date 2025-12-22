@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name         = "openhands_ingress"
+type         = "kubernetes_manifest"
+namespace    = "openhands"
+manifest     = "./manifests/ingress.yaml"
+dependencies = ["openhands", "certificate"]

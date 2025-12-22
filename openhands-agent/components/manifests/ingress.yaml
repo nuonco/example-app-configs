@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: 'openhands'
+  namespace: 'openhands'
+  labels:
+    app.nuon.co/name: openhands
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: '{{ .nuon.components.certificate.outputs.arn }}'
+    alb.ingress.kubernetes.io/aws-load-balancer-ssl-ports: https
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '5'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/tags: 'service.name=openhands,service.type=ui,env=byoc'
+    external-dns.alpha.kubernetes.io/hostname: '{{ .nuon.inputs.inputs.sub_domain }}.{{.nuon.sandbox.outputs.nuon_dns.public_domain.name }}'
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openhands
+                port:
+                  name: http

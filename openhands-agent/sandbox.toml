@@ -1,0 +1,17 @@
+terraform_version = "1.13.5"
+
+[public_repo]
+repo      = "nuonco/aws-eks-karpenter-sandbox"
+branch    = "main"
+directory = "."
+
+[vars]
+cluster_version = "1.34"
+cluster_name    = "oh-{{.nuon.install.id}}" # NOTE(fd): len limit is 29 chars on account of sandbox internals using this in the prefix
+
+enable_nuon_dns      = "true"
+public_root_domain   = "{{.nuon.install.id}}.nuon.run"
+internal_root_domain = "{{.nuon.install.id}}.internal.nuon.run"
+
+[[var_file]]
+contents = "./sandbox.tfvars"
