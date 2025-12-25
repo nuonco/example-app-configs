@@ -1,3 +1,5 @@
+# stack
+
 type        = "aws-cloudformation"
 name        = "nuon-coder-{{.nuon.install.id}}"
 description = "QuickLink to install runner for Coder app config: Install {{.nuon.install.id}}"
