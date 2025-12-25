@@ -1,4 +1,5 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=sandbox
+# sandbox
+
 terraform_version = "1.11.3"
 
 [public_repo]
