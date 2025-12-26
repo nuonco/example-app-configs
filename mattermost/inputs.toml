@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+# inputs
 [[group]]
 name         = "mattermost"
 description  = "Environment variables and configurations for the Mattermost operator and app. Operator: https://github.com/mattermost/mattermost-operator/releases App: https://github.com/mattermost/mattermost/releases/"

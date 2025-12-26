@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+# terraform
 name              = "lambda_function"
 type              = "terraform_module"
 terraform_version = "1.11.4"

@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=helm
+# helm
 name           = "crd_clickhouse_operator"
 type           = "helm_chart"
 chart_name     = "clickhouse-operator"

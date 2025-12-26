@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+# inputs
 [[group]]
 name         = "penpot"
 description  = "Environment variables and configurations for the Penpot app. https://github.com/penpot/penpot/releases"

@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 
 name    = "stop_db_activity"
 timeout = "2m"

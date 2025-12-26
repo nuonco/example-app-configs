@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+# kubernetes-manifest
 
 name = "twenty_pvc_server"
 type = "kubernetes_manifest"

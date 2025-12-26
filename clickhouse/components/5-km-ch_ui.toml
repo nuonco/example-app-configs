@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=terraform
+# terraform
 name      = "ch_ui"
 type      = "kubernetes_manifest"
 namespace = "clickhouse"
