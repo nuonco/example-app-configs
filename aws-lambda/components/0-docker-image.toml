@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=docker_build
+# docker-build
 name   = "docker_image"
 type = "docker_build"
 

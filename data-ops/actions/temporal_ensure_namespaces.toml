@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=action
+# action
 name    = "temporal_ensure_namespaces"
 timeout = "1m30s"
 

@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+# kubernetes-manifest
 
 name = "twenty_pv_docker_data"
 type = "kubernetes_manifest"

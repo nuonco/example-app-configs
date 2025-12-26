@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 
 name    = "simulate_db_activity"
 timeout = "30m"
