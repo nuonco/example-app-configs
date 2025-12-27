@@ -33,6 +33,28 @@ Coder is a Cloud Development Environment (CDE) platform that enables developers 
 
 Coder consists of a PostgreSQL database, an API server, a web dashboard, and a Terraform provisioner server that runs `terraform plan`, `terraform apply`, and `terraform destroy` commands to build development development environments on any cloud or on-premises infrastructure. See the [Coder architecture diagram](https://coder.com/docs/admin/infrastructure/architecture) for more details.
 
+### Database Configuration
+
+This Nuon app config uses **AWS RDS PostgreSQL** for the database backend with the following features:
+
+- **Managed Database**: RDS PostgreSQL 15 instance (configurable via `coder_db_instance_type` input, defaults to `db.t4g.micro`)
+- **Credential Management**: AWS Secrets Manager automatically manages database passwords (no hardcoded credentials)
+- **Security**: VPC-isolated with security groups restricting access to cluster CIDR only
+- **Monitoring**: Performance insights and CloudWatch logs enabled
+- **Backups**: Automated 7-day backup retention with encrypted storage
+
+Database credentials are automatically synced from AWS Secrets Manager to Kubernetes secrets during deployment.
+
+### Helm Chart Deployment
+
+The Coder application is deployed using the official Coder Helm chart from the Helm repository:
+
+- **Helm Repository**: `https://helm.coder.com/v2`
+- **Chart Method**: Uses `[helm_repo]` configuration (standard Helm repository approach)
+- **Version**: Tracks latest stable release from repository
+
+This follows Nuon best practices for deploying public Helm charts.
+
 </center>
 
 ## Coder Resources
