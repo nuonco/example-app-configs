@@ -8,7 +8,7 @@ display_name = "Coder Configurations"
 [[input]]
 name         = "release"
 description  = "The release of Coder to deploy."
-default      = "v2.25.0"
+default      = "v2.28.6"
 display_name = "Release"
 group        = "coder"
 
