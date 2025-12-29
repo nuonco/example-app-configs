@@ -1,0 +1,28 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name    = "coder_rds_creds"
+timeout = "1m"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_cluster_coder"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy RDS Secret for Coder"
+command = "./rds_secrets/import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder/src/actions"
+branch    = "mm/coder-rds-helm"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "coder-db-url"
+TARGET_NAMESPACE = "coder"
+DB_ADDRESS       = "{{ .nuon.components.rds_cluster_coder.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_name }}"

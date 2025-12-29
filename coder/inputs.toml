@@ -8,7 +8,7 @@ display_name = "Coder Configurations"
 [[input]]
 name         = "release"
 description  = "The release of Coder to deploy."
-default      = "v2.25.0"
+default      = "v2.28.6"
 display_name = "Release"
 group        = "coder"
 
@@ -87,3 +87,15 @@ description  = "Desired number of nodes to provision in the EKS cluster"
 default      = "2"
 display_name = "Desired Node Count"
 group        = "compute"
+
+[[group]]
+name         = "database"
+description  = "RDS PostgreSQL database configuration"
+display_name = "Database Configuration"
+
+[[input]]
+name         = "coder_db_instance_type"
+description  = "RDS instance type for Coder database. See https://aws.amazon.com/rds/instance-types/"
+default      = "db.t4g.micro"
+display_name = "Database Instance Type"
+group        = "database"

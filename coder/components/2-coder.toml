@@ -5,12 +5,11 @@ type           = "helm_chart"
 chart_name     = "coder"
 namespace      = "coder"
 storage_driver = "configmap"
-dependencies   = ["coder_db"]
+dependencies   = ["rds_cluster_coder"]
 
-[public_repo]
-repo      = "coder/coder"
-directory = "helm/coder"
-branch    = "main"
+[helm_repo]
+repo_url = "https://helm.coder.com/v2"
+chart    = "coder"
 
 [[values_file]]
 contents = "./values/coder.yaml"
