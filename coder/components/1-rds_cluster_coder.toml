@@ -8,7 +8,7 @@ drift_schedule = "0 0 * * *"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/components/rds_cluster_coder"
-branch    = "mm/coder-rds-helm"
+branch    = "main"
 
 [vars]
 identifier      = "coder-{{ .nuon.install.id }}"
