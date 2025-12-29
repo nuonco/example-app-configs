@@ -84,8 +84,6 @@ coder:
       value: "{{.nuon.inputs.inputs.telemetry}}"
     - name: CODER_PROMETHEUS_ENABLE
       value: "true"
-    - name: CODER_PROMETHEUS_ADDRESS
-      value: "127.0.0.1:2112"
     - name: CODER_UPDATE_CHECK
       value: "true"
 
