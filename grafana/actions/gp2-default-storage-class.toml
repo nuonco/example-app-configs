@@ -4,7 +4,7 @@ timeout = "1m"
 
 [[triggers]]
 type           = "pre-deploy-component"
-component_name = "grafana_postgres"
+component_name = "rds_subnet"
 
 [[triggers]]
 type = "manual"

@@ -1,0 +1,28 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name    = "grafana_rds_creds"
+timeout = "1m"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_cluster_grafana"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy RDS Secret for Grafana"
+command = "./rds_secrets/import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "grafana/src/actions"
+branch    = "main"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_cluster_grafana.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "grafana-db-secret"
+TARGET_NAMESPACE = "grafana"
+DB_ADDRESS       = "{{ .nuon.components.rds_cluster_grafana.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.rds_cluster_grafana.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.rds_cluster_grafana.outputs.db_instance_name }}"

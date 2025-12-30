@@ -24,7 +24,7 @@ password=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 # URL-encode the password (special characters break connection string parsing)
 encoded_password=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$password', safe=''))")
 
-# Build connection URL in the format Coder expects
+# Build connection URL
 # postgres://username:password@hostname:port/database?sslmode=disable
 connection_url="postgres://${username}:${encoded_password}@${db_address}:${db_port}/${db_name}?sslmode=disable"
 
