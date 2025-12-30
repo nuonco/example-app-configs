@@ -12,14 +12,16 @@ secret=$(aws --region "$REGION" secretsmanager get-secret-value --secret-id="$SE
 DB_USER=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
 DB_PASS=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 
+# Use exampledb namespace
+NAMESPACE="exampledb"
+
 # Kill any running simulation pods
 echo "[db-activity] Removing any simulation pods..."
-kubectl delete pod -n exampledb -l run=db-activity-sim --ignore-not-found=true 2>/dev/null || true
-kubectl delete pod -n exampledb --field-selector=status.phase=Running -l app=db-activity --ignore-not-found=true 2>/dev/null || true
+kubectl delete pod -n "$NAMESPACE" -l run=db-activity-sim --ignore-not-found=true 2>/dev/null || true
 
 # Also delete any pods matching the simulation pattern
-for pod in $(kubectl get pods -n exampledb -o name 2>/dev/null | grep "db-activity-sim" || true); do
-    kubectl delete "$pod" -n exampledb --ignore-not-found=true 2>/dev/null || true
+for pod in $(kubectl get pods -n "$NAMESPACE" -o name 2>/dev/null | grep "db-activity-sim" || true); do
+    kubectl delete "$pod" -n "$NAMESPACE" --ignore-not-found=true 2>/dev/null || true
 done
 
 # Create a temporary pod to terminate long-running queries
@@ -27,7 +29,7 @@ POD_NAME="db-stop-$(date +%s)"
 
 echo "[db-activity] Creating temporary postgres client pod..."
 kubectl run "$POD_NAME" \
-  --namespace=exampledb \
+  --namespace="$NAMESPACE" \
   --image=postgres:15-alpine \
   --restart=Never \
   --env="PGPASSWORD=$DB_PASS" \
@@ -38,11 +40,11 @@ kubectl run "$POD_NAME" \
   --command -- sleep 60
 
 echo "[db-activity] Waiting for pod to be ready..."
-kubectl wait --namespace=exampledb --for=condition=Ready pod/"$POD_NAME" --timeout=60s || true
+kubectl wait --namespace="$NAMESPACE" --for=condition=Ready pod/"$POD_NAME" --timeout=60s || true
 
 # Terminate long-running queries
 echo "[db-activity] Terminating long-running queries..."
-kubectl exec -n exampledb "$POD_NAME" -- psql -c "
+kubectl exec -n "$NAMESPACE" "$POD_NAME" -- psql -c "
 SELECT pg_terminate_backend(pid) 
 FROM pg_stat_activity 
 WHERE state = 'active' 
@@ -53,7 +55,7 @@ AND query NOT LIKE '%pg_terminate_backend%';
 
 # Cleanup
 echo "[db-activity] Cleaning up..."
-kubectl delete pod "$POD_NAME" --namespace=exampledb --ignore-not-found=true
+kubectl delete pod "$POD_NAME" --namespace="$NAMESPACE" --ignore-not-found=true
 
 echo "✅ STOP COMPLETE"
 echo "Database should return to normal activity levels within 60 seconds."

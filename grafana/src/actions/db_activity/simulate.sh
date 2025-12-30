@@ -12,12 +12,19 @@ secret=$(aws --region "$REGION" secretsmanager get-secret-value --secret-id="$SE
 DB_USER=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
 DB_PASS=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 
+# Use exampledb namespace
+NAMESPACE="exampledb"
+
+# Ensure namespace exists
+echo "[db-activity] Ensuring $NAMESPACE namespace exists..."
+kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
 # Create a temporary pod to run psql commands
 POD_NAME="db-activity-sim-$(date +%s)"
 
-echo "[db-activity] Creating temporary postgres client pod..."
+echo "[db-activity] Creating temporary postgres client pod in $NAMESPACE namespace..."
 kubectl run "$POD_NAME" \
-  --namespace=exampledb \
+  --namespace="$NAMESPACE" \
   --image=postgres:15-alpine \
   --restart=Never \
   --env="PGPASSWORD=$DB_PASS" \
@@ -27,25 +34,30 @@ kubectl run "$POD_NAME" \
   --env="PGDATABASE=$DB_NAME" \
   --command -- sleep 1800
 
-echo "[db-activity] Waiting for pod to be ready..."
-kubectl wait --namespace=exampledb --for=condition=Ready pod/"$POD_NAME" --timeout=60s
+echo "[db-activity] Waiting for pod to be ready (up to 120s)..."
+if ! kubectl wait --namespace="$NAMESPACE" --for=condition=Ready pod/"$POD_NAME" --timeout=120s; then
+    echo "[db-activity] Pod not ready, checking status..."
+    kubectl describe pod "$POD_NAME" --namespace="$NAMESPACE"
+    kubectl logs "$POD_NAME" --namespace="$NAMESPACE" || true
+    exit 1
+fi
 
 # Cleanup function
 cleanup() {
     echo "[db-activity] Cleaning up temporary pod..."
-    kubectl delete pod "$POD_NAME" --namespace=exampledb --ignore-not-found=true
+    kubectl delete pod "$POD_NAME" --namespace="$NAMESPACE" --ignore-not-found=true
 }
 trap cleanup EXIT
 
 # Check if PostgreSQL is ready
 echo "[db-activity] Checking RDS connectivity..."
-if ! kubectl exec -n exampledb "$POD_NAME" -- psql -c "SELECT 1" > /dev/null 2>&1; then
+if ! kubectl exec -n "$NAMESPACE" "$POD_NAME" -- psql -c "SELECT 1" > /dev/null 2>&1; then
     echo "RDS PostgreSQL not ready, exiting..."
     exit 1
 fi
 
 echo "[db-activity] Creating schema and seed data..."
-kubectl exec -n exampledb "$POD_NAME" -- psql -c "
+kubectl exec -n "$NAMESPACE" "$POD_NAME" -- psql -c "
 -- Create comprehensive schema (safe for repeated runs)
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -103,7 +115,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_created_at ON audit_log(created_at);
 "
 
 echo "[db-activity] Inserting seed data..."
-kubectl exec -n exampledb "$POD_NAME" -- psql -c "
+kubectl exec -n "$NAMESPACE" "$POD_NAME" -- psql -c "
 -- Insert seed data (10K users, 5K products)
 INSERT INTO users (name, email, age, city) 
 SELECT 
@@ -138,7 +150,7 @@ echo "[db-activity] Running activity bursts..."
 for cycle in $(seq 1 25); do
     echo "=== Cycle $cycle/25 ==="
     
-    kubectl exec -n exampledb "$POD_NAME" -- psql -c "
+    kubectl exec -n "$NAMESPACE" "$POD_NAME" -- psql -c "
     -- Read operations
     SELECT COUNT(*) FROM users WHERE city = 'NYC';
     SELECT * FROM products WHERE stock > 0 ORDER BY price DESC LIMIT 1000;
