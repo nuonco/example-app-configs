@@ -12,10 +12,6 @@ Nuon Install Id: {{ .nuon.install.id }}
 
 AWS Region: {{ .nuon.install_stack.outputs.region }}
 
-> This is a development/demo installation of Coder. Do not use in production.
-
-> A CNAME record must be manually created in Route 53 for wildcard subdomains to work. This enables features like web apps e.g., Jupyter and web port fowarding. For example, if your domain is `{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}`, create a CNAME record for `*.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}` that points to the DNS name of the load balancer created by this Nuon app config. The load balancer DNS name can be found in AWS Console.
-
 ## Full State
 
 <details>
@@ -32,6 +28,8 @@ Coder is a Cloud Development Environment (CDE) platform that enables developers 
 ## Coder architecture
 
 Coder consists of a PostgreSQL database, an API server, a web dashboard, and a Terraform provisioner server that runs `terraform plan`, `terraform apply`, and `terraform destroy` commands to build development development environments on any cloud or on-premises infrastructure. See the [Coder architecture diagram](https://coder.com/docs/admin/infrastructure/architecture) for more details.
+
+</center>
 
 ### Database Configuration
 
@@ -55,7 +53,10 @@ The Coder application is deployed using the official Coder Helm chart from the H
 
 This follows Nuon best practices for deploying public Helm charts.
 
-</center>
+> This is a development/demo installation of Coder. Do not use in production.
+
+> A CNAME record must be manually created in Route 53 for wildcard subdomains to work. This enables features like web apps e.g., Jupyter and web port fowarding. For example, if your domain is `{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}`, create a CNAME record for `*.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}` that points to the DNS name of the load balancer created by this Nuon app config. The load balancer DNS name can be found in AWS Console.
+
 
 ## Coder Resources
 
