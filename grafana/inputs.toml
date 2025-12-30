@@ -38,31 +38,31 @@ group        = "grafana"
 
 [[group]]
 name         = "database"
-description  = "RDS PostgreSQL database configuration"
+description  = "RDS PostgreSQL database configuration https://aws.amazon.com/rds/instance-types/"
 display_name = "Database Configuration"
 
 [[input]]
 name         = "grafana_db_instance_type"
-description  = "RDS instance type for Grafana database. See https://aws.amazon.com/rds/instance-types/"
+description  = "RDS instance type for Grafana database"
 default      = "db.t4g.micro"
 display_name = "Grafana DB Instance Type"
 group        = "database"
 
 [[input]]
 name         = "exampledb_instance_type"
-description  = "RDS instance type for ExampleDB database. See https://aws.amazon.com/rds/instance-types/"
+description  = "RDS instance type for ExampleDB database"
 default      = "db.t4g.micro"
 display_name = "ExampleDB Instance Type"
 group        = "database"
 
 [[group]]
 name         = "compute"
-description  = "Kubernetes node configuration for the EKS cluster"
+description  = "Kubernetes node configuration for the EKS cluster. https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html"
 display_name = "Kubernetes Nodes"
 
 [[input]]
 name         = "kubernetes_version"
-description  = "EKS Kubernetes version. See https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html"
+description  = "EKS Kubernetes version"
 default      = "1.33"
 display_name = "Kubernetes Version"
 group        = "compute"
