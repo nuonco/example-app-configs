@@ -66,12 +66,12 @@ replicas: 1
 envValueFrom:
   GF_DATABASE_URL:
     secretKeyRef:
-      name: grafana-postgres-secret
-      key: GF_DATABASE_URL
+      name: grafana-db-secret
+      key: url
   EXAMPLEDB_PASSWORD:
     secretKeyRef:
-      name: exampledb-datasource-secret
-      key: DATASOURCE_PASSWORD
+      name: exampledb-secret
+      key: password
 
 # Environment variables
 env:
@@ -144,17 +144,17 @@ datasources:
       access: proxy
       isDefault: true
       editable: true
-    # PostgreSQL datasource (for custom SQL queries)
+    # PostgreSQL datasource (for custom SQL queries) - RDS
     - name: ExampleDB PostgreSQL
       type: postgres
-      url: postgresql.exampledb.svc.cluster.local:5432
+      url: "{{ .nuon.components.rds_cluster_exampledb.outputs.address }}:5432"
       database: exampledb
       user: exampledb
       secureJsonData:
         password: ${EXAMPLEDB_PASSWORD}
       jsonData:
         sslmode: disable
-        postgresVersion: 1200
+        postgresVersion: 1500
         timescaledb: false
       isDefault: false
       editable: true

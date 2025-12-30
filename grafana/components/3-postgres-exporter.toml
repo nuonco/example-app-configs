@@ -4,7 +4,7 @@ type           = "helm_chart"
 chart_name     = "prometheus-postgres-exporter"
 namespace      = "exampledb"
 storage_driver = "configmap"
-dependencies   = ["exampledb_postgres"]
+dependencies   = ["rds_cluster_exampledb"]
 
 [public_repo]
 repo      = "prometheus-community/helm-charts"

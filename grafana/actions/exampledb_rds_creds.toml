@@ -1,0 +1,46 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=action
+name    = "exampledb_rds_creds"
+timeout = "1m"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_cluster_exampledb"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy RDS Secret for ExampleDB"
+command = "./rds_secrets/import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "grafana/src/actions"
+branch    = "mm/grafana-rds"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_cluster_exampledb.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "exampledb-secret"
+TARGET_NAMESPACE = "exampledb"
+DB_ADDRESS       = "{{ .nuon.components.rds_cluster_exampledb.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.rds_cluster_exampledb.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.rds_cluster_exampledb.outputs.db_instance_name }}"
+
+[[steps]]
+name    = "Copy RDS Secret for ExampleDB to Grafana namespace"
+command = "./rds_secrets/import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "grafana/src/actions"
+branch    = "mm/grafana-rds"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_cluster_exampledb.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "exampledb-secret"
+TARGET_NAMESPACE = "grafana"
+DB_ADDRESS       = "{{ .nuon.components.rds_cluster_exampledb.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.rds_cluster_exampledb.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.rds_cluster_exampledb.outputs.db_instance_name }}"

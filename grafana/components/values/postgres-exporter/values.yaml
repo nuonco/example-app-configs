@@ -1,15 +1,15 @@
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-postgres-exporter
 
-# Configure database connection using our exampledb-datasource-secret
+# Configure database connection to RDS exampledb
 config:
   datasource:
-    host: postgresql.exampledb.svc.cluster.local
+    host: "{{ .nuon.components.rds_cluster_exampledb.outputs.address }}"
     port: "5432"
     database: exampledb
     user: exampledb
     passwordSecret:
-      name: exampledb-datasource-secret
-      key: DATASOURCE_PASSWORD
+      name: exampledb-secret
+      key: password
     sslmode: disable
 
 # Service configuration

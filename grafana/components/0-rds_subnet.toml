@@ -1,0 +1,18 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+name              = "rds_subnet"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/components"
+directory = "aws/rds-subnet"
+branch    = "main"
+
+[vars]
+# rds subnet details
+install_id              = "{{ .nuon.install.id }}"
+rds_subnet_name         = "rds-subnet-grafana-{{ .nuon.install.id }}"
+rds_subnet_display_name = "Grafana RDS Subnet {{ .nuon.install.id }}"
+# aws details
+region             = "{{ .nuon.sandbox.outputs.account.region }}"
+private_subnet_ids = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"
