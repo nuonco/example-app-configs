@@ -16,7 +16,7 @@ command = "./rds_secrets/import.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "grafana/src/actions"
-branch    = "mm/grafana-rds"
+branch    = "main"
 
 [steps.env_vars]
 SECRET_ARN       = "{{ .nuon.components.rds_cluster_grafana.outputs.db_instance_master_user_secret_arn }}"

@@ -13,7 +13,7 @@ command = "./db_activity/stop.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "grafana/src/actions"
-branch    = "mm/grafana-rds"
+branch    = "main"
 
 [steps.env_vars]
 DB_HOST     = "{{ .nuon.components.rds_cluster_exampledb.outputs.address }}"

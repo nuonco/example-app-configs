@@ -77,7 +77,7 @@ group        = "compute"
 [[input]]
 name         = "min_size"
 description  = "Minimum number of nodes to provision in the EKS cluster"
-default      = "2"
+default      = "3"
 display_name = "Minimum Node Count"
 group        = "compute"
 
@@ -91,6 +91,6 @@ group        = "compute"
 [[input]]
 name         = "desired_size"
 description  = "Desired number of nodes to provision in the EKS cluster"
-default      = "2"
+default      = "3"
 display_name = "Desired Node Count"
 group        = "compute"

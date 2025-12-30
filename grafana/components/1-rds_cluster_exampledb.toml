@@ -9,7 +9,7 @@ drift_schedule = "0 0 * * *"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "grafana/src/components/rds_cluster"
-branch    = "mm/grafana-rds"
+branch    = "main"
 
 [vars]
 identifier      = "exampledb-{{ .nuon.install.id }}"
