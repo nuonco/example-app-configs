@@ -4,7 +4,7 @@ set -e
 set -o pipefail
 set -u
 
-echo "Starting INTENSIVE database activity simulation against RDS..."
+echo "Starting database activity simulation against RDS..."
 
 # Get credentials from Secrets Manager
 echo "[db-activity] Reading credentials from AWS Secrets Manager"
@@ -12,25 +12,40 @@ secret=$(aws --region "$REGION" secretsmanager get-secret-value --secret-id="$SE
 DB_USER=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
 DB_PASS=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 
-export PGPASSWORD="$DB_PASS"
+# Create a temporary pod to run psql commands
+POD_NAME="db-activity-sim-$(date +%s)"
 
-# Function to run psql command
-run_psql() {
-    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$1"
+echo "[db-activity] Creating temporary postgres client pod..."
+kubectl run "$POD_NAME" \
+  --namespace=exampledb \
+  --image=postgres:15-alpine \
+  --restart=Never \
+  --env="PGPASSWORD=$DB_PASS" \
+  --env="PGHOST=$DB_HOST" \
+  --env="PGPORT=$DB_PORT" \
+  --env="PGUSER=$DB_USER" \
+  --env="PGDATABASE=$DB_NAME" \
+  --command -- sleep 1800
+
+echo "[db-activity] Waiting for pod to be ready..."
+kubectl wait --namespace=exampledb --for=condition=Ready pod/"$POD_NAME" --timeout=60s
+
+# Cleanup function
+cleanup() {
+    echo "[db-activity] Cleaning up temporary pod..."
+    kubectl delete pod "$POD_NAME" --namespace=exampledb --ignore-not-found=true
 }
+trap cleanup EXIT
 
 # Check if PostgreSQL is ready
-echo "Checking if RDS PostgreSQL is ready..."
-if run_psql "SELECT 1" > /dev/null 2>&1; then
-    echo "RDS PostgreSQL is ready, proceeding..."
-else
+echo "[db-activity] Checking RDS connectivity..."
+if ! kubectl exec -n exampledb "$POD_NAME" -- psql -c "SELECT 1" > /dev/null 2>&1; then
     echo "RDS PostgreSQL not ready, exiting..."
     exit 1
 fi
 
-# Create comprehensive schema and large seed data (idempotent)
-echo "Creating schema and seed data..."
-run_psql "
+echo "[db-activity] Creating schema and seed data..."
+kubectl exec -n exampledb "$POD_NAME" -- psql -c "
 -- Create comprehensive schema (safe for repeated runs)
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -79,28 +94,33 @@ CREATE TABLE IF NOT EXISTS audit_log (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for performance testing (safe for repeated runs)
+-- Create indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created_at ON audit_log(created_at);
+"
 
--- Insert substantial seed data (10K users, 5K products)
+echo "[db-activity] Inserting seed data..."
+kubectl exec -n exampledb "$POD_NAME" -- psql -c "
+-- Insert seed data (10K users, 5K products)
 INSERT INTO users (name, email, age, city) 
 SELECT 
-    'User' || generate_series(1,10000),
-    'user' || generate_series(1,10000) || '@example.com',
+    'User' || g,
+    'user' || g || '@example.com',
     (random() * 60 + 18)::int,
     (ARRAY['NYC', 'LA', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose'])[floor(random() * 10 + 1)]
+FROM generate_series(1,10000) g
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO products (name, category, price, stock)
 SELECT 
-    'Product ' || generate_series(1,5000),
+    'Product ' || g,
     (ARRAY['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Beauty', 'Automotive', 'Food'])[floor(random() * 8 + 1)],
     round((random() * 1000 + 10)::numeric, 2),
-    floor(random() * 1000)::int;
+    floor(random() * 1000)::int
+FROM generate_series(1,5000) g;
 
 -- Insert historical orders (50K records)
 INSERT INTO orders (user_id, product_id, quantity, amount, status, created_at)
@@ -110,110 +130,35 @@ SELECT
     floor(random() * 5 + 1)::int,
     round((random() * 500 + 10)::numeric, 2),
     (ARRAY['pending', 'completed', 'cancelled', 'refunded'])[floor(random() * 4 + 1)],
-    NOW() - (random() * interval '30 days');
+    NOW() - (random() * interval '30 days')
+FROM generate_series(1,50000) g;
 "
 
-echo "Schema created. Starting fluctuating activity..."
-
-# Create a marker to check for stop signal
-STOP_MARKER="/tmp/stop_db_simulation_$$"
-
-# Function to run INTENSIVE burst of activity
-run_activity_burst() {
-    local intensity=$1
-    echo "Running INTENSIVE burst with intensity: $intensity"
+echo "[db-activity] Running activity bursts..."
+for cycle in $(seq 1 25); do
+    echo "=== Cycle $cycle/25 ==="
     
-    for i in $(seq 1 $intensity); do
-        run_psql "
-        -- ROWS OPERATIONS
-        SELECT * FROM users ORDER BY id LIMIT 5000;
-        SELECT * FROM products WHERE stock > 0 ORDER BY price DESC LIMIT 3000;
-        SELECT * FROM orders WHERE created_at >= NOW() - interval '7 days' LIMIT 8000;
-        
-        -- Complex JOINs
-        SELECT u.*, o.*, p.* FROM users u 
-        JOIN orders o ON u.id = o.user_id 
-        JOIN products p ON o.product_id = p.id 
-        WHERE o.created_at >= NOW() - interval '1 day'
-        LIMIT 2000;
-        
-        -- INSERTS
-        INSERT INTO sessions (user_id, session_token, ip_address, last_activity) 
-        SELECT 
-            floor(random() * 10000 + 1)::int,
-            md5(random()::text),
-            ('10.0.' || floor(random() * 255) || '.' || floor(random() * 255))::inet,
-            NOW() - (random() * interval '1 hour')
-        FROM generate_series(1, 100);
-        
-        INSERT INTO orders (user_id, product_id, quantity, amount, status) 
-        SELECT 
-            floor(random() * 10000 + 1)::int,
-            floor(random() * 5000 + 1)::int,
-            floor(random() * 10 + 1)::int,
-            round((random() * 1000)::numeric, 2),
-            (ARRAY['pending','processing','shipped'])[floor(random() * 3 + 1)]
-        FROM generate_series(1, 75);
-        
-        -- UPDATES
-        UPDATE products SET stock = stock - floor(random() * 5)::int 
-        WHERE id IN (SELECT id FROM products WHERE stock > 10 ORDER BY random() LIMIT 500);
-        
-        UPDATE users SET updated_at = NOW() 
-        WHERE id IN (SELECT id FROM users ORDER BY random() LIMIT 300);
-        
-        -- DELETES
-        DELETE FROM sessions WHERE last_activity < NOW() - interval '4 hours' AND random() < 0.3;
-        DELETE FROM audit_log WHERE created_at < NOW() - interval '1 day' AND random() < 0.1;
-        
-        -- CACHE activity
-        SELECT COUNT(*) FROM users WHERE city = 'NYC';
-        SELECT COUNT(*) FROM users WHERE city = 'LA';
-        SELECT AVG(amount) FROM orders WHERE created_at >= NOW() - interval '1 week';
-        " > /dev/null 2>&1 &
-        
-        sleep 0.1
-    done
+    kubectl exec -n exampledb "$POD_NAME" -- psql -c "
+    -- Read operations
+    SELECT COUNT(*) FROM users WHERE city = 'NYC';
+    SELECT * FROM products WHERE stock > 0 ORDER BY price DESC LIMIT 1000;
+    SELECT u.name, COUNT(o.id) FROM users u LEFT JOIN orders o ON u.id = o.user_id GROUP BY u.id LIMIT 500;
     
-    echo "Burst initiated with $intensity background processes"
-}
-
-# Intensive simulation over 25 minutes
-echo "Starting 25-minute INTENSIVE fluctuating load simulation..."
-echo "This will create significant database load - monitor your dashboards!"
-
-for cycle in $(seq 1 50); do
-    # Check for stop signal
-    if [ -f "$STOP_MARKER" ]; then
-        echo "Stop signal detected, ending simulation..."
-        rm -f "$STOP_MARKER"
-        break
-    fi
+    -- Write operations
+    INSERT INTO sessions (user_id, session_token, ip_address) 
+    SELECT floor(random() * 10000 + 1)::int, md5(random()::text), ('10.0.' || floor(random() * 255) || '.' || floor(random() * 255))::inet
+    FROM generate_series(1, 50);
     
-    echo "=== Cycle $cycle/50 ==="
+    INSERT INTO orders (user_id, product_id, quantity, amount, status) 
+    SELECT floor(random() * 10000 + 1)::int, floor(random() * 5000 + 1)::int, floor(random() * 10 + 1)::int, round((random() * 1000)::numeric, 2), 'pending'
+    FROM generate_series(1, 25);
     
-    # Intensity waves
-    case $((cycle % 8)) in
-        0|1) intensity=5 ;;
-        2|3) intensity=10 ;;
-        4|5) intensity=20 ;;
-        6) intensity=30 ;;
-        7) intensity=15 ;;
-    esac
+    UPDATE products SET stock = stock - 1 WHERE id IN (SELECT id FROM products WHERE stock > 10 ORDER BY random() LIMIT 100);
+    DELETE FROM sessions WHERE last_activity < NOW() - interval '2 hours' AND random() < 0.5;
+    " > /dev/null 2>&1
     
-    # Add random spikes
-    if [ $((RANDOM % 10)) -eq 0 ]; then
-        intensity=$((intensity + 10))
-        echo "*** RANDOM SPIKE: intensity boosted to $intensity ***"
-    fi
-    
-    run_activity_burst $intensity
-    
-    # Rest period
-    rest_time=$((5 + (cycle % 3) * 5))
-    echo "Brief rest for ${rest_time}s before next burst..."
-    sleep $rest_time
+    sleep 10
 done
 
-echo "Activity simulation completed!"
-echo "Check your Grafana dashboard to see the fluctuating database metrics."
+echo "[db-activity] Activity simulation completed!"
+echo "Check your Grafana dashboard to see the database metrics."

@@ -4,7 +4,7 @@ set -e
 set -o pipefail
 set -u
 
-echo "EMERGENCY STOP: Terminating database activity simulation..."
+echo "Stopping database activity simulation..."
 
 # Get credentials from Secrets Manager
 echo "[db-activity] Reading credentials from AWS Secrets Manager"
@@ -12,37 +12,48 @@ secret=$(aws --region "$REGION" secretsmanager get-secret-value --secret-id="$SE
 DB_USER=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
 DB_PASS=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 
-export PGPASSWORD="$DB_PASS"
+# Kill any running simulation pods
+echo "[db-activity] Removing any simulation pods..."
+kubectl delete pod -n exampledb -l run=db-activity-sim --ignore-not-found=true 2>/dev/null || true
+kubectl delete pod -n exampledb --field-selector=status.phase=Running -l app=db-activity --ignore-not-found=true 2>/dev/null || true
 
-# Kill any long-running queries from the simulation
-echo "Terminating long-running simulation queries..."
-psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
--- Kill any long-running queries that look like simulation queries
+# Also delete any pods matching the simulation pattern
+for pod in $(kubectl get pods -n exampledb -o name 2>/dev/null | grep "db-activity-sim" || true); do
+    kubectl delete "$pod" -n exampledb --ignore-not-found=true 2>/dev/null || true
+done
+
+# Create a temporary pod to terminate long-running queries
+POD_NAME="db-stop-$(date +%s)"
+
+echo "[db-activity] Creating temporary postgres client pod..."
+kubectl run "$POD_NAME" \
+  --namespace=exampledb \
+  --image=postgres:15-alpine \
+  --restart=Never \
+  --env="PGPASSWORD=$DB_PASS" \
+  --env="PGHOST=$DB_HOST" \
+  --env="PGPORT=$DB_PORT" \
+  --env="PGUSER=$DB_USER" \
+  --env="PGDATABASE=$DB_NAME" \
+  --command -- sleep 60
+
+echo "[db-activity] Waiting for pod to be ready..."
+kubectl wait --namespace=exampledb --for=condition=Ready pod/"$POD_NAME" --timeout=60s || true
+
+# Terminate long-running queries
+echo "[db-activity] Terminating long-running queries..."
+kubectl exec -n exampledb "$POD_NAME" -- psql -c "
 SELECT pg_terminate_backend(pid) 
 FROM pg_stat_activity 
 WHERE state = 'active' 
 AND query_start < NOW() - interval '30 seconds'
 AND query NOT LIKE '%pg_stat_activity%'
-AND datname = '$DB_NAME';
-
--- Also cancel any queries that are just starting
-SELECT pg_cancel_backend(pid) 
-FROM pg_stat_activity 
-WHERE state = 'active' 
-AND datname = '$DB_NAME'
-AND query NOT LIKE '%pg_stat_activity%'
-AND query NOT LIKE '%pg_terminate_backend%'
-AND query NOT LIKE '%pg_cancel_backend%';
+AND query NOT LIKE '%pg_terminate_backend%';
 " 2>/dev/null || true
 
-# Create stop markers for any running simulations
-for pid_file in /tmp/stop_db_simulation_*; do
-    if [ -e "$pid_file" ]; then
-        touch "$pid_file"
-    fi
-done
+# Cleanup
+echo "[db-activity] Cleaning up..."
+kubectl delete pod "$POD_NAME" --namespace=exampledb --ignore-not-found=true
 
-echo "✅ STOP COMPLETE: All simulation queries terminated"
-echo ""
+echo "✅ STOP COMPLETE"
 echo "Database should return to normal activity levels within 60 seconds."
-echo "Monitor your Grafana dashboards to confirm metrics are decreasing."
