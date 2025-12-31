@@ -1,11 +1,11 @@
 # Example Apps on Nuon
 
 [Apps](https://docs.nuon.co/concepts/apps) are versions of a software provider's application that can be deployed on a
-customer's cloud infrastructure with Nuon. Apps are a set of .toml files that point to your existing Terraform modules,
+customer's cloud infrastructure with Nuon. Apps are a set of TOML files that point to your existing Terraform modules,
 Helm charts, Kubernetes manifests, and container images. Nuon provides a set of example apps that can be used as a
 starting point for configuring and deploying applications using Nuon.
 
-> These example apps are designed for demonstration and learning purposes and not meant for production.
+> These example apps are designed for demonstration and learning purposes and do not have a Service Level Agreement or support associated with them.
 > [Contact Nuon](https://nuon.co/contact-sales) or join the [Slack community](https://nuon-byoc.slack.com) to discuss
 > your app's requirements and our technical staff can advise you on how to configure the Nuon app.
 
@@ -16,7 +16,7 @@ the following commands to create and sync the app to the Nuon cloud:
 
 ```bash
 brew install nuonco/tap/nuon
-nuon login
+nuon auth login
 nuon apps create --name <app directory>
 nuon apps sync
 ```
@@ -32,12 +32,6 @@ your first app install in AWS.
 instance and runs the httpbin service using a docker container. This app does not use Kubernetes, so is quicker to make
 installs.
 
-## aws-lambda
-
-Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table,
-a certificate and an API Gateway. This app does not use Kubernetes, so is quicker to make installs. See the Nuon docs
-for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
-
 ## eks-simple
 
 Creates an EKS cluster with a `whoami` application deployed on it, an Application Load Balancer and a Certificate. See
@@ -52,8 +46,8 @@ Identical to eks-simple but makes use of our sandbox for AWS Auto Mode EKS sandb
 ## grafana
 
 [Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana,
-Prometheus, and PostgreSQL with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and
-Grafana access. Read this blog post about:
+Prometheus with Helm in an EKS cluster as well as an ALB and certificate in the VPC for cluster and
+Grafana access. PostgreSQL is external to EKS as an AWS RDS cluster. Read this blog post about:
 [installing Grafana with Nuon](https://nuon.co/blog/installing-grafana-with-nuon/).
 
 ## mattermost
@@ -65,9 +59,8 @@ and Mattermost access. Read this blog post about:
 
 ## coder
 
-[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform This app deploys a Postgres
-database container and Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for
-cluster and Coder access. Read this blog post about:
+[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform This app deploys a Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for
+cluster and Coder access. PostgreSQL is external to EKS as an AWS RDS cluster. Read this blog post about:
 [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
 
 ## twenty
@@ -110,6 +103,12 @@ This demo provides an example for deploying the
 A fully featured application deploying an RDS Cluster, ClickHouse, datadog,
 [temporal](https://github.com/temporalio/helm-charts), and a
 [temporal-ai-agent](https://github.com/temporal-community/temporal-ai-agent/).
+
+## aws-lambda
+
+Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table,
+a certificate and an API Gateway. This app does not use Kubernetes, so is quicker to make installs. See the Nuon docs
+for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
 
 # Resources
 
