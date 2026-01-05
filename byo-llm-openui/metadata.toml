@@ -2,4 +2,4 @@ version = "v2"
 
 display_name = "AWS BYO-LLM Open WebUI"
 description  = "Deploy Open WebUI for OpenaI on ECS."
-readme       = "./readme.md"
+readme       = "./README.md"

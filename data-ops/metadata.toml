@@ -2,4 +2,4 @@ version = "v2"
 
 display_name = "Data Ops"
 description  = "Clickhouse, RDS-backed Temporal, and temporal-ai-agent on AWS EKS + karpenter."
-readme       = "./readme.md"
+readme       = "./README.md"

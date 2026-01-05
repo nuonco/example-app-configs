@@ -2,4 +2,4 @@ version = "v2"
 
 display_name = "ClickHouse on EKS"
 description  = "ClickHouse on EKS with altinity/clickhouse-operator"
-readme       = "./readme.md"
+readme       = "./README.md"

@@ -2,4 +2,4 @@ version = "v2"
 
 display_name = "Clickhouse + Tailscale"
 description  = "Clickhouse on EKS with Tailscale for private ingress via tailnet"
-readme       = "./readme.md"
+readme       = "./README.md"

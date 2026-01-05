@@ -2,4 +2,4 @@ version = "v2"
 
 display_name = "Datadog Operator"
 description  = "Datadog Operator and Agent on AWS EKS"
-readme       = "./readme.md"
+readme       = "./README.md"
