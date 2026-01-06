@@ -1,5 +1,4 @@
 # action
-
 name    = "simple_demonstration"
 timeout = "1m"
 
@@ -10,7 +9,7 @@ type = "post-provision"
 type = "manual"
 
 [[steps]]
-name    = "create secrets in cluster"
+name = "create secrets in cluster"
 inline_contents = """
 #!/usr/bin/env sh
 password=`openssl rand -hex 12`
@@ -20,4 +19,3 @@ kubectl create -n whoami secret generic whoami \
   --from-literal=value="$password" \
   -o yaml | kubectl apply -f -
 """
-
