@@ -1,0 +1,25 @@
+# action
+name    = "certificate_status"
+timeout = "1m"
+
+# TODO: should be a cron and a post-deploy
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "describe"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+export AWS_PAGER=""
+certificate=`aws --region "$REGION" acm describe-certificate --certificate-arn "$CERTIFICATE_ARN" | jq -c`
+echo $certificate >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[steps.env_vars]
+REGION          = "{{ .nuon.install_stack.outputs.region}}"
+CERTIFICATE_ARN = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
