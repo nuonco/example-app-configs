@@ -17,7 +17,8 @@
         "acm:*",
         "Route53:*",
         "kms:*",
-        "organizations:DescribeOrganization"
+        "organizations:DescribeOrganization",
+        "elasticloadbalancing:*"
       ],
       "Resource": "*"
     },
@@ -38,4 +39,3 @@
     }
   ]
 }
-
