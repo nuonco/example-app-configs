@@ -1,0 +1,52 @@
+# action
+name    = "deployment_restart"
+timeout = "45s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "restart"
+inline_contents = """
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+set -u
+
+DEPLOYMENT_NAMESPACE="whoami"
+DEPLOYMENT_NAME="whoami"
+
+echo >&2 "restarting one deployment..."
+
+
+# restart deployment
+kubectl --namespace $DEPLOYMENT_NAMESPACE get deployments/$DEPLOYMENT_NAME |\
+  tail +2          |\
+  cut -d ' '  -f 1 |\
+  xargs -I % sh -c "kubectl --namespace ${DEPLOYMENT_NAMESPACE} rollout restart deployment %"
+
+exit_code="$?"
+sleep 5
+
+payload='{"pre": '$exit_code'}'
+echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name    = "status"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+# table for logs
+kubectl get -n whoami deployments
+
+# json for outputs
+response=`kubectl get -n whoami deployments -o json | jq -c`
+
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
