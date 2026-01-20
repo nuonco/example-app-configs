@@ -20,3 +20,19 @@ inline_contents = "./src/alb/upstreams.sh"
 [steps.env_vars]
 INGRESS_NAME      = "{{.nuon.install.id}}-public"
 INGRESS_NAMESPACE = "whoami"
+
+[[steps]]
+name = "sg"
+inline_contents = "./src/alb/sg.sh"
+
+[steps.env_vars]
+INGRESS_NAME      = "{{.nuon.install.id}}-public"
+INGRESS_NAMESPACE = "whoami"
+
+[[steps]]
+name = "acl"
+inline_contents = "./src/alb/acl.sh"
+
+[steps.env_vars]
+INGRESS_NAME      = "{{.nuon.install.id}}-public"
+INGRESS_NAMESPACE = "whoami"
