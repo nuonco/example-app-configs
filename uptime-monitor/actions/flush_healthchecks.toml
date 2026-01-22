@@ -1,0 +1,96 @@
+# =============================================================================
+# NUON ACTION - Flush Healthchecks
+# =============================================================================
+#
+# Deletes healthcheck records older than 24 hours from the database.
+# Runs hourly on a cron schedule to prevent unbounded data growth.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=action
+#
+# -----------------------------------------------------------------------------
+# CRON TRIGGERS
+# -----------------------------------------------------------------------------
+#
+# Actions can run on a schedule using standard cron syntax:
+#   "* * * * *"     = every minute
+#   "0 * * * *"     = every hour (at minute 0)
+#   "0 0 * * *"     = daily at midnight
+#   "0 0 * * 0"     = weekly on Sunday
+#   "*/5 * * * *"   = every 5 minutes
+#
+# =============================================================================
+
+
+name    = "flush_healthchecks"
+timeout = "5m"
+
+
+# -----------------------------------------------------------------------------
+# TRIGGERS
+# -----------------------------------------------------------------------------
+# Runs every hour, or manually from dashboard.
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "0 * * * *"
+
+[[triggers]]
+type = "manual"
+
+
+# -----------------------------------------------------------------------------
+# STEPS
+# -----------------------------------------------------------------------------
+
+[[steps]]
+name = "flush"
+
+# Creates a temporary postgres pod to run the DELETE query.
+# Reads database credentials from the Kubernetes secret created by rds_creds action.
+inline_contents = """
+#!/usr/bin/env bash
+# Deletes healthcheck records older than 24 hours.
+# Uses a temporary postgres pod to execute SQL against RDS.
+# Database credentials are read from Kubernetes secret (created by rds_creds action).
+set -euo pipefail
+
+echo "[flush-healthchecks] reading db credentials from secret"
+DB_HOST=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.data.host}' | base64 -d)
+DB_PORT=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.data.port}' | base64 -d)
+DB_NAME=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.data.database}' | base64 -d)
+DB_USER=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.data.username}' | base64 -d)
+DB_PASS=$(kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d)
+
+POD_NAME="flush-healthchecks-$(date +%s)"
+
+echo "[flush-healthchecks] creating temporary postgres client pod"
+kubectl run "$POD_NAME" \
+  --namespace="$NAMESPACE" \
+  --image=postgres:18-alpine \
+  --restart=Never \
+  --env="PGPASSWORD=$DB_PASS" \
+  --env="PGHOST=$DB_HOST" \
+  --env="PGPORT=$DB_PORT" \
+  --env="PGUSER=$DB_USER" \
+  --env="PGDATABASE=$DB_NAME" \
+  --command -- sleep 300
+
+echo "[flush-healthchecks] waiting for pod to be ready"
+kubectl wait --namespace="$NAMESPACE" --for=condition=Ready pod/"$POD_NAME" --timeout=60s
+
+cleanup() {
+  echo "[flush-healthchecks] cleaning up temporary pod"
+  kubectl delete pod "$POD_NAME" --namespace="$NAMESPACE" --ignore-not-found=true
+}
+trap cleanup EXIT
+
+echo "[flush-healthchecks] deleting healthchecks older than 24h"
+kubectl exec -n "$NAMESPACE" "$POD_NAME" -- psql -c \
+  "DELETE FROM healthcheck WHERE created_at < NOW() - INTERVAL '24 hours';"
+
+echo "[flush-healthchecks] done"
+"""
+
+[steps.env_vars]
+SECRET_NAME = "db-credentials"
+NAMESPACE   = "default"

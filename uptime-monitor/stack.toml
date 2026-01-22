@@ -1,0 +1,70 @@
+# =============================================================================
+# NUON INSTALL STACK CONFIGURATION
+# =============================================================================
+#
+# The install stack is the AWS CloudFormation stack that customers deploy to
+# bootstrap Nuon in their account. It creates the VPC, networking, and runner
+# infrastructure needed for your app.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=stack
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   type                        (optional)  Stack type ("aws-cloudformation")
+#   name                        (required)  CloudFormation stack name (supports templating)
+#   description                 (required)  Stack description (supports templating)
+#   vpc_nested_template_url     (optional)  URL to VPC nested stack template
+#   runner_nested_template_url  (optional)  URL to runner nested stack template
+#
+# -----------------------------------------------------------------------------
+# CLOUDFORMATION TEMPLATES
+# -----------------------------------------------------------------------------
+#
+# Nuon provides versioned CloudFormation templates:
+#   https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/
+#
+# Template versions follow semver (e.g., v0.1.8). Check release notes for updates.
+#
+# VPC templates (vpc_nested_template_url):
+#   - .../vpc/eks/default/stack.yaml    Standard EKS VPC (used here)
+#   - .../vpc/ecs/default/stack.yaml    ECS VPC
+#   - .../vpc/minimal/stack.yaml        Minimal VPC
+#
+# Runner templates (runner_nested_template_url):
+#   - .../runner/asg/stack.yaml         Auto Scaling Group runner (recommended)
+#   - .../runner/ecs/stack.yaml         ECS-based runner
+#
+# =============================================================================
+
+
+# Stack type. This file is AWS-specific.
+# For Azure, Nuon auto-generates ARM/Bicep templates from sandbox.toml config.
+# See: https://docs.nuon.co/platform-support/azure
+type = "aws-cloudformation"
+
+
+# CloudFormation stack name. Supports Nuon template variables.
+# This name appears in the customer's AWS CloudFormation console.
+name = "nuon-uptime-monitor-{{.nuon.install.id}}"
+
+
+# Stack description shown in CloudFormation console and install QuickLink.
+# Supports Nuon template variables.
+description = "QuickLink to install runner for the Uptime Monitor app config: Install {{.nuon.install.id}}"
+
+
+# -----------------------------------------------------------------------------
+# NESTED STACK TEMPLATES
+# -----------------------------------------------------------------------------
+# URLs to CloudFormation nested stack templates hosted by Nuon.
+# These create the VPC and runner infrastructure in the customer's account.
+
+# VPC nested stack: Creates VPC, subnets, NAT gateways, and networking.
+vpc_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.8/vpc/eks/default/stack.yaml"
+
+# Runner nested stack: Creates the Nuon runner (EC2 Auto Scaling Group).
+# Use v0.1.6+ for management mode support.
+# See: https://docs.nuon.co/guides/runner-management-mode
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.8/runner/asg/stack.yaml"

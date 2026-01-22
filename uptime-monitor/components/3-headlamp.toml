@@ -1,0 +1,119 @@
+# =============================================================================
+# NUON HELM CHART COMPONENT - Headlamp (Kubernetes Dashboard)
+# =============================================================================
+#
+# Deploys a Helm chart to the customer's cluster. Headlamp provides a web-based
+# Kubernetes dashboard for cluster visibility.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=helm
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name           (required)  Component identifier (also used as Helm release name)
+#   type           (required)  Must be "helm_chart"
+#   chart_name     (required)  Name of the Helm chart
+#   namespace      (optional)  Kubernetes namespace (default: {{.nuon.install.id}})
+#   public_repo    (conditional) Public repository containing the chart
+#   connected_repo (conditional) Private repository containing the chart
+#   helm_repo      (conditional) Helm repository URL (alternative to git repos)
+#   values         (optional)  Inline Helm values as key-value pairs
+#   values_file    (optional)  External values.yaml files to load
+#   storage_driver (optional)  Helm storage backend: "configmap" or "secret"
+#   dependencies   (optional)  Components that must deploy first
+#   take_ownership (optional)  Take ownership of existing release
+#   drift_schedule (optional)  Cron expression for drift detection
+#
+# Note: Exactly one of public_repo, connected_repo, or helm_repo must be specified.
+#
+# =============================================================================
+
+
+# Component name (also the Helm release name).
+name = "headlamp"
+
+# Component type for Helm charts.
+type = "helm_chart"
+
+# Chart name within the repository.
+chart_name = "headlamp"
+
+# Kubernetes namespace for the release.
+namespace = "default"
+
+
+# -----------------------------------------------------------------------------
+# REPOSITORY CONFIGURATION
+# -----------------------------------------------------------------------------
+# Using a public Git repository containing the chart:
+[public_repo]
+repo      = "kubernetes-sigs/headlamp"
+directory = "charts/headlamp"
+branch    = "main"
+
+# Alternative: Using a Helm repository URL:
+# [helm_repo]
+# repo_url = "https://kubernetes-sigs.github.io/headlamp"
+# chart    = "headlamp"
+# version  = "0.20.0"    # Optional: pin to specific version
+
+# Alternative: Using a connected private repository:
+# [connected_repo]
+# repo      = "your-org/helm-charts"
+# directory = "charts/headlamp"
+# branch    = "main"
+
+
+# -----------------------------------------------------------------------------
+# DRIFT DETECTION
+# -----------------------------------------------------------------------------
+# Detect when Headlamp Helm release has been modified outside of Nuon.
+# Useful for the drift demo - manually change Helm values or scale the
+# deployment, then trigger a drift scan to see Nuon detect the changes.
+drift_schedule = "*/10 * * * *"  # Every 10 minutes
+
+
+# -----------------------------------------------------------------------------
+# HELM VALUES
+# -----------------------------------------------------------------------------
+# Inline values passed to the chart. Keys use dot notation for nested values.
+# Supports Nuon template variables.
+#
+# To find available values, check the chart's values.yaml or run:
+#   helm show values <repo>/<chart>
+#
+[values]
+"replicaCount"                       = "1"
+"ingress.enabled"                    = "false"
+"config.oidc.secret.create"          = "false"
+"config.oidc.externalSecret.enabled" = "false"
+"clusterRoleBinding.create"          = "true"
+"clusterRoleBinding.clusterRoleName" = "cluster-admin"
+"config.baseURL"                     = "/headlamp"
+"serviceAccount.create"              = "true"
+"persistentVolumeClaim.enabled"      = "false"
+
+# Example with template variables:
+# "config.installId" = "{{.nuon.install.id}}"
+
+
+# -----------------------------------------------------------------------------
+# ALTERNATIVE: Values Files
+# -----------------------------------------------------------------------------
+# Load values from external files instead of inline.
+#
+# [[values_file]]
+# contents = "./values/headlamp.yaml"
+#
+# [[values_file]]
+# contents = "./values/headlamp-production.yaml"
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Storage Driver
+# -----------------------------------------------------------------------------
+# Where Helm stores release metadata.
+#
+# storage_driver = "configmap"  # Default, recommended
+# storage_driver = "secret"     # Use if release data is sensitive

@@ -1,0 +1,116 @@
+# -----------------------------------------------------------------------------
+# API Deployment for Uptime Monitor
+# -----------------------------------------------------------------------------
+#
+# Nuon template variables used in this manifest:
+#
+#   Service Account (IRSA):
+#     {{ .nuon.components.irsa.outputs.role_arn }}  <- IAM role for AWS access
+#
+#   Container Image (from docker_build component):
+#     {{ .nuon.components.api_image.outputs.image.repository }}
+#     {{ .nuon.components.api_image.outputs.image.tag }}
+#
+#   Environment Variables:
+#     {{ .nuon.install.inputs.healthcheck_interval_seconds }}  <- User input
+#     {{ .nuon.install_stack.outputs.region }}                 <- AWS region
+#     {{ .nuon.components.s3.outputs.bucket_name }}            <- S3 component output
+#
+#   Database credentials come from a Kubernetes secret created by the
+#   rds_creds action (see actions/rds_creds.toml).
+#
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api
+  namespace: default
+  annotations:
+    # IRSA: Links this ServiceAccount to an IAM role for AWS API access
+    eks.amazonaws.com/role-arn: "{{ .nuon.components.irsa.outputs.role_arn }}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      serviceAccountName: api
+      containers:
+        - name: api
+          # Image built by Nuon docker_build component (0-api-image.toml)
+          image: "{{ .nuon.components.api_image.outputs.image.repository }}:{{ .nuon.components.api_image.outputs.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            # Database credentials from Kubernetes secret (created by rds_creds action)
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: database
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            # User-configurable input from inputs.toml
+            - name: CHECK_INTERVAL
+              value: "{{ .nuon.install.inputs.healthcheck_interval_seconds }}"
+            # AWS region from CloudFormation stack outputs
+            - name: AWS_REGION
+              value: "{{ .nuon.install_stack.outputs.region }}"
+            # S3 bucket name from Terraform component output
+            - name: S3_BUCKET_NAME
+              value: "{{ .nuon.components.s3.outputs.bucket_name }}"
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: api

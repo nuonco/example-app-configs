@@ -1,0 +1,86 @@
+# =============================================================================
+# NUON TERRAFORM COMPONENT - RDS PostgreSQL
+# =============================================================================
+#
+# Deploys a Terraform module to create an RDS PostgreSQL instance. Outputs
+# from this component can be referenced by other components using:
+#   {{.nuon.components.rds.outputs.OUTPUT_NAME}}
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=terraform
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name              (required)  Component identifier for template references
+#   type              (required)  Must be "terraform_module"
+#   terraform_version (required)  Terraform version for deployments
+#   public_repo       (conditional) Public repository configuration
+#   connected_repo    (conditional) Private repository configuration
+#   vars              (optional)  Terraform input variables (supports templating)
+#   var_file          (optional)  External .tfvars files to load
+#   env_vars          (optional)  Environment variables for Terraform
+#   dependencies      (optional)  Components that must deploy first
+#   drift_schedule    (optional)  Cron expression for drift detection
+#
+# Note: Exactly one of public_repo or connected_repo must be specified.
+#
+# -----------------------------------------------------------------------------
+# TERRAFORM MODULE LOCATION
+# -----------------------------------------------------------------------------
+#
+# The Terraform code is in: ./1-rds/main.tf (relative to this file)
+#
+# =============================================================================
+
+
+# Component name. Used to reference outputs:
+#   {{.nuon.components.rds.outputs.endpoint}}
+#   {{.nuon.components.rds.outputs.port}}
+#   {{.nuon.components.rds.outputs.database_name}}
+name = "rds"
+
+# Component type for Terraform modules.
+type = "terraform_module"
+
+# Terraform version.
+terraform_version = "1.14.3"
+
+# -----------------------------------------------------------------------------
+# DRIFT DETECTION
+# -----------------------------------------------------------------------------
+# Detect when RDS configuration has been modified outside of Terraform.
+# This is useful for the drift demo - modify RDS via the /admin panel,
+# then trigger a drift scan to see Nuon detect the changes.
+drift_schedule = "*/10 * * * *"  # Every 10 minutes
+
+
+# -----------------------------------------------------------------------------
+# REPOSITORY CONFIGURATION
+# -----------------------------------------------------------------------------
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "uptime-monitor/components/1-rds"
+branch    = "main"
+
+
+# -----------------------------------------------------------------------------
+# TERRAFORM VARIABLES
+# -----------------------------------------------------------------------------
+# This component uses sandbox outputs to configure networking.
+#
+# Common sandbox output paths:
+#   {{.nuon.install.sandbox.outputs.vpc.id}}                    - VPC ID
+#   {{.nuon.install.sandbox.outputs.vpc.private_subnet_ids}}    - Private subnet IDs (array)
+#   {{.nuon.install.sandbox.outputs.vpc.public_subnet_ids}}     - Public subnet IDs (array)
+#   {{.nuon.install.sandbox.outputs.cluster.node_security_group_id}} - EKS node SG
+#   {{.nuon.install.sandbox.outputs.cluster.oidc_provider}}     - OIDC provider for IRSA
+#
+# Use `index` to access array elements: {{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 0 }}
+#
+[vars]
+region                 = "{{ .nuon.install_stack.outputs.region }}"
+install_id             = "{{ .nuon.install.id }}"
+vpc_id                 = "{{ .nuon.install.sandbox.outputs.vpc.id }}"
+private_subnet_ids     = "{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+node_security_group_id = "{{ .nuon.install.sandbox.outputs.cluster.node_security_group_id }}"

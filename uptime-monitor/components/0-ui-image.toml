@@ -1,0 +1,54 @@
+# =============================================================================
+# NUON DOCKER BUILD COMPONENT - UI Image
+# =============================================================================
+#
+# Builds a Docker image from a Dockerfile and syncs it to the customer's
+# container registry (ECR). The built image can be referenced by other
+# components using: {{.nuon.components.ui_image.image.repository.uri}}
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=docker-build
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name          (required)  Component identifier for template references
+#   type          (required)  Must be "docker_build"
+#   dockerfile    (required)  Path to Dockerfile (relative to repo directory)
+#   public_repo   (conditional) Public repository configuration
+#   connected_repo (conditional) Private repository configuration
+#   dependencies  (optional)  Components that must be built first
+#   var_name      (optional)  Custom variable name for outputs
+#   env_vars      (optional)  Environment variables for docker build
+#
+# Note: Exactly one of public_repo or connected_repo must be specified.
+#
+# =============================================================================
+
+
+# Component name. Used to reference outputs in other components:
+#   {{.nuon.components.ui_image.image.repository.uri}}  - ECR repository URI
+#   {{.nuon.components.ui_image.image.tag}}             - Image tag
+name = "ui_image"
+
+# Component type for Docker image builds.
+type = "docker_build"
+
+# Path to Dockerfile relative to the repository directory.
+dockerfile = "Dockerfile"
+
+
+# -----------------------------------------------------------------------------
+# REPOSITORY CONFIGURATION
+# -----------------------------------------------------------------------------
+# Using a public repository (no authentication required):
+[public_repo]
+repo      = "nuonco/uptime-monitor"
+directory = "ui"
+branch    = "main"
+
+# Alternative: Using a connected private repository (requires GitHub connection):
+# [connected_repo]
+# repo      = "your-org/your-private-app"
+# directory = "ui"
+# branch    = "main"

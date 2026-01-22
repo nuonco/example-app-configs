@@ -1,0 +1,115 @@
+# =============================================================================
+# NUON APP INPUTS CONFIGURATION
+# =============================================================================
+#
+# Inputs allow customers to configure their install. Values are collected
+# during installation and can be referenced throughout your app config using
+# template variables: {{.nuon.install.inputs.INPUT_NAME}}
+#
+# Schema (input):       https://api.nuon.co/v1/general/config-schema?type=input
+# Schema (input-group): https://api.nuon.co/v1/general/config-schema?type=input-group
+#
+# -----------------------------------------------------------------------------
+# INPUT GROUP KEYS
+# -----------------------------------------------------------------------------
+#
+#   name          (required)  Group identifier (referenced by inputs)
+#   description   (required)  Human-readable description for the installer UI
+#   display_name  (optional)  Human-readable name shown in the installer UI
+#
+# -----------------------------------------------------------------------------
+# INPUT KEYS
+# -----------------------------------------------------------------------------
+#
+#   name              (required)  Input identifier for template references
+#   display_name      (required)  Human-readable name in the installer UI
+#   description       (required)  Explanation of what this input is for
+#   group             (required)  Name of the input group this belongs to
+#   default           (optional)  Default value if customer doesn't provide one
+#   required          (optional)  Whether customer must provide a value (default: false)
+#   sensitive         (optional)  Mask value in UI (for passwords/tokens)
+#   type              (optional)  Data type: "string", "number", "bool", "list", "json"
+#   internal          (optional)  Only settable via admin panel (hidden from customers)
+#   user_configurable (optional)  Can be modified after installation
+#
+# -----------------------------------------------------------------------------
+# ALTERNATIVE: Directory-Based Configuration
+# -----------------------------------------------------------------------------
+#
+# Instead of a single inputs.toml, you can use directories:
+#   - inputs/           Individual input files (e.g., inputs/api_token.toml)
+#   - input_groups/     Individual group files (e.g., input_groups/network.toml)
+#
+# When using directories, omit the [[input]] and [[group]] array syntax.
+#
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# INPUT GROUPS
+# -----------------------------------------------------------------------------
+# Groups organize inputs in the installer UI for better UX.
+
+[[group]]
+name         = "monitoring"
+description  = "Configure monitoring settings"
+display_name = "Monitoring"
+
+# Example: Additional group for network settings
+# [[group]]
+# name         = "network"
+# description  = "Configure network and connectivity settings"
+# display_name = "Network"
+
+
+# -----------------------------------------------------------------------------
+# INPUTS
+# -----------------------------------------------------------------------------
+
+[[input]]
+name              = "healthcheck_interval_seconds"
+description       = "How often to check site uptime (in seconds)"
+display_name      = "Healthcheck Interval (seconds)"
+group             = "monitoring"
+default           = "5"
+required          = false
+type              = "number"
+user_configurable = true    # Allows customers to change this after install
+
+# Example: Required string input
+# [[input]]
+# name         = "root_domain"
+# description  = "Root domain for the application (e.g., example.com)"
+# display_name = "Root Domain"
+# group        = "network"
+# required     = true
+# type         = "string"
+
+# Example: Sensitive input (value masked in UI)
+# [[input]]
+# name         = "api_token"
+# description  = "API token for external service integration"
+# display_name = "API Token"
+# group        = "integrations"
+# required     = true
+# sensitive    = true
+# type         = "string"
+
+# Example: Boolean input
+# [[input]]
+# name         = "enable_debug"
+# description  = "Enable debug logging"
+# display_name = "Enable Debug Mode"
+# group        = "monitoring"
+# default      = "false"
+# type         = "bool"
+
+# Example: Internal input (admin-only, hidden from customers)
+# [[input]]
+# name         = "feature_flag_beta"
+# description  = "Enable beta features"
+# display_name = "Beta Features"
+# group        = "internal"
+# default      = "false"
+# type         = "bool"
+# internal     = true

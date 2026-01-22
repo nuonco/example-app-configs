@@ -1,0 +1,59 @@
+# =============================================================================
+# NUON ACTION - Headlamp Token
+# =============================================================================
+#
+# Generates a Kubernetes service account token for Headlamp dashboard access.
+# The token is returned as action output and displayed in the Nuon dashboard.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=action
+#
+# -----------------------------------------------------------------------------
+# ACTION OUTPUT
+# -----------------------------------------------------------------------------
+#
+# Actions can return structured output by writing JSON to $NUON_ACTIONS_OUTPUT_FILEPATH.
+# This output is displayed in the Nuon dashboard after the action completes.
+#
+# =============================================================================
+
+
+name    = "headlamp_token"
+timeout = "1m"
+
+
+# -----------------------------------------------------------------------------
+# TRIGGERS
+# -----------------------------------------------------------------------------
+# Runs after Headlamp deploys, or manually from dashboard.
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "headlamp"
+
+[[triggers]]
+type = "manual"
+
+
+# -----------------------------------------------------------------------------
+# STEPS
+# -----------------------------------------------------------------------------
+
+[[steps]]
+name = "create"
+
+# Generates a long-lived token for Headlamp authentication.
+# Writes JSON output to $NUON_ACTIONS_OUTPUT_FILEPATH for display in dashboard.
+inline_contents = """
+#!/usr/bin/env bash
+# Generates a Kubernetes token for Headlamp dashboard authentication.
+# Output is written to $NUON_ACTIONS_OUTPUT_FILEPATH (provided by Nuon runner).
+set -euo pipefail
+
+echo "[headlamp-token] generating token"
+TOKEN=$(kubectl create token headlamp -n "$NAMESPACE" --duration=8760h)
+printf '{"token": "%s"}' "$TOKEN" >> $NUON_ACTIONS_OUTPUT_FILEPATH
+echo "[headlamp-token] done"
+"""
+
+[steps.env_vars]
+NAMESPACE = "default"

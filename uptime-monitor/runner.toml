@@ -1,0 +1,62 @@
+# =============================================================================
+# NUON RUNNER CONFIGURATION
+# =============================================================================
+#
+# The runner is the Nuon agent that executes deployments in the customer's
+# cloud account. It communicates with the Nuon control plane and manages
+# Helm releases, Kubernetes manifests, and Terraform operations.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=runner
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   runner_type      (required)  Type of runner ("aws" or "azure")
+#   helm_driver      (optional)  Helm storage backend ("configmap" or "secret")
+#   init_script_url  (optional)  URL to runner initialization script
+#   env_vars         (optional)  Environment variables passed to the runner
+#
+# =============================================================================
+
+
+# Type of runner. Determines the cloud platform for deployment.
+#
+# Available types:
+#   "aws"   - Amazon Web Services
+#   "azure" - Microsoft Azure
+runner_type = "aws"
+
+
+# Helm storage driver for release metadata.
+#
+# Available drivers:
+#   "configmap" - Store release data in ConfigMaps (default, recommended)
+#   "secret"    - Store release data in Secrets (use if release data is sensitive)
+helm_driver = "configmap"
+
+
+# Initialization script executed when the runner starts.
+# This script configures the runner environment (e.g., installs tools, sets up auth).
+#
+# Nuon provides managed init scripts:
+#   - Standard mode:    .../scripts/aws/init.sh
+#   - Management mode:  .../scripts/aws/init-mng.sh (recommended for new installs)
+#
+# See: https://docs.nuon.co/guides/runner-management-mode
+init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/heads/main/scripts/aws/init-mng.sh"
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Environment Variables
+# -----------------------------------------------------------------------------
+# Environment variables available to the runner and all jobs it executes.
+#
+# [env_vars]
+# LOG_LEVEL = "debug"
+# CUSTOM_VAR = "value"
+#
+# Alternative array syntax for environment variables:
+# [[env_var]]
+# name  = "LOG_LEVEL"
+# value = "debug"

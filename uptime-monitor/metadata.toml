@@ -1,0 +1,66 @@
+# =============================================================================
+# NUON APP METADATA CONFIGURATION
+# =============================================================================
+#
+# This file defines metadata for your Nuon application. Metadata is displayed
+# in the Nuon Dashboard and Installer UI to help users understand your app.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=metadata
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   version          (required)  Config file format version ("v1" or "v2")
+#   display_name     (optional)  Human-readable name shown in the installer UI
+#   description      (optional)  Detailed description displayed in the installer
+#   readme           (optional)  Path to README.md or inline markdown content
+#   slack_webhook_url (optional) Slack webhook URL for deployment notifications
+#
+# =============================================================================
+
+
+# Config file format version. Use "v2" for new apps.
+#
+# Available versions:
+#   "v1" - Legacy format
+#   "v2" - Current format (recommended)
+#
+version = "v2"
+
+
+# Human-readable application name displayed in the Nuon Dashboard and Installer.
+display_name = "Uptime Monitor"
+
+
+# Detailed description of your application. This appears in the installer UI
+# to help users understand what your app does.
+description = "A demo uptime monitoring service."
+
+
+# README documentation for your app. Can be either:
+#   - A path to a markdown file:  readme = "./README.md"
+#   - Inline markdown content:    readme = """# My App\n\nDescription here..."""
+#
+# The README is rendered in the Dashboard for each app and its installs.
+# Supports GitHub-flavored markdown and basic HTML/CSS.
+#
+# READMEs support Nuon template variables (rendered per-install):
+#   {{.nuon.app.name}}                    - App name
+#   {{.nuon.install.name}}                - Install name
+#   {{.nuon.install.id}}                  - Install ID
+#   {{.nuon.sandbox.type}}                - Sandbox type (e.g., "aws-eks")
+#   {{.nuon.components.COMPONENT.status}} - Component deployment status
+#
+# Full Golang templating is supported, including conditionals and loops:
+#   {{ if .nuon.components.populated }}...{{ end }}
+#   {{ range $name, $c := .nuon.components.components }}...{{ end }}
+readme = "./README.md"
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Slack Notifications
+# -----------------------------------------------------------------------------
+# Receive deployment notifications in Slack. Uncomment and add your webhook URL.
+#
+# slack_webhook_url = "https://hooks.slack.com/services/foo/bar/baz"

@@ -1,0 +1,44 @@
+# =============================================================================
+# NUON KUBERNETES MANIFEST COMPONENT - Application Load Balancer
+# =============================================================================
+#
+# Deploys a Kubernetes Ingress resource that provisions an AWS Application
+# Load Balancer via the AWS Load Balancer Controller.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name          (required)  Component identifier for template references
+#   type          (required)  Must be "kubernetes_manifest"
+#   namespace     (required)  Kubernetes namespace for deployment
+#   manifest      (required)  Path to manifest YAML or inline YAML content
+#   dependencies  (optional)  Components that must deploy first
+#
+# -----------------------------------------------------------------------------
+# MANIFEST LOCATION
+# -----------------------------------------------------------------------------
+#
+# The Kubernetes manifest is in: ./4-alb/manifest.yaml (relative to this file)
+# Contains an Ingress resource with ALB annotations for routing.
+#
+# =============================================================================
+
+
+# Component name.
+name = "application_load_balancer"
+
+# Component type for Kubernetes manifests.
+type = "kubernetes_manifest"
+
+# Kubernetes namespace.
+namespace = "default"
+
+# Dependencies ensure all services are deployed before creating the load balancer.
+# The ALB routes traffic to UI and Headlamp services.
+dependencies = ["ui", "headlamp"]
+
+# Path to manifest file containing the Ingress resource.
+manifest = "./4-alb/manifest.yaml"

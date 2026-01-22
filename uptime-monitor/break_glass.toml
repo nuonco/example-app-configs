@@ -1,0 +1,121 @@
+# =============================================================================
+# NUON BREAK GLASS CONFIGURATION
+# =============================================================================
+#
+# Break glass roles provide temporary elevated access for emergency situations.
+# When an incident requires direct access to the customer's environment, the
+# customer can approve a break glass request via CloudFormation, granting
+# time-limited elevated permissions to the Nuon runner.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=break-glass
+#
+# -----------------------------------------------------------------------------
+# ROLE KEYS
+# -----------------------------------------------------------------------------
+#
+#   type                  (optional)  Role type when using permissions directory
+#   name                  (required)  IAM role name in AWS (supports templating)
+#   description           (required)  Human-readable description of the role's purpose
+#   display_name          (optional)  Display name shown in the installer UI
+#   policies              (required)  List of IAM policies to attach
+#   permissions_boundary  (optional)  ARN of permissions boundary policy
+#
+# -----------------------------------------------------------------------------
+# POLICY KEYS
+# -----------------------------------------------------------------------------
+#
+#   managed_policy_name  (optional)  AWS managed policy name or ARN
+#   name                 (optional)  Name for inline/customer managed policies
+#   contents             (optional)  JSON policy document (inline or file path)
+#
+# Note: Each policy should have either managed_policy_name OR name+contents.
+#
+# -----------------------------------------------------------------------------
+# BEST PRACTICES
+# -----------------------------------------------------------------------------
+#
+# - Use the principle of least privilege for break glass access
+# - Consider separate break glass roles for different access levels:
+#     - Network access (VPC operations)
+#     - Sandbox access (EKS cluster, databases)
+#     - Component access (deployments, pods)
+# - Always include explicit deny statements for sensitive resources
+# - Document the intended use case in the description
+#
+# See: https://docs.nuon.co/production-readiness/break-glass
+#
+# =============================================================================
+
+
+[[role]]
+# IAM role name. Supports Nuon template variables.
+name = "{{.nuon.install.id}}-uptime-sandbox-break-glass"
+
+# Description shown to customers when approving break glass access.
+description = "Grants access to the sandbox for install {{.nuon.install.id}}."
+
+# Display name in the Nuon dashboard.
+display_name = "{{.nuon.install.id}} - Uptime Monitor Sandbox Break Glass"
+
+# Permissions boundary ARN (optional). Limits the maximum permissions this role can have.
+# Can reference a local file or ARN:
+#   permissions_boundary = "./permissions/break_glass_boundary.json"
+#   permissions_boundary = "arn:aws:iam::aws:policy/PowerUserAccess"
+permissions_boundary = ""
+
+
+# -----------------------------------------------------------------------------
+# POLICIES
+# -----------------------------------------------------------------------------
+# Policies attached to this break glass role.
+
+# Attach an AWS managed policy by name or ARN.
+[[role.policies]]
+managed_policy_name = "AdministratorAccess"
+
+# Inline policy with explicit deny for sensitive resources.
+# This ensures Secrets Manager access is blocked even with AdministratorAccess.
+[[role.policies]]
+name = "{{.nuon.install.id}}-break-glass-deny-secrets"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenySecretsManagerAccess",
+            "Effect": "Deny",
+            "Action": [
+                "secretsmanager:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""
+
+# Alternative: Reference policy from external file
+# [[role.policies]]
+# name = "{{.nuon.install.id}}-custom-policy"
+# contents = "./permissions/break_glass_policy.json"
+
+
+# -----------------------------------------------------------------------------
+# EXAMPLE: Multiple Break Glass Roles
+# -----------------------------------------------------------------------------
+# You can define multiple roles for different access levels.
+#
+# [[role]]
+# name         = "{{.nuon.install.id}}-network-break-glass"
+# description  = "Grants VPC and networking access for install {{.nuon.install.id}}."
+# display_name = "{{.nuon.install.id}} - Network Break Glass"
+#
+# [[role.policies]]
+# managed_policy_name = "AmazonVPCFullAccess"
+#
+# [[role]]
+# name         = "{{.nuon.install.id}}-eks-break-glass"
+# description  = "Grants EKS cluster access for install {{.nuon.install.id}}."
+# display_name = "{{.nuon.install.id}} - EKS Break Glass"
+#
+# [[role.policies]]
+# managed_policy_name = "AmazonEKSClusterPolicy"

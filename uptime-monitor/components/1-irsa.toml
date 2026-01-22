@@ -1,0 +1,70 @@
+# =============================================================================
+# NUON TERRAFORM COMPONENT - IRSA (IAM Roles for Service Accounts)
+# =============================================================================
+#
+# Creates an IAM role that can be assumed by Kubernetes service accounts,
+# enabling pods to access AWS services (S3, RDS, etc.) without static credentials.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=terraform
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name              (required)  Component identifier for template references
+#   type              (required)  Must be "terraform_module"
+#   terraform_version (required)  Terraform version for deployments
+#   dependencies      (optional)  Components that must deploy first
+#   public_repo       (conditional) Public repository configuration
+#   connected_repo    (conditional) Private repository configuration
+#   vars              (optional)  Terraform input variables (supports templating)
+#
+# -----------------------------------------------------------------------------
+# TERRAFORM MODULE LOCATION
+# -----------------------------------------------------------------------------
+#
+# The Terraform code is in: ./1-irsa/main.tf (relative to this file)
+#
+# =============================================================================
+
+
+# Component name. Used to reference outputs:
+#   {{.nuon.components.irsa.outputs.role_arn}}
+name = "irsa"
+
+# Component type for Terraform modules.
+type = "terraform_module"
+
+# Terraform version.
+terraform_version = "1.14.3"
+
+# -----------------------------------------------------------------------------
+# DEPENDENCIES
+# -----------------------------------------------------------------------------
+# This component depends on S3 and RDS to reference their outputs (ARNs) when
+# creating IAM policies. Nuon ensures these deploy first.
+dependencies = ["s3", "rds"]
+
+
+# -----------------------------------------------------------------------------
+# REPOSITORY CONFIGURATION
+# -----------------------------------------------------------------------------
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "uptime-monitor/components/1-irsa"
+branch    = "main"
+
+
+# -----------------------------------------------------------------------------
+# TERRAFORM VARIABLES
+# -----------------------------------------------------------------------------
+# References outputs from dependent components and sandbox.
+#
+# Component output syntax:
+#   {{.nuon.components.COMPONENT_NAME.outputs.OUTPUT_NAME}}
+#
+[vars]
+region                = "{{ .nuon.install_stack.outputs.region }}"
+install_id            = "{{ .nuon.install.id }}"
+cluster_oidc_provider = "{{ .nuon.install.sandbox.outputs.cluster.oidc_provider }}"
+s3_bucket_arn         = "{{ .nuon.components.s3.outputs.bucket_arn }}"
