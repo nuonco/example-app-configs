@@ -1,0 +1,122 @@
+# =============================================================================
+# NUON ACTION - RDS Credentials
+# =============================================================================
+#
+# Copies RDS credentials from AWS Secrets Manager to a Kubernetes secret,
+# making them available to pods via environment variables or volume mounts.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=action
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name          (required)  Action identifier
+#   timeout       (required)  Max execution time (Go duration: 30s, 5m, 30m max)
+#   triggers      (required)  When the action runs (manual, cron, lifecycle events)
+#   steps         (required)  Ordered list of steps to execute
+#   dependencies  (optional)  Components that must exist (auto-extracted from templates)
+#   break_glass_role (optional) Elevated permissions for emergency operations
+#
+# -----------------------------------------------------------------------------
+# TRIGGER TYPES
+# -----------------------------------------------------------------------------
+#
+#   manual                     - Run from dashboard or CLI
+#   cron                       - Run on schedule (cron_schedule = "*/5 * * * *")
+#   post-deploy-component      - Run after a component deploys (component_name required)
+#   pre-deploy-component       - Run before a component deploys
+#   post-provision             - Run after install provisioning
+#   post-deploy-all-components - Run after all components deploy
+#   post-update-inputs         - Run after inputs are updated
+#
+# See docs for full list: https://docs.nuon.co/concepts/actions
+#
+# =============================================================================
+
+
+name    = "rds_creds"
+timeout = "1m"
+
+
+# -----------------------------------------------------------------------------
+# TRIGGERS
+# -----------------------------------------------------------------------------
+# This action runs automatically after the RDS component deploys,
+# and can also be triggered manually from the dashboard.
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds"
+
+[[triggers]]
+type = "manual"
+
+
+# -----------------------------------------------------------------------------
+# STEPS
+# -----------------------------------------------------------------------------
+# Each step runs a script. Scripts can be inline, from a file, or from a repo.
+
+[[steps]]
+name = "Copy RDS Secret"
+
+# Inline bash script. Supports Nuon template variables in env_vars.
+# The script reads the RDS password from AWS Secrets Manager and creates
+# a Kubernetes secret that pods can mount.
+inline_contents = """
+#!/usr/bin/env bash
+# Copies RDS credentials from AWS Secrets Manager to Kubernetes secret.
+# Environment variables are injected by Nuon from component outputs.
+set -euo pipefail
+
+echo "[rds-secrets] reading db access secrets from AWS Secrets Manager"
+secret=$(aws --region "$REGION" secretsmanager get-secret-value --secret-id="$SECRET_ARN")
+username=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
+password=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
+
+echo "[rds-secrets] creating RDS access secret"
+kubectl create -n "$TARGET_NAMESPACE" secret generic "$TARGET_NAME" \
+  --save-config    \
+  --dry-run=client \
+  --from-literal=username="$username" \
+  --from-literal=password="$password" \
+  --from-literal=host="$DB_ADDRESS" \
+  --from-literal=port="$DB_PORT" \
+  --from-literal=database="$DB_NAME" \
+  -o yaml | kubectl apply -f -
+
+echo "[rds-secrets] secret created successfully"
+"""
+
+# Environment variables passed to the script.
+# Values support Nuon template variables for dynamic configuration.
+[steps.env_vars]
+# From RDS component outputs (1-rds.toml)
+SECRET_ARN = "{{ .nuon.components.rds.outputs.master_user_secret_arn }}"
+DB_ADDRESS = "{{ .nuon.components.rds.outputs.db_host }}"
+DB_PORT    = "{{ .nuon.components.rds.outputs.db_port }}"
+DB_NAME    = "{{ .nuon.components.rds.outputs.db_name }}"
+# From CloudFormation stack outputs
+REGION     = "{{ .nuon.install_stack.outputs.region }}"
+# Static values
+TARGET_NAME      = "db-credentials"
+TARGET_NAMESPACE = "default"
+
+
+# -----------------------------------------------------------------------------
+# ALTERNATIVE: Script from Repository
+# -----------------------------------------------------------------------------
+# Instead of inline_contents, reference a script file:
+#
+# [[steps]]
+# name    = "Copy RDS Secret"
+# command = "./scripts/copy-rds-secret.sh"
+#
+# [steps.public_repo]
+# repo      = "nuonco/uptime-monitor"
+# directory = "scripts"
+# branch    = "main"
+#
+# [steps.env_vars]
+# SECRET_ARN = "{{ .nuon.components.rds.outputs.master_user_secret_arn }}"

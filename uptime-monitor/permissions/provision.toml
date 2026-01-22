@@ -1,0 +1,55 @@
+# =============================================================================
+# NUON PROVISION ROLE
+# =============================================================================
+#
+# IAM role used during initial install provisioning. This role is assumed by
+# the Nuon runner when creating the sandbox and deploying components for the
+# first time.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=permissions
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   type                 (required)  Role type: "provision", "maintenance", "deprovision"
+#   name                 (required)  IAM role name in AWS (supports templating)
+#   description          (required)  Human-readable description for customers
+#   display_name         (optional)  Display name in the installer UI
+#   permissions_boundary (optional)  Path to permission boundary policy
+#   policies             (required)  List of IAM policies to attach
+#
+# =============================================================================
+
+
+type                 = "provision"
+name                 = "{{ .nuon.install.id }}-provision"
+description          = "{{ .nuon.install.id }} provision role for the Uptime Monitor install"
+display_name         = "{{ .nuon.install.id }}-provision"
+permissions_boundary = "./provision_boundary.json"
+
+
+# -----------------------------------------------------------------------------
+# POLICIES
+# -----------------------------------------------------------------------------
+# Policies attached to this role. Can use AWS managed policies or inline policies.
+
+# AWS managed policy (broad access for demo purposes)
+[[policies]]
+managed_policy_name = "AdministratorAccess"
+
+# Alternative: Scoped inline policy for production
+# [[policies]]
+# name = "{{.nuon.install.id}}-provision-policy"
+# contents = """
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Effect": "Allow",
+#       "Action": ["eks:*", "ec2:*", "s3:*", "rds:*", "iam:*"],
+#       "Resource": "*"
+#     }
+#   ]
+# }
+# """

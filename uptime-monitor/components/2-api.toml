@@ -1,0 +1,78 @@
+# =============================================================================
+# NUON KUBERNETES MANIFEST COMPONENT - API Deployment
+# =============================================================================
+#
+# Deploys raw Kubernetes YAML manifests to the customer's cluster. The manifest
+# file supports Nuon template variables for dynamic configuration.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name          (required)  Component identifier for template references
+#   type          (required)  Must be "kubernetes_manifest"
+#   namespace     (required)  Kubernetes namespace for deployment
+#   manifest      (required)  Path to manifest YAML or inline YAML content
+#   dependencies  (optional)  Components that must deploy first
+#   public_repo   (optional)  Repository containing manifest (if not local)
+#   connected_repo (optional) Private repository containing manifest
+#   kustomize     (optional)  Kustomize configuration (mutually exclusive with manifest)
+#   drift_schedule (optional) Cron expression for drift detection
+#
+# -----------------------------------------------------------------------------
+# MANIFEST LOCATION
+# -----------------------------------------------------------------------------
+#
+# The Kubernetes manifest is in: ./2-api/manifest.yaml (relative to this file)
+# Manifest supports Nuon template variables for images, secrets, and config.
+#
+# =============================================================================
+
+
+# Component name.
+name = "api"
+
+# Component type for Kubernetes manifests.
+type = "kubernetes_manifest"
+
+# Dependencies ensure the image is built and infrastructure exists before deploying.
+# References: api_image (Docker image), rds (database), s3 (storage), irsa (IAM role)
+dependencies = ["api_image", "rds", "s3", "irsa"]
+
+# Kubernetes namespace. Supports template variables.
+# Example with dynamic namespace: namespace = "{{.nuon.install.id}}"
+namespace = "default"
+
+# Path to manifest file. Supports Nuon template variables inside the YAML.
+# Can also be inline YAML:
+#   manifest = """
+#   apiVersion: v1
+#   kind: ConfigMap
+#   ...
+#   """
+manifest = "./2-api/manifest.yaml"
+
+
+# -----------------------------------------------------------------------------
+# DRIFT DETECTION
+# -----------------------------------------------------------------------------
+# Detect when API deployment has been modified outside of Nuon.
+# Useful for the drift demo - manually scale or modify the deployment via
+# kubectl, then trigger a drift scan to see Nuon detect the changes.
+drift_schedule = "*/10 * * * *"  # Every 10 minutes
+
+
+# -----------------------------------------------------------------------------
+# ALTERNATIVE: Kustomize
+# -----------------------------------------------------------------------------
+# Use Kustomize instead of a raw manifest (mutually exclusive with manifest).
+#
+# [kustomize]
+# directory = "./2-api/kustomize"
+#
+# [kustomize.public_repo]
+# repo      = "nuonco/uptime-monitor"
+# directory = "nuon/uptime-monitor/components/2-api/kustomize"
+# branch    = "main"

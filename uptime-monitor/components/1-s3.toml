@@ -1,0 +1,97 @@
+# =============================================================================
+# NUON TERRAFORM COMPONENT - S3 Bucket
+# =============================================================================
+#
+# Deploys a Terraform module to create AWS resources. Outputs from this
+# component can be referenced by other components using:
+#   {{.nuon.components.s3.outputs.OUTPUT_NAME}}
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=terraform
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   name              (required)  Component identifier for template references
+#   type              (required)  Must be "terraform_module"
+#   terraform_version (required)  Terraform version for deployments
+#   public_repo       (conditional) Public repository configuration
+#   connected_repo    (conditional) Private repository configuration
+#   vars              (optional)  Terraform input variables (supports templating)
+#   var_file          (optional)  External .tfvars files to load
+#   env_vars          (optional)  Environment variables for Terraform
+#   dependencies      (optional)  Components that must deploy first
+#   drift_schedule    (optional)  Cron expression for drift detection
+#
+# Note: Exactly one of public_repo or connected_repo must be specified.
+#
+# -----------------------------------------------------------------------------
+# TERRAFORM MODULE LOCATION
+# -----------------------------------------------------------------------------
+#
+# The Terraform code is in: ./1-s3/main.tf (relative to this file)
+# This component references itself via public_repo pointing to this repo.
+#
+# =============================================================================
+
+
+# Component name. Used to reference outputs:
+#   {{.nuon.components.s3.outputs.bucket_name}}
+#   {{.nuon.components.s3.outputs.bucket_arn}}
+name = "s3"
+
+# Component type for Terraform modules.
+type = "terraform_module"
+
+# Terraform version. Check https://releases.hashicorp.com/terraform/ for versions.
+terraform_version = "1.14.3"
+
+
+# -----------------------------------------------------------------------------
+# REPOSITORY CONFIGURATION
+# -----------------------------------------------------------------------------
+# Points to the Terraform module directory.
+# Here we reference the same repo this config lives in.
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "uptime-monitor/components/1-s3"
+branch    = "main"
+
+# Alternative: Using a connected private repository:
+# [connected_repo]
+# repo      = "your-org/terraform-modules"
+# directory = "modules/s3"
+# branch    = "main"
+
+
+# -----------------------------------------------------------------------------
+# TERRAFORM VARIABLES
+# -----------------------------------------------------------------------------
+# Variables passed to the Terraform module. Supports Nuon template variables:
+#
+#   {{.nuon.install.id}}                           - Unique install identifier
+#   {{.nuon.install_stack.outputs.region}}         - AWS region from CF stack
+#   {{.nuon.install.sandbox.outputs.vpc.id}}       - VPC ID from sandbox
+#   {{.nuon.components.COMPONENT.outputs.X}}       - Outputs from other components
+#   {{.nuon.inputs.inputs.INPUT_NAME}}             - User-provided inputs
+#
+[vars]
+region     = "{{ .nuon.install_stack.outputs.region }}"
+install_id = "{{ .nuon.install.id }}"
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Variable Files
+# -----------------------------------------------------------------------------
+# Load additional variables from .tfvars files.
+#
+# [[var_file]]
+# contents = "./s3.tfvars"
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Drift Detection
+# -----------------------------------------------------------------------------
+# Enable periodic drift detection with a cron schedule.
+#
+# drift_schedule = "0 */6 * * *"  # Every 6 hours

@@ -1,0 +1,142 @@
+# =============================================================================
+# NUON SANDBOX CONFIGURATION
+# =============================================================================
+#
+# The sandbox is the base infrastructure layer for your app (e.g., VPC, EKS
+# cluster, networking). Nuon provisions this using Terraform in the customer's
+# cloud account.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=sandbox
+#
+# -----------------------------------------------------------------------------
+# CONFIGURATION KEYS
+# -----------------------------------------------------------------------------
+#
+#   terraform_version  (required)  Terraform version to use for deployments
+#   public_repo        (conditional) Public repository configuration
+#   connected_repo     (conditional) Private repository configuration (GitHub)
+#   vars               (optional)  Terraform input variables (supports templating)
+#   var_file           (optional)  External Terraform variable files to load
+#   env_vars           (optional)  Environment variables passed to Terraform
+#   drift_schedule     (optional)  Cron expression for periodic drift detection
+#
+# Note: Exactly one of public_repo or connected_repo must be specified.
+#
+# -----------------------------------------------------------------------------
+# AVAILABLE NUON SANDBOXES
+# -----------------------------------------------------------------------------
+#
+# Nuon provides managed sandbox modules:
+#   - nuonco/aws-eks-sandbox         Standard EKS with node groups
+#   - nuonco/aws-eks-auto-sandbox    EKS with Auto Mode (used here)
+#   - nuonco/aws-eks-karpenter-sandbox  EKS with Karpenter autoscaling
+#   - nuonco/aws-min-sandbox         Minimal AWS (no K8s, for Lambda/ECS)
+#   - nuonco/azure-aks-sandbox       Azure AKS
+#
+# See: https://github.com/nuonco for full list and documentation
+#
+# =============================================================================
+
+
+# Terraform version for provisioning the sandbox infrastructure.
+terraform_version = "1.14.3"
+
+
+# -----------------------------------------------------------------------------
+# REPOSITORY CONFIGURATION
+# -----------------------------------------------------------------------------
+# Source repository containing the Terraform module for the sandbox.
+#
+# Using a public repository (no authentication required):
+[public_repo]
+repo      = "nuonco/aws-eks-auto-sandbox"
+branch    = "main"
+directory = "."
+
+# Alternative: Using a connected private repository (requires GitHub connection):
+# [connected_repo]
+# repo      = "your-org/your-private-sandbox"
+# branch    = "main"
+# directory = "terraform/sandbox"
+
+
+# -----------------------------------------------------------------------------
+# TERRAFORM VARIABLES
+# -----------------------------------------------------------------------------
+# Variables passed to the Terraform module. Supports Nuon template variables:
+#
+#   {{.nuon.install.id}}                  - Unique install identifier
+#   {{.nuon.install.name}}                - Install name
+#   {{.nuon.install_stack.outputs.X}}     - CloudFormation stack outputs
+#   {{.nuon.inputs.inputs.INPUT_NAME}}    - User-provided inputs
+#   {{.nuon.cloud_account.aws.region}}    - AWS region
+#
+[vars]
+# EKS cluster configuration
+cluster_version = "1.33"
+cluster_name    = "{{.nuon.install.id}}"
+
+# -----------------------------------------------------------------------------
+# DNS Configuration
+# -----------------------------------------------------------------------------
+# Nuon can manage DNS for your installs via Route53.
+#
+# When enable_nuon_dns = "true":
+#   - Nuon creates a Route53 hosted zone for each install
+#   - External-DNS controller syncs Ingress annotations to Route53 records
+#   - Domains are subdomains of nuon.run
+#
+# Example: If install ID is "abc123xyz", the domains would be:
+#   - Public:   abc123xyz.nuon.run
+#   - Internal: abc123xyz.internal.nuon.run
+#
+# Sandbox outputs available to components:
+#   {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}    - Public domain
+#   {{.nuon.install.sandbox.outputs.nuon_dns.internal_domain.name}}  - Internal domain
+#   {{.nuon.install.sandbox.outputs.nuon_dns.zone_id}}               - Route53 zone ID
+#
+enable_nuon_dns      = "true"
+public_root_domain   = "{{.nuon.install.id}}.nuon.run"
+internal_root_domain = "{{.nuon.install.id}}.internal.nuon.run"
+
+# Alternative: Customer-provided domain via inputs (requires customer DNS setup):
+# enable_nuon_dns      = "false"
+# public_root_domain   = "{{.nuon.inputs.inputs.root_domain}}"
+# internal_root_domain = "internal.{{.nuon.inputs.inputs.root_domain}}"
+
+# Network configuration from the install stack (CloudFormation outputs)
+region = "{{.nuon.install_stack.outputs.region}}"
+vpc_id = "{{.nuon.install_stack.outputs.vpc_id}}"
+
+
+# -----------------------------------------------------------------------------
+# VARIABLE FILES
+# -----------------------------------------------------------------------------
+# Additional Terraform variable files. Can reference local files or remote URLs.
+#
+# Supported sources:
+#   - Local file:    "./sandbox.tfvars"
+#   - HTTP(S) URL:   "https://example.com/vars.tfvars"
+#   - Git reference: "git::https://github.com/org/repo//path/to/file.tfvars"
+#
+[[var_file]]
+contents = "./sandbox.tfvars"
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Drift Detection
+# -----------------------------------------------------------------------------
+# Enable periodic drift detection with a cron schedule.
+# If not set, drift detection is disabled.
+#
+# drift_schedule = "0 */6 * * *"  # Every 6 hours
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: Environment Variables
+# -----------------------------------------------------------------------------
+# Environment variables passed to Terraform during execution.
+#
+# [env_vars]
+# TF_LOG = "DEBUG"
+# AWS_MAX_ATTEMPTS = "10"
