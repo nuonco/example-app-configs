@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name      = "namespace"
+type      = "kubernetes_manifest"
+namespace = "sourdough"
+
+manifest = "./manifests/namespace.yaml"

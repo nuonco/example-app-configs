@@ -1,0 +1,5 @@
+version = "v2"
+
+description  = "Bring Your Own EKS Cluster: Application config for an existing cluster."
+display_name = "BYO-EKS"
+readme       = "./README.md"

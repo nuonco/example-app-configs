@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSClusterAccess",
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster",
+        "eks:ListClusters"
+      ],
+      "Resource": "arn:aws:eks:*:*:cluster/{{.nuon.inputs.inputs.cluster_name}}"
+    },
+    {
+      "Sid": "EKSAccessEntryManagement",
+      "Effect": "Allow",
+      "Action": [
+        "eks:CreateAccessEntry",
+        "eks:DeleteAccessEntry",
+        "eks:DescribeAccessEntry",
+        "eks:ListAccessEntries",
+        "eks:UpdateAccessEntry",
+        "eks:AssociateAccessPolicy",
+        "eks:DisassociateAccessPolicy",
+        "eks:ListAssociatedAccessPolicies"
+      ],
+      "Resource": [
+        "arn:aws:eks:*:*:cluster/{{.nuon.inputs.inputs.cluster_name}}",
+        "arn:aws:eks:*:*:access-entry/{{.nuon.inputs.inputs.cluster_name}}/*/*"
+      ]
+    }
+  ]
+}

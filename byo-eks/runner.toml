@@ -1,0 +1,6 @@
+# runner
+runner_type = "aws"
+helm_driver = "configmap"
+
+[env_vars]
+foo = "bar"
