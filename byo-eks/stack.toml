@@ -1,0 +1,34 @@
+# stack
+type        = "aws-cloudformation"
+name        = "nuon-byo-eks-{{.nuon.install.id}}"
+description = "QuickLink to install runner for Lambda app config: Install {{.nuon.install.id}}"
+
+# nested stack
+vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/vpc/byo-vpc/default/fd-new-template-byo-vpc/stack-8ef9454.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.12/runner/asg/stack.yaml"
+
+[[custom_nested_stacks]]
+name         = "runner_sg_eks_access"
+template_url = "https://inlzqy4v3qyo0wagcmilgnxpry-byoc-nuon-install-templates.s3.eu-west-1.amazonaws.com/templates/runner-sg-eks-access.yaml"
+index        = 0
+
+[custom_nested_stacks.parameters]
+ClusterName = "{{.nuon.install.inputs.cluster_name}}"
+
+[[custom_nested_stacks]]
+name         = "k8s_namespaces"
+template_url = "https://inlzqy4v3qyo0wagcmilgnxpry-byoc-nuon-install-templates.s3.eu-west-1.amazonaws.com/templates/k8s-namespaces.yaml"
+index        = 1
+
+[custom_nested_stacks.parameters]
+Namespaces  = "{{.nuon.install.inputs.namespaces}}"
+ClusterName = "{{.nuon.install.inputs.cluster_name}}"
+
+[[custom_nested_stacks]]
+name         = "eks_access_entries"
+template_url = "https://inlzqy4v3qyo0wagcmilgnxpry-byoc-nuon-install-templates.s3.eu-west-1.amazonaws.com/templates/runner-eks-access-entries.yaml"
+index        = 2
+
+[custom_nested_stacks.parameters]
+Namespaces  = "{{.nuon.install.inputs.namespaces}}"
+ClusterName = "{{.nuon.install.inputs.cluster_name}}"

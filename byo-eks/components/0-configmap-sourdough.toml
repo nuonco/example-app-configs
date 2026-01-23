@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name      = "sourdough_cfg"
+type      = "kubernetes_manifest"
+namespace = "sourdough"
+
+manifest = "./manifests/sourdough-configmap.yaml"

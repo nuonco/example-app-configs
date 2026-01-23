@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name      = "persimmon_cfg"
+type      = "kubernetes_manifest"
+namespace = "persimmon"
+
+manifest = "./manifests/persimmon-configmap.yaml"

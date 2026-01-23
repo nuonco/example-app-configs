@@ -1,0 +1,30 @@
+# action
+name    = "hello"
+timeout = "5s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "world"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+jq -nc '{"hello": "world"}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name = "whoami"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+jq -nc --arg who "$(whoami)" '{"hello": $who}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

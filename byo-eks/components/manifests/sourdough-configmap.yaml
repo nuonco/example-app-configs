@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sourdough
+data:
+  NUON_INSTALL_ID: "{{.nuon.install.id}}"
+  INGREDIENT: "yeast"
