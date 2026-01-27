@@ -22,7 +22,7 @@ username=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
 password=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 
 # URL-encode the password (special characters break connection string parsing)
-encoded_password=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$password', safe=''))")
+encoded_password=$(printf '%s' "$password" | python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read(), safe=""))')
 
 # Build connection URL in the format Coder expects
 # postgres://username:password@hostname:port/database?sslmode=disable
