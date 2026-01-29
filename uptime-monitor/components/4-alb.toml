@@ -40,5 +40,56 @@ namespace = "default"
 # The ALB routes traffic to UI and Headlamp services.
 dependencies = ["ui", "headlamp"]
 
-# Path to manifest file containing the Ingress resource.
-manifest = "./4-alb/manifest.yaml"
+# Inline manifest containing the Ingress resource.
+manifest = """
+# -----------------------------------------------------------------------------
+# Application Load Balancer Ingress for Uptime Monitor
+# -----------------------------------------------------------------------------
+#
+# Nuon template variables used in this manifest:
+#
+#   Labels:
+#     {{ .nuon.install.id }}  <- Unique install identifier
+#
+#   DNS (external-dns annotation):
+#     {{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}
+#
+# This Ingress creates an AWS ALB via the AWS Load Balancer Controller.
+# External-DNS automatically creates a Route53 record for the public domain.
+#
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alb
+  namespace: default
+  labels:
+    # Nuon install ID for resource tracking
+    app.nuon.co/install: "{{ .nuon.install.id }}"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: "/"
+    # Public domain from sandbox DNS configuration
+    external-dns.alpha.kubernetes.io/hostname: "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /headlamp
+            pathType: Prefix
+            backend:
+              service:
+                name: headlamp
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui
+                port:
+                  number: 80
+"""
