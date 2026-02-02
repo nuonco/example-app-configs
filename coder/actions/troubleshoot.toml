@@ -1,0 +1,43 @@
+# action
+name    = "troubleshoot"
+timeout = "5m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "run_command"
+inline_contents = """
+#!/usr/bin/env bash
+set -e
+
+echo "==> Executing troubleshoot command"
+echo "Command: $COMMAND"
+echo ""
+
+# Common troubleshooting commands:
+# kubectl get pods -n coder
+# kubectl describe pods -n coder
+# kubectl logs deployment/coder
+# kubectl get events -n coder --sort-by='.lastTimestamp'
+# kubectl logs -n coder deployment/coder --tail=100
+# kubectl get nodes -o wide
+# kubectl describe nodes
+# kubectl get all -n coder
+# kubectl top pods -n coder
+# kubectl top nodes
+# kubectl get pvc -n coder
+# kubectl describe pvc -n coder
+# kubectl get ingress -n coder
+# kubectl get services -n coder
+
+# Execute the command
+eval "$COMMAND"
+
+echo ""
+echo "==> Command completed"
+echo "Exit code: $?"
+"""
+
+[steps.env_vars]
+COMMAND = "kubectl get pods --all-namespaces"
