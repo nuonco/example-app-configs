@@ -1,11 +1,5 @@
 additional_namespaces = ["coder"]
 
-
-min_size             = {{ .nuon.inputs.inputs.min_size }}
-max_size             = {{ .nuon.inputs.inputs.max_size }}
-desired_size         = {{ .nuon.inputs.inputs.desired_size }}
-
-
 # adding additional permissions to maintenance role to be able to create the coder db secret
 
 maintenance_role_eks_access_entry_policy_associations = {

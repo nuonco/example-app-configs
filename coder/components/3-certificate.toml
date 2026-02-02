@@ -2,7 +2,7 @@
 
 name              = "certificate"
 type              = "terraform_module"
-terraform_version = "1.11.3"
+terraform_version = "1.13.5"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
