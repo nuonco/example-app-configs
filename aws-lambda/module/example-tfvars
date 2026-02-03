@@ -1,0 +1,25 @@
+# vi: set syntax=terraform
+region     = "us-west-2"
+install_id = "inlxxxxxxxxxxxxxxxxxxxxxxx"
+stack_name = "nuon-demos-lambda-inlxxxxxxxxxxxxxxxxxxxxxxx"
+
+template_url = "https://templates.s3.us-east-1.amazonaws.com/templates/inlxxxxxxxxxxxxxxxxxxxxxxx/istxxxxxxxxxxxxxxxxxxxxxxx.json"
+
+parameters = {
+  VpcCIDR            = "10.128.0.0/16"
+  PrivateSubnet1CIDR = "10.128.10.0/24"
+  PrivateSubnet2CIDR = "10.128.11.0/24"
+  PrivateSubnet3CIDR = "10.128.12.0/24"
+  PublicSubnet1CIDR  = "10.128.1.0/26"
+  PublicSubnet2CIDR  = "10.128.1.64/26"
+  PublicSubnet3CIDR  = "10.128.1.128/26"
+  RunnerSubnetCIDR   = "10.128.128.0/24"
+
+  EnableRunnerProvision                                  = "true"
+  EnableRunnerMaintenance                                = "true"
+  EnableRunnerDeprovision                                = "true"
+  EnableBreakglassNuonInstallIdAwsLambdaSandboxBreakGlass = "false"
+}
+
+capabilities = ["CAPABILITY_NAMED_IAM"]
+
