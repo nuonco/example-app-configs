@@ -25,7 +25,7 @@
 # Nuon provides versioned CloudFormation templates:
 #   https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/
 #
-# Template versions follow semver (e.g., v0.1.9). Check release notes for updates.
+# Template versions follow semver (e.g., v0.1.12). Check release notes for updates.
 #
 # VPC templates (vpc_nested_template_url):
 #   - .../vpc/eks/default/stack.yaml    Standard EKS VPC (used here)
@@ -62,9 +62,9 @@ description = "QuickLink to install runner for the Uptime Monitor app config: In
 # These create the VPC and runner infrastructure in the customer's account.
 
 # VPC nested stack: Creates VPC, subnets, NAT gateways, and networking.
-vpc_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.9/vpc/eks/default/stack.yaml"
+vpc_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.12/vpc/eks/default/stack.yaml"
 
 # Runner nested stack: Creates the Nuon runner (EC2 Auto Scaling Group).
 # Use v0.1.6+ for management mode support.
 # See: https://docs.nuon.co/guides/runner-management-mode
-runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.9/runner/asg/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.12/runner/asg/stack.yaml"
