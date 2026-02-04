@@ -11,11 +11,11 @@ type = "manual"
 
 [[steps]]
 name    = "Copy RDS Secret for Coder"
-command = "./rds_secrets/import.sh"
+command = "./import.sh"
 
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "coder/src/actions"
+directory = "coder/src/actions/rds_secrets"
 branch    = "main"
 
 [steps.env_vars]
