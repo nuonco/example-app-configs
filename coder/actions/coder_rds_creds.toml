@@ -16,7 +16,7 @@ command = "./rds_secrets/import.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/actions"
-branch    = "mm/coder-rds-helm"
+branch    = "main"
 
 [steps.env_vars]
 SECRET_ARN       = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_master_user_secret_arn }}"
