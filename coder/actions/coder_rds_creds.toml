@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=action
+# action
 name    = "coder_rds_creds"
 timeout = "1m"
 
@@ -15,7 +15,7 @@ command = "./rds_secrets/import.sh"
 
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "coder/src/actions/rds_secrets"
+directory = "coder/src/actions"
 branch    = "main"
 
 [steps.env_vars]
