@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=action
+# action
 name    = "coder_rds_creds"
 timeout = "1m"
 
@@ -11,12 +11,12 @@ type = "manual"
 
 [[steps]]
 name    = "Copy RDS Secret for Coder"
-command = "./rds_secrets/import.sh"
+command = "./import.sh"
 
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "coder/src/actions"
-branch    = "mm/coder-rds-helm"
+directory = "coder/src/actions/rds_secrets"
+branch    = "main"
 
 [steps.env_vars]
 SECRET_ARN       = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_master_user_secret_arn }}"
