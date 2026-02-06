@@ -20,9 +20,8 @@ metadata:
   name: alb
   namespace: default
   labels:
-    # Nuon install ID for resource tracking
-    app.nuon.co/install: "{{ .nuon.install.id }}"
   annotations:
+    app.nuon.co/install-id: "{{ .nuon.install.id }}"
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
