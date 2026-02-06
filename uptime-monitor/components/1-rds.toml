@@ -52,7 +52,7 @@ terraform_version = "1.14.3"
 # Detect when RDS configuration has been modified outside of Terraform.
 # This is useful for the drift demo - modify RDS via the /admin panel,
 # then trigger a drift scan to see Nuon detect the changes.
-drift_schedule = "*/10 * * * *"  # Every 10 minutes
+# drift_schedule = "*/10 * * * *"  # Every 10 minutes
 
 
 # -----------------------------------------------------------------------------
