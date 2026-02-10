@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "EKS Simple Policies"
+description  = "Whoami on AWS EKS with Helm policy warnings"
+readme       = "./README.md"

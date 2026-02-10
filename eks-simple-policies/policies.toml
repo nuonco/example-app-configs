@@ -1,0 +1,9 @@
+[[policy]]
+type = "kubernetes_cluster"
+contents = "./no-pod-exec.yml"
+
+[[policy]]
+type = "helm_chart"
+engine = "opa"
+contents = "./warn-helm-cluster-resources.rego"
+components = ["whoami"]

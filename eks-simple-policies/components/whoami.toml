@@ -1,0 +1,14 @@
+# helm
+name           = "whoami"
+type           = "helm_chart"
+chart_name     = "whoami"
+namespace      = "whoami"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple-policies/src/components/whoami"
+branch    = "ht/eks-policies"
+
+[[values_file]]
+contents = "./values/whoami.yaml"

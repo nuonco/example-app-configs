@@ -1,0 +1,41 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: no-pod-exec
+  annotations:
+    policies.kyverno.io/title: Block Pod Exec
+    policies.kyverno.io/minversion: "1.6.0"
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      This policy blocks `exec` commands on Pods with specific naming
+      conventions: `retool-*`, `external-secrets-*`, or `onprem-services-*`,
+      and only applies to the maintainers group.
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: deny-pod-exec
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod/exec
+            subjects:
+              - kind: Group
+                name: maintainers
+      preconditions:
+        all:
+          - key: "{{ request.operation || 'BACKGROUND' }}"
+            operator: Equals
+            value: "CONNECT"
+          - key: "{{ request.name }}"
+            operator: AnyIn
+            value:
+              - "retool-*"
+              - "external-secrets-*"
+              - "onprem-services-*"
+      validate:
+        message: >-
+          Exec'ing into Pods with these naming conventions is forbidden:
+          `retool-*`, `external-secrets-*`, `onprem-services-*`.
+        deny: {}
