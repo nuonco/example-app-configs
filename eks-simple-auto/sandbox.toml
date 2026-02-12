@@ -6,9 +6,10 @@ repo      = "nuonco/aws-eks-auto-sandbox"
 branch    = "main"
 
 [vars]
-cluster_version = "1.33"
+cluster_version = "1.34"
 cluster_name    = "w-{{.nuon.install.id}}"
 
+enable_irsa          = "true"
 enable_nuon_dns      = "true"
 public_root_domain   = "{{.nuon.install.id}}.nuon.run"
 internal_root_domain = "{{.nuon.install.id}}.internal.nuon.run"
