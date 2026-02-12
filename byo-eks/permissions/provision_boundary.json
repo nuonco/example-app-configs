@@ -172,6 +172,7 @@
         "kms:GenerateDataKey*",
         "kms:Get*",
         "kms:List*",
+        "kms:RetireGrant",
         "kms:RevokeGrant",
         "kms:ScheduleKeyDeletion",
         "kms:TagResource",

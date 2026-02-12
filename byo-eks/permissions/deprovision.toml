@@ -43,3 +43,7 @@ contents = "./maintenance_policy_eks.json"
 [[policies]]
 name = "{{.nuon.install.id}}-deprovision-policy-networking"
 contents = "./maintenance_policy_networking.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-deprovision-policy-kms-retire-grant"
+contents = "./deprovision_policy_kms_retire_grant.json"
