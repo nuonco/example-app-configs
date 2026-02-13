@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create EKS access entries for Nuon runner roles
+
+Parameters:
+  # reserved nuon parameters
+  NuonInstallID:
+    Type: String
+  EnableRunnerProvision:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+  EnableRunnerMaintenance:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+  EnableRunnerDeprovision:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+
+  # parameters from vendor-provided install-inputs.
+  ClusterName:
+    Type: String
+  Namespaces:
+    Type: String
+    Description: Comma-delimited list of Kubernetes namespaces to grant access to
+    Default: sourdough,persimmon
+
+Conditions:
+  ProvisionEnabled: !Equals [!Ref EnableRunnerProvision, "true"]
+  MaintenanceEnabled: !Equals [!Ref EnableRunnerMaintenance, "true"]
+  DeprovisionEnabled: !Equals [!Ref EnableRunnerDeprovision, "true"]
+
+Resources:
+  MaintenanceAccessEntry:
+    Type: AWS::EKS::AccessEntry
+    Condition: MaintenanceEnabled
+    Properties:
+      ClusterName: !Ref ClusterName
+      PrincipalArn: !Sub arn:aws:iam::${AWS::AccountId}:role/${NuonInstallID}-maintenance
+      Type: STANDARD
+      AccessPolicies:
+        - PolicyArn: arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy
+          AccessScope:
+            Type: namespace
+            Namespaces: !Split [",", !Ref Namespaces]
+
+  ProvisionAccessEntry:
+    Type: AWS::EKS::AccessEntry
+    Condition: ProvisionEnabled
+    Properties:
+      ClusterName: !Ref ClusterName
+      PrincipalArn: !Sub arn:aws:iam::${AWS::AccountId}:role/${NuonInstallID}-provision
+      Type: STANDARD
+      AccessPolicies:
+        - PolicyArn: arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy
+          AccessScope:
+            Type: namespace
+            Namespaces: !Split [",", !Ref Namespaces]
+
+  DeprovisionAccessEntry:
+    Type: AWS::EKS::AccessEntry
+    Condition: DeprovisionEnabled
+    Properties:
+      ClusterName: !Ref ClusterName
+      PrincipalArn: !Sub arn:aws:iam::${AWS::AccountId}:role/${NuonInstallID}-deprovision
+      Type: STANDARD
+      AccessPolicies:
+        - PolicyArn: arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy
+          AccessScope:
+            Type: namespace
+            Namespaces: !Split [",", !Ref Namespaces]

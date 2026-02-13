@@ -16,10 +16,10 @@ maintenance_role_eks_access_entry_policy_associations = {
 additional_namespaces = ["whoami"]
 
 additional_tags = {
-  "app.nuon.co/name": "eks-simple"
+  "app.nuon.co/name": "eks-simple-auto-mode"
 }
 
 eks_compute_config = {
-    enabled    = true
-    node_pools = ["general-purpose", "system"]
-  }
+  enabled    = true
+  node_pools = ["general-purpose", "system"]
+}

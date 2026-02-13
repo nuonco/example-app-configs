@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "KMSRetireGrantTagged",
+      "Effect": "Allow",
+      "Action": ["kms:RetireGrant"],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    }
+  ]
+}

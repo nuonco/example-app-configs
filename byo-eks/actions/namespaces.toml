@@ -1,0 +1,63 @@
+# action
+name    = "namespaces"
+timeout = "5s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "can-access-sourdough"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+kubectl get ns sourdough -o json | jq -c >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name = "can-access-persimmon"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+kubectl get ns persimmon -o json | jq -c >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name = "can-access"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+if ! output=$(kubectl get ns -o json 2>&1); then
+  echo "$output" | jq -Rc '{"error": .}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+else
+  echo "$output" | jq -c >> $NUON_ACTIONS_OUTPUT_FILEPATH
+fi
+"""
+
+[[steps]]
+name = "cannot-access"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "error anticipated: runner has no access to given namespace"
+if ! output=$(kubectl get ns default -o json 2>&1); then
+  echo "$output" | jq -Rc '{"error": .}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+else
+  echo "$output" | jq -c >> $NUON_ACTIONS_OUTPUT_FILEPATH
+fi
+"""

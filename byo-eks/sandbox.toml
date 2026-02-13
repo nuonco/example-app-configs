@@ -1,0 +1,20 @@
+# sandbox
+terraform_version = "1.14.3"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/aws-byo-eks-sandbox"
+branch    = "235161e28504b5308d15644890429f699ee084ff"
+
+[vars]
+cluster_name         = "{{.nuon.inputs.inputs.cluster_name}}"
+public_subnet_ids    = "{{.nuon.install_stack.outputs.public_subnets}}"
+private_subnet_ids   = "{{.nuon.install_stack.outputs.private_subnets}}"
+runner_subnet_id     = "{{.nuon.install_stack.outputs.runner_subnet}}"
+enable_kyverno       = "false"
+enable_nuon_dns      = "false"
+public_root_domain   = "{{ .nuon.install.id }}.{{.nuon.inputs.inputs.domain}}"
+internal_root_domain = "internal.{{ .nuon.install.id }}.{{.nuon.inputs.inputs.domain}}"
+
+[[var_file]]
+contents = "./sandbox.tfvars"

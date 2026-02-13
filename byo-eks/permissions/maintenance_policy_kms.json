@@ -1,0 +1,39 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "KMSCreate",
+      "Effect": "Allow",
+      "Action": ["kms:CreateKey", "kms:CreateAlias", "kms:TagResource"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSReadOnly",
+      "Effect": "Allow",
+      "Action": ["kms:Describe*", "kms:Get*", "kms:List*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "kms:ScheduleKeyDeletion",
+        "kms:DeleteAlias",
+        "kms:UpdateAlias",
+        "kms:UntagResource",
+        "kms:EnableKeyRotation",
+        "kms:CreateGrant",
+        "kms:RevokeGrant",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:GenerateDataKey*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    }
+  ]
+}

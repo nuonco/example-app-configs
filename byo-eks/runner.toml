@@ -1,6 +1,6 @@
 # runner
-runner_type     = "aws"
-helm_driver     = "configmap"
+runner_type = "aws"
+helm_driver = "configmap"
 init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/heads/fd/new-runner-auth-flow/scripts/aws/init-mng-v2.sh"
 
 [env_vars]
