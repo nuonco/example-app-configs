@@ -1,5 +1,7 @@
 additional_namespaces = ["coder"]
 
+enable_irsa          = true
+
 # adding additional permissions to maintenance role to be able to create the coder db secret
 
 maintenance_role_eks_access_entry_policy_associations = {

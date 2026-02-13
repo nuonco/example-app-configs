@@ -5,11 +5,10 @@ terraform_version = "1.13.5"
 [public_repo]
 directory = "."
 repo      = "nuonco/aws-eks-auto-sandbox"
-branch    = "mm/ebs-csi-irsa"
+branch    = "main"
 
 [vars]
 cluster_name         = "n-{{.nuon.install.id}}"
-cluster_version      = "1.34"
 cluster_version      = "{{ .nuon.inputs.inputs.cluster_version }}"
 enable_nuon_dns      = "true"
 public_root_domain   = "{{ .nuon.install.id }}.nuon.run"
