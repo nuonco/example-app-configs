@@ -44,7 +44,7 @@ helm_driver = "configmap"
 #   - Management mode:  .../scripts/aws/init-mng.sh (recommended for new installs)
 #
 # See: https://docs.nuon.co/guides/runner-management-mode
-init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/heads/main/scripts/aws/init-mng.sh"
+init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/heads/main/scripts/aws/init-mng-v2.sh"
 
 
 # -----------------------------------------------------------------------------
