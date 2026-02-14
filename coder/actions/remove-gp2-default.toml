@@ -1,0 +1,16 @@
+# action
+
+name    = "remove_gp2_default"
+timeout = "1m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "remove_gp2_default_annotation"
+inline_contents = """
+#!/usr/bin/env sh
+kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+echo "Removed default annotation from gp2 storage class"
+kubectl get storageclass
+"""
