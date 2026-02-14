@@ -1,4 +1,21 @@
+ebs_storage_class = {
+  enabled                = true
+  name                   = "ebs-auto"
+  is_default_class       = false
+  provisioner            = "ebs.csi.eks.amazonaws.com"
+  volume_binding_mode    = "WaitForFirstConsumer"
+  reclaim_policy         = "Delete"
+  allow_volume_expansion = true
+  parameters = {
+    type      = "gp3"
+    encrypted = "true"
+  }
+}
+
+
 additional_namespaces = ["coder"]
+
+enable_irsa          = true
 
 # adding additional permissions to maintenance role to be able to create the coder db secret
 
