@@ -70,10 +70,12 @@ This app includes comprehensive monitoring and Kubernetes event streaming:
 2. Go to the **Actions** tab
 3. Run the `grafana_password` action (manual trigger)
 4. The action output will display:
-   - Grafana URL: `https://grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}`
+   - Grafana URL: `https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana`
    - Username: `admin`
    - Password: (randomly generated, stored in AWS Secrets Manager)
 5. Open the Grafana URL in your browser and log in with the credentials
+
+Grafana is served from `/grafana` path on the same ALB as Coder, reducing infrastructure cost and complexity.
 
 **Available Dashboards**:
 - Coder Status - Overview of Coder health

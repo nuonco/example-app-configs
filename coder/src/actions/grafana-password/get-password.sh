@@ -17,7 +17,7 @@ secret=$(aws --region "$region" secretsmanager get-secret-value --secret-id="$se
 username=$(echo "$secret" | jq -r '.SecretString' | jq -r '.username')
 password=$(echo "$secret" | jq -r '.SecretString' | jq -r '.password')
 
-echo "URL:      https://grafana.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+echo "URL:      https://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}/grafana"
 echo "Username: $username"
 echo "Password: $password"
 echo ""
