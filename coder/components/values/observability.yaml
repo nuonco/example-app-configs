@@ -53,18 +53,17 @@ grafana:
     enabled: true
     ingressClassName: alb
     annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/healthcheck-path: /api/health
+      alb.ingress.kubernetes.io/group.name: {{.nuon.install.id}}
+      alb.ingress.kubernetes.io/group.order: "200"
     hosts:
-      - grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
-    path: /
+      - {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+    path: /grafana
     pathType: Prefix
   "grafana.ini":
     server:
-      domain: grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
-      root_url: "https://grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+      domain: {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+      root_url: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana"
+      serve_from_sub_path: true
     "auth.anonymous":
       enabled: false
     analytics:
