@@ -41,15 +41,32 @@ grafana-agent:
 grafana:
   enabled: true
   replicas: 1
+  admin:
+    existingSecret: grafana-admin
+    userKey: username
+    passwordKey: password
   persistence:
     enabled: true
     size: 10Gi
     storageClassName: ebs-auto
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/healthcheck-path: /api/health
+    hosts:
+      - grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+    path: /
+    pathType: Prefix
   "grafana.ini":
+    server:
+      domain: grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+      root_url: "https://grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
     "auth.anonymous":
-      enabled: true
-      org_name: "Main Org."
-      org_role: Admin
+      enabled: false
     analytics:
       reporting_enabled: false
     users:

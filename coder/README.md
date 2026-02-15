@@ -57,10 +57,47 @@ This follows Nuon best practices for deploying public Helm charts.
 
 > A CNAME record must be manually created in Route 53 for wildcard subdomains to work. This enables features like web apps e.g., Jupyter and web port fowarding. For example, if your domain is `{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}`, create a CNAME record for `*.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}` that points to the DNS name of the load balancer created by this Nuon app config. The load balancer DNS name can be found in AWS Console.
 
+### Observability & Monitoring
+
+This app includes comprehensive monitoring and Kubernetes event streaming:
+
+- **Observability Stack**: Prometheus, Grafana, Loki, and Alertmanager deployed in the `coder-observability` namespace for metrics collection, log aggregation, and alerting
+- **Kubelogstream**: Streams Kubernetes pod events directly to Coder workspace startup logs for easier troubleshooting
+
+**Accessing Grafana Dashboards**:
+
+1. In the Nuon dashboard, navigate to your Coder installation
+2. Go to the **Actions** tab
+3. Run the `grafana_password` action (manual trigger)
+4. The action output will display:
+   - Grafana URL: `https://grafana.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}`
+   - Username: `admin`
+   - Password: (randomly generated, stored in AWS Secrets Manager)
+5. Open the Grafana URL in your browser and log in with the credentials
+
+**Available Dashboards**:
+- Coder Status - Overview of Coder health
+- Coder Coderd - Control plane metrics
+- Workspaces - Workspace utilization and performance
+- Workspace Detail - Individual workspace deep-dive
+- Provisioner - Terraform provisioner metrics
+- Postgres Database - RDS performance
+- Infrastructure - Node metrics
+
+The admin password is generated once during initial deployment and persisted in AWS Secrets Manager for the lifetime of the installation.
+
 ## Coder Resources
 
 [Coder Environment Variable docs](https://coder.com/docs/reference/cli/server)
 
 [Coder Releases](https://github.com/coder/coder/releases/)
+
+[Coder Monitoring](https://coder.com/docs/admin/monitoring)
+
+[Coder Kubernetes Logs Integration](https://coder.com/docs/admin/integrations/kubernetes-logs)
+
+[Coder Logstream Kube GitHub](https://github.com/coder/coder-logstream-kube)
+
+[Coder Observability GitHub](https://github.com/coder/observability)
 
 [AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
