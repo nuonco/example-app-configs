@@ -4,10 +4,6 @@ name    = "default_storage_class"
 timeout = "1m"
 
 [[triggers]]
-type           = "pre-deploy-component"
-component_name = "coder"
-
-[[triggers]]
 type = "manual"
 
 [[steps]]
