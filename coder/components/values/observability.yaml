@@ -1,0 +1,95 @@
+global:
+  coder:
+    controlPlaneNamespace: coder
+    externalProvisionersNamespace: coder
+    coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
+    provisionerdSelector: 'pod=~`coder-provisioner.*`'
+    workspacesSelector: 'namespace=`coder`'
+    logFormat: human
+
+  postgres:
+    hostname: "{{.nuon.components.rds_cluster_coder.outputs.endpoint}}"
+    port: "{{.nuon.components.rds_cluster_coder.outputs.port}}"
+    database: coder
+    username: coder
+    mountSecret: coder-db-password
+    exporter:
+      enabled: true
+      image: "quay.io/prometheuscommunity/postgres-exporter"
+
+  telemetry:
+    metrics:
+      scrape_interval: 15s
+      scrape_timeout: 12s
+      native_histograms: false
+
+  alerts:
+    enabled: true
+    kind: "configmap"
+
+  dashboards:
+    enabled: true
+    timerange: 12h
+    refresh: 30s
+    queryTimeout: 900
+
+grafana-agent:
+  enabled: true
+  controller:
+    type: daemonset
+
+grafana:
+  enabled: true
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: ebs-auto
+  "grafana.ini":
+    "auth.anonymous":
+      enabled: true
+      org_name: "Main Org."
+      org_role: Admin
+    analytics:
+      reporting_enabled: false
+    users:
+      allow_sign_up: false
+
+prometheus:
+  enabled: true
+  server:
+    replicaCount: 1
+    persistentVolume:
+      enabled: true
+      size: 20Gi
+      storageClassName: ebs-auto
+    retentionSize: 18GB
+    retention: 15d
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+  alertmanager:
+    enabled: true
+    persistentVolume:
+      enabled: true
+      size: 2Gi
+      storageClassName: ebs-auto
+  kube-state-metrics:
+    enabled: true
+  prometheus-node-exporter:
+    enabled: true
+
+loki:
+  enabled: true
+  backend:
+    replicas: 1
+  read:
+    replicas: 1
+  write:
+    replicas: 1
+  minio:
+    enabled: true
