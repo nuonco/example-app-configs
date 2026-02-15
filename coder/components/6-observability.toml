@@ -1,0 +1,13 @@
+name           = "observability"
+type           = "helm_chart"
+chart_name     = "coder-observability"
+namespace      = "coder-observability"
+storage_driver = "configmap"
+dependencies   = ["coder"]
+
+[helm_repo]
+repo_url = "https://helm.coder.com/observability"
+chart    = "coder-observability"
+
+[[values_file]]
+contents = "./values/observability.yaml"

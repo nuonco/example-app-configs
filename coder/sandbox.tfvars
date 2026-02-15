@@ -13,7 +13,7 @@ ebs_storage_class = {
 }
 
 
-additional_namespaces = ["coder"]
+additional_namespaces = ["coder", "coder-observability"]
 
 enable_irsa          = true
 

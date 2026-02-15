@@ -1,0 +1,20 @@
+url: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+
+namespaces: ["coder"]
+
+image:
+  repo: "ghcr.io/coder/coder-logstream-kube"
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+serviceAccount:
+  name: coder-logstream-kube
+  annotations: {}
+  labels: {}
