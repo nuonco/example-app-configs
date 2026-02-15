@@ -55,7 +55,7 @@ This follows Nuon best practices for deploying public Helm charts.
 
 > This is a development/demo installation of Coder. Do not use in production.
 
-> A CNAME record must be manually created in Route 53 for wildcard subdomains to work. This enables features like web apps e.g., Jupyter and web port fowarding. For example, if your domain is `{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}`, create a CNAME record for `*.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}` that points to the DNS name of the load balancer created by this Nuon app config. The load balancer DNS name can be found in AWS Console.
+> Wildcard DNS for workspace subdomains is automatically configured via external-dns. This enables features like web apps (e.g., Jupyter) and web port forwarding without manual DNS configuration.
 
 ### Observability & Monitoring
 
