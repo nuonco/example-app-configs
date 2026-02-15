@@ -1,0 +1,13 @@
+name           = "kubelogstream"
+type           = "helm_chart"
+chart_name     = "coder-logstream-kube"
+namespace      = "coder"
+storage_driver = "configmap"
+dependencies   = ["coder", "application_load_balancer"]
+
+[helm_repo]
+repo_url = "https://helm.coder.com/logstream-kube"
+chart    = "coder-logstream-kube"
+
+[[values_file]]
+contents = "./values/kubelogstream.yaml"
