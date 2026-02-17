@@ -5,7 +5,7 @@ description = "QuickLink to install runner for Lambda app config: Install {{.nuo
 
 # nested stack
 vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/byo-vpc/default/fd-new-template-byo-vpc/stack-566e897.yaml"
-runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.1.12/runner/asg/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.2.1/runner/asg/stack.yaml"
 
 [[custom_nested_stacks]]
 name         = "runner_sg_eks_access"
