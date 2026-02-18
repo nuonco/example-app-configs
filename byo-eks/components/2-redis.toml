@@ -1,0 +1,9 @@
+# helm
+name       = "redis"
+type       = "helm_chart"
+chart_name = "redis"
+namespace  = "sourdough"
+
+[helm_repo]
+repo_url = "https://charts.bitnami.com/bitnami"
+chart    = "bitnami/redis"

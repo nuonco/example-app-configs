@@ -1,0 +1,8 @@
+# container-image
+name   = "img_redis"
+type   = "container_image"
+device = ""
+
+[public]
+image_url = "redis"
+tag       = "8.6.0-alpine"
