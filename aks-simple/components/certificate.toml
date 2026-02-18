@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform
+
+name              = "certificate"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/certificate"
+branch    = "ja/pro-1515-https-cert-component"
+
+[vars]
+key_vault_name = "{{ .nuon.install_stack.outputs.key_vault_name }}"
+resource_group_name = "{{ .nuon.install_stack.outputs.resource_group_name }}"
+install_id  = "{{ .nuon.install.id }}"
+zone_id     = "{{ .nuon.install.sandbox.outputs.public_domain.id }}"
+domain_name = "*.{{ .nuon.install.sandbox.outputs.public_domain.name }}"

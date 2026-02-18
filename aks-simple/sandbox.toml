@@ -1,0 +1,23 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=sandbox
+
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/terraform-azure-aks-sandbox"
+directory = "."
+branch    = "ja/pro-1534-secrets-syncing"
+
+[vars]
+cluster_name         = "n-{{.nuon.install.id}}"
+enable_nuon_dns      = "true"
+public_root_domain   = "{{ .nuon.inputs.inputs.root_domain }}"
+internal_root_domain = "internal.{{ .nuon.inputs.inputs.root_domain }}"
+location = "{{.nuon.cloud_account.azure.location}}"
+nuon_id = "{{.nuon.install.id}}"
+vnet_name = "{{.nuon.install_stack.outputs.network_name}}"
+resource_group_name = "{{.nuon.install_stack.outputs.resource_group_name}}"
+private_subnet_names = "{{.nuon.install_stack.outputs.private_subnet_names}}"
+public_subnet_names = "{{.nuon.install_stack.outputs.public_subnet_names}}"
+
+[[var_file]]
+contents = "./sandbox.tfvars"

@@ -1,0 +1,21 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+
+name         = "application_load_balancer"
+type         = "helm_chart"
+chart_name   = "application-load-balancer"
+dependencies = ["whoami"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/alb"
+branch    = "ja/pro-1515-https-cert-component"
+
+[values]
+domain             = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
+domain_certificate_secret_id = "{{.nuon.components.certificate.outputs.secret_id}}"
+https_port         = "443"
+service_name       = "whoami"
+service_port       = "80"
+install_name       = "{{.nuon.install.id}}"
+namespace          = "whoami"
+healthcheck_path   = "/health"
