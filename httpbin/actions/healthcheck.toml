@@ -1,0 +1,29 @@
+# action
+name    = "healthcheck"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_httpbin"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking health of httpbin at: ${ENDPOINT}"
+
+# Make the health check request
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${ENDPOINT}/status/200")
+
+if [ "$STATUS" = "200" ]; then
+  echo "✓ Health check passed! Got status code: $STATUS"
+  exit 0
+else
+  echo "✗ Health check failed! Got status code: $STATUS"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+ENDPOINT = "{{.nuon.components.ec2.outputs.public_ip}}"
