@@ -11,17 +11,10 @@ inline_contents = """
 #!/usr/bin/env sh
 set -e
 
-# Get the public IP from AWS
-PUBLIC_IP=$(aws ec2 describe-instances \
-  --filters "Name=tag:nuon-install-id,Values=${INSTALL_ID}" \
-  --query 'Reservations[0].Instances[0].PublicIpAddress' \
-  --output text \
-  --region ${REGION})
-
-echo "Checking health of httpbin at: http://${PUBLIC_IP}"
+echo "Checking health of httpbin at: ${ENDPOINT}"
 
 # Make the health check request
-STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${PUBLIC_IP}/status/200")
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${ENDPOINT}/status/200")
 
 if [ "$STATUS" = "200" ]; then
   echo "✓ Health check passed! Got status code: $STATUS"
@@ -33,5 +26,4 @@ fi
 """
 
 [steps.env_vars]
-INSTALL_ID = "{{.nuon.install.id}}"
-REGION = "{{.nuon.sandbox.outputs.account.region}}"
+ENDPOINT = "http://3.84.116.141"
