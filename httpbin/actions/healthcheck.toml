@@ -26,4 +26,4 @@ fi
 """
 
 [steps.env_vars]
-ENDPOINT = "http://3.84.116.141"
+ENDPOINT = "{{.nuon.components.ec2.outputs.public_ip}}"
