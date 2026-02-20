@@ -13,10 +13,10 @@ set -e
 
 # Get the public IP from AWS
 PUBLIC_IP=$(aws ec2 describe-instances \
-  --filters "Name=tag:nuon-install-id,Values={{.nuon.install.id}}" \
+  --filters "Name=tag:nuon-install-id,Values=${INSTALL_ID}" \
   --query 'Reservations[0].Instances[0].PublicIpAddress' \
   --output text \
-  --region {{.nuon.sandbox.outputs.account.region}})
+  --region ${REGION})
 
 echo "Checking health of httpbin at: http://${PUBLIC_IP}"
 
@@ -31,3 +31,7 @@ else
   exit 1
 fi
 """
+
+[steps.env_vars]
+INSTALL_ID = "{{.nuon.install.id}}"
+REGION = "{{.nuon.sandbox.outputs.account.region}}"
