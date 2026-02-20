@@ -1,0 +1,20 @@
+# action
+name    = "healthcheck"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "http_check"
+command = "./healthcheck"
+
+[steps.public_repo]
+repo      = "nuonco/actions"
+branch    = "main"
+directory = "common"
+
+[steps.env_vars]
+ENDPOINT             = "http://{{.nuon.install.components.ec2.outputs.public_ip}}"
+METHOD               = "GET"
+EXPECTED_STATUS_CODE = "200"
