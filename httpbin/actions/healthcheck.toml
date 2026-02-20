@@ -6,15 +6,28 @@ timeout = "30s"
 type = "manual"
 
 [[steps]]
-name    = "http_check"
-command = "./healthcheck"
+name = "check_httpbin"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
 
-[steps.public_repo]
-repo      = "nuonco/actions"
-branch    = "main"
-directory = "common"
+# Get the public IP from AWS
+PUBLIC_IP=$(aws ec2 describe-instances \
+  --filters "Name=tag:nuon-install-id,Values={{.nuon.install.id}}" \
+  --query 'Reservations[0].Instances[0].PublicIpAddress' \
+  --output text \
+  --region {{.nuon.sandbox.outputs.account.region}})
 
-[steps.env_vars]
-ENDPOINT             = "http://{{.nuon.install.components.ec2.outputs.public_ip}}"
-METHOD               = "GET"
-EXPECTED_STATUS_CODE = "200"
+echo "Checking health of httpbin at: http://${PUBLIC_IP}"
+
+# Make the health check request
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${PUBLIC_IP}/status/200")
+
+if [ "$STATUS" = "200" ]; then
+  echo "✓ Health check passed! Got status code: $STATUS"
+  exit 0
+else
+  echo "✗ Health check failed! Got status code: $STATUS"
+  exit 1
+fi
+"""
