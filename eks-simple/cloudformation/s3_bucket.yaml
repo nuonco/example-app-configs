@@ -4,12 +4,25 @@ Description: S3 bucket for the install
 Parameters:
   NuonInstallID:
     Type: String
+  NuonOrgID:
+    Type: String
+  NuonAppID:
+    Type: String
 
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref NuonInstallID
+      Tags:
+        - Key: Name
+          Value: !Ref NuonInstallID
+        - Key: "install.nuon.co/id"
+          Value: !Ref NuonInstallID
+        - Key: "org.nuon.co/id"
+          Value: !Ref NuonOrgID
+        - Key: "app.nuon.co/id"
+          Value: !Ref NuonAppID
 
 Outputs:
   BucketName:
