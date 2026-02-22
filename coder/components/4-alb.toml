@@ -8,7 +8,7 @@ dependencies = ["coder"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/components/alb"
-branch    = "main"
+branch    = "mm/coder-observe-kubelogstream"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
