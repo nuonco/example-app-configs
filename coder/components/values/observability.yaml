@@ -55,6 +55,7 @@ grafana:
     annotations:
       alb.ingress.kubernetes.io/group.name: {{.nuon.install.id}}
       alb.ingress.kubernetes.io/group.order: "200"
+      alb.ingress.kubernetes.io/target-type: ip
     hosts:
       - {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
     path: /grafana
