@@ -8,8 +8,8 @@ global:
     logFormat: human
 
   postgres:
-    hostname: "{{.nuon.components.rds_cluster_coder.outputs.endpoint}}"
-    port: "{{.nuon.components.rds_cluster_coder.outputs.port}}"
+    hostname: "{{.nuon.components.rds_cluster_coder.outputs.address}}"
+    port: "{{.nuon.components.rds_cluster_coder.outputs.db_instance_port}}"
     database: coder
     username: coder
     mountSecret: coder-db-password
