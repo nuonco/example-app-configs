@@ -1,0 +1,27 @@
+name    = "cluster_details"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "get cluster details"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+response=`gcloud container clusters describe $CLUSTER_NAME \
+  --project $PROJECT_ID \
+  --location $CLUSTER_LOCATION \
+  --format json | jq -c`
+
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[steps.env_vars]
+CLUSTER_NAME     = "{{ .nuon.install.sandbox.outputs.cluster.name }}"
+PROJECT_ID       = "{{ .nuon.install.sandbox.outputs.account.project_id }}"
+CLUSTER_LOCATION = "{{ .nuon.install.sandbox.outputs.cluster.location }}"
