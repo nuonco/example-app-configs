@@ -58,33 +58,3 @@ kubectl create -n "$observability_namespace" secret generic "$observability_secr
 
 echo "[rds-secrets import] observability secret created successfully"
 
-# Generate and store Grafana admin password
-grafana_secret_name="grafana-admin-${INSTALL_ID}"
-grafana_username="admin"
-
-echo "[rds-secrets import] checking if Grafana admin secret exists in Secrets Manager"
-if aws --region "$region" secretsmanager describe-secret --secret-id="$grafana_secret_name" 2>/dev/null; then
-  echo "[rds-secrets import] Grafana admin secret already exists, retrieving"
-  grafana_secret=$(aws --region "$region" secretsmanager get-secret-value --secret-id="$grafana_secret_name")
-  grafana_password=$(echo "$grafana_secret" | jq -r '.SecretString' | jq -r '.password')
-else
-  echo "[rds-secrets import] generating new Grafana admin password"
-  grafana_password=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-
-  echo "[rds-secrets import] storing Grafana admin password in Secrets Manager"
-  aws --region "$region" secretsmanager create-secret \
-    --name "$grafana_secret_name" \
-    --description "Grafana admin credentials for Nuon install ${INSTALL_ID}" \
-    --secret-string "{\"username\":\"${grafana_username}\",\"password\":\"${grafana_password}\"}" \
-    --tags Key=nuon-install-id,Value="${INSTALL_ID}" Key=component,Value=observability
-fi
-
-echo "[rds-secrets import] creating Grafana admin secret in Kubernetes"
-kubectl create -n "$observability_namespace" secret generic grafana-admin \
-  --save-config \
-  --dry-run=client \
-  --from-literal=username="$grafana_username" \
-  --from-literal=password="$grafana_password" \
-  -o yaml | kubectl apply -f -
-
-echo "[rds-secrets import] Grafana admin secret created successfully"
