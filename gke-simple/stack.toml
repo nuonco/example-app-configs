@@ -1,0 +1,3 @@
+type        = "gcp-terraform"
+name        = "nuon-gke-simple-{{.nuon.install.id}}"
+description = "Install the Nuon runner in a GCP project for BYOC deployment."

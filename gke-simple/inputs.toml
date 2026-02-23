@@ -1,0 +1,11 @@
+[[group]]
+name         = "dns"
+description  = "DNS Configurations"
+display_name = "DNS"
+
+[[input]]
+name         = "domain"
+description  = "Root domain for DNS zones"
+default      = "nuon.run"
+display_name = "Domain"
+group        = "dns"

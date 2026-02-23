@@ -1,0 +1,12 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm_chart
+
+name = "whoami"
+type = "helm_chart"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-simple/src/components/whoami"
+branch    = "main"
+
+[vars]
+namespace = "{{.nuon.install.id}}"

@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "GKE Simple"
+description  = "Whoami on GCP GKE Autopilot"
+readme       = "./README.md"

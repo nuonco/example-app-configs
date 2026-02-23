@@ -1,0 +1,12 @@
+terraform_version = "1.11.3"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/gcp-gke-sandbox"
+branch    = "main"
+
+[vars]
+cluster_name         = "n-{{.nuon.install.id}}"
+enable_nuon_dns      = "true"
+public_root_domain   = "{{ .nuon.inputs.inputs.domain }}"
+internal_root_domain = "internal.{{ .nuon.inputs.inputs.domain }}"
