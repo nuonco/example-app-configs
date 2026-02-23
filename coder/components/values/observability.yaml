@@ -41,6 +41,8 @@ grafana-agent:
 grafana:
   enabled: true
   replicas: 1
+  env:
+    GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "false"
   admin:
     existingSecret: grafana-admin
     userKey: username
