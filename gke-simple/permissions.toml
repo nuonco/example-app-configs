@@ -1,0 +1,2 @@
+# GCP uses service accounts attached to the runner GCE instance.
+# No explicit permission roles needed — IAM bindings are created by the stack.
