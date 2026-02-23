@@ -1,2 +1,17 @@
-# GCP uses service accounts attached to the runner GCE instance.
-# No explicit permission roles needed — IAM bindings are created by the stack.
+# GCP permissions are managed by the runner service account IAM bindings in the stack.
+# These roles are required by the platform config validation but are not used for GCP.
+
+[maintenance_role]
+name = "{{.nuon.install.id}}-maintenance"
+description = "maintenance"
+display_name = "maintenance"
+
+[provision_role]
+name = "{{.nuon.install.id}}-provision"
+description = "provision"
+display_name = "provision"
+
+[deprovision_role]
+name = "{{.nuon.install.id}}-deprovision"
+description = "deprovision"
+display_name = "deprovision"
