@@ -2,8 +2,8 @@ name    = "grafana_setup"
 timeout = "2m"
 
 [[triggers]]
-type           = "post-deploy-component"
-component_name = "coder"
+type           = "pre-deploy-component"
+component_name = "observability"
 
 [[triggers]]
 type = "manual"
