@@ -3,7 +3,7 @@ type           = "helm_chart"
 chart_name     = "coder-observability"
 namespace      = "coder-observability"
 storage_driver = "configmap"
-dependencies   = ["coder"]
+dependencies   = ["coder", "application_load_balancer"]
 
 [helm_repo]
 repo_url = "https://helm.coder.com/observability"
