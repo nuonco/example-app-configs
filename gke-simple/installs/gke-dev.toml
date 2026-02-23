@@ -1,0 +1,11 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "gke-dev"
+approval_option = "approve-all"
+
+[gcp_account]
+  project_id = "nuon-gcp-support"
+  region = "us-central1"
+
+[[inputs]]
+  domain = "nuon.run"
