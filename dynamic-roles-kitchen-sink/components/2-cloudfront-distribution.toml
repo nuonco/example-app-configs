@@ -10,9 +10,9 @@ branch    = "sk/ft-dynamic-roles-app-config"
 
 [vars]
 install_id          = "{{.nuon.install.id}}"
-distribution_name   = "{{.nuon.install.id}}-{{.nuon.inputs.app_name}}-cdn"
+distribution_name   = "{{.nuon.install.id}}-dynamic-roles-cdn"
 lambda_function_url = "{{.nuon.components.lambda_function.outputs.lambda_function_url}}"
-domain_name         = "{{.nuon.inputs.domain_name}}"
+domain_name         = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
 
 [[outputs]]
 name = "distribution_id"

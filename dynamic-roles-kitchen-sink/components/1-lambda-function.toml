@@ -10,8 +10,8 @@ branch    = "sk/ft-dynamic-roles-app-config"
 
 [vars]
 install_id    = "{{.nuon.install.id}}"
-region        = "{{.nuon.inputs.aws_region}}"
-function_name = "{{.nuon.install.id}}-{{.nuon.inputs.app_name}}"
+region        = "{{.nuon.sandbox.outputs.account.region}}"
+function_name = "dynamic-roles-{{.nuon.install.id}}"
 image_uri     = "{{.nuon.components.docker_image.outputs.image.repository}}:{{.nuon.components.docker_image.outputs.image.tag}}"
 
 [[outputs]]
