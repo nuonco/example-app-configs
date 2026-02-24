@@ -15,9 +15,11 @@
         "iam:PutRolePolicy",
         "iam:AttachRolePolicy",
         "ec2:DescribeVpcs",
+        "ec2:DescribeVpcAttribute",
         "ec2:DescribeSubnets",
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSecurityGroupRules",
+        "ec2:DescribeAvailabilityZones",
         "ec2:AuthorizeSecurityGroupIngress",
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:RevokeSecurityGroupIngress",
@@ -26,7 +28,11 @@
         "autoscaling:DescribeAutoScalingGroups",
         "autoscaling:DescribeLaunchConfigurations",
         "autoscaling:UpdateAutoScalingGroup",
-        "autoscaling:SetDesiredCapacity"
+        "autoscaling:SetDesiredCapacity",
+        "sts:GetCallerIdentity",
+        "ecr:DescribeRepositories",
+        "ecr:GetAuthorizationToken",
+        "route53:ListHostedZones"
       ],
       "Resource": "*"
     },

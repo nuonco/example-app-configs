@@ -72,9 +72,11 @@ contents = """
       "Effect": "Allow",
       "Action": [
         "ec2:DescribeVpcs",
+        "ec2:DescribeVpcAttribute",
         "ec2:DescribeSubnets",
         "ec2:DescribeSecurityGroups",
-        "ec2:DescribeSecurityGroupRules"
+        "ec2:DescribeSecurityGroupRules",
+        "ec2:DescribeAvailabilityZones"
       ],
       "Resource": "*"
     },
@@ -94,6 +96,41 @@ contents = """
           "ec2:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
         }
       }
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-sandbox-reads"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "STSRead",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ECRRead",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeRepositories",
+        "ecr:GetAuthorizationToken"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "Route53List",
+      "Effect": "Allow",
+      "Action": [
+        "route53:ListHostedZones"
+      ],
+      "Resource": "*"
     }
   ]
 }
