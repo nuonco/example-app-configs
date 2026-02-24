@@ -8,6 +8,9 @@ repo      = "nuonco/example-app-configs"
 directory = "dynamic-roles-kitchen-sink/src/lambda-app"
 branch    = "sk/ft-dynamic-roles-app-config"
 
+[env_vars]
+APP_VERSION = "1"
+
 [[outputs]]
 name = "image.repository"
 value = "{{.nuon.docker_build.image.repository}}"
