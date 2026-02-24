@@ -1,0 +1,13 @@
+name              = "certificate"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-simple/src/components/certificate"
+branch    = "main"
+
+[vars]
+install_id  = "{{ .nuon.install.id }}"
+project_id  = "{{ .nuon.install_stack.outputs.project_id }}"
+domain_name = "*.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"

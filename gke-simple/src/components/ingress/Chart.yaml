@@ -1,0 +1,3 @@
+apiVersion: v2
+name: gke-ingress
+version: 0.1.0
