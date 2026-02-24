@@ -9,3 +9,10 @@ description  = "Root domain for DNS zones"
 default      = "nuon.run"
 display_name = "Domain"
 group        = "dns"
+
+[[input]]
+name         = "sub_domain"
+description  = "Subdomain for the application"
+default      = "whoami"
+display_name = "Subdomain"
+group        = "dns"

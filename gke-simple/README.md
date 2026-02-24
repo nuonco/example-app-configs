@@ -1,12 +1,20 @@
 # GKE Simple
 
-Whoami deployment on GCP GKE Autopilot. Equivalent to `eks-simple` for AWS.
+Whoami deployment on GCP GKE Autopilot with managed SSL certificate and GKE Ingress. Equivalent to `eks-simple` for AWS.
+
+## Components
+
+- **whoami** — simple HTTP service (helm chart)
+- **certificate** — GCP Managed SSL Certificate (terraform module)
+- **ingress** — GKE Ingress with Google Cloud Load Balancer (helm chart)
 
 ## Resources
 
 - GKE Autopilot cluster via [gcp-gke-sandbox](https://github.com/nuonco/gcp-gke-sandbox)
 - Artifact Registry for container images
-- Whoami helm chart deployment
+- Cloud DNS zones (public + internal)
+- GCP Managed SSL Certificate
+- GKE Ingress (Google Cloud Load Balancer)
 
 ## Prerequisites
 

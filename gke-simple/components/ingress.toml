@@ -1,0 +1,18 @@
+name           = "ingress"
+type           = "helm_chart"
+chart_name     = "gke-ingress"
+dependencies   = ["whoami"]
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-simple/src/components/ingress"
+branch    = "main"
+
+[values]
+certificate_name = "{{.nuon.components.certificate.outputs.certificate_name}}"
+domain           = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+service_name     = "whoami"
+service_port     = "80"
+install_name     = "{{.nuon.install.id}}"
+namespace        = "whoami"
