@@ -15,3 +15,9 @@ name = "aws_region"
 description = "AWS region for Lambda deployment"
 default = "us-west-2"
 required = true
+
+[[inputs]]
+name = "domain"
+description = "Root domain for Route53 e.g. nuon.run"
+default = "nuon.run"
+required = true
