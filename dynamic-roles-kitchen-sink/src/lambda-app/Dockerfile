@@ -1,5 +1,7 @@
 FROM node:20-alpine
 
+RUN apk add --no-cache cmake make g++ python3
+
 WORKDIR /app
 
 COPY index.js package.json ./
