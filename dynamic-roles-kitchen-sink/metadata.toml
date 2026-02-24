@@ -1,0 +1,4 @@
+version = "v2"
+description = "Dynamic roles kitchen sink - comprehensive operation role demonstration"
+display_name = "Dynamic Roles Kitchen Sink"
+readme = "./README.md"

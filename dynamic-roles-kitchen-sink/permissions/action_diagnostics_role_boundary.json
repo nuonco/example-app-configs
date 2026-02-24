@@ -1,0 +1,51 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowReadOnlyOperations",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:GetFunctionUrlConfig",
+        "lambda:ListTags",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:ListTagsForResource",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyAllWriteOperations",
+      "Effect": "Deny",
+      "Action": [
+        "lambda:Create*",
+        "lambda:Update*",
+        "lambda:Delete*",
+        "lambda:Put*",
+        "cloudfront:Create*",
+        "cloudfront:Update*",
+        "cloudfront:Delete*",
+        "logs:Create*",
+        "logs:Put*",
+        "logs:Delete*",
+        "iam:Create*",
+        "iam:Update*",
+        "iam:Delete*",
+        "iam:Put*",
+        "iam:Attach*",
+        "iam:Detach*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

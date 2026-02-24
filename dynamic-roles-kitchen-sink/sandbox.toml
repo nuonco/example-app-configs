@@ -1,0 +1,17 @@
+terraform_version = "1.11.4"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/aws-min-sandbox"
+branch    = "main"
+
+[vars]
+subdomain = "{{.nuon.install.id}}"
+
+[[operation_roles]]
+operation = "reprovision"
+role = "{{.nuon.install.id}}-sandbox-infra-role"
+
+[[operation_roles]]
+operation = "deprovision"
+role = "{{.nuon.install.id}}-deprovision"

@@ -1,0 +1,17 @@
+[[inputs]]
+name = "app_name"
+description = "Application name used for resource naming"
+default = "kitchen-sink"
+required = true
+
+[[inputs]]
+name = "domain_name"
+description = "Custom domain name for CloudFront distribution (optional)"
+default = ""
+required = false
+
+[[inputs]]
+name = "aws_region"
+description = "AWS region for Lambda deployment"
+default = "us-west-2"
+required = true

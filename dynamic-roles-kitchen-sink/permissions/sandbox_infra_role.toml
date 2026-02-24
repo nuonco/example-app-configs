@@ -1,0 +1,128 @@
+type = "custom"
+name = "{{.nuon.install.id}}-sandbox-infra-role"
+description = "Update existing sandbox infrastructure (networking, DNS, security groups)"
+display_name = "Sandbox Infrastructure Role"
+permissions_boundary = "./sandbox_infra_role_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-route53-updates"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Route53ZoneRead",
+      "Effect": "Allow",
+      "Action": [
+        "route53:GetHostedZone",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "arn:aws:route53:::hostedzone/*"
+    },
+    {
+      "Sid": "Route53RecordUpdates",
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets",
+        "route53:GetChange"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-iam-updates"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "IAMRoleRead",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies"
+      ],
+      "Resource": "arn:aws:iam::*:role/*{{.nuon.install.id}}*"
+    },
+    {
+      "Sid": "IAMPolicyUpdates",
+      "Effect": "Allow",
+      "Action": [
+        "iam:PutRolePolicy",
+        "iam:AttachRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::*:role/*{{.nuon.install.id}}*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-network-updates"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VPCRead",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVpcs",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSecurityGroupRules"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SecurityGroupUpdates",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:ModifySecurityGroupRules"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-asg-updates"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ASGRead",
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeLaunchConfigurations"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ASGUpdates",
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:UpdateAutoScalingGroup",
+        "autoscaling:SetDesiredCapacity"
+      ],
+      "Resource": "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/*{{.nuon.install.id}}*"
+    }
+  ]
+}
+"""

@@ -1,0 +1,39 @@
+name = "health_check"
+timeout = "60s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "lambda-health-check"
+inline_contents = """
+#!/bin/bash
+set -euo pipefail
+
+echo "=== Lambda Function Health Check ==="
+echo "Function: $FUNCTION_NAME"
+echo "Region: $AWS_REGION"
+echo ""
+
+echo "Checking function status..."
+aws lambda get-function \
+  --function-name "$FUNCTION_NAME" \
+  --region "$AWS_REGION" \
+  --query 'Configuration.[State,LastUpdateStatus,Runtime,MemorySize]' \
+  --output table
+
+echo ""
+echo "Function URL:"
+aws lambda get-function-url-config \
+  --function-name "$FUNCTION_NAME" \
+  --region "$AWS_REGION" \
+  --query 'FunctionUrl' \
+  --output text
+
+echo ""
+echo "✅ Health check complete"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "{{.nuon.components.lambda_function.outputs.function_name}}"
+AWS_REGION = "{{.nuon.inputs.aws_region}}"

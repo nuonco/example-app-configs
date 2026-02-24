@@ -1,0 +1,103 @@
+type = "custom"
+name = "{{.nuon.install.id}}-lambda-deploy-role"
+description = "Minimal permissions to create and update Lambda functions with container images"
+display_name = "Lambda Deploy Role"
+permissions_boundary = "./lambda_deploy_role_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-lambda-management"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LambdaFunctionManagement",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:TagResource",
+        "lambda:CreateFunctionUrlConfig",
+        "lambda:UpdateFunctionUrlConfig",
+        "lambda:GetFunctionUrlConfig",
+        "lambda:AddPermission"
+      ],
+      "Resource": "arn:aws:lambda:*:*:function/*{{.nuon.install.id}}*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": ["us-west-2", "us-east-1"]
+        }
+      }
+    },
+    {
+      "Sid": "IAMPassRoleLambda",
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::*:role/*{{.nuon.install.id}}*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "lambda.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "IAMReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies"
+      ],
+      "Resource": "arn:aws:iam::*:role/*{{.nuon.install.id}}*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-lambda-ecr-access"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ECRImagePull",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-lambda-logs"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudWatchLogsManagement",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:TagResource",
+        "logs:DescribeLogGroups"
+      ],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/*{{.nuon.install.id}}*"
+    }
+  ]
+}
+"""

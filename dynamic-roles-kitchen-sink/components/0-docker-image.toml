@@ -1,0 +1,17 @@
+name = "docker_image"
+type = "docker_build"
+
+dockerfile = "Dockerfile"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dynamic-roles-kitchen-sink/src/lambda-app"
+branch    = "sk/ft-dynamic-roles-app-config"
+
+[[outputs]]
+name = "image.repository"
+value = "{{.nuon.docker_build.image.repository}}"
+
+[[outputs]]
+name = "image.tag"
+value = "{{.nuon.docker_build.image.tag}}"

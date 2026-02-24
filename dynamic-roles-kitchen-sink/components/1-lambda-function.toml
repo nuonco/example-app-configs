@@ -1,0 +1,27 @@
+name              = "lambda_function"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+dependencies      = ["docker_image"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dynamic-roles-kitchen-sink/src/components/lambda-function"
+branch    = "sk/ft-dynamic-roles-app-config"
+
+[vars]
+install_id    = "{{.nuon.install.id}}"
+region        = "{{.nuon.inputs.aws_region}}"
+function_name = "{{.nuon.install.id}}-{{.nuon.inputs.app_name}}"
+image_uri     = "{{.nuon.components.docker_image.outputs.image.repository}}:{{.nuon.components.docker_image.outputs.image.tag}}"
+
+[[outputs]]
+name = "lambda_function_url"
+value = "{{.nuon.terraform.outputs.lambda_function_url}}"
+
+[[outputs]]
+name = "function_name"
+value = "{{.nuon.terraform.outputs.function_name}}"
+
+[[outputs]]
+name = "function_arn"
+value = "{{.nuon.terraform.outputs.function_arn}}"

@@ -1,0 +1,76 @@
+type = "custom"
+name = "{{.nuon.install.id}}-cloudfront-deploy-role"
+description = "Minimal permissions to create and update CloudFront distributions"
+display_name = "CloudFront Deploy Role"
+permissions_boundary = "./cloudfront_deploy_role_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-cloudfront-management"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudFrontDistributionManagement",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateDistribution",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:TagResource",
+        "cloudfront:ListTagsForResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudFrontOriginAccessControl",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateOriginAccessControl",
+        "cloudfront:UpdateOriginAccessControl",
+        "cloudfront:GetOriginAccessControl"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudFrontCachePolicy",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateCachePolicy",
+        "cloudfront:GetCachePolicy",
+        "cloudfront:ListCachePolicies"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+name = "{{.nuon.install.id}}-cloudfront-dependencies"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LambdaReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:GetFunction",
+        "lambda:GetFunctionUrlConfig"
+      ],
+      "Resource": "arn:aws:lambda:*:*:function/*{{.nuon.install.id}}*"
+    },
+    {
+      "Sid": "ACMReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "acm:ListCertificates",
+        "acm:DescribeCertificate"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

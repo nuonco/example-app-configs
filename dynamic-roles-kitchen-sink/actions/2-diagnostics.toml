@@ -1,0 +1,74 @@
+name = "diagnostics"
+timeout = "120s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "comprehensive-diagnostics"
+inline_contents = """
+#!/bin/bash
+set -euo pipefail
+
+echo "=== IAM Identity ==="
+aws sts get-caller-identity --output table
+
+echo ""
+echo "=== Lambda Function Details ==="
+aws lambda get-function \
+  --function-name "$FUNCTION_NAME" \
+  --region "$AWS_REGION" \
+  --output json | jq '{Configuration: {FunctionName: .Configuration.FunctionName, FunctionArn: .Configuration.FunctionArn, State: .Configuration.State, LastUpdateStatus: .Configuration.LastUpdateStatus, Runtime: .Configuration.Runtime, Role: .Configuration.Role}, Tags}'
+
+echo ""
+echo "=== Lambda Function URL ==="
+aws lambda get-function-url-config \
+  --function-name "$FUNCTION_NAME" \
+  --region "$AWS_REGION" \
+  --output json | jq '{FunctionUrl, AuthType, CreationTime}'
+
+echo ""
+echo "=== CloudFront Distribution Status ==="
+aws cloudfront get-distribution \
+  --id "$DISTRIBUTION_ID" \
+  --output json | jq '{Id: .Distribution.Id, Status: .Distribution.Status, DomainName: .Distribution.DomainName, Enabled: .Distribution.DistributionConfig.Enabled, LastModifiedTime: .Distribution.LastModifiedTime}'
+
+echo ""
+echo "=== Recent Lambda Logs (last 10 events) ==="
+LOG_GROUP="/aws/lambda/$FUNCTION_NAME"
+
+if aws logs describe-log-groups \
+  --log-group-name-prefix "$LOG_GROUP" \
+  --region "$AWS_REGION" \
+  --output json | jq -e '.logGroups | length > 0' > /dev/null 2>&1; then
+
+  LATEST_STREAM=$(aws logs describe-log-streams \
+    --log-group-name "$LOG_GROUP" \
+    --region "$AWS_REGION" \
+    --order-by LastEventTime \
+    --descending \
+    --max-items 1 \
+    --output json | jq -r '.logStreams[0].logStreamName')
+
+  if [ -n "$LATEST_STREAM" ] && [ "$LATEST_STREAM" != "null" ]; then
+    aws logs get-log-events \
+      --log-group-name "$LOG_GROUP" \
+      --log-stream-name "$LATEST_STREAM" \
+      --region "$AWS_REGION" \
+      --limit 10 \
+      --output json | jq -r '.events[] | "\\(.timestamp | strflocaltime(\\"%Y-%m-%d %H:%M:%S\\")) \\(.message)"'
+  else
+    echo "No log streams found"
+  fi
+else
+  echo "Log group not found or no logs yet"
+fi
+
+echo ""
+echo "✅ Diagnostics complete"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "{{.nuon.components.lambda_function.outputs.function_name}}"
+DISTRIBUTION_ID = "{{.nuon.components.cloudfront_distribution.outputs.distribution_id}}"
+AWS_REGION = "{{.nuon.inputs.aws_region}}"

@@ -1,0 +1,32 @@
+name = "view_config"
+timeout = "60s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "view-configuration"
+inline_contents = """
+#!/bin/bash
+set -euo pipefail
+
+echo "=== Lambda Function Configuration ==="
+aws lambda get-function-configuration \
+  --function-name "$FUNCTION_NAME" \
+  --region "$AWS_REGION" \
+  --output json | jq '{FunctionName, Runtime, MemorySize, Timeout, Environment, PackageType}'
+
+echo ""
+echo "=== CloudFront Distribution Configuration ==="
+aws cloudfront get-distribution-config \
+  --id "$DISTRIBUTION_ID" \
+  --output json | jq '.DistributionConfig | {Enabled, DefaultRootObject, Comment, Origins: .Origins.Items[0].DomainName, PriceClass}'
+
+echo ""
+echo "✅ Configuration view complete"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "{{.nuon.components.lambda_function.outputs.function_name}}"
+DISTRIBUTION_ID = "{{.nuon.components.cloudfront_distribution.outputs.distribution_id}}"
+AWS_REGION = "{{.nuon.inputs.aws_region}}"

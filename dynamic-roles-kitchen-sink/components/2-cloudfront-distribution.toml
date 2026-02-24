@@ -1,0 +1,23 @@
+name              = "cloudfront_distribution"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+dependencies      = ["lambda_function"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dynamic-roles-kitchen-sink/src/components/cloudfront-distribution"
+branch    = "sk/ft-dynamic-roles-app-config"
+
+[vars]
+install_id          = "{{.nuon.install.id}}"
+distribution_name   = "{{.nuon.install.id}}-{{.nuon.inputs.app_name}}-cdn"
+lambda_function_url = "{{.nuon.components.lambda_function.outputs.lambda_function_url}}"
+domain_name         = "{{.nuon.inputs.domain_name}}"
+
+[[outputs]]
+name = "distribution_id"
+value = "{{.nuon.terraform.outputs.distribution_id}}"
+
+[[outputs]]
+name = "distribution_domain_name"
+value = "{{.nuon.terraform.outputs.distribution_domain_name}}"

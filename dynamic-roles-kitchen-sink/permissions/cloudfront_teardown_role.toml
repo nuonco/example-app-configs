@@ -1,0 +1,45 @@
+type = "custom"
+name = "{{.nuon.install.id}}-cloudfront-teardown-role"
+description = "Deletion-only permissions for CloudFront distributions and associated resources"
+display_name = "CloudFront Teardown Role"
+permissions_boundary = "./cloudfront_teardown_role_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-cloudfront-deletion"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudFrontDistributionDeletion",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:DeleteDistribution",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:UntagResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudFrontOriginAccessControlDeletion",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:DeleteOriginAccessControl",
+        "cloudfront:GetOriginAccessControl"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudFrontCachePolicyDeletion",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:DeleteCachePolicy",
+        "cloudfront:GetCachePolicy"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

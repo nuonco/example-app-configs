@@ -1,0 +1,71 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCloudFrontOperations",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateDistribution",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:TagResource",
+        "cloudfront:ListTagsForResource",
+        "cloudfront:CreateOriginAccessControl",
+        "cloudfront:UpdateOriginAccessControl",
+        "cloudfront:GetOriginAccessControl",
+        "cloudfront:CreateCachePolicy",
+        "cloudfront:GetCachePolicy",
+        "cloudfront:ListCachePolicies"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowLambdaRead",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:GetFunction",
+        "lambda:GetFunctionUrlConfig"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowACMRead",
+      "Effect": "Allow",
+      "Action": [
+        "acm:ListCertificates",
+        "acm:DescribeCertificate"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyCloudFrontDeletion",
+      "Effect": "Deny",
+      "Action": [
+        "cloudfront:DeleteDistribution",
+        "cloudfront:DeleteOriginAccessControl",
+        "cloudfront:DeleteCachePolicy"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyLambdaModification",
+      "Effect": "Deny",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:DeleteFunction"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyCertificateModification",
+      "Effect": "Deny",
+      "Action": [
+        "acm:RequestCertificate",
+        "acm:DeleteCertificate"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

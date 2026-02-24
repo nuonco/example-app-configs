@@ -1,0 +1,98 @@
+# Dynamic Roles Kitchen Sink - Operation Role Assignment Matrix
+#
+# This file demonstrates comprehensive operation-specific role assignment patterns.
+# Each rule maps a principal (component, sandbox, action) + operation to a specific role.
+#
+# Key Patterns Demonstrated:
+# 1. Operation-specific roles: Different roles for deploy vs teardown
+# 2. Component isolation: Lambda roles separate from CloudFront roles
+# 3. Minimal permissions: Each role has ONLY what's needed for its operation
+# 4. Action-based roles: Diagnostic actions use read-only permissions
+
+type = "matrix"
+
+# ============================================================================
+# Component: docker_image (Docker Build)
+# ============================================================================
+
+[[rules]]
+principal = "nuon::component:docker_image"
+operation = "deploy"
+role = "{{.nuon.install.id}}-maintenance"
+description = "Standard maintenance role for Docker image builds"
+
+# ============================================================================
+# Component: lambda_function (Terraform - Lambda)
+# ============================================================================
+
+[[rules]]
+principal = "nuon::component:lambda_function"
+operation = "deploy"
+role = "{{.nuon.install.id}}-lambda-deploy-role"
+description = "Minimal permissions to create/update Lambda functions"
+
+[[rules]]
+principal = "nuon::component:lambda_function"
+operation = "teardown"
+role = "{{.nuon.install.id}}-lambda-teardown-role"
+description = "Deletion-only permissions for Lambda functions"
+
+# ============================================================================
+# Component: cloudfront_distribution (Terraform - CloudFront)
+# ============================================================================
+
+[[rules]]
+principal = "nuon::component:cloudfront_distribution"
+operation = "deploy"
+role = "{{.nuon.install.id}}-cloudfront-deploy-role"
+description = "Minimal permissions to create/update CloudFront distributions"
+
+[[rules]]
+principal = "nuon::component:cloudfront_distribution"
+operation = "teardown"
+role = "{{.nuon.install.id}}-cloudfront-teardown-role"
+description = "Deletion-only permissions for CloudFront distributions"
+
+# ============================================================================
+# Sandbox Operations
+# ============================================================================
+
+[[rules]]
+principal = "nuon::sandbox"
+operation = "provision"
+role = "{{.nuon.install.id}}-provision"
+description = "Initial infrastructure creation for aws-min-sandbox"
+
+[[rules]]
+principal = "nuon::sandbox"
+operation = "reprovision"
+role = "{{.nuon.install.id}}-sandbox-infra-role"
+description = "Update existing sandbox infrastructure (networking, DNS)"
+
+[[rules]]
+principal = "nuon::sandbox"
+operation = "deprovision"
+role = "{{.nuon.install.id}}-deprovision"
+description = "Destroy all sandbox infrastructure"
+
+# ============================================================================
+# Actions (Diagnostic Operations)
+# ============================================================================
+
+[[rules]]
+principal = "nuon::action:health_check"
+operation = "trigger"
+role = "{{.nuon.install.id}}-maintenance"
+description = "Standard health check operations"
+
+[[rules]]
+principal = "nuon::action:view_config"
+operation = "trigger"
+role = "{{.nuon.install.id}}-action-diagnostics-role"
+description = "Read-only configuration viewing"
+
+[[rules]]
+principal = "nuon::action:diagnostics"
+operation = "trigger"
+role = "{{.nuon.install.id}}-action-diagnostics-role"
+description = "Read-only diagnostic information gathering"

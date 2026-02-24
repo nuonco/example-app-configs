@@ -1,0 +1,45 @@
+type = "custom"
+name = "{{.nuon.install.id}}-lambda-teardown-role"
+description = "Deletion-only permissions for Lambda functions and associated resources"
+display_name = "Lambda Teardown Role"
+permissions_boundary = "./lambda_teardown_role_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-lambda-deletion"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LambdaFunctionDeletion",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:DeleteFunction",
+        "lambda:GetFunction",
+        "lambda:UntagResource",
+        "lambda:DeleteFunctionUrlConfig",
+        "lambda:GetFunctionUrlConfig",
+        "lambda:RemovePermission"
+      ],
+      "Resource": "arn:aws:lambda:*:*:function/*{{.nuon.install.id}}*"
+    },
+    {
+      "Sid": "CloudWatchLogsDeletion",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DeleteLogGroup",
+        "logs:DescribeLogGroups"
+      ],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/*{{.nuon.install.id}}*"
+    },
+    {
+      "Sid": "IAMReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole"
+      ],
+      "Resource": "arn:aws:iam::*:role/*{{.nuon.install.id}}*"
+    }
+  ]
+}
+"""

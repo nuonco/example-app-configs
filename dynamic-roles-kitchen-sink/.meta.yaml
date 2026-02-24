@@ -1,0 +1,16 @@
+tags:
+  - aws
+  - lambda
+  - cloudfront
+  - terraform
+  - docker
+  - dynamic-roles
+  - permissions
+  - iam
+  - security
+
+links:
+  - name: "Documentation"
+    url: "https://docs.nuon.co"
+  - name: "GitHub Repository"
+    url: "https://github.com/nuonco/example-app-configs"

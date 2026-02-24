@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCloudFrontDeletion",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:DeleteDistribution",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:UntagResource",
+        "cloudfront:DeleteOriginAccessControl",
+        "cloudfront:GetOriginAccessControl",
+        "cloudfront:DeleteCachePolicy",
+        "cloudfront:GetCachePolicy"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyCloudFrontCreation",
+      "Effect": "Deny",
+      "Action": [
+        "cloudfront:CreateDistribution",
+        "cloudfront:CreateOriginAccessControl",
+        "cloudfront:CreateCachePolicy"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
