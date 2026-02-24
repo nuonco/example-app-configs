@@ -5,11 +5,8 @@ dockerfile = "Dockerfile"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "dynamic-roles-kitchen-sink/src/lambda-app"
+directory = "dynamic-roles-kitchen-sink/src/components/api"
 branch    = "sk/ft-dynamic-roles-app-config"
-
-[env_vars]
-APP_VERSION = "1"
 
 [[outputs]]
 name = "image.repository"
