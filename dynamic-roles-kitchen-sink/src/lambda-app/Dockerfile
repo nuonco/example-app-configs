@@ -1,11 +1,10 @@
-FROM public.ecr.aws/lambda/nodejs:20
+FROM node:20-alpine
 
-RUN rm -f /var/spool/mail && mkdir -p /var/spool/mail
+WORKDIR /var/task
 
 COPY index.js package.json ./
 
-# Install dependencies (if any)
-RUN npm install --production
+RUN npm install --production && npm install aws-lambda-ric
 
-# Set the Lambda handler
+ENTRYPOINT ["/var/task/node_modules/.bin/aws-lambda-ric"]
 CMD ["index.handler"]
