@@ -7,7 +7,7 @@ branch    = "main"
 
 [vars]
 cluster_name         = "n-{{.nuon.install.id}}"
-enable_nuon_dns      = "true"
+enable_nuon_dns      = "false"
 public_root_domain   = "{{ .nuon.inputs.inputs.domain }}"
 internal_root_domain = "internal.{{ .nuon.inputs.inputs.domain }}"
 

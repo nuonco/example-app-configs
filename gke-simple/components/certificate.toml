@@ -10,4 +10,4 @@ branch    = "main"
 [vars]
 install_id  = "{{ .nuon.install.id }}"
 project_id  = "{{ .nuon.install_stack.outputs.project_id }}"
-domain_name = "*.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+domain_name = "{{ .nuon.inputs.inputs.sub_domain }}.{{ .nuon.inputs.inputs.domain }}"
