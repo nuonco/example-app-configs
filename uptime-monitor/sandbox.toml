@@ -73,7 +73,7 @@ directory = "."
 #
 [vars]
 # EKS cluster configuration
-cluster_version = "1.33"
+cluster_version = "1.31"
 cluster_name    = "{{.nuon.install.id}}"
 
 # -----------------------------------------------------------------------------
