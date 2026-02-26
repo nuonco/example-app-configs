@@ -73,7 +73,7 @@ directory = "."
 #
 [vars]
 # EKS cluster configuration
-cluster_version = "1.31"
+cluster_version = "1.33"
 cluster_name    = "{{.nuon.install.id}}"
 
 # -----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ cluster_name    = "{{.nuon.install.id}}"
 #   {{.nuon.install.sandbox.outputs.nuon_dns.internal_domain.name}}  - Internal domain
 #   {{.nuon.install.sandbox.outputs.nuon_dns.zone_id}}               - Route53 zone ID
 #
-enable_nuon_dns      = "true"
+enable_nuon_dns      = "false"
 public_root_domain   = "{{.nuon.install.id}}.nuon.run"
 internal_root_domain = "{{.nuon.install.id}}.internal.nuon.run"
 
