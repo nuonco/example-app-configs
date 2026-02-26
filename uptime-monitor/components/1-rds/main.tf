@@ -105,11 +105,11 @@ resource "aws_db_instance" "postgres" {
   identifier_prefix = "${var.install_id}-postgres-"
 
   engine         = "postgres"
-  engine_version = "18"
-  instance_class = "db.t4g.micro"
+  engine_version = "17"
+  instance_class = "db.t3.micro"
 
   allocated_storage     = 20
-  max_allocated_storage = 20
+  max_allocated_storage = 100
   storage_type          = "gp3"
 
   db_name  = "uptime_monitor"
