@@ -75,6 +75,7 @@ directory = "."
 # EKS cluster configuration
 cluster_version = "1.33"
 cluster_name    = "{{.nuon.install.id}}"
+enable_irsa     = "true"
 
 # -----------------------------------------------------------------------------
 # DNS Configuration
