@@ -5,3 +5,20 @@ contents = "./disallow-ingress-nginx-custom-snippets.yaml"
 [[policy]]
 type     = "kubernetes_cluster"
 contents = "./set-karpenter-non-cpu-limits.yaml"
+
+[[policy]]
+type       = "helm_chart"
+engine     = "opa"
+contents   = "./no-public-alb.rego"
+components = ["*"]
+
+[[policy]]
+type       = "helm_chart"
+engine     = "opa"
+contents   = "./no-loadbalancer-service.rego"
+components = ["*"]
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./no-public-eks.rego"
