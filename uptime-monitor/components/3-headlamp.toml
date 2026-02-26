@@ -46,23 +46,10 @@ namespace = "default"
 # -----------------------------------------------------------------------------
 # REPOSITORY CONFIGURATION
 # -----------------------------------------------------------------------------
-# Using a public Git repository containing the chart:
-[public_repo]
-repo      = "kubernetes-sigs/headlamp"
-directory = "charts/headlamp"
-branch    = "main"
-
-# Alternative: Using a Helm repository URL:
-# [helm_repo]
-# repo_url = "https://kubernetes-sigs.github.io/headlamp"
-# chart    = "headlamp"
-# version  = "0.20.0"    # Optional: pin to specific version
-
-# Alternative: Using a connected private repository:
-# [connected_repo]
-# repo      = "your-org/helm-charts"
-# directory = "charts/headlamp"
-# branch    = "main"
+[helm_repo]
+repo_url = "https://kubernetes-sigs.github.io/headlamp"
+chart    = "headlamp"
+version  = "0.40.0"
 
 
 # -----------------------------------------------------------------------------
