@@ -1,26 +1,29 @@
-# GCP permissions are managed by the runner service account IAM bindings in the stack.
-# These roles are required by the platform config validation but are not used for GCP.
+# GCP permissions use predefined roles (equivalent to AWS managed policies).
+# Each role gets a GCP predefined role bound to its service account.
 
 [maintenance_role]
 name = "{{.nuon.install.id}}-maintenance"
 description = "maintenance"
 display_name = "maintenance"
+cloud_platform = "gcp"
 
 [[maintenance_role.policies]]
-managed_policy_name = "AdministratorAccess"
+gcp_predefined_role = "roles/owner"
 
 [provision_role]
 name = "{{.nuon.install.id}}-provision"
 description = "provision"
 display_name = "provision"
+cloud_platform = "gcp"
 
 [[provision_role.policies]]
-managed_policy_name = "AdministratorAccess"
+gcp_predefined_role = "roles/owner"
 
 [deprovision_role]
 name = "{{.nuon.install.id}}-deprovision"
 description = "deprovision"
 display_name = "deprovision"
+cloud_platform = "gcp"
 
 [[deprovision_role.policies]]
-managed_policy_name = "AdministratorAccess"
+gcp_predefined_role = "roles/owner"
