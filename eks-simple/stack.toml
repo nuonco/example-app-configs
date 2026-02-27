@@ -5,3 +5,8 @@ description = "QuickLink to install runner for BYOC Nuon: Install {{.nuon.instal
 # nested stack
 vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.2.1/vpc/eks/default/stack.yaml"
 runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.2.1/runner/asg/stack.yaml"
+
+[[custom_nested_stacks]]
+name         = "s3_bucket"
+template_url = "https://raw.githubusercontent.com/nuonco/example-app-configs/refs/heads/fd/eks-simple/add-custom-nested-resource/eks-simple/cloudformation/s3_bucket.yaml"
+index        = 0
