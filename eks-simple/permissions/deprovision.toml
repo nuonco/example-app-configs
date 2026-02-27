@@ -1,8 +1,12 @@
-type = "deprovision"
-name = "{{.nuon.install.id}}-deprovision"
-description = "deprovision sandbox and components. you must still delete the cf stack to delete the runner, ec2 vm, and vpc."
-display_name = "deprovision role"
+type                 = "deprovision"
+name                 = "{{.nuon.install.id}}-deprovision"
+description          = "Role used during component teardown and sandbox deprovision."
+display_name         = "Deprovisin Role for {{.nuon.install.id}}"
 permissions_boundary = "./deprovision_boundary.json"
 
 [[policies]]
 managed_policy_name = "AdministratorAccess"
+
+[[policies]]
+name = "{{.nuon.install.id}}-deprovision-policy-s3"
+contents = "./deprovision_policy_s3.json"

@@ -2,8 +2,50 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "AllowCommonActions",
       "Effect": "Allow",
-      "Action": "*",
+      "Action": [
+        "Route53:*",
+        "acm:*",
+        "autoscaling:DescribeAutoScalingGroups",
+        "cloudwatch:*",
+        "ec2:*",
+        "ecr:*",
+        "eks:*",
+        "elasticloadbalancing:*",
+        "events:*",
+        "iam:*",
+        "kms:*",
+        "logs:*",
+        "organizations:DescribeOrganization",
+        "rds:*",
+        "s3:*",
+        "secretsmanager:*",
+        "sqs:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowS3BucketEmptying",
+      "Effect": "Allow",
+      "Action": [
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion",
+        "s3:ListBucketVersions"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyS3ObjectReadWrite",
+      "Effect": "Deny",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectAcl",
+        "s3:GetObjectVersion",
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+        "s3:RestoreObject"
+      ],
       "Resource": "*"
     }
   ]

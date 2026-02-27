@@ -1,4 +1,4 @@
-type = "maintenance"
+type                 = "maintenance"
 name                 = "{{ .nuon.install.id }}-maintenance"
 description          = "operate and remediate the app's components and use actions."
 display_name         = "maintenance role"
@@ -7,7 +7,7 @@ permissions_boundary = "./maintenance_boundary.json"
 [[policies]]
 managed_policy_name = "AdministratorAccess"
 
-# NOTE: the tag in this policy is determined by the rds_cluster_* component config. the format is known ahead of time by 
+# NOTE: the tag in this policy is determined by the rds_cluster_* component config. the format is known ahead of time by
 # convention.
 [[policies]]
 name = "{{ .nuon.install.id }}-limited-secrets-manage-rds"
@@ -71,3 +71,7 @@ contents = """
     ]
 }
 """
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-s3"
+contents = "./maintenance_policy_s3.json"
