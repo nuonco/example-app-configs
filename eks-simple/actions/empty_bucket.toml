@@ -1,0 +1,17 @@
+# action
+
+# this action is run during the component teardown
+# it must be executed with the deprovision role (default)
+
+name    = "empty_bucket"
+timeout = "5m"
+
+[[triggers]]
+type = "pre-deprovision-sandbox"
+
+[[steps]]
+name            = "empty_bucket"
+inline_contents = "./src/empty-bucket.sh"
+
+[steps.env_vars]
+BUCKET_NAME = "{{.nuon.install.id}}"
