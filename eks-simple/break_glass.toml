@@ -2,7 +2,8 @@
 name                 = "{{.nuon.install.id}}-eks-simple-sandbox-break-glass"
 description          = "Admin Access minus non-install secrets for {{.nuon.install.id}}."
 display_name         = "EKS Simple Break Glass for {{.nuon.install.id}}"
-permissions_boundary = "./maintenance_boundary.json"
+# TODO(fd): fix the file resolution here
+# permissions_boundary = "./permissions/maintenance_boundary.json"
 
 [[role.policies]]
 managed_policy_name = "AdministratorAccess"
