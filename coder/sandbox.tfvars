@@ -1,7 +1,7 @@
 ebs_storage_class = {
   enabled                = true
   name                   = "ebs-auto"
-  is_default_class       = false
+  is_default_class       = true
   provisioner            = "ebs.csi.eks.amazonaws.com"
   volume_binding_mode    = "WaitForFirstConsumer"
   reclaim_policy         = "Delete"
@@ -13,7 +13,7 @@ ebs_storage_class = {
 }
 
 
-additional_namespaces = ["coder"]
+additional_namespaces = ["coder", "coder-observability"]
 
 enable_irsa          = true
 

@@ -1,0 +1,117 @@
+global:
+  coder:
+    controlPlaneNamespace: coder
+    externalProvisionersNamespace: coder
+    coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
+    provisionerdSelector: 'pod=~`coder-provisioner.*`'
+    workspacesSelector: 'namespace=`coder`'
+    logFormat: human
+
+  postgres:
+    hostname: "{{.nuon.components.rds_cluster_coder.outputs.address}}"
+    port: "{{.nuon.components.rds_cluster_coder.outputs.db_instance_port}}"
+    database: coder
+    username: coder
+    mountSecret: coder-db-password
+    exporter:
+      enabled: true
+      image: "quay.io/prometheuscommunity/postgres-exporter"
+
+  telemetry:
+    metrics:
+      scrape_interval: 15s
+      scrape_timeout: 12s
+      native_histograms: false
+
+  alerts:
+    enabled: true
+    kind: "configmap"
+
+  dashboards:
+    enabled: true
+    timerange: 12h
+    refresh: 30s
+    queryTimeout: 900
+
+grafana-agent:
+  enabled: true
+  controller:
+    type: daemonset
+
+grafana:
+  enabled: true
+  replicas: 1
+  env:
+    GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "false"
+  admin:
+    existingSecret: grafana-admin
+    userKey: username
+    passwordKey: password
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: ebs-auto
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/group.name: {{.nuon.install.id}}
+      alb.ingress.kubernetes.io/group.order: "200"
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    hosts:
+      - {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+    path: /grafana
+    pathType: Prefix
+  "grafana.ini":
+    server:
+      domain: {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+      root_url: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana"
+      serve_from_sub_path: true
+    security:
+      password_policy: false
+    "auth.anonymous":
+      enabled: false
+    analytics:
+      reporting_enabled: false
+    users:
+      allow_sign_up: false
+
+prometheus:
+  enabled: true
+  server:
+    replicaCount: 1
+    persistentVolume:
+      enabled: true
+      size: 20Gi
+      storageClassName: ebs-auto
+    retentionSize: 18GB
+    retention: 15d
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+  alertmanager:
+    enabled: true
+    persistentVolume:
+      enabled: true
+      size: 2Gi
+      storageClassName: ebs-auto
+  kube-state-metrics:
+    enabled: true
+  prometheus-node-exporter:
+    enabled: true
+
+loki:
+  enabled: true
+  backend:
+    replicas: 1
+  read:
+    replicas: 1
+  write:
+    replicas: 1
+  minio:
+    enabled: true

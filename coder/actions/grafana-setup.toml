@@ -1,0 +1,22 @@
+name    = "grafana_setup"
+timeout = "2m"
+
+[[triggers]]
+type           = "pre-deploy-component"
+component_name = "observability"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Create Grafana Admin Secret"
+command = "./setup.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder/src/actions/grafana-setup"
+branch    = "main"
+
+[steps.env_vars]
+REGION     = "{{ .nuon.install_stack.outputs.region }}"
+INSTALL_ID = "{{ .nuon.install.id }}"

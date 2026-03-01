@@ -41,3 +41,20 @@ kubectl create -n "$namespace" secret generic "$name" \
   -o yaml | kubectl apply -f -
 
 echo "[rds-secrets import] secret created successfully"
+
+# Also create secret for observability namespace
+observability_namespace="coder-observability"
+observability_secret_name="coder-db-password"
+
+echo "[rds-secrets import] creating observability namespace if not exists"
+kubectl create namespace "$observability_namespace" --dry-run=client -o yaml | kubectl apply -f -
+
+echo "[rds-secrets import] creating postgres password secret for observability"
+kubectl create -n "$observability_namespace" secret generic "$observability_secret_name" \
+  --save-config \
+  --dry-run=client \
+  --from-literal=PGPASSWORD="$password" \
+  -o yaml | kubectl apply -f -
+
+echo "[rds-secrets import] observability secret created successfully"
+
