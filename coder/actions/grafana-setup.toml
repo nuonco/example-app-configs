@@ -15,7 +15,7 @@ command = "./setup.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/actions/grafana-setup"
-branch    = "mm/coder-observe-kubelogstream"
+branch    = "main"
 
 [steps.env_vars]
 REGION     = "{{ .nuon.install_stack.outputs.region }}"
