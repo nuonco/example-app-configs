@@ -3,5 +3,5 @@
 version = "v2"
 
 display_name = "Coder"
-description  = "Coder on AWS EKS"
+description  = "Cloud development environments in your AWS account, managed by Coder.com."
 readme       = "./README.md"
