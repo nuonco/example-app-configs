@@ -63,6 +63,7 @@ grafana:
       alb.ingress.kubernetes.io/group.order: "200"
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/healthcheck-path: /grafana/api/health
     hosts:
       - "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
     path: /grafana
