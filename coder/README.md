@@ -8,6 +8,8 @@
 
 Coder Access URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}})
 
+Grafana Access URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana)
+
 Nuon Install Id: {{ .nuon.install.id }}
 
 AWS Region: {{ .nuon.install_stack.outputs.region }}
@@ -43,7 +45,7 @@ Database credentials are automatically synced from AWS Secrets Manager to Kubern
 
 The Coder application is deployed using the official Coder Helm chart from the Helm repository:
 
-- **Helm Repository**: `https://helm.coder.com/v2`
+- **Helm Repository**: [https://helm.coder.com/v2](https://helm.coder.com/v2)
 - **Chart Method**: Uses `[helm_repo]` configuration (standard Helm repository approach)
 - **Version**: Tracks latest stable release from repository
 
@@ -66,7 +68,7 @@ This app includes comprehensive monitoring and Kubernetes event streaming:
 2. Go to the **Actions** tab
 3. Run the `grafana_password` action (manual trigger)
 4. The action output will display:
-   - Grafana URL: `https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana`
+   - Grafana URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana)
    - Username: `admin`
    - Password: (randomly generated, stored in AWS Secrets Manager)
 5. Open the Grafana URL in your browser and log in with the credentials
