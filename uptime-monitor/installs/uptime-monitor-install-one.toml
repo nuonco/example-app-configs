@@ -1,0 +1,9 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+name = 'WorkOS'
+
+[aws_account]
+region = 'us-east-1'
+
+# input.group :
+[[inputs]]
+healthcheck_interval_seconds = '5'
