@@ -12,6 +12,7 @@ ebs_storage_class = {
   }
 }
 
+cluster_endpoint_public_access = true
 
 additional_namespaces = ["coder", "coder-observability"]
 

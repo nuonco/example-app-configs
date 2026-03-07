@@ -1,0 +1,17 @@
+# action
+name    = "observability-helm-uninstall"
+timeout = "5m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "helm_uninstall"
+inline_contents = """
+#!/usr/bin/env bash
+set -e
+
+echo "==> Uninstalling coder-observability helm release"
+helm uninstall coder-observability -n coder-observability --ignore-not-found
+echo "==> Done"
+"""

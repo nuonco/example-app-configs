@@ -2,9 +2,9 @@ global:
   coder:
     controlPlaneNamespace: coder
     externalProvisionersNamespace: coder
-    coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
-    provisionerdSelector: 'pod=~`coder-provisioner.*`'
-    workspacesSelector: 'namespace=`coder`'
+    coderdSelector: "pod=~`coder.*`, pod!~`.*provisioner.*`"
+    provisionerdSelector: "pod=~`coder-provisioner.*`"
+    workspacesSelector: "namespace=`coder`"
     logFormat: human
 
   postgres:
@@ -47,6 +47,10 @@ grafana:
     existingSecret: grafana-admin
     userKey: username
     passwordKey: password
+  readinessProbe:
+    httpGet:
+      path: /grafana/api/health
+      port: 3000
   persistence:
     enabled: true
     size: 10Gi
@@ -55,17 +59,17 @@ grafana:
     enabled: true
     ingressClassName: alb
     annotations:
-      alb.ingress.kubernetes.io/group.name: {{.nuon.install.id}}
+      alb.ingress.kubernetes.io/group.name: "{{.nuon.install.id}}"
       alb.ingress.kubernetes.io/group.order: "200"
       alb.ingress.kubernetes.io/target-type: ip
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     hosts:
-      - {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+      - "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
     path: /grafana
     pathType: Prefix
   "grafana.ini":
     server:
-      domain: {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+      domain: "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
       root_url: "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana"
       serve_from_sub_path: true
     security:
