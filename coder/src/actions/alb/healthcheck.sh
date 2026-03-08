@@ -5,7 +5,7 @@ set -o pipefail
 set -u
 
 # check coder ingress
-echo >&2 "checking coder ingress..."
+echo "checking coder ingress..."
 
 coder_json=$(kubectl get --namespace $INGRESS_NAMESPACE ingress $INGRESS_NAME -o json | jq -c)
 coder_status=$(echo $coder_json | jq -c '.status')
@@ -20,7 +20,7 @@ else
 fi
 
 # check grafana ingress
-echo >&2 "checking grafana ingress..."
+echo "checking grafana ingress..."
 
 grafana_json=$(kubectl get --namespace $GRAFANA_INGRESS_NAMESPACE ingress -o json | jq -c '.items[0]')
 if [ "$grafana_json" = "null" ]; then
