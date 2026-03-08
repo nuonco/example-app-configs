@@ -16,5 +16,6 @@ directory = "coder/src/actions/alb"
 branch    = "main"
 
 [steps.env_vars]
-INGRESS_NAME      = "{{.nuon.install.id}}-public"
-INGRESS_NAMESPACE = "coder"
+INGRESS_NAME              = "{{.nuon.install.id}}-public"
+INGRESS_NAMESPACE         = "coder"
+GRAFANA_INGRESS_NAMESPACE = "coder-observability"
