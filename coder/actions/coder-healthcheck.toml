@@ -13,8 +13,9 @@ command = "./healthcheck.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/actions/alb"
-branch    = "main"
+branch    = "mm/coder-grafana-password"
 
 [steps.env_vars]
-INGRESS_NAME      = "{{.nuon.install.id}}-public"
-INGRESS_NAMESPACE = "coder"
+INGRESS_NAME              = "{{.nuon.install.id}}-public"
+INGRESS_NAMESPACE         = "coder"
+GRAFANA_INGRESS_NAMESPACE = "coder-observability"
