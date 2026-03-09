@@ -43,18 +43,17 @@ grafana:
   replicas: 1
   env:
     GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "false"
-  admin:
-    existingSecret: grafana-admin
-    userKey: username
-    passwordKey: password
+  envValueFrom:
+    GF_SECURITY_ADMIN_PASSWORD:
+      secretKeyRef:
+        name: grafana-admin
+        key: password
   readinessProbe:
     httpGet:
       path: /grafana/api/health
       port: 3000
   persistence:
-    enabled: true
-    size: 10Gi
-    storageClassName: ebs-auto
+    enabled: false
   ingress:
     enabled: true
     ingressClassName: alb

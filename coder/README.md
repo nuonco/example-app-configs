@@ -55,6 +55,19 @@ This follows Nuon best practices for deploying public Helm charts.
 
 > Wildcard DNS for workspace subdomains is automatically configured via external-dns. This enables features like web apps (e.g., Jupyter) and web port forwarding without manual DNS configuration.
 
+### Shared ALB
+
+Coder and Grafana share a single AWS Application Load Balancer using the `alb.ingress.kubernetes.io/group.name: {{.nuon.install.id}}` annotation. Each ingress registers its own rules on the shared ALB:
+
+| Service  | Path       | `group.order` | Health Check Path        |
+|----------|------------|---------------|--------------------------|
+| Grafana  | `/grafana` | 200           | `/grafana/api/health`    |
+| Coder    | `/`        | 1000          | `/livez`                 |
+
+Lower `group.order` = higher priority. Grafana at 200 matches `/grafana` first; Coder at 1000 is the catch-all for `/`.
+
+Each ingress must independently declare `target-type: ip` and `listen-ports: '[{"HTTPS":443}]'` — these annotations are **not** inherited from the ALB group. Without `listen-ports`, rules only land on HTTP:80 and are never hit on HTTPS:443. Health check paths are set via the `healthcheck-path` annotation with matching readiness probes on each deployment.
+
 ### Observability & Monitoring
 
 This app includes comprehensive monitoring and Kubernetes event streaming:
@@ -84,7 +97,17 @@ Grafana is served from `/grafana` path on the same ALB as Coder, reducing infras
 - Postgres Database - RDS performance
 - Infrastructure - Node metrics
 
-The admin password is generated once during initial deployment and persisted in AWS Secrets Manager for the lifetime of the installation.
+The `grafana_setup` action runs pre-deploy, generates a random password, and stores it in both AWS Secrets Manager and a Kubernetes secret (`grafana-admin`). The Helm chart injects `GF_SECURITY_ADMIN_PASSWORD` from the K8s secret so the admin user is created with the real password at first boot. Run the `grafana_password` action to retrieve credentials.
+
+## Upgrading Coder
+
+1. Check the [Coder Releases](https://github.com/coder/coder/releases/) page for the target version
+2. In the Nuon dashboard, navigate to your Coder installation
+3. Open the **Manage** dropdown and select **Edit Inputs**
+4. Change the `coder_release` input to the desired version (e.g. `v2.31.3`)
+5. Click **Update Inputs**
+
+This triggers a new deploy workflow that updates the Coder Helm component. The workflow shows a Helm diff of the changes and pauses for approval before applying. Since `coder_release` only affects the Coder Helm component, all downstream dependents (observability, actions, etc.) will no-op and skip after the Coder component redeploys.
 
 ## Coder Resources
 
