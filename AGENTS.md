@@ -40,3 +40,7 @@ the name broken up by dashes if needed. look at the examples repo for style.
 
 keep comments in the toml, manifest, helm, and terraform files to a minimum, or
 none at all.
+
+when generating terraform lock files, use tfenv to match the terraform_version
+specified in the component's corresponding toml config file. do not use a single
+terraform version for all components.
