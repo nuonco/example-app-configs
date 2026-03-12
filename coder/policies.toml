@@ -2,4 +2,4 @@
 
 [[policy]]
 type     = "kubernetes_cluster"
-contents = "./disallow-ingress-nginx-custom-snippets.yaml"
+contents = "./policies/disallow-ingress-nginx-custom-snippets.yaml"
