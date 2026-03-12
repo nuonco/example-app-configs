@@ -45,6 +45,15 @@ module "ec2_instance" {
   # Attach the security group to the instance
   vpc_security_group_ids = [aws_security_group.httpbin.id]
 
+  # Enable EBS encryption for root volume
+  root_block_device = [
+    {
+      encrypted   = true
+      volume_type = "gp3"
+      volume_size = 8
+    }
+  ]
+
   user_data = <<-EOF
     #!/bin/bash
     sudo yum install -y docker
