@@ -1,0 +1,23 @@
+type = "maintenance"
+name = "{{.nuon.install.id}}-deployments-status-trigger"
+description = "trigger the deployments_status action."
+display_name = "deployments status trigger role"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-deployments-status-trigger"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSAuth",
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

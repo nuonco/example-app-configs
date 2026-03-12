@@ -1,0 +1,51 @@
+type = "matrix"
+
+[[rules]]
+principal = "nuon::sandbox"
+operation = "provision"
+role      = "{{.nuon.install.id}}-custom-1"
+
+[[rules]]
+principal = "nuon::sandbox"
+operation = "reprovision"
+role      = "{{.nuon.install.id}}-custom-2"
+
+[[rules]]
+principal = "nuon::sandbox"
+operation = "deprovision"
+role      = "{{.nuon.install.id}}-custom-3"
+
+[[rules]]
+principal = "nuon::component:whoami"
+operation = "deploy"
+role      = "{{.nuon.install.id}}-custom-1"
+
+[[rules]]
+principal = "nuon::component:whoami"
+operation = "teardown"
+role      = "{{.nuon.install.id}}-custom-2"
+
+[[rules]]
+principal = "nuon::component:certificate"
+operation = "deploy"
+role      = "{{.nuon.install.id}}-custom-3"
+
+[[rules]]
+principal = "nuon::component:certificate"
+operation = "teardown"
+role      = "{{.nuon.install.id}}-custom-1"
+
+[[rules]]
+principal = "nuon::action:certificate_status"
+operation = "trigger"
+role      = "{{.nuon.install.id}}-custom-2"
+
+[[rules]]
+principal = "nuon::action:deployments_status"
+operation = "trigger"
+role      = "{{.nuon.install.id}}-custom-3"
+
+[[rules]]
+principal = "nuon::action:alb"
+operation = "trigger"
+role      = "{{.nuon.install.id}}-custom-1"

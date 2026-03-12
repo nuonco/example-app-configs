@@ -1,0 +1,23 @@
+type = "maintenance"
+name = "{{.nuon.install.id}}-simple-demonstration-trigger"
+description = "trigger the simple_demonstration action."
+display_name = "simple demonstration trigger role"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-simple-demonstration-trigger"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSAuth",
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

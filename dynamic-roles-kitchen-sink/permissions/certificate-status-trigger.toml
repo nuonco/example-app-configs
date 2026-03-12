@@ -1,0 +1,23 @@
+type = "maintenance"
+name = "{{.nuon.install.id}}-certificate-status-trigger"
+description = "trigger the certificate_status action."
+display_name = "certificate status trigger role"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-certificate-status-trigger"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ACM",
+      "Effect": "Allow",
+      "Action": [
+        "acm:DescribeCertificate"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

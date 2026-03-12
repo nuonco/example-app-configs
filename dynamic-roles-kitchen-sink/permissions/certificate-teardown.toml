@@ -1,0 +1,38 @@
+type = "deprovision"
+name = "{{.nuon.install.id}}-certificate-teardown"
+description = "teardown the certificate component."
+display_name = "certificate teardown role"
+permissions_boundary = "./deprovision_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-certificate-teardown"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ACM",
+      "Effect": "Allow",
+      "Action": [
+        "acm:DescribeCertificate",
+        "acm:DeleteCertificate",
+        "acm:ListCertificates",
+        "acm:ListTagsForCertificate"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "Route53",
+      "Effect": "Allow",
+      "Action": [
+        "route53:GetHostedZone",
+        "route53:ListHostedZones",
+        "route53:ChangeResourceRecordSets",
+        "route53:GetChange",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""
