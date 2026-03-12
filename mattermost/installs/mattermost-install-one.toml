@@ -1,0 +1,5 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+name = 'Mattermost-Test-Install'
+
+[aws_account]
+region = 'us-west-2'
