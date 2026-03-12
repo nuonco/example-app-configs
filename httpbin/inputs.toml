@@ -26,13 +26,6 @@ default      = "80"
 display_name = "HTTP Port"
 group        = "network"
 
-[[input]]
-name         = "enable_public_access"
-description  = "Enable public internet access to HTTPBin (true/false)"
-default      = "true"
-display_name = "Enable Public Access"
-group        = "network"
-
 # Application Configuration
 [[group]]
 name         = "application"
@@ -73,13 +66,6 @@ default      = "0.0.0.0/0"
 display_name = "Allowed IP Ranges"
 group        = "security"
 
-[[input]]
-name         = "enable_rate_limiting"
-description  = "Enable rate limiting for requests (true/false)"
-default      = "false"
-display_name = "Enable Rate Limiting"
-group        = "security"
-
 # Monitoring Configuration
 [[group]]
 name         = "monitoring"
@@ -91,11 +77,4 @@ name         = "log_level"
 description  = "Log level (debug, info, warn, error)"
 default      = "info"
 display_name = "Log Level"
-group        = "monitoring"
-
-[[input]]
-name         = "enable_cloudwatch_logs"
-description  = "Enable CloudWatch logging (true/false)"
-default      = "true"
-display_name = "Enable CloudWatch Logs"
 group        = "monitoring"
