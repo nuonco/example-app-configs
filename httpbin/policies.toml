@@ -1,0 +1,13 @@
+# policies
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/require-ebs-encryption.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/security-group-rules.rego"
