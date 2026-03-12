@@ -1,8 +1,8 @@
-type = "maintenance"
+type = "custom"
 name = "{{.nuon.install.id}}-sandbox-maintenance"
 description = "reprovision and maintain the sandbox."
 display_name = "sandbox maintenance role"
-permissions_boundary = "./maintenance_boundary.json"
+permissions_boundary = "./provision_boundary.json"
 
 [[policies]]
 managed_policy_name = "AdministratorAccess"

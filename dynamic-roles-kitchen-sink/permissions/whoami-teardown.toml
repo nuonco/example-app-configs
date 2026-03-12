@@ -1,4 +1,4 @@
-type = "deprovision"
+type = "custom"
 name = "{{.nuon.install.id}}-whoami-teardown"
 description = "teardown the whoami component."
 display_name = "whoami teardown role"

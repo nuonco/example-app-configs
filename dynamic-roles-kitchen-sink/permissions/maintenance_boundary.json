@@ -6,6 +6,7 @@
       "Effect": "Allow",
       "Action": [
         "cloudwatch:*",
+        "logs:*",
         "ec2:*",
         "eks:*",
         "iam:*",

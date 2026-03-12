@@ -1,4 +1,4 @@
-type = "provision"
+type = "custom"
 name = "{{.nuon.install.id}}-certificate-deploy"
 description = "deploy the certificate component."
 display_name = "certificate deploy role"

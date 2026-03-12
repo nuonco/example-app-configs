@@ -1,4 +1,4 @@
-type = "deprovision"
+type = "custom"
 name = "{{.nuon.install.id}}-certificate-teardown"
 description = "teardown the certificate component."
 display_name = "certificate teardown role"

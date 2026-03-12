@@ -1,4 +1,4 @@
-type = "maintenance"
+type = "custom"
 name = "{{.nuon.install.id}}-certificate-status-trigger"
 description = "trigger the certificate_status action."
 display_name = "certificate status trigger role"

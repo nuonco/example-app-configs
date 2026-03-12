@@ -1,4 +1,4 @@
-type = "deprovision"
+type = "custom"
 name = "{{.nuon.install.id}}-alb-teardown"
 description = "teardown the alb component."
 display_name = "alb teardown role"

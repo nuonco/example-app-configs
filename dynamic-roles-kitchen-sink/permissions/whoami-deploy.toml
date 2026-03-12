@@ -1,4 +1,4 @@
-type = "provision"
+type = "custom"
 name = "{{.nuon.install.id}}-whoami-deploy"
 description = "deploy the whoami component."
 display_name = "whoami deploy role"

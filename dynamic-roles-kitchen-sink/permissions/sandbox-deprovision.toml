@@ -1,4 +1,4 @@
-type = "deprovision"
+type = "custom"
 name = "{{.nuon.install.id}}-sandbox-deprovision"
 description = "deprovision the sandbox."
 display_name = "sandbox deprovision role"

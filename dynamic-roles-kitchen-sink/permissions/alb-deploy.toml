@@ -1,4 +1,4 @@
-type = "provision"
+type = "custom"
 name = "{{.nuon.install.id}}-alb-deploy"
 description = "deploy the alb component."
 display_name = "alb deploy role"

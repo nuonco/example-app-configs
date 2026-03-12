@@ -1,4 +1,4 @@
-type = "maintenance"
+type = "custom"
 name = "{{.nuon.install.id}}-deployments-status-trigger"
 description = "trigger the deployments_status action."
 display_name = "deployments status trigger role"

@@ -1,4 +1,4 @@
-type = "maintenance"
+type = "custom"
 name = "{{.nuon.install.id}}-alb-trigger"
 description = "trigger the alb action."
 display_name = "alb trigger role"

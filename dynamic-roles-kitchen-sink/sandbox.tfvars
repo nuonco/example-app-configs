@@ -35,13 +35,15 @@ additional_access_entry = {
       cluster_admin = {
         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
         access_scope = {
-          type = "cluster"
+          type       = "cluster"
+          namespaces = []
         }
       }
       eks_admin = {
         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
         access_scope = {
-          type = "cluster"
+          type       = "cluster"
+          namespaces = []
         }
       }
     }
@@ -53,13 +55,15 @@ additional_access_entry = {
       cluster_admin = {
         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
         access_scope = {
-          type = "cluster"
+          type       = "cluster"
+          namespaces = []
         }
       }
       eks_admin = {
         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
         access_scope = {
-          type = "cluster"
+          type       = "cluster"
+          namespaces = []
         }
       }
     }
@@ -71,13 +75,15 @@ additional_access_entry = {
       cluster_admin = {
         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
         access_scope = {
-          type = "cluster"
+          type       = "cluster"
+          namespaces = []
         }
       }
       eks_admin = {
         policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
         access_scope = {
-          type = "cluster"
+          type       = "cluster"
+          namespaces = []
         }
       }
     }
@@ -200,3 +206,4 @@ additional_access_entry = {
     }
   }
 }
+{{ end }}

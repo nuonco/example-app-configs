@@ -1,4 +1,4 @@
-type = "maintenance"
+type = "custom"
 name = "{{.nuon.install.id}}-simple-demonstration-trigger"
 description = "trigger the simple_demonstration action."
 display_name = "simple demonstration trigger role"

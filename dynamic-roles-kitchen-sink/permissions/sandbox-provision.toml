@@ -1,4 +1,4 @@
-type = "provision"
+type = "custom"
 name = "{{.nuon.install.id}}-sandbox-provision"
 description = "provision the sandbox."
 display_name = "sandbox provision role"

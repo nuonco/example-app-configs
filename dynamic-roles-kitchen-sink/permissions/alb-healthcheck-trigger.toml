@@ -1,4 +1,4 @@
-type = "maintenance"
+type = "custom"
 name = "{{.nuon.install.id}}-alb-healthcheck-trigger"
 description = "trigger the alb_healthcheck action."
 display_name = "alb healthcheck trigger role"
