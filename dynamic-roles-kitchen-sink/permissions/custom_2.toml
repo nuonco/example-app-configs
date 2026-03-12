@@ -1,0 +1,7 @@
+type        = "custom"
+name        = "{{.nuon.install.id}}-custom-2"
+description = "custom role 2"
+display_name = "custom 2"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

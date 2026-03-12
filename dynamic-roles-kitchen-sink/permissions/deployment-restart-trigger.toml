@@ -1,0 +1,23 @@
+type = "custom"
+name = "{{.nuon.install.id}}-deployment-restart-trigger"
+description = "trigger the deployment_restart action."
+display_name = "deployment restart trigger role"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-deployment-restart-trigger"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSAuth",
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

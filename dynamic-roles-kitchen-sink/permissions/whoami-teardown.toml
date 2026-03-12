@@ -1,0 +1,23 @@
+type = "custom"
+name = "{{.nuon.install.id}}-whoami-teardown"
+description = "teardown the whoami component."
+display_name = "whoami teardown role"
+permissions_boundary = "./deprovision_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-whoami-teardown"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSAuth",
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

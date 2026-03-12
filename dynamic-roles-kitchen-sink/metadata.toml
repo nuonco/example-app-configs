@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "EKS Simple"
+description  = "Whoami on AWS EKS"
+readme       = "./README.md"

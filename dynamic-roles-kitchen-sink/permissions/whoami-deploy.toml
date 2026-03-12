@@ -1,0 +1,23 @@
+type = "custom"
+name = "{{.nuon.install.id}}-whoami-deploy"
+description = "deploy the whoami component."
+display_name = "whoami deploy role"
+permissions_boundary = "./provision_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-whoami-deploy"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKSAuth",
+      "Effect": "Allow",
+      "Action": [
+        "eks:DescribeCluster"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""
