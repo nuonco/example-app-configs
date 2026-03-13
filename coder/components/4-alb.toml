@@ -1,9 +1,10 @@
 # helm
 
-name         = "application_load_balancer"
-type         = "helm_chart"
-chart_name   = "application-load-balancer"
-dependencies = ["coder", "certificate"]
+name            = "application_load_balancer"
+type            = "helm_chart"
+chart_name      = "application-load-balancer"
+storage_driver  = "configmap"
+dependencies    = ["coder", "certificate"]
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
