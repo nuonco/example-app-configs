@@ -8,9 +8,9 @@ display_name = "Coder Configurations"
 [[input]]
 name         = "release"
 description  = "The release of Coder to deploy."
-default      = "v2.28.6"
+default      = "v2.31.1"
 display_name = "Release"
-internal     = true 
+internal     = true
 group        = "coder"
 
 [[input]]
@@ -18,7 +18,7 @@ name         = "replicas"
 description  = "The number of replicas of the Coder control plane pods to deploy"
 default      = "1"
 display_name = "Coder Replicas"
-internal     = true 
+internal     = true
 group        = "coder"
 
 [[input]]
@@ -26,7 +26,7 @@ name         = "provisioners"
 description  = "The number of Terraform provisioners to create and destroy workspace resources"
 default      = "3"
 display_name = "Terraform Provisioners"
-internal     = true 
+internal     = true
 group        = "coder"
 
 [[input]]
@@ -35,7 +35,7 @@ description  = "Enable telemetry collection"
 default      = "true"
 display_name = "Telemetry"
 internal     = false
-user_configurable = true 
+user_configurable = true
 group        = "coder"
 
 [[input]]
@@ -44,16 +44,16 @@ description  = "Maximum lifetime of a user token for CLI and API access"
 default      = "8760h0m0s"
 display_name = "Token Lifetime"
 internal     = false
-user_configurable = true 
+user_configurable = true
 group        = "coder"
 
 [[input]]
 name         = "session_duration"
-description  = "Duration of a user session before requireing re-authentication"
+description  = "Duration of a user session before requiring re-authentication"
 default      = "168h0m0s"
 display_name = "Session duration"
 internal     = false
-user_configurable = true 
+user_configurable = true
 group        = "coder"
 
 [[input]]
@@ -62,7 +62,7 @@ description  = "Block peer-to-peer (aka direct) workspace connections. All works
 default      = "false"
 display_name = "Block Direct Connections"
 internal     = false
-user_configurable = true 
+user_configurable = true
 group        = "coder"
 
 [[group]]
