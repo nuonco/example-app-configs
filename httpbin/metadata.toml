@@ -1,5 +1,5 @@
 version = "v1"
 
 display_name = "HTTPBin"
-description  = "Deploy HTTPBin into customer cloud accounts with Nuon BYOC - demonstrates configurable inputs, OPA security policies, and secrets management on AWS EC2."
-readme       = "./README.md"
+description  = "HTTPBin app on AWS EC2 using our minimal AWS Sandbox"
+readme = "./README.md"
