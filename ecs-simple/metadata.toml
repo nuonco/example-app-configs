@@ -1,5 +1,5 @@
 version = "v2"
 
 display_name = "AWS ECS Simple"
-description  = "AWS ECS Application deploying simple Whoami service."
+description  = "AWS ECS Application deploying a simple Whoami HTTPservice."
 readme       = "./README.md"
