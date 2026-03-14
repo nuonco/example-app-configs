@@ -1,5 +1,5 @@
 version = "v2"
 
 display_name = "GKE Simple"
-description  = "Whoami on GCP GKE Autopilot"
+description  = "A simple Whoami HTTP service on Google Cloud (GCP) GKE Autopilot"
 readme       = "./README.md"
