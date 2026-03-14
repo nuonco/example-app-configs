@@ -1,5 +1,5 @@
 version = "v2"
 
 display_name = "EKS Simple"
-description  = "Whoami on AWS EKS"
+description  = "A simple Whoami HTTP service on AWS EKS"
 readme       = "./README.md"

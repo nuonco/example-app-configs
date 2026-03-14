@@ -1,5 +1,5 @@
 version = "v2"
 
 display_name = "Breakglass & Role Delegation"
-description  = "AWS ECS Application deploying simple Whoami service with granular permissions and role delegation."
+description  = "AWS ECS Application deploying simple Whoami HTTPservice with granular permissions and role delegation."
 readme       = "./README.md"

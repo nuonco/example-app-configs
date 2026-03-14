@@ -1,0 +1,40 @@
+type = "custom"
+name = "{{.nuon.install.id}}-certificate-deploy"
+description = "deploy the certificate component."
+display_name = "certificate deploy role"
+permissions_boundary = "./provision_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-certificate-deploy"
+contents = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ACM",
+      "Effect": "Allow",
+      "Action": [
+        "acm:RequestCertificate",
+        "acm:DescribeCertificate",
+        "acm:GetCertificate",
+        "acm:AddTagsToCertificate",
+        "acm:ListCertificates",
+        "acm:ListTagsForCertificate"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "Route53",
+      "Effect": "Allow",
+      "Action": [
+        "route53:GetHostedZone",
+        "route53:ListHostedZones",
+        "route53:ChangeResourceRecordSets",
+        "route53:GetChange",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""

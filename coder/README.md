@@ -14,113 +14,73 @@ Nuon Install Id: {{ .nuon.install.id }}
 
 AWS Region: {{ .nuon.install_stack.outputs.region }}
 
-## Full State
+## Getting Started
 
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
+Coder is a Cloud Development Environment (CDE) platform that lets your team create and manage cloud-hosted development environments from a central dashboard.
 
-## What is Coder?
+Your Coder instance is fully provisioned and ready to use. Navigate to your Coder Access URL above and log in with the admin credentials provided during setup. From there you can create workspace templates, invite users, and launch development environments.
 
-Coder is a Cloud Development Environment (CDE) platform that enables developers to create, manage, and scale development environments in the cloud. This Nuon app config deploys a light-weight Coder instance on AWS using Amazon EKS, meant for demonstration purposes only. Review the Coder docs for how it deploys on [Kubernetes](https://coder.com/docs/install/kubernetes) and visit the [Coder OSS repository](https://github.com/coder/coder) for more information.
+See the [Coder documentation](https://coder.com/docs) to get started.
 
-## Coder architecture
+## Prerequisites
 
-Coder consists of a PostgreSQL database, an API server, a web dashboard, and a Terraform provisioner server that runs `terraform plan`, `terraform apply`, and `terraform destroy` commands to build development development environments on any cloud or on-premises infrastructure. See the [Coder architecture diagram](https://coder.com/docs/admin/infrastructure/architecture) for more details.
+- **AWS account connected to Nuon** — handled during onboarding; Nuon provisions all infrastructure (EKS, VPC, RDS, ALB, DNS, TLS)
+- **Coder CLI** (optional) — install the `coder` binary for CLI-based workspace access: [coder.com/docs/install](https://coder.com/docs/install)
+- **AWS service quotas** — Nuon manages provisioning, but ensure your account has sufficient quota for EKS node groups, RDS instances, and ALBs
 
-### Database Configuration
+## Configuration
 
-This Nuon app config uses **AWS RDS PostgreSQL** for the database backend with the following features:
+The following inputs can be changed at any time from **Manage → Edit Inputs** in the Nuon dashboard.
 
-- **Managed Database**: RDS PostgreSQL 15 instance (configurable via `coder_db_instance_type` input, defaults to `db.t4g.micro`)
-- **Credential Management**: AWS Secrets Manager automatically manages database passwords (no hardcoded credentials)
-- **Security**: VPC-isolated with security groups restricting access to cluster CIDR only
-- **Monitoring**: Performance insights and CloudWatch logs enabled
-- **Backups**: Automated 7-day backup retention with encrypted storage
+| Input | Default | Description |
+|---|---|---|
+| `enable_telemetry` | `true` | Send usage telemetry to Coder |
+| `max_token_lifetime` | `8760h` | Maximum lifetime for CLI and API tokens |
+| `session_duration` | `168h` | Session duration before re-authentication is required |
+| `block_direct` | `false` | Force all workspace connections through the Coder relay (disables direct peer-to-peer) |
 
-Database credentials are automatically synced from AWS Secrets Manager to Kubernetes secrets during deployment.
+Changing inputs triggers a redeploy of the affected components. The workflow shows a diff and pauses for approval before applying.
 
-### Helm Chart Deployment
+## Monitoring
 
-The Coder application is deployed using the official Coder Helm chart from the Helm repository:
+Grafana is available at your Grafana Access URL above, served alongside Coder on the same load balancer.
 
-- **Helm Repository**: [https://helm.coder.com/v2](https://helm.coder.com/v2)
-- **Chart Method**: Uses `[helm_repo]` configuration (standard Helm repository approach)
-- **Version**: Tracks latest stable release from repository
+**To retrieve your Grafana credentials:**
 
-This follows Nuon best practices for deploying public Helm charts.
+1. In the Nuon dashboard, go to your Coder installation
+2. Open the **Actions** tab
+3. Run the `grafana_password` action
+4. The output displays the URL, username (`admin`), and generated password
 
-> This is a development/demo installation of Coder. Do not use in production.
+**Available dashboards:**
 
-> Wildcard DNS for workspace subdomains is automatically configured via external-dns. This enables features like web apps (e.g., Jupyter) and web port forwarding without manual DNS configuration.
+- Coder Status — overall health overview
+- Coder Coderd — control plane metrics
+- Workspaces — utilization and performance
+- Workspace Detail — per-workspace deep-dive
+- Provisioner — Terraform provisioner metrics
+- Postgres Database — RDS performance
+- Infrastructure — node-level metrics
 
-### Shared ALB
+## Upgrading
 
-Coder and Grafana share a single AWS Application Load Balancer using the `alb.ingress.kubernetes.io/group.name: {{.nuon.install.id}}` annotation. Each ingress registers its own rules on the shared ALB:
+1. Check [Coder Releases](https://github.com/coder/coder/releases/) for the target version
+2. In the Nuon dashboard, go to **Manage → Edit Inputs**
+3. Update the `coder_release` input to the desired version (e.g. `v2.31.3`)
+4. Click **Update Inputs**
 
-| Service  | Path       | `group.order` | Health Check Path        |
-|----------|------------|---------------|--------------------------|
-| Grafana  | `/grafana` | 200           | `/grafana/api/health`    |
-| Coder    | `/`        | 1000          | `/livez`                 |
+The deploy workflow shows a Helm diff and pauses for approval before applying.
 
-Lower `group.order` = higher priority. Grafana at 200 matches `/grafana` first; Coder at 1000 is the catch-all for `/`.
+## Resources
 
-Each ingress must independently declare `target-type: ip` and `listen-ports: '[{"HTTPS":443}]'` — these annotations are **not** inherited from the ALB group. Without `listen-ports`, rules only land on HTTP:80 and are never hit on HTTPS:443. Health check paths are set via the `healthcheck-path` annotation with matching readiness probes on each deployment.
-
-### Observability & Monitoring
-
-This app includes comprehensive monitoring and Kubernetes event streaming:
-
-- **Observability Stack**: Prometheus, Grafana, Loki, and Alertmanager deployed in the `coder-observability` namespace for metrics collection, log aggregation, and alerting
-- **Kubelogstream**: Streams Kubernetes pod events directly to Coder workspace startup logs for easier troubleshooting
-
-**Accessing Grafana Dashboards**:
-
-1. In the Nuon dashboard, navigate to your Coder installation
-2. Go to the **Actions** tab
-3. Run the `grafana_password` action (manual trigger)
-4. The action output will display:
-   - Grafana URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana)
-   - Username: `admin`
-   - Password: (randomly generated, stored in AWS Secrets Manager)
-5. Open the Grafana URL in your browser and log in with the credentials
-
-Grafana is served from `/grafana` path on the same ALB as Coder, reducing infrastructure cost and complexity.
-
-**Available Dashboards**:
-- Coder Status - Overview of Coder health
-- Coder Coderd - Control plane metrics
-- Workspaces - Workspace utilization and performance
-- Workspace Detail - Individual workspace deep-dive
-- Provisioner - Terraform provisioner metrics
-- Postgres Database - RDS performance
-- Infrastructure - Node metrics
-
-The `grafana_setup` action runs pre-deploy, generates a random password, and stores it in both AWS Secrets Manager and a Kubernetes secret (`grafana-admin`). The Helm chart injects `GF_SECURITY_ADMIN_PASSWORD` from the K8s secret so the admin user is created with the real password at first boot. Run the `grafana_password` action to retrieve credentials.
-
-## Upgrading Coder
-
-1. Check the [Coder Releases](https://github.com/coder/coder/releases/) page for the target version
-2. In the Nuon dashboard, navigate to your Coder installation
-3. Open the **Manage** dropdown and select **Edit Inputs**
-4. Change the `coder_release` input to the desired version (e.g. `v2.31.3`)
-5. Click **Update Inputs**
-
-This triggers a new deploy workflow that updates the Coder Helm component. The workflow shows a Helm diff of the changes and pauses for approval before applying. Since `coder_release` only affects the Coder Helm component, all downstream dependents (observability, actions, etc.) will no-op and skip after the Coder component redeploys.
-
-## Coder Resources
-
-[Coder Environment Variable docs](https://coder.com/docs/reference/cli/server)
+[Coder Documentation](https://coder.com/docs)
 
 [Coder Releases](https://github.com/coder/coder/releases/)
 
 [Coder Monitoring](https://coder.com/docs/admin/monitoring)
 
-[Coder Kubernetes Logs Integration](https://coder.com/docs/admin/integrations/kubernetes-logs)
+[Coder CLI Reference](https://coder.com/docs/reference/cli/server)
 
-[Coder Logstream Kube GitHub](https://github.com/coder/coder-logstream-kube)
-
-[Coder Observability GitHub](https://github.com/coder/observability)
+[Coder OSS Repository](https://github.com/coder/coder)
 
 [AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)

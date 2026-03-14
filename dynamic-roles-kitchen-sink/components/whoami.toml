@@ -1,0 +1,22 @@
+# helm
+name           = "whoami"
+type           = "helm_chart"
+chart_name     = "whoami"
+namespace      = "whoami"
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/whoami"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/whoami.yaml"
+
+[[operation_roles]]
+operation = "deploy"
+role      = "{{.nuon.install.id}}-whoami-deploy"
+
+[[operation_roles]]
+operation = "teardown"
+role      = "{{.nuon.install.id}}-whoami-teardown"

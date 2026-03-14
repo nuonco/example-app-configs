@@ -2,10 +2,9 @@
 # https://github.com/coder/coder/pkgs/container/coder
 # https://coder.com/docs/admin/setup#wildcard-access-url
 # https://coder.com/docs/reference/cli/server
-# https://github.com/coder/coder/releases/   
+# https://github.com/coder/coder/releases/
 
 coder:
-
   image:
     # coder.image.repo -- The repository of the image.
     repo: "ghcr.io/coder/coder"
@@ -44,15 +43,15 @@ coder:
         port: 80
         protocol: TCP
         targetPort: 8080
-        
+
     sessionAffinity: None # Already default, but good to confirm.
     loadBalancerIP: ""
     loadBalancerClass: ""
     annotations: {} # No annotations needed here for ALB provisioning
     httpNodePort: "" # Irrelevant with ClusterIP
-    httpsNodePort: "" # Irrelevant with ClusterIP    
+    httpsNodePort: "" # Irrelevant with ClusterIP
 
-  externalTrafficPolicy: Local
+  # externalTrafficPolicy: Local
 
   envUseClusterAccessURL: false
 
@@ -94,5 +93,3 @@ coder:
       value: "/dev/stderr"
     - name: CODER_UPDATE_CHECK
       value: "true"
-
-             
