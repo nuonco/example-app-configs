@@ -35,7 +35,7 @@ display_name = "Uptime Monitor"
 
 # Detailed description of your application. This appears in the installer UI
 # to help users understand what your app does.
-description = "A demo uptime monitoring service."
+description = "A demo uptime monitoring service with AWS EKS, RDS, S3, and Headlamp."
 
 
 # README documentation for your app. Can be either:
