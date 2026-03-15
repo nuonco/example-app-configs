@@ -2,4 +2,4 @@ version = "v1"
 
 display_name = "HTTPBin"
 description  = "HTTPBin app on AWS EC2 using our minimal AWS Sandbox"
-readme       = "./README.md"
+readme = "./README.md"

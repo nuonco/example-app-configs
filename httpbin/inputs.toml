@@ -1,0 +1,80 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=inputs
+
+# Compute Configuration
+[[group]]
+name         = "compute"
+description  = "EC2 instance configuration for HTTPBin service"
+display_name = "Compute Resources"
+
+[[input]]
+name         = "instance_type"
+description  = "AWS EC2 instance type (t2.micro, t2.small, t2.medium, t3.micro, t3.small, t3.medium)"
+default      = "t2.micro"
+display_name = "Instance Type"
+group        = "compute"
+
+# Network Configuration
+[[group]]
+name         = "network"
+description  = "Network and connectivity settings"
+display_name = "Network Settings"
+
+[[input]]
+name         = "http_port"
+description  = "HTTP port for the HTTPBin service"
+default      = "80"
+display_name = "HTTP Port"
+group        = "network"
+
+# Application Configuration
+[[group]]
+name         = "application"
+description  = "HTTPBin application settings"
+display_name = "Application Settings"
+
+[[input]]
+name         = "max_response_size"
+description  = "Maximum response size in bytes (default 10MB)"
+default      = "10485760"
+display_name = "Max Response Size (bytes)"
+group        = "application"
+
+[[input]]
+name         = "max_duration"
+description  = "Maximum request duration in seconds"
+default      = "10"
+display_name = "Max Request Duration (seconds)"
+group        = "application"
+
+[[input]]
+name         = "httpbin_version"
+description  = "HTTPBin Docker image version (latest, v2, v1)"
+default      = "latest"
+display_name = "HTTPBin Version"
+group        = "application"
+
+# Security Configuration
+[[group]]
+name         = "security"
+description  = "Security and access control settings"
+display_name = "Security Settings"
+
+[[input]]
+name         = "allowed_ips"
+description  = "Comma-separated list of allowed IP CIDR blocks (e.g., 10.0.0.0/8,172.16.0.0/12) or 0.0.0.0/0 for all"
+default      = "0.0.0.0/0"
+display_name = "Allowed IP Ranges"
+group        = "security"
+
+# Monitoring Configuration
+[[group]]
+name         = "monitoring"
+description  = "Monitoring and logging settings"
+display_name = "Monitoring Settings"
+
+[[input]]
+name         = "log_level"
+description  = "Log level (debug, info, warn, error)"
+default      = "info"
+display_name = "Log Level"
+group        = "monitoring"
