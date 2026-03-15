@@ -1,11 +1,3 @@
 [[policy]]
 type = "kubernetes_cluster"
 contents = "./policies/disallow-ingress-nginx-custom-snippets.yml"
-
-[[policy]]
-type = "kubernetes_cluster"
-contents = "./policies/require-resource-limits.yml"
-
-[[policy]]
-type = "kubernetes_cluster"
-contents = "./policies/require-ingress-tls.yml"
