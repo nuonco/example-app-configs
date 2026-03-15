@@ -1,1 +1,7 @@
+# policies
 
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["whoami"]
+contents   = "./policies/require-ecs-logging.rego"
