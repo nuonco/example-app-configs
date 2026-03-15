@@ -122,6 +122,14 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [aws_security_group.postgres.id]
   publicly_accessible    = false
 
+  # Storage encryption for data at rest
+  storage_encrypted = true
+
+  # Automated backups for disaster recovery
+  backup_retention_period   = 7
+  preferred_backup_window   = "03:00-04:00"
+  preferred_maintenance_window = "sun:04:00-sun:05:00"
+
   deletion_protection = false
   skip_final_snapshot = true
 

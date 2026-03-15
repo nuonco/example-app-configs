@@ -1,0 +1,13 @@
+# policies
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["rds"]
+contents   = "./policies/require-rds-encryption.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["rds"]
+contents   = "./policies/require-rds-backup.rego"

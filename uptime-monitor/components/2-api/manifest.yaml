@@ -88,6 +88,13 @@ spec:
             # S3 bucket name from Terraform component output
             - name: S3_BUCKET_NAME
               value: "{{ .nuon.components.s3.outputs.bucket_name }}"
+            # Nuon secrets from secrets.toml
+            - name: ADMIN_PASSWORD
+              value: "{{ .nuon.install.secrets.admin_password }}"
+            - name: WEBHOOK_SECRET
+              value: "{{ .nuon.install.secrets.webhook_secret }}"
+            - name: API_TOKEN
+              value: "{{ .nuon.install.secrets.api_token }}"
           livenessProbe:
             httpGet:
               path: /livez
