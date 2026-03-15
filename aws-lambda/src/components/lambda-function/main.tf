@@ -8,10 +8,7 @@ module "lambda_function" {
   create_package = false
 
   environment_variables = {
-    TABLE          = "widgets-${var.install_id}"
-    API_KEY        = var.api_key
-    JWT_SECRET     = var.jwt_secret
-    ENCRYPTION_KEY = var.encryption_key
+    TABLE = "widgets-${var.install_id}"
   }
 
   cloudwatch_logs_retention_in_days = 3
