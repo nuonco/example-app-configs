@@ -1,0 +1,17 @@
+name           = "ingress"
+type           = "helm_chart"
+chart_name     = "aks-ingress"
+dependencies   = ["whoami"]
+storage_driver = "configmap"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/ingress"
+branch    = "main"
+
+[values]
+domain       = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
+service_name = "whoami"
+service_port = "80"
+install_name = "{{.nuon.install.id}}"
+namespace    = "whoami"

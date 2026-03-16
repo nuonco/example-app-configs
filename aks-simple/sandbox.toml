@@ -1,0 +1,19 @@
+terraform_version = "1.11.3"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/azure-aks-sandbox"
+branch    = "main"
+
+[vars]
+nuon_id              = "{{.nuon.install.id}}"
+location             = "{{.nuon.install_stack.outputs.resource_group_location}}"
+resource_group_name  = "{{.nuon.install_stack.outputs.resource_group_name}}"
+vnet_name            = "{{.nuon.install_stack.outputs.network_name}}"
+private_subnet_names = "{{.nuon.install_stack.outputs.private_subnet_names}}"
+public_subnet_names  = "{{.nuon.install_stack.outputs.public_subnet_names}}"
+public_root_domain   = "{{.nuon.install.id}}.{{.nuon.inputs.inputs.domain}}"
+internal_root_domain = "internal.{{.nuon.install.id}}.{{.nuon.inputs.inputs.domain}}"
+
+[[var_file]]
+contents = "./sandbox.tfvars"

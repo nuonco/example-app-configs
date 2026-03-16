@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "AKS Simple"
+description  = "Whoami on Azure AKS"
+readme       = "./README.md"
