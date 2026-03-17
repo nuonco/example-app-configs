@@ -22,6 +22,60 @@ Your Coder instance is fully provisioned and ready to use. Navigate to your Code
 
 See the [Coder documentation](https://coder.com/docs) to get started.
 
+## Architecture
+
+```mermaid
+
+  graph TD
+
+      subgraph Nuon["Nuon Control Plane"]
+          NuonAPI["Nuon API"]
+      end
+
+      subgraph Clients["Clients"]
+          IDE["IDE with SSH"]
+          Dashboard["Coder & Grafana Dashboards & Web IDE"]
+          IDE ~~~ Dashboard
+      end
+
+      subgraph VPC["Customer Cloud VPC (AWS)"]
+          Runner["Nuon Runner"]
+          RDS[("PostgreSQL RDS")]
+          ACM["ACM Certificate"]
+          ALB["Application Load Balancer"]
+          Stack["CloudFormation Stack"]
+
+          subgraph EKS["EKS Cluster"]
+              Coder["Coder"]
+              Logstream["Kubelogstream"]
+              Observability["Grafana & Prometheus Observability"]
+              DevEnv["Development Environment"]
+          end
+      end
+
+      NuonAPI -->|generates| Stack
+      Stack["CloudFormation Stack"] -->|provisions| Runner
+      Runner -->|provisions| EKS
+      Runner -->|provisions| RDS
+      Runner -->|provisions| ACM
+      Runner -->|provisions| ALB
+      Runner -->|provisions| Coder
+      Runner -->|provisions| Logstream
+      Runner -->|provisions| Observability
+
+      ACM -->|TLS| ALB
+      ALB --> Coder
+      RDS -->|DB| Coder
+      Coder --> Observability
+      ALB --> Observability
+      Dashboard -->|HTTPS| ALB
+      Coder --> DevEnv
+      IDE -->|HTTPS| DevEnv
+      IDE -->|HTTPS| ALB
+      Logstream --> DevEnv
+
+```
+
 ## Prerequisites
 
 - **AWS account connected to Nuon** — handled during onboarding; Nuon provisions all infrastructure (EKS, VPC, RDS, ALB, DNS, TLS)
