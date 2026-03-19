@@ -13,7 +13,7 @@ vpc_id          = "{{.nuon.install_stack.outputs.vpc_id}}"
 
 enable_ebs_csi  = "false"
 
-enable_irsa = true
+enable_irsa = "true"
 
 enable_nuon_dns      = "true"
 public_root_domain   = "{{.nuon.install.id}}.nuon.run"
