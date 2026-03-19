@@ -1,3 +1,5 @@
+cluster_endpoint_public_access = true
+
 additional_namespaces = ["grafana", "exampledb"]
 
 

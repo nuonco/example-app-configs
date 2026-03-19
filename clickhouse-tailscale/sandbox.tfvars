@@ -1,3 +1,5 @@
+cluster_endpoint_public_access = true
+
 maintenance_role_eks_access_entry_policy_associations = {
   eks_admin = {
     policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
