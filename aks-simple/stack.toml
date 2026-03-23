@@ -1,2 +1,0 @@
-name        = "nuon-aks-simple-{{.nuon.install.id}}"
-description = "Azure AKS Simple install for {{.nuon.install.id}}"

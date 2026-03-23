@@ -45,6 +45,10 @@ when generating terraform lock files, use tfenv to match the terraform_version
 specified in the component's corresponding toml config file. do not use a single
 terraform version for all components.
 
+stack.toml is only valid for aws-cloudformation and gcp-terraform stack types.
+azure/aks apps do not use stack.toml — remove it if present. azure infrastructure
+provisioning does not use the stack config mechanism.
+
 azure app config migration guidance:
 
 for azure app scaffolds, default to azure-first config and do not mix aws + azure
