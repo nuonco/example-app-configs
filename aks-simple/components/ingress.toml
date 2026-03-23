@@ -1,17 +1,18 @@
 name           = "ingress"
 type           = "helm_chart"
 chart_name     = "aks-ingress"
-dependencies   = ["whoami"]
+dependencies   = ["whoami", "certificate"]
 storage_driver = "configmap"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/ingress"
-branch    = "main"
+branch    = "ht/azure"
 
 [values]
-domain       = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
-service_name = "whoami"
-service_port = "80"
-install_name = "{{.nuon.install.id}}"
-namespace    = "whoami"
+domain         = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
+service_name   = "whoami"
+service_port   = "80"
+install_name   = "{{.nuon.install.id}}"
+namespace      = "whoami"
+tls_secret     = "{{.nuon.components.certificate.outputs.tls_secret_name}}"

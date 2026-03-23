@@ -1,0 +1,35 @@
+# action
+name    = "certificate_status"
+timeout = "1m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "cert-manager-status"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "=== Certificates ==="
+kubectl get certificates -n whoami
+
+echo ""
+echo "=== Certificate Requests ==="
+kubectl get certificaterequests -n whoami
+
+echo ""
+echo "=== Orders ==="
+kubectl get orders -n whoami 2>/dev/null || echo "No orders found"
+
+echo ""
+echo "=== Challenges ==="
+kubectl get challenges -n whoami 2>/dev/null || echo "No challenges found"
+
+# json for outputs
+response=`kubectl get certificates -n whoami -o json | jq -c`
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
