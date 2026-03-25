@@ -15,11 +15,13 @@ resource "helm_release" "cert_manager" {
   set {
     name  = "podLabels.azure\\.workload\\.identity/use"
     value = "true"
+    type  = "string"
   }
 
   set {
     name  = "serviceAccount.labels.azure\\.workload\\.identity/use"
     value = "true"
+    type  = "string"
   }
 }
 
@@ -179,6 +181,7 @@ resource "helm_release" "external_dns" {
   set {
     name  = "serviceAccount.labels.azure\\.workload\\.identity/use"
     value = "true"
+    type  = "string"
   }
 
   set {
@@ -189,6 +192,7 @@ resource "helm_release" "external_dns" {
   set {
     name  = "podLabels.azure\\.workload\\.identity/use"
     value = "true"
+    type  = "string"
   }
 
   depends_on = [
