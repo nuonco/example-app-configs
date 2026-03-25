@@ -32,5 +32,5 @@ set -e
 set -o pipefail
 set -u
 
-echo '{"foo": "bar"}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+echo '{"foo": "bar", "date": "'`date`'"}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
 """
