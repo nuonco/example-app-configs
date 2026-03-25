@@ -67,8 +67,8 @@ resource "kubernetes_annotations" "cert_manager_sa" {
 }
 
 # ClusterIssuer for Let's Encrypt using Azure DNS
-resource "kubernetes_manifest" "cluster_issuer" {
-  manifest = {
+resource "kubectl_manifest" "cluster_issuer" {
+  yaml_body = yamlencode({
     apiVersion = "cert-manager.io/v1"
     kind       = "ClusterIssuer"
     metadata = {
@@ -95,7 +95,7 @@ resource "kubernetes_manifest" "cluster_issuer" {
         }]
       }
     }
-  }
+  })
 
   depends_on = [
     helm_release.cert_manager,
@@ -201,8 +201,8 @@ resource "helm_release" "external_dns" {
 # --- certificate ---
 
 # Certificate for the app domain
-resource "kubernetes_manifest" "certificate" {
-  manifest = {
+resource "kubectl_manifest" "certificate" {
+  yaml_body = yamlencode({
     apiVersion = "cert-manager.io/v1"
     kind       = "Certificate"
     metadata = {
@@ -217,7 +217,7 @@ resource "kubernetes_manifest" "certificate" {
       }
       dnsNames = [var.domain_name]
     }
-  }
+  })
 
-  depends_on = [kubernetes_manifest.cluster_issuer]
+  depends_on = [kubectl_manifest.cluster_issuer]
 }
