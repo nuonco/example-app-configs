@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name      = "whoami_kube_system"
+type      = "kubernetes_manifest"
+namespace = "kube-system"
+
+manifest = "./manifests/whoami-kube-system.yaml"

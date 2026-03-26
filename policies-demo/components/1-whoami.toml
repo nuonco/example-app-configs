@@ -1,0 +1,6 @@
+# kubernetes-manifest
+name      = "whoami"
+type      = "kubernetes_manifest"
+namespace = "whoami"
+
+manifest = "./manifests/whoami.yaml"

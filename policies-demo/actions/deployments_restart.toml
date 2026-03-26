@@ -1,0 +1,18 @@
+# action
+name    = "deployments_restart"
+timeout = "0m30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "deployments_restart"
+command = "./deployments-restart"
+
+[steps.public_repo]
+repo      = "nuonco/actions"
+branch    = "main"
+directory = "kube"
+
+[steps.env_vars]
+NAMESPACE = "whoami"

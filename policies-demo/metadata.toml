@@ -1,0 +1,6 @@
+# metadata
+version = "v2"
+
+display_name = "EKS Simple Auto Mode - Policies Demo"
+description  = "Whoami on AWS EKS + Auto Mode with Policy Violation Demos"
+readme       = "./README.md"
