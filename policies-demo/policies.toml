@@ -1,0 +1,35 @@
+# policies
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/warn-public-eks-endpoint.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["s3_bucket"]
+contents   = "./policies/deny-s3-bucket-creation.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["demo_database"]
+contents   = "./policies/deny-database-modification.rego"
+
+[[policy]]
+type       = "helm_chart"
+engine     = "opa"
+components = ["*"]
+contents   = "./policies/deny-restricted-namespaces.rego"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/deny-extra-access-entries.rego"
+
+[[policy]]
+type       = "helm_chart"
+engine     = "opa"
+components = ["*"]
+contents   = "./policies/deny-non-ecr-images.rego"

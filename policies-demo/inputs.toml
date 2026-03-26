@@ -1,0 +1,31 @@
+# inputs
+[[group]]
+name         = "whoami"
+description  = "configuration for whoami service"
+display_name = "Whoami Config"
+
+[[input]]
+name         = "name"
+description  = "--name flag for whoami"
+default      = "whoami"
+display_name = "name"
+group        = "whoami"
+
+[[input]]
+name         = "subdomain"
+description  = "Subdomain where whoami service will be served."
+default      = "whoami"
+display_name = "Subdomain"
+group        = "whoami"
+
+[[group]]
+name         = "database"
+description  = "configuration for demo database"
+display_name = "Database Config"
+
+[[input]]
+name         = "billing_mode"
+description  = "DynamoDB billing mode. Change after first deploy to trigger policy denial."
+default      = "PAY_PER_REQUEST"
+display_name = "Billing Mode"
+group        = "database"

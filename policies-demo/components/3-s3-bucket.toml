@@ -1,0 +1,13 @@
+# terraform
+name              = "s3_bucket"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "matt-zach-s/policies-demo"
+directory = "src/components/s3-bucket"
+branch    = "main"
+
+[vars]
+install_id = "{{.nuon.install.id}}"
+region     = "{{.nuon.install_stack.outputs.region}}"
