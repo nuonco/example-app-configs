@@ -2,9 +2,9 @@
 
 [[policy]]
 type     = "kubernetes_cluster"
-contents = "./policies/disallow-ingress-nginx-custom-snippets.yaml"
+contents = "./disallow-ingress-nginx-custom-snippets.yaml"
 
 [[policy]]
 type     = "sandbox"
 engine   = "opa"
-contents = "./policies/warn-public-eks-endpoint.rego"
+contents = "./warn-public-eks-endpoint.rego"
