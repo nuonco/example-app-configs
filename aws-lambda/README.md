@@ -87,13 +87,6 @@ Go to CloudWatch Logs in the AWS Console and find the log group to see the logs 
 {{.nuon.components.lambda_function.outputs.lambda_function.lambda_cloudwatch_log_group_arn}}
 ```
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## Resources
 
 [What is AWS Lambda?](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)

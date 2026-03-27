@@ -19,13 +19,6 @@ Prometheus is an open-source monitoring and alerting toolkit that collects and s
 
 </center>
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## Grafana Resources
 
 [Grafana docs](https://github.com/grafana/grafana)

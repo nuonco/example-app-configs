@@ -74,9 +74,3 @@ X-Forwarded-Proto: https
 
 ```
 
-### Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
