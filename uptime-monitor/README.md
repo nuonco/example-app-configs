@@ -54,9 +54,3 @@ Modify Helm-managed resources to create drift from the chart values.
 6. In the Nuon dashboard, trigger a drift scan on the `headlamp` component
 7. Nuon will detect the deployed resources differ from the Helm release
 
-## Full State
-
-<details>
-  <summary>Full Install State</summary>
-  <pre>{{ toPrettyJson .nuon }}</pre>
-</details>

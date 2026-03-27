@@ -52,9 +52,3 @@ This is a sample App Config with a single `terraform_module` component that crea
 and starts a basic web server.
 
 
-## Full State
-
-<details>
-  <summary>Full Install State</summary>
-  <pre>{{ toPrettyJson .nuon }}</pre>
-</details>
