@@ -1,0 +1,10 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+name = 'Lenovo'
+
+[aws_account]
+region = 'us-west-2'
+
+# input.group :
+[[inputs]]
+domain = 'nuon.run'
+sub_domain = 'api'
