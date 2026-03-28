@@ -1,0 +1,36 @@
+# action
+name               = "hello"
+timeout            = "10s"
+enable_kube_config = false
+
+# TODO: should be a cron and a post-deploy
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name               = "whoami"
+enable_kube_config = false
+inline_contents    = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+AWS_PAGER=""
+whoami=`aws sts get-caller-identity | jq -c`
+echo $whoami >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name               = "exec"
+enable_kube_config = false
+inline_contents    = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo '{"foo": "bar", "date": "'`date`'"}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

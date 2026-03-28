@@ -30,13 +30,6 @@ Baserow's competitors include: Airtable, Smartsheet, monday.com, ClickUp, NocoDB
 - adjusted aws helm chart to add a websocket ws route to the ALB listener rules for backend websocket support
 - for file uploading, requires an existing s3 bucket and an existing k8s secret with aws credentials
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## Baserow Resources
 
 [image tags](https://hub.docker.com/r/baserow/baserow/tags)

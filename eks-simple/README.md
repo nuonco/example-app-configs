@@ -33,9 +33,44 @@ X-Forwarded-Port: 443
 X-Forwarded-Proto: https
 ```
 
-### Full State
+## Architecture
 
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
+```mermaid
+
+  graph TD
+
+      subgraph Nuon["Nuon Control Plane"]
+          NuonAPI["Nuon API"]
+      end
+
+      subgraph Clients["Clients"]
+          cURL["cURL"]
+          Browser["Web browser"]
+          cURL ~~~ Browser
+      end
+
+      subgraph VPC["Customer Cloud VPC (AWS)"]
+          Runner["Nuon Runner"]
+          ACM["ACM Certificate"]
+          ALB["Application Load Balancer"]
+          Stack["CloudFormation Stack"]
+
+          subgraph EKS["EKS Cluster"]
+              whoami["whoami"]
+          end
+      end
+
+      NuonAPI -->|generates| Stack
+      Stack["CloudFormation Stack"] -->|provisions| Runner
+      Runner -->|provisions| EKS
+      Runner -->|provisions| ACM
+      Runner -->|provisions| ALB
+      Runner -->|provisions| whoami
+
+      ACM -->|TLS| ALB
+      ALB --> whoami
+      Browser -->|HTTPS| ALB
+      cURL -->|HTTPS| ALB
+
+```
+

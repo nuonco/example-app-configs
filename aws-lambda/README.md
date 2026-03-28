@@ -12,6 +12,59 @@ vpc-000000 {{ end }}
 
 </center>
 
+## Architecture
+
+```mermaid
+
+  graph TD
+
+      subgraph Nuon["Nuon Control Plane"]
+          NuonAPI["Nuon API"]
+      end
+
+      subgraph Clients["Clients"]
+          cURL["cURL"]
+          Browser["Web browser"]
+          cURL ~~~ Browser
+      end
+
+      subgraph VPC["Customer Cloud VPC (AWS)"]
+          Runner["Nuon Runner"]
+          Stack["CloudFormation Stack"]
+          ACM["ACM Wildcard Certificate"]
+          R53["Route53 DNS"]
+
+          subgraph Serverless["Serverless"]
+              APIGW["API Gateway (HTTP)"]
+              Lambda["Lambda Function (Go)"]
+          end
+
+          subgraph Storage["Storage"]
+              DynamoDB["DynamoDB Table"]
+          end
+
+          CWLogs["CloudWatch Logs"]
+      end
+
+      NuonAPI -->|generates| Stack
+      Stack -->|provisions| Runner
+      Runner -->|builds & pushes image| Lambda
+      Runner -->|provisions| DynamoDB
+      Runner -->|provisions| APIGW
+      Runner -->|provisions| ACM
+      Runner -->|provisions| R53
+
+      R53 -->|resolves| APIGW
+      ACM -->|TLS| APIGW
+      APIGW -->|invokes| Lambda
+      Lambda -->|reads/writes| DynamoDB
+      Lambda -->|logs| CWLogs
+      APIGW -->|logs| CWLogs
+      Browser -->|HTTPS| APIGW
+      cURL -->|HTTPS| APIGW
+
+```
+
 ### Create a record
 
 ```bash
@@ -33,13 +86,6 @@ Go to CloudWatch Logs in the AWS Console and find the log group to see the logs 
 ```txt
 {{.nuon.components.lambda_function.outputs.lambda_function.lambda_cloudwatch_log_group_arn}}
 ```
-
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
 
 ## Resources
 

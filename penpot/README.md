@@ -16,13 +16,6 @@ Penpot is an open-source design and prototyping platform. It is web-based and wo
 
 </center>
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## Penpot Resources
 
 [Releases](https://github.com/penpot/penpot/releases)

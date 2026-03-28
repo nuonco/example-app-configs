@@ -19,13 +19,6 @@ Twenty's competitors include: Odoo, ERPNext, EspoCRM, SuiteCRM, Vtiger, Dolibarr
 
 </center>
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## API Access
 
 Login to the Twenty instance, go to Settings and APIs & Webhooks to create an API key. Enter the key and press Launch to open an API Playground UI to test the API.

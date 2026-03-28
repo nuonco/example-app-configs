@@ -18,23 +18,45 @@
 ## Components
 
 ```mermaid
-graph TD
-  certificate["certificate<br/>1-tf-certificate.toml"]
-  whoami["whoami<br/>2-tf-service.toml"]
-  cluster["cluster<br/>0-tf-cluster.toml"]
-  alb["alb<br/>3-tf-alb.toml"]
-  img_whoami["img_whoami<br/>0-img-whoami.toml"]
 
-  cluster --> whoami
-  img_whoami --> whoami
-  alb --> whoami
-  certificate --> alb
+  graph TD
 
-  class certificate,whoami,cluster,alb tfClass;
-  class img_whoami imgClass;
+      subgraph Nuon["Nuon Control Plane"]
+          NuonAPI["Nuon API"]
+      end
 
-  classDef tfClass fill:#D6B0FC,stroke:#8040BF,color:#000;
-  classDef imgClass fill:#FCA04A,stroke:#CC803A,color:#000;
+      subgraph Clients["Clients"]
+          cURL["cURL"]
+          Browser["Web browser"]
+          cURL ~~~ Browser
+      end
+
+      subgraph VPC["Customer Cloud VPC (AWS)"]
+          Runner["Nuon Runner"]
+          ACM["ACM Certificate"]
+          ALB["Application Load Balancer"]
+          Stack["CloudFormation Stack"]
+          ECR["ECR Repository"]
+
+          subgraph ECS["ECS Cluster"]
+              Service["ECS Service (whoami)"]
+          end
+      end
+
+      NuonAPI -->|generates| Stack
+      Runner -->|mirrors image to| ECR
+      Stack["CloudFormation Stack"] -->|provisions| Runner
+      Runner -->|provisions| ECS
+      Runner -->|provisions| ACM
+      Runner -->|provisions| ALB
+      Runner -->|provisions| Service
+      ECR -->|pulls image| Service
+
+      ACM -->|TLS| ALB
+      ALB --> Service
+      Browser -->|HTTPS| ALB
+      cURL -->|HTTPS| ALB
+
 ```
 
 ### Cluster

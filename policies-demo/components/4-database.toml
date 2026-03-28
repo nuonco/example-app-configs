@@ -1,0 +1,16 @@
+# terraform
+name              = "demo_database"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "matt-zach-s/policies-demo"
+directory = "src/components/database"
+branch    = "main"
+
+[vars]
+name         = "policies-demo-{{.nuon.install.id}}"
+hash_key     = "ID"
+install_id   = "{{.nuon.install.id}}"
+region       = "{{.nuon.install_stack.outputs.region}}"
+billing_mode = "{{.nuon.inputs.inputs.billing_mode}}"

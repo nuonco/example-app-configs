@@ -21,13 +21,6 @@ The architecture of Mattermost is built with a modular, scalable approach. The c
 
 </center>
 
-## Full State
-
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>
-
 ## Mattermost Resources
 
 [Mattermost Operator Environment Variable docs](https://github.com/mattermost/mattermost-helm/blob/master/charts/mattermost-operator/values.yaml)
