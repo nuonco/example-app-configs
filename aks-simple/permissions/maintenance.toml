@@ -1,14 +1,6 @@
 type = "maintenance"
-name                 = "{{ .nuon.install.id }}-maintenance"
-description          = "operate and remediate the app's components and use actions."
-display_name         = "maintenance role"
+name = "{{ .nuon.install.id }}-maintenance"
+description = "operate and remediate the app's components and use actions."
+display_name = "maintenance role"
 
-# Placeholder policy for Azure (actual permissions via RBAC in sandbox.tfvars)
 [[policies]]
-name = "placeholder"
-contents = """
-{
-    "Version": "2012-10-17",
-    "Statement": []
-}
-"""
