@@ -13,9 +13,11 @@ Access the Kubernetes dashboard to view pods, deployments, and cluster resources
 **Headlamp:** [ {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}/headlamp](http://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/headlamp/)
 
 **Authentication Token:**
-```
-{{ .nuon.actions.workflows.headlamp_token.outputs.steps.create.token }}
-```
+
+<details>
+<summary>Click to reveal token</summary>
+<pre style="white-space: pre-wrap; word-break: break-all; max-width: 65ch; overflow-wrap: break-word; font-family: monospace; background-color: #f5f5f5; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">{{ .nuon.actions.workflows.headlamp_token.outputs.steps.create.token }}</pre>
+</details>
 
 ## Creating Drift
 
