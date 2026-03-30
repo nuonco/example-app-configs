@@ -1,7 +1,7 @@
-# action
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
 
 name    = "simple_demonstration"
-timeout = "1m"
+timeout = "2m"
 
 [[triggers]]
 type = "post-provision"
@@ -20,3 +20,4 @@ kubectl create -n whoami secret generic whoami \
   --from-literal=value="$password" \
   -o yaml | kubectl apply -f -
 """
+

@@ -1,10 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
 name           = "whoami"
 type           = "helm_chart"
 chart_name     = "whoami"
 namespace      = "whoami"
 storage_driver = "configmap"
 
-[public_repo]
-repo      = "nuonco/example-app-configs"
-directory = "aks-simple/src/components/whoami"
-branch    = "ht/azure"
+[connected_repo]
+repo      = "nuonco/aks-simple"
+directory = "src/components/whoami"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/whoami.yaml"

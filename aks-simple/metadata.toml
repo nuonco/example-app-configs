@@ -1,5 +1,5 @@
 version = "v2"
 
-display_name = "AKS Simple"
-description  = "Whoami on Azure AKS"
+description = "Simple AKS app"
+display_name = "Simple AKS app"
 readme       = "./README.md"

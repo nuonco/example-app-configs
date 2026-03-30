@@ -1,3 +1,9 @@
+---
 apiVersion: v2
-name: aks-ingress
-version: 0.1.0
+name: ingress
+description: A helm chart to create an nginx ingress.
+type: application
+version: v0.0.1
+appVersion: "0.0.1"
+
+dependencies: []

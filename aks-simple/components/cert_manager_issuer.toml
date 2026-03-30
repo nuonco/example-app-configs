@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+
+name         = "cert_manager_issuer"
+type         = "helm_chart"
+chart_name   = "cert-manager-issuer"
+namespace    = "cert-manager"
+dependencies = ["cert_manager"]
+
+[connected_repo]
+repo      = "nuonco/aks-simple"
+directory = "src/components/cert_manager_issuer"
+branch    = "main"
+
+[values]
+email = "noreply@nuon.co"

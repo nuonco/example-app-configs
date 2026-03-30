@@ -1,0 +1,14 @@
+type = "deprovision"
+name = "{{.nuon.install.id}}-deprovision"
+description = "deprovision sandbox and components."
+display_name = "deprovision role"
+
+# Placeholder policy for Azure (actual permissions via RBAC in sandbox.tfvars)
+[[policies]]
+name = "placeholder"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": []
+}
+"""

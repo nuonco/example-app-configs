@@ -1,18 +1,20 @@
-name           = "ingress"
-type           = "helm_chart"
-chart_name     = "aks-ingress"
-dependencies   = ["whoami", "certificate"]
-storage_driver = "configmap"
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
 
-[public_repo]
-repo      = "nuonco/example-app-configs"
-directory = "aks-simple/src/components/ingress"
-branch    = "ht/azure"
+name         = "ingress"
+type         = "helm_chart"
+chart_name   = "ingress"
+dependencies = ["whoami"]
+
+[connected_repo]
+repo      = "nuonco/aks-simple"
+directory = "src/components/ingress"
+branch    = "main"
 
 [values]
-domain         = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
-service_name   = "whoami"
-service_port   = "80"
-install_name   = "{{.nuon.install.id}}"
-namespace      = "whoami"
-tls_secret     = "{{.nuon.components.certificate.outputs.tls_secret_name}}"
+domain           = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
+https_port       = "443"
+service_name     = "whoami"
+service_port     = "80"
+install_name     = "{{.nuon.install.id}}"
+namespace        = "whoami"
+healthcheck_path = "/health"
