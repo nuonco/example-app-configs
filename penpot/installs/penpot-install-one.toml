@@ -1,5 +1,0 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=install
-name = 'Penpot-Test-Install'
-
-[aws_account]
-region = 'us-east-1'
