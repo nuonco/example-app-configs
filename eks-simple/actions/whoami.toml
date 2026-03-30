@@ -1,0 +1,20 @@
+# action
+name    = "whoami"
+timeout = "5s"
+
+# TODO: should be a cron and a post-deploy
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "exec"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+whoami=`curl -s https://whoami.{{.nuon.sandbox.outputs.nuon_dns.public_domain.name}}/api | jq -c`
+echo $whoami >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
