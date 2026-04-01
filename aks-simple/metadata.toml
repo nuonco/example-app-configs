@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=metadata
+
+version = "v2"
+
+description = "An Azure EKS app that runs a single container."
+display_name = "Azure AKS Simple"
+readme       = "./README.md"
