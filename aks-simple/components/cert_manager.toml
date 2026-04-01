@@ -6,7 +6,7 @@ chart_name   = "cert-manager"
 namespace    = "cert-manager"
 dependencies = ["external_dns"]
 
-[connected_repo]
-repo      = "nuonco/aks-simple"
-directory = "src/components/cert_manager"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/cert_manager"
 branch    = "main"

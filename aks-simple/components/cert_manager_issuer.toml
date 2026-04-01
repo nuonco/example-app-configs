@@ -6,9 +6,9 @@ chart_name   = "cert-manager-issuer"
 namespace    = "cert-manager"
 dependencies = ["cert_manager"]
 
-[connected_repo]
-repo      = "nuonco/aks-simple"
-directory = "src/components/cert_manager_issuer"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/cert_manager_issuer"
 branch    = "main"
 
 [values]

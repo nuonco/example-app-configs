@@ -6,9 +6,9 @@ chart_name   = "external-dns"
 namespace    = "external-dns"
 dependencies = ["nginx_ingress_controller"]
 
-[connected_repo]
-repo      = "nuonco/aks-simple"
-directory = "src/components/external_dns"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/external_dns"
 branch    = "main"
 
 [values]

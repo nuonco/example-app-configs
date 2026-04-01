@@ -5,7 +5,7 @@ type       = "helm_chart"
 chart_name = "nginx-ingress-controller"
 namespace  = "ingress-nginx"
 
-[connected_repo]
-repo      = "nuonco/aks-simple"
-directory = "src/components/nginx_ingress_controller"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/nginx_ingress_controller"
 branch    = "main"
