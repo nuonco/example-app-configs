@@ -4,9 +4,9 @@ name         = "cert_manager"
 type         = "helm_chart"
 chart_name   = "cert-manager"
 namespace    = "cert-manager"
-dependencies = ["external_dns"]
+dependencies = ["dns_records"]
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/cert_manager"
-branch    = "main"
+branch    = "ht/azure"

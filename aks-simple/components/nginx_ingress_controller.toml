@@ -8,4 +8,4 @@ namespace  = "ingress-nginx"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/nginx_ingress_controller"
-branch    = "main"
+branch    = "ht/azure"

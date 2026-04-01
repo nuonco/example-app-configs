@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=terraform_module
+
+name              = "dns_records"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["nginx_ingress_controller"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/dns_records"
+branch    = "ht/azure"
+
+[vars]
+resource_group_name = "{{.nuon.install_stack.outputs.resource_group_name}}"
+dns_zone_name       = "{{.nuon.install.sandbox.outputs.public_domain.name}}"
+subscription_id     = "{{.nuon.install_stack.outputs.subscription_id}}"
+install_id          = "{{.nuon.install.id}}"

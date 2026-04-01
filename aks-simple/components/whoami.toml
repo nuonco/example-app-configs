@@ -8,7 +8,7 @@ storage_driver = "configmap"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/whoami"
-branch    = "main"
+branch    = "ht/azure"
 
 [[values_file]]
 contents = "./values/whoami.yaml"
