@@ -2,7 +2,7 @@ terraform_version = "1.11.3"
 
 [public_repo]
 directory = "."
-repo      = "nuonco/terraform-azure-aks-sandbox"
+repo      = "nuonco/azure-aks-sandbox"
 branch    = "ht/azure-dns"
 
 [vars]
