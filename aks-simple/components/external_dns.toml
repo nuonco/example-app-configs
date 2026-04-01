@@ -10,3 +10,10 @@ dependencies = ["nginx_ingress_controller"]
 repo      = "nuonco/aks-simple"
 directory = "src/components/external_dns"
 branch    = "main"
+
+[values]
+"external-dns.azure.resourceGroup"  = "{{.nuon.install_stack.outputs.resource_group_name}}"
+"external-dns.azure.tenantId"       = "{{.nuon.install_stack.outputs.subscription_tenant_id}}"
+"external-dns.azure.subscriptionId" = "{{.nuon.install_stack.outputs.subscription_id}}"
+"external-dns.domainFilters[0]"     = "{{.nuon.install.sandbox.outputs.public_domain.name}}"
+"external-dns.txtOwnerId"           = "{{.nuon.install.id}}"

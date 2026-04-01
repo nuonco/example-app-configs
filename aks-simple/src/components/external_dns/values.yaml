@@ -1,13 +1,18 @@
 external-dns:
   provider: azure
-  azure:
-    resourceGroup: "{{.nuon.install_stack.outputs.resource_group_name}}"
-    tenantId: "{{.nuon.cloud_account.azure.tenant_id}}"
-    subscriptionId: "{{.nuon.cloud_account.azure.subscription_id}}"
-    useManagedIdentityExtension: true
-  domainFilters:
-    - "{{.nuon.install.sandbox.outputs.public_domain.name}}"
   policy: sync
   sources:
     - ingress
-  txtOwnerId: "{{.nuon.install.id}}"
+
+  secretConfiguration:
+    enabled: true
+    mountPath: /etc/kubernetes/azure.json
+    subPath: azure.json
+    data:
+      azure.json: |
+        {
+          "useManagedIdentityExtension": true,
+          "resourceGroup": "{{ .Values.azure.resourceGroup }}",
+          "tenantId": "{{ .Values.azure.tenantId }}",
+          "subscriptionId": "{{ .Values.azure.subscriptionId }}"
+        }
