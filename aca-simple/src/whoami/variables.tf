@@ -28,22 +28,6 @@ variable "acr_id" {
   type        = string
 }
 
-variable "dns_zone_name" {
-  description = "Public DNS zone name"
-  type        = string
-}
-
-variable "dns_zone_id" {
-  description = "Public DNS zone ID"
-  type        = string
-}
-
-variable "sub_domain" {
-  description = "Subdomain for the whoami service"
-  type        = string
-  default     = "whoami"
-}
-
 variable "image_repository" {
   description = "Whoami container image repository"
   type        = string

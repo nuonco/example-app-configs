@@ -12,9 +12,7 @@ resource_group_name  = "{{.nuon.install_stack.outputs.resource_group_name}}"
 vnet_name            = "{{.nuon.install_stack.outputs.network_name}}"
 private_subnet_names = "{{.nuon.install_stack.outputs.private_subnet_names}}"
 public_subnet_names  = "{{.nuon.install_stack.outputs.public_subnet_names}}"
-enable_nuon_dns      = "true"
-public_root_domain   = "{{.nuon.install.id}}.{{.nuon.inputs.inputs.domain}}"
-internal_root_domain = "internal.{{.nuon.install.id}}.{{.nuon.inputs.inputs.domain}}"
+enable_nuon_dns      = "false"
 
 [[var_file]]
 contents = "./sandbox.tfvars"

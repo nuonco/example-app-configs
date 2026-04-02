@@ -8,7 +8,7 @@
 {{ end }}
 </small>
 
-[https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}](https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}})
+[https://{{.nuon.components.whoami.outputs.fqdn}}](https://{{.nuon.components.whoami.outputs.fqdn}})
 
 </center>
 

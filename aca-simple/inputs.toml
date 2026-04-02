@@ -1,18 +1,1 @@
-[[group]]
-name         = "dns"
-description  = "DNS Configurations"
-display_name = "Configurations for the root domain"
-
-[[input]]
-name         = "domain"
-description  = "Root domain for the application e.g., nuon.run"
-default      = "nuon.run"
-display_name = "Domain"
-group        = "dns"
-
-[[input]]
-name         = "sub_domain"
-description  = "The sub domain for the Whoami service"
-default      = "whoami"
-display_name = "Sub Domain"
-group        = "dns"
+# No inputs required — DNS is disabled, app uses ACA built-in FQDN.

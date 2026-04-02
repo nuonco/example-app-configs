@@ -1,7 +1,6 @@
 locals {
   prefix   = var.nuon_id
   app_name = substr("whoami-${local.prefix}", 0, 32)
-  fqdn     = "${var.sub_domain}.${var.dns_zone_name}"
 
   tags = {
     "install.nuon.co-id"     = var.nuon_id
@@ -71,10 +70,3 @@ resource "azurerm_container_app" "whoami" {
   tags = local.tags
 }
 
-resource "azurerm_dns_cname_record" "whoami" {
-  name                = var.sub_domain
-  zone_name           = var.dns_zone_name
-  resource_group_name = data.azurerm_resource_group.rg.name
-  ttl                 = 300
-  record              = azurerm_container_app.whoami.ingress[0].fqdn
-}
