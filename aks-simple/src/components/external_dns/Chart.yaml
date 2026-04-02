@@ -1,0 +1,8 @@
+apiVersion: v2
+name: external-dns
+description: External DNS for Azure AKS
+version: 0.1.0
+dependencies:
+  - name: external-dns
+    version: "1.15.0"
+    repository: https://kubernetes-sigs.github.io/external-dns

@@ -1,0 +1,6 @@
+type = "deprovision"
+name = "{{.nuon.install.id}}-deprovision"
+description = "deprovision sandbox and components."
+display_name = "deprovision role"
+
+[[policies]]

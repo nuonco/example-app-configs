@@ -44,3 +44,43 @@ none at all.
 when generating terraform lock files, use tfenv to match the terraform_version
 specified in the component's corresponding toml config file. do not use a single
 terraform version for all components.
+
+stack.toml is only valid for aws-cloudformation and gcp-terraform stack types.
+azure/aks apps do not use stack.toml — remove it if present. azure infrastructure
+provisioning does not use the stack config mechanism.
+
+azure app config migration guidance:
+
+for azure app scaffolds, default to azure-first config and do not mix aws + azure
+runtime access patterns in one app config unless explicitly required.
+
+use managed-identity-oriented defaults. do not add service-account workload
+identity rewiring as a default; only add it when there is an explicit
+requirement.
+
+use azure sandbox and install stack outputs as the source of truth for cluster,
+network, dns, and registry settings.
+
+for images, source can be ecr, but runtime refs in manifests/values should be
+acr-prefixed.
+
+prefer azure-native ingress/storage patterns:
+- ingressClassName azure-application-gateway with appgw annotations
+- disk.csi.azure.com storage classes
+
+if legacy compatibility shims are required, keep them explicit and documented:
+- aws-shaped env var names used by existing services
+- compatibility output keys with empty arn/iam_role_arn style fields
+- legacy naming such as s3/alb labels that are retained only for compatibility
+
+before merging azure scaffold changes, run a residue scan for aws drift:
+
+grep -Rni --exclude-dir=.git --exclude-dir=.terraform \
+  -E 'arn:aws|AWS_|EKS|route53|cloudformation|secrets manager|rds_iam|alb\.ingress\.kubernetes\.io' \
+  <app-config-dir>
+
+open decisions to call out when relevant:
+- final least-privilege break-glass and maintenance rbac model in azure
+- final certificate lifecycle ownership for application gateway tls
+- timeline for removing stale iam/rds assumptions from db init paths
+- whether legacy compatibility names can be removed or must remain

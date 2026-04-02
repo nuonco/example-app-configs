@@ -1,0 +1,18 @@
+external-dns:
+  provider: azure
+  policy: sync
+  sources:
+    - ingress
+
+  secretConfiguration:
+    enabled: true
+    mountPath: /etc/kubernetes/azure.json
+    subPath: azure.json
+    data:
+      azure.json: |
+        {
+          "useManagedIdentityExtension": true,
+          "resourceGroup": "{{ .Values.azure.resourceGroup }}",
+          "tenantId": "{{ .Values.azure.tenantId }}",
+          "subscriptionId": "{{ .Values.azure.subscriptionId }}"
+        }

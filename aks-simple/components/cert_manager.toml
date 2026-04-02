@@ -1,0 +1,12 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+
+name         = "cert_manager"
+type         = "helm_chart"
+chart_name   = "cert-manager"
+namespace    = "cert-manager"
+dependencies = ["dns_records"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/cert_manager"
+branch    = "main"

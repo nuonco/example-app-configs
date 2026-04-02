@@ -1,0 +1,11 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+
+name       = "nginx_ingress_controller"
+type       = "helm_chart"
+chart_name = "nginx-ingress-controller"
+namespace  = "ingress-nginx"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/components/nginx_ingress_controller"
+branch    = "main"
