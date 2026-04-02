@@ -1,0 +1,13 @@
+# terraform
+
+name              = "healthcheck_test"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/healthcheck-test"
+branch    = "main"
+
+[vars]
+namespace = "healthcheck-test"
