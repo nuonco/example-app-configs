@@ -19,13 +19,22 @@ resource "azurerm_container_app" "whoami" {
   container_app_environment_id = var.container_app_environment_id
   revision_mode                = "Single"
 
+  identity {
+    type = "SystemAssigned"
+  }
+
+  registry {
+    server   = var.acr_login_server
+    identity = "System"
+  }
+
   template {
     min_replicas = var.min_replicas
     max_replicas = var.max_replicas
 
     container {
       name   = "whoami"
-      image  = "${var.image_repository}:${var.image_tag}"
+      image  = "${var.acr_login_server}/${var.image_repository}:${var.image_tag}"
       cpu    = var.cpu
       memory = var.memory
     }
@@ -43,6 +52,12 @@ resource "azurerm_container_app" "whoami" {
   }
 
   tags = local.tags
+}
+
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = var.acr_id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_container_app.whoami.identity[0].principal_id
 }
 
 resource "azurerm_dns_cname_record" "whoami" {

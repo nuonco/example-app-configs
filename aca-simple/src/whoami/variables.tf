@@ -23,6 +23,11 @@ variable "acr_login_server" {
   type        = string
 }
 
+variable "acr_id" {
+  description = "ACR resource ID for role assignment"
+  type        = string
+}
+
 variable "dns_zone_name" {
   description = "Public DNS zone name"
   type        = string
