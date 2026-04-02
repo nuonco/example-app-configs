@@ -7,7 +7,7 @@ dependencies      = ["aca_environment"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aca-simple/src/whoami"
-branch    = "main"
+branch    = "ht/azure"
 
 [vars]
 nuon_id                      = "{{.nuon.install.id}}"
