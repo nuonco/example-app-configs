@@ -10,8 +10,8 @@ name    = "ingress-healthcheck"
 command = "./healthcheck.sh"
 
 [steps.public_repo]
-repo      = "nuonco/aks-simple"
-directory = "src/actions/ingress"
+repo      = "nuonco/example-app-configs"
+directory = "aks-simple/src/actions/ingress"
 branch    = "main"
 
 [steps.env_vars]

@@ -61,8 +61,8 @@ requirement.
 use azure sandbox and install stack outputs as the source of truth for cluster,
 network, dns, and registry settings.
 
-for images, keep the restate pattern where intentional: source can be ecr, but
-runtime refs in manifests/values should be acr-prefixed.
+for images, source can be ecr, but runtime refs in manifests/values should be
+acr-prefixed.
 
 prefer azure-native ingress/storage patterns:
 - ingressClassName azure-application-gateway with appgw annotations
@@ -84,4 +84,3 @@ open decisions to call out when relevant:
 - final certificate lifecycle ownership for application gateway tls
 - timeline for removing stale iam/rds assumptions from db init paths
 - whether legacy compatibility names can be removed or must remain
->>>>>>> conflict 1 of 1 ends
