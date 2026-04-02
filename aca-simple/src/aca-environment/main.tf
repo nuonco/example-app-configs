@@ -27,12 +27,5 @@ resource "azurerm_container_app_environment" "aca" {
   location                   = var.location
   log_analytics_workspace_id = azurerm_log_analytics_workspace.aca.id
 
-  workload_profile {
-    name                  = "app"
-    workload_profile_type = var.workload_profile_type
-    minimum_count         = var.workload_profile_min
-    maximum_count         = var.workload_profile_max
-  }
-
   tags = local.tags
 }
