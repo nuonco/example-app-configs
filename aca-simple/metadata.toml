@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "Azure ACA Simple"
+description  = "Azure Container Apps application deploying a simple Whoami HTTP service."
+readme       = "./README.md"
