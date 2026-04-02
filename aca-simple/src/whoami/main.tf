@@ -13,19 +13,36 @@ data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }
 
+resource "azurerm_user_assigned_identity" "whoami" {
+  name                = "${local.prefix}-whoami-id"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = var.location
+
+  tags = local.tags
+}
+
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = var.acr_id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.whoami.principal_id
+}
+
 resource "azurerm_container_app" "whoami" {
   name                         = local.app_name
   resource_group_name          = data.azurerm_resource_group.rg.name
   container_app_environment_id = var.container_app_environment_id
   revision_mode                = "Single"
 
+  depends_on = [azurerm_role_assignment.acr_pull]
+
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.whoami.id]
   }
 
   registry {
     server   = var.acr_login_server
-    identity = "System"
+    identity = azurerm_user_assigned_identity.whoami.id
   }
 
   template {
@@ -52,12 +69,6 @@ resource "azurerm_container_app" "whoami" {
   }
 
   tags = local.tags
-}
-
-resource "azurerm_role_assignment" "acr_pull" {
-  scope                = var.acr_id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_container_app.whoami.identity[0].principal_id
 }
 
 resource "azurerm_dns_cname_record" "whoami" {
