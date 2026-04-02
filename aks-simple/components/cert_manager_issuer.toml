@@ -9,7 +9,7 @@ dependencies = ["cert_manager"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/cert_manager_issuer"
-branch    = "ht/azure"
+branch    = "main"
 
 [values]
 email = "noreply@nuon.co"

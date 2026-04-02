@@ -9,4 +9,4 @@ dependencies = ["dns_records"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/cert_manager"
-branch    = "ht/azure"
+branch    = "main"

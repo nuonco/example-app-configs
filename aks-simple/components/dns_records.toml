@@ -8,7 +8,7 @@ dependencies      = ["nginx_ingress_controller"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/dns_records"
-branch    = "ht/azure"
+branch    = "main"
 
 [vars]
 resource_group_name = "{{.nuon.install_stack.outputs.resource_group_name}}"

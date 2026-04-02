@@ -8,7 +8,7 @@ dependencies = ["whoami"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "aks-simple/src/components/ingress"
-branch    = "ht/azure"
+branch    = "main"
 
 [values]
 domain           = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.public_domain.name}}"
