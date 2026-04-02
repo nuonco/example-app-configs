@@ -4,8 +4,8 @@ locals {
   fqdn     = "${var.sub_domain}.${var.dns_zone_name}"
 
   tags = {
-    "install.nuon.co/id"     = var.nuon_id
-    "component.nuon.co/name" = "whoami"
+    "install.nuon.co-id"     = var.nuon_id
+    "component.nuon.co-name" = "whoami"
   }
 }
 
