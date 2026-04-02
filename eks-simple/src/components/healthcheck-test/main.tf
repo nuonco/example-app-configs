@@ -40,7 +40,7 @@ resource "kubectl_manifest" "deployment" {
         spec:
           containers:
             - name: nginx
-              image: nginx:1.27
+              image: nginx:this-tag-does-not-exist
               ports:
                 - containerPort: 80
   YAML
