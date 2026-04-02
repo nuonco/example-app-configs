@@ -1,0 +1,14 @@
+[[role]]
+name         = "{{.nuon.install.id}}-aca-simple-break-glass"
+description  = "grants access to the sandbox for install {{.nuon.install.id}}."
+display_name = "break glass role"
+
+# Placeholder policy for Azure (actual permissions via RBAC)
+[[role.policies]]
+name = "placeholder"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": []
+}
+"""

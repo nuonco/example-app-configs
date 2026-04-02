@@ -1,0 +1,20 @@
+# terraform
+name              = "whoami"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["aca_environment"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aca-simple/src/whoami"
+branch    = "main"
+
+[vars]
+nuon_id                      = "{{.nuon.install.id}}"
+location                     = "{{.nuon.cloud_account.azure.location}}"
+resource_group_name          = "{{.nuon.install_stack.outputs.resource_group_name}}"
+container_app_environment_id = "{{.nuon.components.aca_environment.outputs.id}}"
+acr_login_server             = "{{.nuon.install.sandbox.outputs.acr.login_server}}"
+acr_id                       = "{{.nuon.install.sandbox.outputs.acr.id}}"
+image_repository             = "{{.nuon.components.img_whoami.outputs.image.repository}}"
+image_tag                    = "{{.nuon.components.img_whoami.outputs.image.tag}}"

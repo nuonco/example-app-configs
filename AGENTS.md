@@ -79,6 +79,18 @@ grep -Rni --exclude-dir=.git --exclude-dir=.terraform \
   -E 'arn:aws|AWS_|EKS|route53|cloudformation|secrets manager|rds_iam|alb\.ingress\.kubernetes\.io' \
   <app-config-dir>
 
+azure gotchas:
+
+- azure does NOT allow `/` in resource tag names (unlike aws). tag names like
+  `install.nuon.co/id` or `component.nuon.co/name` will fail with
+  `InvalidTagNameCharacters`. use `-` instead of `/` (e.g. `install.nuon.co-id`,
+  `component.nuon.co-name`). this applies to all azure resources: ACR, DNS zones,
+  container apps, log analytics, etc. also sanitize any tags passed in via
+  variables from the nuon platform (which uses aws-style `/` tag names) using:
+  ```hcl
+  sanitized_tags = { for k, v in var.tags : replace(k, "/", "-") => v }
+  ```
+
 open decisions to call out when relevant:
 - final least-privilege break-glass and maintenance rbac model in azure
 - final certificate lifecycle ownership for application gateway tls
