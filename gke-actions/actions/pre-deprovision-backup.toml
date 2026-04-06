@@ -1,0 +1,30 @@
+name               = "pre_deprovision_backup"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "pre-deprovision"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "export_state"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+
+echo "=== pre-deprovision: exporting state before destroy ==="
+
+echo "--- deployment spec ---"
+kubectl get deployment -n nginx-demo -o yaml 2>/dev/null || echo "no deployments found"
+
+echo "--- configmaps ---"
+kubectl get configmaps -n nginx-demo 2>/dev/null || echo "no configmaps"
+
+echo "--- events ---"
+kubectl get events -n nginx-demo --sort-by=.lastTimestamp 2>/dev/null | tail -20
+
+echo "state exported, safe to deprovision"
+"""
