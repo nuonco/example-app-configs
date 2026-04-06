@@ -1,0 +1,28 @@
+# action
+name    = "lambda_status"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_lambda"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking Lambda function status..."
+
+# Get Lambda function configuration
+aws lambda get-function-configuration \
+  --function-name ${FUNCTION_NAME} \
+  --region ${REGION} \
+  --output table
+
+echo ""
+echo "✓ Lambda status check complete"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "widgets-{{.nuon.install.id}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"

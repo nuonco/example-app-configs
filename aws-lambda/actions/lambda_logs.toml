@@ -1,0 +1,51 @@
+# action
+name    = "lambda_logs"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "get_logs"
+inline_contents = """
+#!/usr/bin/env sh
+
+echo "Fetching recent Lambda logs from CloudWatch..."
+
+# Get the log group name
+LOG_GROUP="/aws/lambda/${INSTALL_ID}/${FUNCTION_NAME}"
+
+# Get recent log streams
+STREAM=$(aws logs describe-log-streams \
+  --log-group-name ${LOG_GROUP} \
+  --region ${REGION} \
+  --order-by LastEventTime \
+  --descending \
+  --max-items 1 \
+  --query 'logStreams[0].logStreamName' \
+  --output text 2>/dev/null || echo "")
+
+if [ -z "$STREAM" ] || [ "$STREAM" = "None" ]; then
+  echo "No log streams found yet. The function may not have been invoked."
+else
+  echo "Most recent log stream: ${STREAM}"
+  echo ""
+
+  # Get log events from the most recent stream
+  aws logs get-log-events \
+    --log-group-name ${LOG_GROUP} \
+    --log-stream-name ${STREAM} \
+    --region ${REGION} \
+    --limit 50 \
+    --query 'events[*].[timestamp,message]' \
+    --output text
+fi
+
+echo ""
+echo "✓ Logs retrieved successfully"
+"""
+
+[steps.env_vars]
+INSTALL_ID = "{{.nuon.install.id}}"
+FUNCTION_NAME = "widgets-{{.nuon.install.id}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"

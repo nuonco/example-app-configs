@@ -1,0 +1,35 @@
+# action
+name    = "invoke_lambda"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "invoke"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Invoking Lambda function..."
+
+# Invoke the Lambda function
+aws lambda invoke \
+  --function-name ${FUNCTION_NAME} \
+  --region ${REGION} \
+  --log-type Tail \
+  --query 'LogResult' \
+  --output text \
+  /tmp/response.json | base64 -d
+
+echo ""
+echo "Function response:"
+cat /tmp/response.json
+
+echo ""
+echo "✓ Lambda invoked successfully"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "widgets-{{.nuon.install.id}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"
