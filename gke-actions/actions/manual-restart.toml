@@ -1,0 +1,38 @@
+name               = "manual_restart"
+timeout            = "60s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "restart"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "restarting nginx deployment..."
+kubectl rollout restart deployment/nginx -n nginx-demo
+"""
+
+[[steps]]
+name = "status"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "waiting for rollout to complete..."
+kubectl rollout status deployment/nginx -n nginx-demo --timeout=45s
+
+echo "=== pods ==="
+kubectl get pods -n nginx-demo
+
+response=$(kubectl get pods -n nginx-demo -o json | jq -c)
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

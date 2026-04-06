@@ -1,0 +1,15 @@
+name              = "cloud_run"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["container_image"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-cloud-run/src/components/cloud-run"
+branch    = "main"
+
+[vars]
+project_id = "{{.nuon.install_stack.outputs.project_id}}"
+region     = "{{.nuon.inputs.inputs.region}}"
+image      = "{{.nuon.components.container_image.outputs.image.repository}}:{{.nuon.components.container_image.outputs.image.tag}}"
+install_id = "{{.nuon.install.id}}"

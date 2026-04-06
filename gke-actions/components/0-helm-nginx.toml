@@ -1,0 +1,11 @@
+name           = "nginx"
+type           = "helm_chart"
+chart_name     = "nginx"
+namespace      = "nginx-demo"
+storage_driver = "configmap"
+drift_schedule = "0 */6 * * *"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-actions/src/components/nginx"
+branch    = "main"

@@ -1,0 +1,4 @@
+version = "v2"
+
+display_name = "GCP Cloud Run"
+description  = "A managed container deployment on Google Cloud Run without Kubernetes overhead"

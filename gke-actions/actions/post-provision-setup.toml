@@ -1,0 +1,29 @@
+name               = "post_provision_setup"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "post-provision"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "one_time_setup"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+
+echo "=== post-provision one-time setup ==="
+echo "install: $NUON_INSTALL_ID"
+
+kubectl get nodes
+echo ""
+kubectl get namespaces
+
+echo "=== setting namespace labels ==="
+kubectl label namespace nginx-demo env=demo --overwrite 2>/dev/null || true
+
+echo "post-provision setup complete"
+"""

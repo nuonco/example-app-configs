@@ -1,0 +1,28 @@
+name               = "pre_teardown_iam"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type           = "pre-teardown-component"
+component_name = "service_account"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "cleanup_iam_bindings"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+
+echo "=== pre-teardown: cleaning up before service account removal ==="
+
+echo "--- scaling down workloads using this identity ---"
+kubectl scale deployment/wi-demo -n wi-demo --replicas=0 --timeout=15s 2>/dev/null || true
+
+echo "--- removing k8s service account annotation ---"
+kubectl annotate serviceaccount wi-demo -n wi-demo iam.gke.io/gcp-service-account- 2>/dev/null || true
+
+echo "iam cleanup complete, safe to teardown"
+"""

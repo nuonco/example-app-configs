@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secrets-demo
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secrets-demo
+  template:
+    metadata:
+      labels:
+        app: secrets-demo
+    spec:
+      containers:
+        - name: secrets-demo
+          image: busybox:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                echo "GREETING=$GREETING"
+                echo "API_KEY present: $(test -n "$API_KEY" && echo yes || echo no)"
+                echo "AUTO_TOKEN present: $(test -n "$AUTO_TOKEN" && echo yes || echo no)"
+                sleep 60
+              done
+          env:
+            - name: GREETING
+              value: {{ .Values.greeting | quote }}
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-key-secret
+                  key: value
+                  optional: true
+            - name: AUTO_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: auto-generated-token
+                  key: value
+                  optional: true

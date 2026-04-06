@@ -1,0 +1,2 @@
+namespace: nginx-demo
+replicas: 1

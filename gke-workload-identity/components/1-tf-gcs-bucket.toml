@@ -1,0 +1,14 @@
+name              = "gcs_bucket"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["service_account"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-workload-identity/src/components/gcs-bucket"
+branch    = "main"
+
+[vars]
+project_id             = "{{ .nuon.install_stack.outputs.project_id }}"
+install_id             = "{{ .nuon.install.id }}"
+service_account_email  = "{{ .nuon.components.service_account.outputs.service_account_email }}"

@@ -1,0 +1,7 @@
+name              = "greeting"
+description       = "Greeting message displayed by the demo pod"
+display_name      = "Greeting"
+default           = "Hello from Nuon"
+group             = "app"
+sensitive         = false
+user_configurable = true

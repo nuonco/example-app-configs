@@ -1,0 +1,11 @@
+[[group]]
+name         = "region"
+description  = "Region Configuration"
+display_name = "Region"
+
+[[input]]
+name         = "region"
+description  = "GCP region for Cloud Run deployment"
+default      = "us-central1"
+display_name = "Region"
+group        = "region"

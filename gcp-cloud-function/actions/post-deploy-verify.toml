@@ -1,0 +1,30 @@
+name    = "post_deploy_verify"
+timeout = "30s"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "cloud_function"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "verify_function"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "=== verifying Cloud Function deployment ==="
+RESPONSE=$(curl -sf --max-time 10 "${FUNCTION_URL}" 2>&1)
+echo "response: $RESPONSE"
+
+if echo "$RESPONSE" | grep -q "hello"; then
+  echo "function verified"
+else
+  echo "unexpected response"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+FUNCTION_URL = "{{.nuon.components.cloud_function.outputs.function_url}}"

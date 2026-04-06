@@ -1,0 +1,24 @@
+name               = "post_update_inputs"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "post-update-inputs"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "react_to_input_change"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+
+echo "=== inputs updated, reloading config ==="
+echo "restarting deployment to pick up new values..."
+kubectl rollout restart deployment/nginx -n nginx-demo
+kubectl rollout status deployment/nginx -n nginx-demo --timeout=30s
+
+echo "input change applied"
+"""

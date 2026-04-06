@@ -1,0 +1,15 @@
+name           = "wi_demo"
+type           = "helm_chart"
+chart_name     = "wi-demo"
+namespace      = "wi-demo"
+storage_driver = "configmap"
+dependencies   = ["service_account", "gcs_bucket"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-workload-identity/src/components/wi-demo"
+branch    = "main"
+
+[values]
+serviceAccountEmail = "{{ .nuon.components.service_account.outputs.service_account_email }}"
+bucketName          = "{{ .nuon.components.gcs_bucket.outputs.bucket_name }}"

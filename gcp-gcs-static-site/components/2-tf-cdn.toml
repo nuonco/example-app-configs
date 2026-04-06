@@ -1,0 +1,14 @@
+name              = "cdn"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["gcs_bucket"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-gcs-static-site/src/components/cdn"
+branch    = "main"
+
+[vars]
+bucket_name = "{{.nuon.components.gcs_bucket.outputs.bucket_name}}"
+project_id  = "{{.nuon.install_stack.outputs.project_id}}"
+domain      = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.inputs.inputs.domain}}"

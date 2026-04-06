@@ -1,0 +1,30 @@
+name    = "post_deploy_smoke_test"
+timeout = "30s"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "cloud_run"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "smoke_test"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "=== smoke testing Cloud Run service ==="
+RESPONSE=$(curl -sf --max-time 10 "${SERVICE_URL}" 2>&1)
+echo "response: $RESPONSE"
+
+if [ -n "$RESPONSE" ]; then
+  echo "smoke test passed"
+else
+  echo "smoke test failed: empty response"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+SERVICE_URL = "{{.nuon.components.cloud_run.outputs.service_url}}"

@@ -1,0 +1,4 @@
+version = "v2"
+
+display_name = "GKE Workload Identity"
+description  = "Minimal GCP Workload Identity demo — zero-key pod-to-GCP access via GKE WI federation"

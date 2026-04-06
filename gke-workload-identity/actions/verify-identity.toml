@@ -1,0 +1,29 @@
+name    = "verify_identity"
+timeout = "30s"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "wi_demo"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name               = "verify"
+enable_kube_config = true
+inline_contents    = """
+#!/usr/bin/env sh
+set -e
+
+echo "Verifying Workload Identity from inside the pod..."
+
+POD=$(kubectl get pod -n wi-demo -l app=wi-demo -o jsonpath='{.items[0].metadata.name}')
+echo "Pod: ${POD}"
+
+echo ""
+echo "--- gcloud auth list ---"
+kubectl exec -n wi-demo "${POD}" -- gcloud auth list
+
+echo ""
+echo "Workload Identity verification complete"
+"""

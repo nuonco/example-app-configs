@@ -1,0 +1,27 @@
+name               = "scheduled_heartbeat"
+timeout            = "15s"
+enable_kube_config = true
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "heartbeat"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "=== heartbeat $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+
+kubectl get pods -n nginx-demo -o json | jq -c '{
+  timestamp: now | todate,
+  pods: [.items[] | {name: .metadata.name, phase: .status.phase, ready: (.status.conditions // [] | map(select(.type == "Ready")) | .[0].status // "Unknown")}]
+}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

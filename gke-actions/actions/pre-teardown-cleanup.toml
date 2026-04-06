@@ -1,0 +1,31 @@
+name               = "pre_teardown_cleanup"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type           = "pre-teardown-component"
+component_name = "nginx"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "remove_finalizers"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+
+echo "=== removing finalizers before teardown ==="
+for resource in $(kubectl get all -n nginx-demo -o name 2>/dev/null); do
+  finalizers=$(kubectl get "$resource" -n nginx-demo -o jsonpath='{.metadata.finalizers}' 2>/dev/null || true)
+  if [ -n "$finalizers" ] && [ "$finalizers" != "[]" ]; then
+    echo "removing finalizers from $resource"
+    kubectl patch "$resource" -n nginx-demo -p '{"metadata":{"finalizers":[]}}' --type=merge
+  fi
+done
+
+echo "=== draining connections ==="
+kubectl scale deployment/nginx -n nginx-demo --replicas=0 --timeout=15s 2>/dev/null || true
+echo "pre-teardown cleanup complete"
+"""

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wi-demo
+  namespace: wi-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wi-demo
+  template:
+    metadata:
+      labels:
+        app: wi-demo
+    spec:
+      serviceAccountName: wi-demo
+      containers:
+        - name: wi-demo
+          image: google/cloud-sdk:slim
+          command:
+            - /bin/bash
+            - -c
+            - |
+              while true; do
+                echo "--- $(date) ---"
+                gcloud auth list
+                gsutil ls gs://{{ .Values.bucketName }}
+                gsutil cat gs://{{ .Values.bucketName }}/test.txt
+                sleep 60
+              done

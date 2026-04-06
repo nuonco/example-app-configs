@@ -1,0 +1,20 @@
+name    = "site_url"
+timeout = "15s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "show_url"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Static site URL: http://${CDN_IP}"
+echo "CDN IP: ${CDN_IP}"
+echo "Site URL: ${SITE_URL}"
+"""
+
+[steps.env_vars]
+SITE_URL = "{{.nuon.components.cdn.outputs.site_url}}"
+CDN_IP   = "{{.nuon.components.cdn.outputs.cdn_ip}}"

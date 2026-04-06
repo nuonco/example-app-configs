@@ -1,0 +1,4 @@
+version = "v2"
+
+display_name = "GKE Actions"
+description  = "Minimal GKE app showcasing all action trigger types: pre-deploy, post-deploy, cron, and manual"

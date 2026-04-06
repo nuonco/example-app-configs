@@ -1,0 +1,28 @@
+name    = "function_logs"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "get_logs"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Fetching recent Cloud Function logs..."
+
+gcloud logging read \
+  "resource.type=cloud_run_revision AND resource.labels.service_name=${FUNCTION_NAME}" \
+  --project="${PROJECT_ID}" \
+  --limit=50 \
+  --format="table(timestamp,severity,textPayload)" \
+  --freshness=1h
+
+echo ""
+echo "Logs retrieved successfully"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "{{.nuon.components.cloud_function.outputs.function_name}}"
+PROJECT_ID    = "{{.nuon.install_stack.outputs.project_id}}"
