@@ -1,0 +1,20 @@
+name    = "curl_endpoint"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "curl_service"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Curling Cloud Run service..."
+curl -s ${SERVICE_URL}
+echo ""
+echo "Done."
+"""
+
+[steps.env_vars]
+SERVICE_URL = "{{.nuon.components.cloud_run.outputs.service_url}}"

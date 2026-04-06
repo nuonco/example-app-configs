@@ -1,0 +1,18 @@
+[[group]]
+name         = "dns"
+description  = "DNS Configurations"
+display_name = "DNS"
+
+[[input]]
+name         = "domain"
+description  = "Root domain for the static site"
+default      = "nuon.run"
+display_name = "Domain"
+group        = "dns"
+
+[[input]]
+name         = "sub_domain"
+description  = "Subdomain for the static site"
+default      = "static"
+display_name = "Subdomain"
+group        = "dns"

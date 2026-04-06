@@ -1,0 +1,22 @@
+name    = "invoke_function"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "invoke"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Invoking Cloud Function..."
+
+curl -s -w "\nHTTP Status: %{http_code}\n" "${FUNCTION_URL}"
+
+echo ""
+echo "Function invoked successfully"
+"""
+
+[steps.env_vars]
+FUNCTION_URL = "{{.nuon.components.cloud_function.outputs.function_url}}"

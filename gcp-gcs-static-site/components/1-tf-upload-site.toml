@@ -1,0 +1,13 @@
+name              = "upload_site"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["gcs_bucket"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-gcs-static-site/src/components/upload-site"
+branch    = "main"
+
+[vars]
+bucket_name = "{{.nuon.components.gcs_bucket.outputs.bucket_name}}"
+install_id  = "{{.nuon.install.id}}"

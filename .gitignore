@@ -4,6 +4,10 @@ docs/index.html
 # LLMs
 **/.claude/
 .clauderc
+CLAUDE.local.md
+
+# Terraform lock files
+**/.terraform.lock.hcl
 
 # Created by https://www.toptal.com/developers/gitignore/api/osx,vim,terraform
 # Edit at https://www.toptal.com/developers/gitignore?templates=osx,vim,terraform

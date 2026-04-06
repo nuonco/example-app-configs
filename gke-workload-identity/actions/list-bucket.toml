@@ -1,0 +1,32 @@
+name    = "list_bucket"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name               = "list"
+enable_kube_config = true
+inline_contents    = """
+#!/usr/bin/env sh
+set -e
+
+echo "Listing bucket contents via Workload Identity..."
+
+POD=$(kubectl get pod -n wi-demo -l app=wi-demo -o jsonpath='{.items[0].metadata.name}')
+echo "Pod: ${POD}"
+
+echo ""
+echo "--- gsutil ls ---"
+kubectl exec -n wi-demo "${POD}" -- gsutil ls "gs://${BUCKET_NAME}"
+
+echo ""
+echo "--- test.txt contents ---"
+kubectl exec -n wi-demo "${POD}" -- gsutil cat "gs://${BUCKET_NAME}/test.txt"
+
+echo ""
+echo "Bucket access verification complete"
+"""
+
+[steps.env_vars]
+BUCKET_NAME = "{{ .nuon.components.gcs_bucket.outputs.bucket_name }}"

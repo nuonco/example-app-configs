@@ -1,0 +1,28 @@
+name               = "pre_check"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type           = "pre-deploy-component"
+component_name = "nginx"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "cluster_info"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "=== cluster info ==="
+kubectl cluster-info
+
+echo "=== namespaces ==="
+kubectl get namespaces
+
+echo "pre-deploy check passed"
+"""

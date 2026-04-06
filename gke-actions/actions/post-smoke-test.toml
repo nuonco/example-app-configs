@@ -1,0 +1,38 @@
+name               = "post_smoke_test"
+timeout            = "60s"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "nginx"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "smoke_test"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "=== pods ==="
+kubectl get pods -n nginx-demo
+
+echo "=== services ==="
+kubectl get svc -n nginx-demo
+
+echo "=== smoke test ==="
+POD=$(kubectl get pods -n nginx-demo -l app=nginx -o jsonpath='{.items[0].metadata.name}')
+RESPONSE=$(kubectl exec -n nginx-demo "$POD" -- wget -qO- http://localhost:80 2>&1 || true)
+
+if echo "$RESPONSE" | grep -qi "nginx"; then
+  echo "smoke test passed: nginx is responding"
+else
+  echo "smoke test warning: unexpected response"
+  echo "$RESPONSE"
+  exit 1
+fi
+"""

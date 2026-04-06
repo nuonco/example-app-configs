@@ -1,0 +1,4 @@
+version = "v2"
+
+display_name = "GCP Cloud Function"
+description  = "A serverless Google Cloud Function (Gen2) deployed and operated by Nuon"

@@ -1,0 +1,12 @@
+name              = "gcs_bucket"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-gcs-static-site/src/components/gcs-bucket"
+branch    = "main"
+
+[vars]
+project_id = "{{.nuon.install_stack.outputs.project_id}}"
+install_id = "{{.nuon.install.id}}"

@@ -1,0 +1,11 @@
+terraform_version = "1.11.3"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/gcp-min-sandbox"
+branch    = "main"
+
+[vars]
+enable_nuon_dns      = "false"
+public_root_domain   = "nuon.run"
+internal_root_domain = "internal.nuon.run"

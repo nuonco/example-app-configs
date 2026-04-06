@@ -1,0 +1,4 @@
+version = "v2"
+
+display_name = "GCP Static Site"
+description  = "A static site hosted on Google Cloud Storage with Cloud CDN"

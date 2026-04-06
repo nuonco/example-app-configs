@@ -1,0 +1,22 @@
+name    = "invalidate_cache"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "invalidate"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Invalidating CDN cache..."
+gcloud compute url-maps invalidate-cdn-cache ${URL_MAP_NAME} \
+  --path "/*" \
+  --project ${PROJECT_ID}
+echo "Cache invalidation requested."
+"""
+
+[steps.env_vars]
+URL_MAP_NAME = "static-site-{{.nuon.install.id}}"
+PROJECT_ID   = "{{.nuon.install_stack.outputs.project_id}}"

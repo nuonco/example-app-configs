@@ -1,0 +1,27 @@
+name    = "service_status"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_service"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Fetching Cloud Run service status..."
+
+gcloud run services describe ${SERVICE_NAME} \
+  --region ${REGION} \
+  --project ${PROJECT_ID} \
+  --format="table(status.url, status.latestReadyRevisionName, status.traffic.percent, status.traffic.revisionName)"
+
+echo ""
+echo "Done."
+"""
+
+[steps.env_vars]
+SERVICE_NAME = "{{.nuon.components.cloud_run.outputs.service_name}}"
+REGION       = "{{.nuon.inputs.inputs.region}}"
+PROJECT_ID   = "{{.nuon.install_stack.outputs.project_id}}"

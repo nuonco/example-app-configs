@@ -1,0 +1,2 @@
+namespace: secrets-demo
+greeting: "Hello from Nuon"

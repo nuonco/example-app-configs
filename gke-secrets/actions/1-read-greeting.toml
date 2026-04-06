@@ -1,0 +1,26 @@
+name    = "read_greeting"
+timeout = "1m"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name             = "read env from pod"
+enable_kube_config = true
+inline_contents  = """
+#!/usr/bin/env sh
+set -e
+
+POD=$(kubectl get pod -n secrets-demo -l app=secrets-demo -o jsonpath='{.items[0].metadata.name}')
+
+echo "=== GREETING ==="
+kubectl exec -n secrets-demo "$POD" -- sh -c 'echo $GREETING'
+
+echo ""
+echo "=== API_KEY present ==="
+kubectl exec -n secrets-demo "$POD" -- sh -c 'test -n "$API_KEY" && echo yes || echo no'
+
+echo ""
+echo "=== AUTO_TOKEN present ==="
+kubectl exec -n secrets-demo "$POD" -- sh -c 'test -n "$AUTO_TOKEN" && echo yes || echo no'
+"""

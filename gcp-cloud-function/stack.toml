@@ -1,0 +1,3 @@
+type        = "gcp-terraform"
+name        = "nuon-gcf-{{.nuon.install.id}}"
+description = "Install the Nuon runner in a GCP project for Cloud Function deployment."

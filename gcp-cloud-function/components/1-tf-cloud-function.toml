@@ -1,0 +1,15 @@
+name              = "cloud_function"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["docker_image"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-cloud-function/src/components/cloud-function"
+branch    = "main"
+
+[vars]
+project_id = "{{.nuon.install_stack.outputs.project_id}}"
+region     = "{{.nuon.install_stack.outputs.region}}"
+image_url  = "{{.nuon.components.docker_image.outputs.image.repository}}:{{.nuon.components.docker_image.outputs.image.tag}}"
+install_id = "{{.nuon.install.id}}"
