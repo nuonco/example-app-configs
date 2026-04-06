@@ -1,0 +1,14 @@
+name              = "GKE Actions"
+description       = "Example app showcasing Nuon action lifecycle triggers on GKE"
+documentation_url = "https://docs.nuon.co"
+community_url     = "https://nuon.co/slack"
+homepage_url      = "https://nuon.co"
+github_url        = "https://github.com/nuonco/example-app-configs"
+logo_url          = "https://nuon.co/logo.png"
+demo_url          = "https://nuon.co"
+
+post_install_markdown = "Your GKE Actions app is deployed. Check the **Actions** tab to see lifecycle triggers in action."
+footer_markdown       = "Powered by [Nuon](https://nuon.co)"
+copyright_markdown    = "Nuon Inc."
+
+apps = []

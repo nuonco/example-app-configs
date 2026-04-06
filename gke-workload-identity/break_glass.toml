@@ -1,0 +1,26 @@
+[[role]]
+name                 = "{{.nuon.install.id}}-gke-wi-break-glass"
+description          = "Emergency access role for install {{.nuon.install.id}}. Grants broad GCP access but denies secret management."
+display_name         = "break glass role"
+permissions_boundary = ""
+
+[[role.policies]]
+managed_policy_name = "AdministratorAccess"
+
+[[role.policies]]
+name     = "deny-secret-access"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenySecretManagerAccess",
+            "Effect": "Deny",
+            "Action": [
+                "secretmanager:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""
