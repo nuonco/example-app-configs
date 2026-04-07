@@ -1,0 +1,73 @@
+# =============================================================================
+# NUON ACTION - Debug Info (Break Glass)
+# =============================================================================
+#
+# Collects diagnostic information about the install for troubleshooting.
+# Uses break glass permissions to access ECS cluster and AWS resources.
+#
+# =============================================================================
+
+name    = "breakglass-debug-info"
+timeout = "1m"
+break_glass_role = "{{.nuon.install.id}}-ecs-breakglass-break-glass-permission"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "collect-debug-info"
+inline_contents = """
+#!/usr/bin/env sh
+
+echo "=================================="
+echo "=== Install Information ==="
+echo "=================================="
+echo "Install ID: {{.nuon.install.id}}"
+echo "App ID: {{.nuon.app.id}}"
+echo "Org ID: {{.nuon.org.id}}"
+echo ""
+
+echo "=================================="
+echo "=== AWS Region & Account ==="
+echo "=================================="
+REGION="{{.nuon.install_stack.outputs.region}}"
+echo "Region: $REGION"
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+echo "Account ID: $ACCOUNT_ID"
+echo ""
+
+echo "=================================="
+echo "=== ECS Clusters ==="
+echo "=================================="
+aws ecs list-clusters --region $REGION
+echo ""
+
+echo "=================================="
+echo "=== ECS Services ==="
+echo "=================================="
+# Try to list services (might fail if no cluster exists yet)
+CLUSTERS=$(aws ecs list-clusters --region $REGION --query 'clusterArns[0]' --output text 2>/dev/null)
+if [ "$CLUSTERS" != "None" ] && [ -n "$CLUSTERS" ]; then
+  echo "Found cluster: $CLUSTERS"
+  aws ecs list-services --cluster $CLUSTERS --region $REGION 2>/dev/null || echo "No services found"
+else
+  echo "No ECS clusters found in this region"
+fi
+echo ""
+
+echo "=================================="
+echo "=== VPC Information ==="
+echo "=================================="
+aws ec2 describe-vpcs --region $REGION --query 'Vpcs[*].[VpcId,CidrBlock,Tags[?Key==`Name`].Value|[0]]' --output table
+echo ""
+
+echo "=================================="
+echo "=== Security Groups ==="
+echo "=================================="
+aws ec2 describe-security-groups --region $REGION --query 'SecurityGroups[*].[GroupId,GroupName,VpcId]' --output table --max-items 10
+echo ""
+
+echo "=================================="
+echo "Debug info collection complete!"
+echo "=================================="
+"""
