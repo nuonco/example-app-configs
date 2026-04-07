@@ -1,0 +1,14 @@
+name = "kustomizeapp"
+type = "kubernetes_manifest"
+
+namespace = "{{.nuon.install.id}}"
+
+[public_repo]
+directory = "."
+repo      = "argoproj/argocd-example-apps"
+branch    = "master"
+
+[kustomize]
+path        = "./kustomize-guestbook"
+patches     = []
+enable_helm = false

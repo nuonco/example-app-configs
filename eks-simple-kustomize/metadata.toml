@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "EKS Simple Kustomize"
+description  = "A simple Kustomize app on AWS EKS"
+readme       = "./README.md"
