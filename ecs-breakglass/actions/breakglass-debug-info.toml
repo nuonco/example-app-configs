@@ -22,9 +22,12 @@ inline_contents = """
 echo "=================================="
 echo "=== Install Information ==="
 echo "=================================="
-echo "Install ID: {{.nuon.install.id}}"
-echo "App ID: {{.nuon.app.id}}"
-echo "Org ID: {{.nuon.org.id}}"
+INSTALL_ID="{{.nuon.install.id}}"
+APP_ID="{{.nuon.app.id}}"
+ORG_ID="{{.nuon.org.id}}"
+echo "Install ID: $INSTALL_ID"
+echo "App ID: $APP_ID"
+echo "Org ID: $ORG_ID"
 echo ""
 
 echo "=================================="
@@ -39,35 +42,58 @@ echo ""
 echo "=================================="
 echo "=== ECS Clusters ==="
 echo "=================================="
-aws ecs list-clusters --region $REGION
+CLUSTERS_JSON=$(aws ecs list-clusters --region $REGION)
+echo "$CLUSTERS_JSON"
+CLUSTER_ARN=$(echo "$CLUSTERS_JSON" | jq -r '.clusterArns[0] // "None"')
 echo ""
 
 echo "=================================="
 echo "=== ECS Services ==="
 echo "=================================="
 # Try to list services (might fail if no cluster exists yet)
-CLUSTERS=$(aws ecs list-clusters --region $REGION --query 'clusterArns[0]' --output text 2>/dev/null)
-if [ "$CLUSTERS" != "None" ] && [ -n "$CLUSTERS" ]; then
-  echo "Found cluster: $CLUSTERS"
-  aws ecs list-services --cluster $CLUSTERS --region $REGION 2>/dev/null || echo "No services found"
+if [ "$CLUSTER_ARN" != "None" ] && [ -n "$CLUSTER_ARN" ]; then
+  echo "Found cluster: $CLUSTER_ARN"
+  SERVICES_JSON=$(aws ecs list-services --cluster $CLUSTER_ARN --region $REGION)
+  if [ -z "$SERVICES_JSON" ]; then
+    SERVICES_JSON='{"serviceArns":[]}'
+  fi
+  echo "$SERVICES_JSON"
+  SERVICE_COUNT=$(echo "$SERVICES_JSON" | jq -r '.serviceArns | length')
+  if [ -z "$SERVICE_COUNT" ]; then
+    SERVICE_COUNT="0"
+  fi
 else
   echo "No ECS clusters found in this region"
+  SERVICE_COUNT="0"
 fi
 echo ""
 
 echo "=================================="
 echo "=== VPC Information ==="
 echo "=================================="
-aws ec2 describe-vpcs --region $REGION --query 'Vpcs[*].[VpcId,CidrBlock,Tags[?Key==`Name`].Value|[0]]' --output table
+VPC_JSON=$(aws ec2 describe-vpcs --region $REGION --output json | jq -r '.Vpcs[0] // {}')
+if [ -z "$VPC_JSON" ] || [ "$VPC_JSON" = "null" ]; then
+  VPC_JSON='{}'
+fi
+aws ec2 describe-vpcs --region $REGION --output table
+VPC_ID=$(echo "$VPC_JSON" | jq -r '.VpcId // "none"')
+VPC_CIDR=$(echo "$VPC_JSON" | jq -r '.CidrBlock // "none"')
 echo ""
 
 echo "=================================="
 echo "=== Security Groups ==="
 echo "=================================="
-aws ec2 describe-security-groups --region $REGION --query 'SecurityGroups[*].[GroupId,GroupName,VpcId]' --output table --max-items 10
+aws ec2 describe-security-groups --region $REGION --output table --max-items 10
+SG_COUNT=$(aws ec2 describe-security-groups --region $REGION --output json | jq -r '.SecurityGroups | length')
+if [ -z "$SG_COUNT" ] || [ "$SG_COUNT" = "None" ]; then
+  SG_COUNT="0"
+fi
 echo ""
 
 echo "=================================="
 echo "Debug info collection complete!"
 echo "=================================="
+
+# Write simple one-line JSON output with key debug info
+echo '{"message": "Debug complete", "install_id": "'$INSTALL_ID'", "account_id": "'$ACCOUNT_ID'", "region": "'$REGION'", "cluster_arn": "'$CLUSTER_ARN'", "vpc_id": "'$VPC_ID'"}' > $NUON_ACTIONS_OUTPUT_FILEPATH
 """
