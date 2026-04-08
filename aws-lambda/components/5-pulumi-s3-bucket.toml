@@ -1,0 +1,15 @@
+# pulumi
+name    = "pulumi_s3_bucket"
+type    = "pulumi"
+runtime = "go"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aws-lambda/src/components/pulumi-s3-bucket"
+branch    = "am/pulumi-config"
+
+[config]
+"aws:region" = "{{.nuon.install_stack.outputs.region}}"
+
+[env_vars]
+INSTALL_ID = "{{.nuon.install.id}}"
