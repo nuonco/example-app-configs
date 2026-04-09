@@ -7,6 +7,7 @@ branch    = "main"
 
 [vars]
 cluster_name = "n-{{.nuon.install.id}}"
+gke_node_pool_sa_email = "{{.nuon.install_stack.outputs.gke_node_pool_sa_email}}"
 
 [[var_file]]
 contents = "./sandbox.tfvars"
