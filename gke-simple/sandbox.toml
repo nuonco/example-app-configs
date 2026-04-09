@@ -10,6 +10,7 @@ cluster_name         = "n-{{.nuon.install.id}}"
 enable_nuon_dns      = "false"
 public_root_domain   = "{{ .nuon.inputs.inputs.domain }}"
 internal_root_domain = "internal.{{ .nuon.inputs.inputs.domain }}"
+gke_node_pool_sa_email = "{{.nuon.install_stack.outputs.gke_node_pool_sa_email}}"
 
 [[var_file]]
 contents = "./sandbox.tfvars"
