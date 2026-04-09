@@ -1,0 +1,132 @@
+# =============================================================================
+# NUON ACTION - Scale ECS Service (Drift Detection Demo)
+# =============================================================================
+#
+# This action uses break-glass permissions to directly modify the ECS service's
+# desired task count, bypassing Terraform. This simulates what happens when a
+# customer makes direct changes in their AWS account.
+#
+# After running this action, trigger a drift scan on the 'whoami' component
+# to see Nuon detect that the actual state (3 tasks) differs from the
+# Terraform configuration (1 task).
+#
+# =============================================================================
+
+name    = "drift-scale-service"
+timeout = "2m"
+break_glass_role = "{{.nuon.install.id}}-ecs-breakglass-break-glass-permission"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "scale-service-to-cause-drift"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "=================================="
+echo "=== Drift Detection Demo ==="
+echo "=================================="
+echo "This action simulates a customer making direct changes to their"
+echo "AWS infrastructure, bypassing Terraform and creating drift."
+echo ""
+
+# Get configuration from Nuon outputs
+REGION="{{.nuon.install_stack.outputs.region}}"
+CLUSTER_ARN="{{.nuon.components.cluster.outputs.cluster_arn}}"
+SERVICE_NAME="{{.nuon.components.whoami.outputs.service_name}}"
+INSTALL_ID="{{.nuon.install.id}}"
+
+echo "Install ID: $INSTALL_ID"
+echo "Region: $REGION"
+echo "Cluster: $CLUSTER_ARN"
+echo "Service: $SERVICE_NAME"
+echo ""
+
+echo "=================================="
+echo "=== Current Service State ==="
+echo "=================================="
+
+# Get current service configuration
+CURRENT_STATE=$(aws ecs describe-services \
+  --cluster "$CLUSTER_ARN" \
+  --services "$SERVICE_NAME" \
+  --region "$REGION" \
+  --query 'services[0].{desired:desiredCount,running:runningCount,pending:pendingCount}' \
+  --output json)
+
+CURRENT_DESIRED=$(echo "$CURRENT_STATE" | jq -r '.desired')
+CURRENT_RUNNING=$(echo "$CURRENT_STATE" | jq -r '.running')
+CURRENT_PENDING=$(echo "$CURRENT_STATE" | jq -r '.pending')
+
+echo "Desired tasks: $CURRENT_DESIRED"
+echo "Running tasks: $CURRENT_RUNNING"
+echo "Pending tasks: $CURRENT_PENDING"
+echo ""
+
+echo "=================================="
+echo "=== Scaling Service (Creating Drift) ==="
+echo "=================================="
+echo "Updating service to 3 desired tasks..."
+echo "This bypasses Terraform and will cause drift!"
+echo ""
+
+# Update the service directly via AWS API
+aws ecs update-service \
+  --cluster "$CLUSTER_ARN" \
+  --service "$SERVICE_NAME" \
+  --desired-count 3 \
+  --region "$REGION" \
+  --output json > /dev/null
+
+echo "✅ Service update command sent successfully"
+echo ""
+
+# Wait a moment for the change to register
+echo "Waiting 5 seconds for change to register..."
+sleep 5
+
+echo "=================================="
+echo "=== New Service State ==="
+echo "=================================="
+
+# Get updated service configuration
+NEW_STATE=$(aws ecs describe-services \
+  --cluster "$CLUSTER_ARN" \
+  --services "$SERVICE_NAME" \
+  --region "$REGION" \
+  --query 'services[0].{desired:desiredCount,running:runningCount,pending:pendingCount}' \
+  --output json)
+
+NEW_DESIRED=$(echo "$NEW_STATE" | jq -r '.desired')
+NEW_RUNNING=$(echo "$NEW_STATE" | jq -r '.running')
+NEW_PENDING=$(echo "$NEW_STATE" | jq -r '.pending')
+
+echo "Desired tasks: $NEW_DESIRED"
+echo "Running tasks: $NEW_RUNNING"
+echo "Pending tasks: $NEW_PENDING"
+echo ""
+
+echo "=================================="
+echo "=== Drift Created! ==="
+echo "=================================="
+echo "The ECS service has been scaled from $CURRENT_DESIRED to $NEW_DESIRED tasks."
+echo ""
+echo "⚠️  Terraform still thinks desired_count = $CURRENT_DESIRED"
+echo "☁️  AWS reality shows desired_count = $NEW_DESIRED"
+echo ""
+echo "Next steps:"
+echo "1. Go to the 'whoami' component in the Nuon dashboard"
+echo "2. Click 'Scan for Drift' (or re-run the component)"
+echo "3. View the drift workflow to see the detected changes"
+echo ""
+echo "The drift scan will show: desired_count: $CURRENT_DESIRED → $NEW_DESIRED"
+echo "=================================="
+
+# Write output for Nuon action results
+echo '{"message": "Drift created", "install_id": "'$INSTALL_ID'", "region": "'$REGION'", "service_name": "'$SERVICE_NAME'", "previous_desired_count": '$CURRENT_DESIRED', "new_desired_count": '$NEW_DESIRED', "drift_created": true}' > $NUON_ACTIONS_OUTPUT_FILEPATH
+
+echo ""
+echo "✅ Drift creation complete!"
+"""
