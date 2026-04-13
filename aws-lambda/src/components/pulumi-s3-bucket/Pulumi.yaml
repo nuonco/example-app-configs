@@ -1,3 +1,0 @@
-name: pulumi-s3-bucket
-runtime: go
-description: A simple S3 bucket managed by Pulumi
