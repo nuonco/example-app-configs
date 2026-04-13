@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for the deployment script resource."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2023-08-01",
+      "name": "enableAzureAPIs",
+      "location": "[parameters('location')]",
+      "kind": "AzureCLI",
+      "properties": {
+        "azCliVersion": "2.40.0",
+        "timeout": "PT10M",
+        "retentionInterval": "PT1H",
+        "scriptContent": "#!/bin/bash\nset -e\n\nPROVIDERS=(\n  Microsoft.App\n  Microsoft.Chaos\n  Microsoft.ContainerRegistry\n  Microsoft.Compute\n  Microsoft.KeyVault\n  Microsoft.ManagedIdentity\n  Microsoft.Network\n  Microsoft.OperationalInsights\n)\n\nfor provider in \"${PROVIDERS[@]}\"; do\n  echo \"Registering $provider...\"\n  az provider register --namespace \"$provider\" --wait\n  echo \"$provider registered.\"\ndone\n\necho \"All providers registered successfully.\""
+      }
+    }
+  ]
+}
