@@ -1,0 +1,3 @@
+name: pulumi-gcs-object
+runtime: go
+description: Creates an object in a GCS bucket managed by another Pulumi component
