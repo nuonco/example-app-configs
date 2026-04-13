@@ -7,7 +7,7 @@ dependencies = ["pulumi_gcs_bucket"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "gcp-cloud-run/src/components/pulumi-gcs-object"
-branch    = "am/pulumi-config"
+branch    = "main"
 
 [config]
 "gcp:project" = "{{.nuon.install_stack.outputs.project_id}}"
