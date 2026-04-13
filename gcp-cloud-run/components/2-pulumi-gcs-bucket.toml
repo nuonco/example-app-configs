@@ -1,0 +1,16 @@
+# pulumi
+name    = "pulumi_gcs_bucket"
+type    = "pulumi"
+runtime = "go"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-cloud-run/src/components/pulumi-gcs-bucket"
+branch    = "am/pulumi-config"
+
+[config]
+"gcp:project" = "{{.nuon.install_stack.outputs.project_id}}"
+"gcp:region"  = "{{.nuon.inputs.inputs.region}}"
+
+[env_vars]
+INSTALL_ID = "{{.nuon.install.id}}"
