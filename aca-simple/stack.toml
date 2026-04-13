@@ -4,8 +4,3 @@ description = "Azure Container Apps simple application stack"
 
 vpc_nested_template_url    = "https://raw.githubusercontent.com/nuonco/install-stacks/main/azure/vnet.json"
 runner_nested_template_url = "https://raw.githubusercontent.com/nuonco/install-stacks/main/azure/runner.json"
-
-[[custom_nested_stacks]]
-name         = "enable_apis"
-template_url = "https://raw.githubusercontent.com/nuonco/example-app-configs/ht/az-stack/aca-simple/src/enable-apis.json"
-index        = 0
