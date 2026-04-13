@@ -1,0 +1,6 @@
+type = "azure-bicep"
+name = "aca-simple-{{.nuon.install.id}}"
+description = "Azure Container Apps simple application stack"
+
+vpc_nested_template_url    = "https://raw.githubusercontent.com/nuonco/install-stacks/main/azure/vnet.json"
+runner_nested_template_url = "https://raw.githubusercontent.com/nuonco/install-stacks/main/azure/runner.json"
