@@ -1,0 +1,22 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: cached
+spec:
+  amiFamily: AL2023
+  amiSelectorTerms:
+    - id: "{{.nuon.components.image_cache.outputs.ami_id}}"
+  instanceProfile: "{{.nuon.install.sandbox.outputs.karpenter.instance_profile.name}}"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "{{.nuon.install.sandbox.outputs.cluster.name}}"
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "{{.nuon.install.sandbox.outputs.cluster.name}}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: "{{.nuon.components.image_cache.outputs.volume_size_gb}}Gi"
+        volumeType: gp3
+        encrypted: true
+        deleteOnTermination: true
