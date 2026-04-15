@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "EKS with Karpenter and pre-cached container images via EBS snapshots. Ideal for large images that would otherwise cause slow node scale-out."
+display_name = "EKS Karpenter Image Cache"
+readme       = "./readme.md"

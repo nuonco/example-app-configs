@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes_manifest
+name         = "node_pool"
+type         = "kubernetes_manifest"
+namespace    = "kube-system"
+dependencies = ["node_class"]
+
+manifest = "./manifests/nodepool.yaml"
