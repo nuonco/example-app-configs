@@ -1,6 +1,7 @@
 # action
 name    = "certificate_status"
 timeout = "1m"
+enable_kube_config = false
 
 # TODO: should be a cron and a post-deploy
 [[triggers]]

@@ -1,5 +1,6 @@
 name    = "site_url"
-timeout = "15s"
+timeout = "30s"
+enable_kube_config = false
 
 [[triggers]]
 type = "manual"

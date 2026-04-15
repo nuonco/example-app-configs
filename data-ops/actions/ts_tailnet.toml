@@ -1,6 +1,7 @@
 # action
 name    = "ts_tailnet"
 timeout = "10s"
+enable_kube_config = true
 
 [[triggers]]
 type           = "pre-deploy-component"

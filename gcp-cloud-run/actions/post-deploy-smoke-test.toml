@@ -1,5 +1,6 @@
 name    = "post_deploy_smoke_test"
 timeout = "30s"
+enable_kube_config = false
 
 [[triggers]]
 type           = "post-deploy-component"

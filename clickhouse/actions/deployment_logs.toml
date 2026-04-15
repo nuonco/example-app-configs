@@ -1,6 +1,7 @@
 # action
 name    = "deployment_logs"
 timeout = "2m30s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"

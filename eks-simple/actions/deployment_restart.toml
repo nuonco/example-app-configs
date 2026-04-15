@@ -1,6 +1,7 @@
 # action
 name    = "deployment_restart"
 timeout = "45s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"
