@@ -1,0 +1,12 @@
+---
+namespace: "whoami"
+
+image:
+  tag: "v1.10.3"
+  repository: "traefik/whoami"
+
+deployment:
+  containerPort: 8000
+
+service:
+  port: 80

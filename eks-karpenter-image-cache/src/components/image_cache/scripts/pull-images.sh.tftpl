@@ -1,0 +1,87 @@
+#!/bin/bash
+set -euo pipefail
+
+SOCK="/run/containerd/containerd.sock"
+
+log() { echo "[image-cache-builder] $(date '+%H:%M:%S') $*"; }
+
+log "Starting image cache builder"
+
+# -------------------------------------------------------------------
+# 1. Start containerd using the EKS node's default configuration
+# -------------------------------------------------------------------
+systemctl start containerd
+
+for i in $(seq 1 30); do [ -S "$SOCK" ] && break; sleep 1; done
+if [ ! -S "$SOCK" ]; then
+  log "ERROR: containerd socket not available"
+  shutdown -h now
+  exit 1
+fi
+log "containerd running"
+
+# -------------------------------------------------------------------
+# 2. Pull every image into the k8s.io namespace
+# -------------------------------------------------------------------
+qualify_image() {
+  local img="$1"
+  # ctr doesn't auto-prepend docker.io like docker/crictl does
+  if [[ "$img" != *"."*"/"* ]]; then
+    # No domain — e.g. "nginx:1.27" or "traefik/whoami:v1.10.3"
+    if [[ "$img" == *"/"* ]]; then
+      echo "docker.io/$img"
+    else
+      echo "docker.io/library/$img"
+    fi
+  else
+    echo "$img"
+  fi
+}
+
+pull_image() {
+  local raw_img="$1"
+  local img
+  img=$(qualify_image "$raw_img")
+
+  # Auto-detect ECR images and authenticate
+  if [[ "$img" == *".dkr.ecr."*".amazonaws.com/"* ]]; then
+    local ecr_region
+    ecr_region=$(echo "$img" | grep -oP '\.dkr\.ecr\.\K[^.]+')
+    local password
+    password=$(aws ecr get-login-password --region "$ecr_region" 2>/dev/null || true)
+    if [ -n "$password" ]; then
+      log "Pulling (ECR, $ecr_region): $img"
+      ctr -n k8s.io -a "$SOCK" images pull --user "AWS:$password" "$img" && return 0
+    fi
+  fi
+
+  log "Pulling: $img"
+  ctr -n k8s.io -a "$SOCK" images pull "$img"
+
+  # Also tag with the original short name so kubelet finds it
+  if [ "$img" != "$raw_img" ]; then
+    ctr -n k8s.io -a "$SOCK" images tag "$img" "$raw_img" 2>/dev/null || true
+  fi
+}
+
+FAIL=0
+%{ for img in images ~}
+pull_image "${img}" || { log "WARNING: failed to pull ${img}"; FAIL=1; }
+%{ endfor ~}
+
+if [ "$FAIL" -eq 1 ]; then
+  log "Some images failed to pull — AMI will contain partial cache"
+fi
+
+# -------------------------------------------------------------------
+# 3. List cached images for audit trail in cloud-init logs
+# -------------------------------------------------------------------
+log "Cached images:"
+ctr -n k8s.io -a "$SOCK" images ls -q 2>/dev/null || true
+
+# -------------------------------------------------------------------
+# 4. Stop containerd cleanly and shutdown
+# -------------------------------------------------------------------
+systemctl stop containerd
+log "containerd stopped. Shutting down for AMI creation."
+shutdown -h now
