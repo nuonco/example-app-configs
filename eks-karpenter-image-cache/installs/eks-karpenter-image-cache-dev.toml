@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "eks-karpenter-image-cache-dev"
+approval_option = "approve-all"
+
+[aws_account]
+  region = "us-east-1"
