@@ -2,6 +2,7 @@
 
 name    = "simple_demonstration"
 timeout = "1m"
+enable_kube_config = true
 
 [[triggers]]
 type           = "pre-component-deploy"

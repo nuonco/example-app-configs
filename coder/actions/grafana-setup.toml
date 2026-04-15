@@ -1,5 +1,6 @@
 name    = "grafana_setup"
 timeout = "2m"
+enable_kube_config = true
 
 [[triggers]]
 type           = "pre-deploy-component"

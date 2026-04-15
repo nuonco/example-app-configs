@@ -1,5 +1,6 @@
 name    = "invalidate_cache"
 timeout = "30s"
+enable_kube_config = false
 
 [[triggers]]
 type = "manual"

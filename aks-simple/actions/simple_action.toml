@@ -2,6 +2,7 @@
 
 name    = "simple_demonstration"
 timeout = "2m"
+enable_kube_config = true
 
 [[triggers]]
 type = "post-provision"

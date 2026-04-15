@@ -14,6 +14,7 @@
 
 name    = "drift-scale-service"
 timeout = "2m"
+enable_kube_config = false
 break_glass_role = "{{.nuon.install.id}}-ecs-breakglass-break-glass-permission"
 
 [[triggers]]

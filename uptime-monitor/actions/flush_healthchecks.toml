@@ -23,6 +23,7 @@
 
 name    = "flush_healthchecks"
 timeout = "5m"
+enable_kube_config = true
 
 
 # -----------------------------------------------------------------------------

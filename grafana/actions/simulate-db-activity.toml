@@ -2,6 +2,7 @@
 
 name    = "simulate_db_activity"
 timeout = "30m"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"
