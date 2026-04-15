@@ -9,7 +9,7 @@ dependencies   = ["node_pool"]
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "eks-karpenter-image-cache/src/components/whoami"
-branch    = "am/eks-kap-img-cache"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/whoami.yaml"
