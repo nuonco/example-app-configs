@@ -74,3 +74,6 @@ X-Forwarded-Proto: https
 
 ```
 
+## Cost Estimate
+Running this app in your environment will cost around $8/day.
+

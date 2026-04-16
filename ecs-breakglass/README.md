@@ -277,3 +277,6 @@ aws logs tail {{ .nuon.components.whoami.outputs.cloudwatch_log_group_name }} \
 ## Full State
 
 Click "Manage > State"
+
+## Cost Estimate
+Running this app in your environment will cost around $3/day.

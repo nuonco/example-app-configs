@@ -69,3 +69,6 @@ Within the Grafana dashboards, make sure to select the host or instance <code>pr
 [Dashboard ID 9628 (PostgreSQL Database)](https://grafana.com/grafana/dashboards/9628-postgresql-database/)
 
 [Dashboard ID 12273 (PostgreSQL Exporter)](https://grafana.com/grafana/dashboards/12273-postgresql-overview-postgres-exporter/)
+
+## Cost Estimate
+Running this app in your environment will cost around $3/day.
