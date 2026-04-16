@@ -51,4 +51,7 @@ $ curl -X POST -H "Content-Type: application/json" http://{{.nuon.components.ec2
 This is a sample App Config with a single `terraform_module` component that creates an EC2 instance
 and starts a basic web server.
 
+## Cost Estimate
+Running this app in your environment will cost around $2.50/day.
+
 

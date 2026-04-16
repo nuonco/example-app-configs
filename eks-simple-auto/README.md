@@ -110,3 +110,7 @@ aws --region {{ .nuon.install_stack.outputs.region }} \
 <pre>{{ toPrettyJson .nuon.inputs }}</pre>
 </details>
 
+## Cost Estimate
+Running this app in your environment will cost around $2/day.
+
+

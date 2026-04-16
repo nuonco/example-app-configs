@@ -90,3 +90,6 @@ Go to CloudWatch Logs in the AWS Console and find the log group to see the logs 
 ## Resources
 
 [What is AWS Lambda?](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
+
+## Cost Estimate
+Running this app in your environment will cost around $2.50/day.

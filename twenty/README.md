@@ -82,3 +82,6 @@ curl -X POST "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.nam
 [AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
 
 [AWS T3 and T3a Instances](https://aws.amazon.com/ec2/instance-types/t3/)
+
+## Cost Estimate
+Running this app in your environment will cost around $3/day.

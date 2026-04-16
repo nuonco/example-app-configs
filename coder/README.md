@@ -138,3 +138,6 @@ The deploy workflow shows a Helm diff and pauses for approval before applying.
 [Coder OSS Repository](https://github.com/coder/coder)
 
 [AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
+
+## Cost Estimate
+Running this app in your environment will cost around $8/day.

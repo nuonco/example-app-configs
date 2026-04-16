@@ -83,3 +83,6 @@ The `whoami` component uses `traefik/whoami:latest` which is a public Docker Hub
 Access your deployed whoami web app here:
 
 - **Whoami**: https://{{ .nuon.inputs.inputs.subdomain }}.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}
+
+## Cost Estimate
+Running this app in your environment will cost around $7/day.
