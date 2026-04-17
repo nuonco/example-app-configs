@@ -27,6 +27,9 @@ DOCS_DIR = REPO_ROOT / "docs"
 SKIP_DIRS = {".git", "scripts", "docs", ".github"}
 TEMPLATE_FILE = "index.j2.html"
 OUTPUT_FILE = "index.html"
+ONBOARDING_OUTPUT_FILE = "onboarding-apps.json"
+REPO_URL = "https://github.com/nuonco/example-app-configs"
+BRANCH = "main"
 
 
 def parse_toml(path: Path) -> dict:
@@ -75,8 +78,32 @@ def build_demo(demo_dir: Path) -> dict | None:
     }
 
 
+def build_onboarding_entry(demo_dir: Path) -> dict | None:
+    """Build an onboarding catalog entry if the app opts in via metadata.toml."""
+    metadata = parse_toml(demo_dir / "metadata.toml")
+    onboarding = metadata.get("onboarding") or {}
+    if not onboarding.get("enabled"):
+        return None
+
+    meta = parse_yaml(demo_dir / ".meta.yaml")
+
+    return {
+        "slug": demo_dir.name,
+        "display_name": metadata.get("display_name", demo_dir.name),
+        "description": metadata.get("description", ""),
+        "category": onboarding.get("category", ""),
+        "difficulty": onboarding.get("difficulty", ""),
+        "tags": meta.get("tags", []),
+        "cloud_provider": onboarding.get("cloud_provider", ""),
+        "repo": REPO_URL,
+        "directory": demo_dir.name,
+        "branch": BRANCH,
+    }
+
+
 def main():
     demos = []
+    onboarding_apps = []
     all_tags = set()
 
     print("Building index.html from template...", file=sys.stderr)
@@ -93,6 +120,10 @@ def main():
             all_tags.update(demo["tags"])
             print(f"  ✓ {demo['name']}", file=sys.stderr)
 
+        onboarding_entry = build_onboarding_entry(entry)
+        if onboarding_entry:
+            onboarding_apps.append(onboarding_entry)
+
     site_data = {
         "demos": demos,
         "tags": sorted(all_tags),
@@ -106,6 +137,10 @@ def main():
     output_path.write_text(html)
 
     print(f"\nGenerated {output_path} with {len(demos)} demos and {len(all_tags)} tags", file=sys.stderr)
+
+    onboarding_path = DOCS_DIR / ONBOARDING_OUTPUT_FILE
+    onboarding_path.write_text(json.dumps(onboarding_apps, indent=2) + "\n")
+    print(f"Generated {onboarding_path} with {len(onboarding_apps)} onboarding apps", file=sys.stderr)
 
 
 if __name__ == "__main__":

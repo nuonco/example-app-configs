@@ -3,3 +3,9 @@ version = "v2"
 description = "AWS Lambda app with API Gateway, and DynamoDB to demonstrate Nuon deploying with Kubernetes"
 display_name = "AWS Lambda app"
 readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

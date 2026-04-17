@@ -3,3 +3,9 @@ version = "v2"
 description  = "Twenty"
 display_name = "Twenty open-source CRM on AWS EKS"
 readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "aws"

@@ -64,3 +64,15 @@ readme = "./README.md"
 # Receive deployment notifications in Slack. Uncomment and add your webhook URL.
 #
 # slack_webhook_url = "https://hooks.slack.com/services/foo/bar/baz"
+
+
+# -----------------------------------------------------------------------------
+# Onboarding catalog
+# -----------------------------------------------------------------------------
+# Apps with [onboarding] enabled are surfaced in the Nuon onboarding flow via
+# https://nuonco.github.io/example-app-configs/onboarding-apps.json
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

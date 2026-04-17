@@ -3,3 +3,9 @@ version = "v2"
 display_name = "Penpot"
 description  = "Penpot, a web-based collaborative design tool, on AWS EKS"
 readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "aws"
