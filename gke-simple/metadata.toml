@@ -3,3 +3,9 @@ version = "v2"
 display_name = "GKE Simple"
 description  = "A simple Whoami HTTP service on Google Cloud (GCP) GKE Autopilot"
 readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "gcp"

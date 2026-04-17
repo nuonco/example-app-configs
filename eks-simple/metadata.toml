@@ -3,3 +3,9 @@ version = "v2"
 display_name = "EKS Simple"
 description  = "A simple Whoami HTTP service on AWS EKS"
 readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"
