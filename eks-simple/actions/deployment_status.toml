@@ -1,6 +1,7 @@
 # action
 name    = "deployments_status"
 timeout = "30s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"

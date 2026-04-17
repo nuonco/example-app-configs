@@ -1,6 +1,7 @@
 #:schema https://api.nuon.co/v1/general/config-schema?source=action
 name    = "ingress_healthcheck"
 timeout = "30s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"

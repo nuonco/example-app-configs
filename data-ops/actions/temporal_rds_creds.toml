@@ -1,6 +1,7 @@
 # action
 name    = "temporal_rds_creds"
 timeout = "1m"
+enable_kube_config = true
 
 [[triggers]]
 type           = "post-deploy-component"

@@ -1,6 +1,7 @@
 # action
 name    = "kubectl_events"
 timeout = "2m30s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"

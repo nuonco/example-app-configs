@@ -2,6 +2,7 @@
 
 name    = "alb_healthcheck"
 timeout = "30s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"

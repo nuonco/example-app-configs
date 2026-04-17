@@ -1,6 +1,7 @@
 # action
 name    = "whoami"
 timeout = "5s"
+enable_kube_config = false
 
 # TODO: should be a cron and a post-deploy
 [[triggers]]

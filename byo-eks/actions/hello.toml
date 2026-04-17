@@ -1,6 +1,7 @@
 # action
 name    = "hello"
 timeout = "5s"
+enable_kube_config = false
 
 [[triggers]]
 type = "manual"

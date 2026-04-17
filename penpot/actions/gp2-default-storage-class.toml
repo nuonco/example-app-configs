@@ -1,6 +1,7 @@
 # action
 name    = "default_storage_class"
 timeout = "1m"
+enable_kube_config = true
 
 [[triggers]]
 type           = "pre-deploy-component"

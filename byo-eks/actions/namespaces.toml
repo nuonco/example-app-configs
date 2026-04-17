@@ -1,6 +1,7 @@
 # action
 name    = "namespaces"
 timeout = "5s"
+enable_kube_config = true
 
 [[triggers]]
 type = "manual"
