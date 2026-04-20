@@ -71,14 +71,29 @@ This is a demonstration application that showcases [Nuon Policies](https://docs.
 
 This app includes 6 policy scenarios that automatically trigger during installation and redeployment:
 
-| Scenario | Policy Type | Enforcement | What Happens |
-|----------|-------------|-------------|--------------|
-| 1. Public EKS Endpoint | Sandbox / OPA | **warn** | Warns about public cluster endpoint but allows deployment |
-| 2. S3 Bucket Creation | Terraform / OPA | **deny** | Blocks S3 bucket creation entirely |
-| 3. Database Modification | Terraform / OPA | **deny** | Allows initial deploy, blocks subsequent updates |
-| 4. Restricted Namespaces | Helm / OPA | **deny** | Blocks deployments to kube-system namespace |
-| 5a. Runner-Only Access | Sandbox / OPA | **deny** | Blocks non-runner IAM principals (latent) |
-| 5b. ECR Images Only | Helm / OPA | **deny** | Blocks non-ECR container images |
+**1. Public EKS Endpoint** (Sandbox / OPA)
+- **Enforcement**: warn
+- **What Happens**: Warns about public cluster endpoint but allows deployment
+
+**2. S3 Bucket Creation** (Terraform / OPA)
+- **Enforcement**: deny
+- **What Happens**: Blocks S3 bucket creation entirely
+
+**3. Database Modification** (Terraform / OPA)
+- **Enforcement**: deny
+- **What Happens**: Allows initial deploy, blocks subsequent updates
+
+**4. Restricted Namespaces** (Helm / OPA)
+- **Enforcement**: deny
+- **What Happens**: Blocks deployments to kube-system namespace
+
+**5a. Runner-Only Access** (Sandbox / OPA)
+- **Enforcement**: deny
+- **What Happens**: Blocks non-runner IAM principals (latent)
+
+**5b. ECR Images Only** (Helm / OPA)
+- **Enforcement**: deny
+- **What Happens**: Blocks non-ECR container images
 
 ### What inputs can you enter?
 
