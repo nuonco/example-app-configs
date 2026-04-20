@@ -1,0 +1,21 @@
+name    = "get_pods"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "get pods"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+kubectl get -n whoami pods
+
+response=`kubectl get -n whoami pods -o json | jq -c`
+
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

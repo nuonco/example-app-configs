@@ -1,0 +1,20 @@
+name         = "load_balancer"
+type         = "kubernetes_manifest"
+dependencies = ["whoami"]
+
+namespace = "whoami"
+manifest = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-lb
+  namespace: whoami
+spec:
+  type: LoadBalancer
+  selector:
+    app: whoami
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+"""
