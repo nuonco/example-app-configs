@@ -1,3 +1,13 @@
+cloud: aws
+category:
+  - architecture
+  - security
+infra: ecs
+stack:
+  - terraform
+  - container-image
+features:
+  - actions
 tags:
   - ecs
   - iam

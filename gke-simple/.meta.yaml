@@ -1,0 +1,14 @@
+cloud: gcp
+category:
+  - architecture
+infra: gke
+stack:
+  - terraform
+  - helm
+features:
+  - policies
+tags:
+  - gcp
+  - gke
+  - kubernetes
+links: {}

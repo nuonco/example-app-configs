@@ -1,0 +1,16 @@
+cloud: azure
+category:
+  - architecture
+infra: aks
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+  - policies
+  - secrets
+tags:
+  - aks
+  - kubernetes
+  - azure
+links: {}

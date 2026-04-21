@@ -1,0 +1,149 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "health_check"
+timeout = "5m"
+description = "Check the health status of all n8n workflow automation components"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type = "post-deploy-all-components"
+
+[[steps]]
+name = "check_postgresql"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Checking PostgreSQL Database..."
+echo "=========================================="
+kubectl get pods -n n8n -l app=postgresql -o wide
+kubectl get pvc -n n8n | grep postgres || true
+echo ""
+"""
+
+[[steps]]
+name = "check_redis"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Checking Redis Queue..."
+echo "=========================================="
+kubectl get pods -n n8n -l app=redis -o wide
+echo ""
+
+# Check Redis queue depth
+REDIS_POD=$(kubectl get pods -n n8n -l app=redis -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+if [ ! -z "$REDIS_POD" ]; then
+    echo "Redis Queue Stats:"
+    kubectl exec -n n8n $REDIS_POD -- redis-cli INFO stats 2>/dev/null | grep -E "total_commands_processed|instantaneous_ops_per_sec" || echo "Unable to get Redis stats"
+fi
+echo ""
+"""
+
+[[steps]]
+name = "check_n8n_main"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Checking n8n Main Application..."
+echo "=========================================="
+kubectl get pods -n n8n -l app=n8n-main -o wide
+kubectl get svc -n n8n n8n-main
+echo ""
+"""
+
+[[steps]]
+name = "check_n8n_workers"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Checking n8n Workers..."
+echo "=========================================="
+kubectl get pods -n n8n -l app=n8n-worker -o wide
+echo ""
+
+# Check worker count and status
+WORKER_COUNT=$(kubectl get pods -n n8n -l app=n8n-worker --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l)
+echo "Active Workers: $WORKER_COUNT"
+echo ""
+"""
+
+[[steps]]
+name = "check_ingress"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Checking Ingress/ALB..."
+echo "=========================================="
+kubectl get ingress -n n8n -o wide
+kubectl get svc -n n8n -o wide
+echo ""
+"""
+
+[[steps]]
+name = "check_storage"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Checking Storage (PVCs)..."
+echo "=========================================="
+kubectl get pvc -n n8n -o wide
+echo ""
+"""
+
+[[steps]]
+name = "check_logs"
+inline_contents = """
+#!/bin/bash
+echo "=========================================="
+echo "Recent n8n Logs (last 10 lines)..."
+echo "=========================================="
+N8N_POD=$(kubectl get pods -n n8n -l app=n8n-main -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+if [ ! -z "$N8N_POD" ]; then
+    kubectl logs -n n8n $N8N_POD --tail=10 2>/dev/null || echo "Unable to fetch logs"
+else
+    echo "No n8n main pod found"
+fi
+echo ""
+"""
+
+[[steps]]
+name = "summary"
+inline_contents = """
+#!/bin/bash
+echo ""
+echo "=========================================="
+echo "Health Check Summary"
+echo "=========================================="
+
+# Count running pods
+TOTAL_PODS=$(kubectl get pods -n n8n --no-headers 2>/dev/null | wc -l)
+RUNNING_PODS=$(kubectl get pods -n n8n --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l)
+
+echo "Pods: $RUNNING_PODS/$TOTAL_PODS running"
+
+# Access URLs
+echo ""
+echo "Access URLs:"
+N8N_URL="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+echo "n8n Interface: $N8N_URL"
+echo "Webhook Base: $N8N_URL/webhook/"
+echo "API Endpoint: $N8N_URL/api/v1/"
+
+echo ""
+echo "=== URL ACCESSIBILITY TEST ==="
+echo "Testing external access..."
+curl -I "$N8N_URL" --connect-timeout 10 --max-time 30 2>/dev/null && echo "✅ n8n is accessible" || echo "❌ n8n not accessible (may be DNS propagation or auth required)"
+
+if [ "$RUNNING_PODS" -eq "$TOTAL_PODS" ] && [ "$TOTAL_PODS" -gt 0 ]; then
+    echo ""
+    echo "✅ All systems operational"
+else
+    echo ""
+    echo "⚠️ Some components need attention"
+    echo "Run: kubectl get pods -n n8n for details"
+fi
+echo "=========================================="
+"""
+

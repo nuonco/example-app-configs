@@ -1,0 +1,63 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "pull_ollama_model"
+timeout = "15m"
+description = "Download AI model for n8n workflows"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type = "post-deploy-all-components"
+
+[[steps]]
+name = "manage_models"
+inline_contents = """
+#!/bin/bash
+set -e
+
+echo "=== DOWNLOADING AI MODEL FOR N8N ==="
+echo "Model: tinyllama:1.1b"
+echo ""
+
+# Get the ollama pod
+OLLAMA_POD=$(kubectl get pods -n n8n -l app=ollama -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$OLLAMA_POD" ]; then
+    echo "❌ Error: No Ollama pod found"
+    exit 1
+fi
+
+echo "Found Ollama pod: $OLLAMA_POD"
+echo ""
+
+echo "=== CURRENT MODELS ==="
+kubectl exec -n n8n $OLLAMA_POD -- ollama list || echo "No models currently loaded"
+echo ""
+
+MODEL="tinyllama:1.1b"
+
+echo "=== DOWNLOADING MODEL ==="
+echo ""
+echo "🔄 Downloading $MODEL..."
+echo "This may take a few minutes..."
+
+if kubectl exec -n n8n $OLLAMA_POD -- ollama pull $MODEL; then
+    echo "✅ Successfully downloaded $MODEL"
+else
+    echo "⚠️  Failed to download $MODEL"
+    exit 1
+fi
+
+echo ""
+echo "=== FINAL MODEL LIST ==="
+kubectl exec -n n8n $OLLAMA_POD -- ollama list
+
+echo ""
+echo "🎉 Model download completed!"
+echo ""
+echo "📋 Available model: $MODEL"
+echo "🎯 Ollama endpoint: http://ollama-server.n8n.svc.cluster.local:11434"
+echo "💡 Use this URL in your n8n AI nodes!"
+"""
+

@@ -1,3 +1,12 @@
+cloud: gcp
+category:
+  - serverless
+infra: cloud-function
+stack:
+  - terraform
+  - docker
+features:
+  - actions
 tags:
   - gcp
   - serverless

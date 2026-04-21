@@ -1,0 +1,23 @@
+image:
+  repository: postgres
+  tag: "16-alpine"
+  pullPolicy: IfNotPresent
+
+auth:
+  username: n8n
+  password: ""
+  database: n8n
+
+persistence:
+  enabled: true
+  size: 50Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+

@@ -1,0 +1,18 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - terraform
+  - helm
+  - manifest
+features:
+  - policies
+  - secrets
+tags:
+  - eks
+  - kubernetes
+  - karpenter
+  - ebs
+  - image-cache
+links: {}

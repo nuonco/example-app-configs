@@ -1,0 +1,44 @@
+replicaCount: 1
+
+image:
+  repository: ollama/ollama
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 11434
+
+persistence:
+  enabled: true
+  size: 50Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "4Gi"
+    cpu: "2000m"
+  limits:
+    memory: "8Gi"
+    cpu: "4000m"
+
+nodeSelector: {}
+
+tolerations: []
+
+# Ollama specific configuration
+ollama:
+  gpu:
+    enabled: false  # Start with CPU, can enable GPU later
+  models:
+    pull:
+      - "llama3.2:1b"  # Smallest model for cost savings
+    run:
+      - "llama3.2:1b"
+
+extraEnv:
+  - name: OLLAMA_KEEP_ALIVE
+    value: "24h"
+  - name: OLLAMA_NUM_PARALLEL
+    value: "1"
+

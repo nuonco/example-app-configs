@@ -1,3 +1,14 @@
+cloud: aws
+category:
+  - serverless
+  - architecture
+infra: lambda
+stack:
+  - terraform
+  - docker
+features:
+  - actions
+  - policies
 tags:
   - lambda
   - serverless

@@ -1,3 +1,11 @@
+cloud: aws
+category:
+  - architecture
+infra: ec2
+stack:
+  - terraform
+features:
+  - actions
 tags:
   - ec2
   - docker

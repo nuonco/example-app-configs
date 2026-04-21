@@ -1,3 +1,15 @@
+cloud: aws
+category:
+  - self-hosted
+  - databases
+infra: eks
+stack:
+  - helm
+  - manifest
+  - container-image
+features:
+  - actions
+  - policies
 tags:
   - eks
   - kubernetes

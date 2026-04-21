@@ -1,3 +1,15 @@
+cloud: aws
+category:
+  - self-hosted
+infra: eks
+stack:
+  - terraform
+  - helm
+  - manifest
+features:
+  - actions
+  - policies
+  - secrets
 tags:
   - eks
   - kubernetes
