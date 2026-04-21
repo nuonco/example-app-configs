@@ -7,9 +7,9 @@ storage_driver = "configmap"
 dependencies   = []
 timeout        = "15m"
 
-[connected_repo]
-repo      = "nuonco/n8n"
-directory = "src/helm/ollama"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/helm/ollama"
 branch    = "main"
 
 [[values_file]]

@@ -6,9 +6,9 @@ namespace      = "n8n"
 storage_driver = "configmap"
 timeout        = "15m"
 
-[connected_repo]
-repo      = "nuonco/n8n"
-directory = "src/helm/postgresql"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/helm/postgresql"
 branch    = "main"
 
 [[values_file]]

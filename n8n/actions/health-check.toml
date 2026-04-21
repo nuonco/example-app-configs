@@ -26,17 +26,18 @@ echo ""
 name = "check_redis"
 inline_contents = """
 #!/bin/bash
+REDIS_PASS="{{ .nuon.install.secrets.redis_password }}"
+
 echo "=========================================="
 echo "Checking Redis Queue..."
 echo "=========================================="
 kubectl get pods -n n8n -l app=redis -o wide
 echo ""
 
-# Check Redis queue depth
 REDIS_POD=$(kubectl get pods -n n8n -l app=redis -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
 if [ ! -z "$REDIS_POD" ]; then
     echo "Redis Queue Stats:"
-    kubectl exec -n n8n $REDIS_POD -- redis-cli INFO stats 2>/dev/null | grep -E "total_commands_processed|instantaneous_ops_per_sec" || echo "Unable to get Redis stats"
+    kubectl exec -n n8n $REDIS_POD -- redis-cli -a "$REDIS_PASS" --no-auth-warning INFO stats 2>/dev/null | grep -E "total_commands_processed|instantaneous_ops_per_sec" || echo "Unable to get Redis stats"
 fi
 echo ""
 """

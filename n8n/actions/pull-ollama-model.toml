@@ -16,15 +16,15 @@ inline_contents = """
 #!/bin/bash
 set -e
 
+MODEL="{{ .nuon.inputs.inputs.ollama_model }}"
 echo "=== DOWNLOADING AI MODEL FOR N8N ==="
-echo "Model: tinyllama:1.1b"
+echo "Model: $MODEL"
 echo ""
 
-# Get the ollama pod
 OLLAMA_POD=$(kubectl get pods -n n8n -l app=ollama -o jsonpath='{.items[0].metadata.name}')
 
 if [ -z "$OLLAMA_POD" ]; then
-    echo "❌ Error: No Ollama pod found"
+    echo "Error: No Ollama pod found"
     exit 1
 fi
 
@@ -35,17 +35,14 @@ echo "=== CURRENT MODELS ==="
 kubectl exec -n n8n $OLLAMA_POD -- ollama list || echo "No models currently loaded"
 echo ""
 
-MODEL="tinyllama:1.1b"
-
 echo "=== DOWNLOADING MODEL ==="
 echo ""
-echo "🔄 Downloading $MODEL..."
-echo "This may take a few minutes..."
+echo "Downloading $MODEL..."
 
 if kubectl exec -n n8n $OLLAMA_POD -- ollama pull $MODEL; then
-    echo "✅ Successfully downloaded $MODEL"
+    echo "Successfully downloaded $MODEL"
 else
-    echo "⚠️  Failed to download $MODEL"
+    echo "Failed to download $MODEL"
     exit 1
 fi
 
@@ -54,10 +51,8 @@ echo "=== FINAL MODEL LIST ==="
 kubectl exec -n n8n $OLLAMA_POD -- ollama list
 
 echo ""
-echo "🎉 Model download completed!"
-echo ""
-echo "📋 Available model: $MODEL"
-echo "🎯 Ollama endpoint: http://ollama-server.n8n.svc.cluster.local:11434"
-echo "💡 Use this URL in your n8n AI nodes!"
+echo "Model download completed"
+echo "Available model: $MODEL"
+echo "Ollama endpoint: http://ollama-server.n8n.svc.cluster.local:11434"
 """
 

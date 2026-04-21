@@ -7,7 +7,7 @@ image:
 
 auth:
   username: n8n
-  password: changeme123
+  password: "{{ .nuon.install.secrets.postgres_password }}"
   database: n8n
 
 persistence:

@@ -5,7 +5,7 @@ image:
   pullPolicy: IfNotPresent
 
 auth:
-  password: changeme123
+  password: "{{ .nuon.install.secrets.redis_password }}"
 
 persistence:
   enabled: {{ .nuon.install.inputs.redis_persistence_enabled }}

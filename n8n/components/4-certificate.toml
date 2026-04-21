@@ -3,9 +3,9 @@ name              = "certificate"
 type              = "terraform_module"
 terraform_version = "1.11.3"
 
-[connected_repo]
-repo      = "nuonco/n8n"
-directory = "src/components/certificate"
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "n8n/src/components/certificate"
 branch    = "main"
 
 [vars]
