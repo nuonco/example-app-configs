@@ -21,7 +21,7 @@ config:
     postgresdb:
       database: n8n
       user: n8n
-      password: changeme123
+      password: "{{ .nuon.install.secrets.postgres_password }}"
   
   executions:
     mode: {{ .nuon.install.inputs.executions_mode }}
@@ -31,12 +31,12 @@ config:
   redis:
     host: redis-master
     port: "6379"
-    password: changeme123
+    password: "{{ .nuon.install.secrets.redis_password }}"
     db: "0"
 
 secret:
-  encryption_key: changeme-encryption-key-32chars
-  jwt_secret: changeme-jwt-secret-32chars
+  encryption_key: "{{ .nuon.install.secrets.encryption_key }}"
+  jwt_secret: "{{ .nuon.install.secrets.jwt_secret }}"
 
 extraEnv:
   N8N_DIAGNOSTICS_ENABLED: "false"

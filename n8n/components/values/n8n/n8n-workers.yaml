@@ -18,16 +18,16 @@ config:
     postgresdb:
       database: n8n
       user: n8n
-      password: changeme123
+      password: "{{ .nuon.install.secrets.postgres_password }}"
   
   redis:
     host: redis-master
     port: "6379"
-    password: changeme123
+    password: "{{ .nuon.install.secrets.redis_password }}"
     db: "0"
 
 secret:
-  encryption_key: changeme-encryption-key-32chars
+  encryption_key: "{{ .nuon.install.secrets.encryption_key }}"
 
 extraEnv:
   EXECUTIONS_MODE: "queue"

@@ -54,12 +54,6 @@ default      = "false"
 display_name = "Enable JWT Auth"
 group        = "security"
 
-[[input]]
-name         = "encryption_key_auto_generate"
-description  = "Auto-generate encryption key for credentials (true/false)"
-default      = "true"
-display_name = "Auto-generate Encryption Key"
-group        = "security"
 
 # Workflow Execution Configuration
 [[group]]
