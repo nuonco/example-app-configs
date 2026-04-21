@@ -1,0 +1,6 @@
+apiVersion: v2
+name: n8n-workers
+description: n8n Worker Nodes for Queue Processing
+type: application
+version: 0.1.0
+appVersion: "latest"

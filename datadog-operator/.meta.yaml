@@ -1,3 +1,13 @@
+cloud: aws
+category:
+  - monitoring
+infra: eks
+stack:
+  - terraform
+  - manifest
+features:
+  - actions
+  - policies
 tags:
   - eks
   - kubernetes

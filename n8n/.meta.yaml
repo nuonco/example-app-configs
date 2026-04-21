@@ -1,0 +1,21 @@
+cloud: aws
+category:
+  - self-hosted
+  - ai-ml
+infra: eks
+stack:
+  - terraform
+  - helm
+  - manifest
+features:
+  - actions
+  - secrets
+tags:
+  - eks
+  - kubernetes
+  - workflow-automation
+  - postgresql
+  - redis
+  - ollama
+links:
+  upstream: https://n8n.io

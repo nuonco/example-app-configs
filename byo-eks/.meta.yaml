@@ -1,3 +1,15 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - manifest
+  - container-image
+features:
+  - actions
+  - policies
+  - secrets
+  - byo
 tags:
   - eks
   - kubernetes

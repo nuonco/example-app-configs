@@ -1,0 +1,12 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - manifest
+features: []
+tags:
+  - eks
+  - kubernetes
+  - kustomize
+links: {}

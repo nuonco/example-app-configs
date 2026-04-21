@@ -1,0 +1,6 @@
+version = "v2"
+
+description = "Self-hosted Workflow Automation Platform - n8n with PostgreSQL and Redis. 100% data privacy with on-premises deployment for building powerful workflows."
+display_name = "n8n Workflow Automation"
+readme       = "./README.md"
+

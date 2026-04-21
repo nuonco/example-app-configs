@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n-worker
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: n8n-worker
+  template:
+    metadata:
+      labels:
+        app: n8n-worker
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: n8n
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        {{- toYaml .Values.deployment.command | nindent 8 }}
+        env:
+        - name: DB_TYPE
+          value: "postgresdb"
+        - name: DB_POSTGRESDB_HOST
+          value: "postgresql"
+        - name: DB_POSTGRESDB_PORT
+          value: "5432"
+        - name: DB_POSTGRESDB_DATABASE
+          value: "{{ .Values.config.database.postgresdb.database }}"
+        - name: DB_POSTGRESDB_USER
+          value: "{{ .Values.config.database.postgresdb.user }}"
+        - name: DB_POSTGRESDB_PASSWORD
+          value: "{{ .Values.config.database.postgresdb.password }}"
+        - name: QUEUE_BULL_REDIS_HOST
+          value: "{{ .Values.config.redis.host }}"
+        - name: QUEUE_BULL_REDIS_PORT
+          value: "{{ .Values.config.redis.port }}"
+        - name: QUEUE_BULL_REDIS_PASSWORD
+          value: "{{ .Values.config.redis.password }}"
+        - name: QUEUE_BULL_REDIS_DB
+          value: "{{ .Values.config.redis.db }}"
+        - name: N8N_ENCRYPTION_KEY
+          value: "{{ .Values.secret.encryption_key }}"
+        {{- range $key, $value := .Values.extraEnv }}
+        - name: {{ $key }}
+          value: "{{ $value }}"
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+

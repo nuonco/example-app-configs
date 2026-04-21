@@ -1,3 +1,16 @@
+cloud: aws
+category:
+  - architecture
+  - security
+infra: eks
+stack:
+  - terraform
+  - helm
+  - manifest
+features:
+  - actions
+  - policies
+  - secrets
 tags:
   - eks
   - eks-auto-mode

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ollama
+description: Ollama LLM Server for n8n AI Workflows
+type: application
+version: 0.1.0
+appVersion: "latest"
+

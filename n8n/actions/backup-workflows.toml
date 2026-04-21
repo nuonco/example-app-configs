@@ -1,0 +1,72 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "backup_workflows"
+timeout = "15m"
+description = "Create a backup of all n8n workflows and credentials"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type = "cron"
+schedule = "0 2 * * *"  # Daily at 2 AM
+
+[[steps]]
+name = "backup_database"
+inline_contents = """
+#!/bin/bash
+BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="n8n_backup_${BACKUP_DATE}.sql"
+
+echo "Creating database backup: $BACKUP_FILE"
+
+# Get PostgreSQL pod
+PG_POD=$(kubectl get pods -n n8n -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$PG_POD" ]; then
+    echo "Error: PostgreSQL pod not found"
+    exit 1
+fi
+
+# Create backup
+kubectl exec -n n8n $PG_POD -- pg_dump -U n8n -d n8n > /tmp/$BACKUP_FILE
+
+# Upload to S3 (if enabled)
+if [ "{{ .nuon.inputs.inputs.enable_s3_backup }}" = "true" ]; then
+    echo "Uploading backup to S3..."
+    aws s3 cp /tmp/$BACKUP_FILE s3://{{ .nuon.install.id }}-n8n-backups/$BACKUP_FILE
+    echo "Backup uploaded successfully"
+fi
+
+echo "Backup completed: $BACKUP_FILE"
+echo "Size: $(du -h /tmp/$BACKUP_FILE | cut -f1)"
+"""
+
+[[steps]]
+name = "cleanup_old_backups"
+inline_contents = """
+#!/bin/bash
+RETENTION_DAYS={{ .nuon.inputs.inputs.db_backup_retention_days }}
+
+echo "Cleaning up backups older than $RETENTION_DAYS days..."
+
+if [ "{{ .nuon.inputs.inputs.enable_s3_backup }}" = "true" ]; then
+    # List and delete old backups from S3
+    aws s3 ls s3://{{ .nuon.install.id }}-n8n-backups/ | while read -r line; do
+        FILE=$(echo $line | awk '{print $4}')
+        if [ ! -z "$FILE" ]; then
+            FILE_DATE=$(echo $FILE | grep -oP '\\d{8}')
+            if [ ! -z "$FILE_DATE" ]; then
+                AGE_DAYS=$(( ($(date +%s) - $(date -d $FILE_DATE +%s)) / 86400 ))
+                if [ $AGE_DAYS -gt $RETENTION_DAYS ]; then
+                    echo "Deleting old backup: $FILE (age: $AGE_DAYS days)"
+                    aws s3 rm s3://{{ .nuon.install.id }}-n8n-backups/$FILE
+                fi
+            fi
+        fi
+    done
+fi
+
+echo "Cleanup completed"
+"""
+

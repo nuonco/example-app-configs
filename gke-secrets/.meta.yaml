@@ -1,3 +1,13 @@
+cloud: gcp
+category:
+  - architecture
+  - security
+infra: gke
+stack:
+  - helm
+features:
+  - actions
+  - policies
 tags:
   - gcp
   - gke

@@ -1,0 +1,18 @@
+cloud: aws
+category:
+  - self-hosted
+  - monitoring
+infra: eks
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+tags:
+  - eks
+  - kubernetes
+  - rds
+  - s3
+  - headlamp
+  - monitoring
+links: {}

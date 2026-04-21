@@ -1,0 +1,22 @@
+# Redis Configuration for n8n Queue
+image:
+  repository: redis
+  tag: "7-alpine"
+  pullPolicy: IfNotPresent
+
+auth:
+  password: changeme123
+
+persistence:
+  enabled: {{ .nuon.install.inputs.redis_persistence_enabled }}
+  size: {{ .nuon.install.inputs.redis_storage_gb }}Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+

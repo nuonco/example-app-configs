@@ -1,0 +1,51 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "restart_services"
+timeout = "10m"
+description = "Restart n8n services (main app and workers)"
+
+[[triggers]]
+type = "manual"
+
+[[inputs]]
+name = "component"
+description = "Component to restart: 'all', 'main', 'workers'"
+required = true
+
+[[steps]]
+name = "restart_component"
+inline_contents = """
+#!/bin/bash
+COMPONENT="{{ .action.inputs.component }}"
+
+echo "Restarting n8n component: $COMPONENT"
+
+case $COMPONENT in
+  "main")
+    echo "Restarting n8n main application..."
+    kubectl rollout restart deployment/n8n-main -n n8n
+    kubectl rollout status deployment/n8n-main -n n8n --timeout=300s
+    ;;
+  "workers")
+    echo "Restarting n8n workers..."
+    kubectl rollout restart deployment/n8n-workers -n n8n
+    kubectl rollout status deployment/n8n-workers -n n8n --timeout=300s
+    ;;
+  "all")
+    echo "Restarting all n8n components..."
+    kubectl rollout restart deployment/n8n-main -n n8n
+    kubectl rollout restart deployment/n8n-workers -n n8n
+    kubectl rollout status deployment/n8n-main -n n8n --timeout=300s
+    kubectl rollout status deployment/n8n-workers -n n8n --timeout=300s
+    ;;
+  *)
+    echo "Error: Invalid component. Use 'all', 'main', or 'workers'"
+    exit 1
+    ;;
+esac
+
+echo ""
+echo "Restart completed successfully"
+kubectl get pods -n n8n -o wide
+"""
+

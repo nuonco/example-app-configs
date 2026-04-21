@@ -1,3 +1,12 @@
+cloud: aws
+category:
+  - architecture
+infra: ecs
+stack:
+  - terraform
+  - container-image
+features:
+  - policies
 tags:
   - ecs
   - containers

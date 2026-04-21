@@ -1,0 +1,44 @@
+# Ollama Configuration for n8n AI Workflows
+replicaCount: 1
+
+image:
+  repository: ollama/ollama
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 11434
+
+persistence:
+  enabled: true
+  size: {{ .nuon.install.inputs.ollama_storage_gb }}Gi
+  storageClass: gp2
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: 2
+    memory: 4Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+ollama:
+  gpu:
+    enabled: false
+  models:
+    pull:
+      - {{ .nuon.install.inputs.ollama_model }}
+    run:
+      - {{ .nuon.install.inputs.ollama_model }}
+
+extraEnv:
+  - name: OLLAMA_KEEP_ALIVE
+    value: "24h"
+  - name: OLLAMA_NUM_PARALLEL
+    value: "1"
+

@@ -72,6 +72,11 @@ def build_demo(demo_dir: Path) -> dict | None:
         "title": metadata.get("display_name", demo_dir.name),
         "description": metadata.get("description", ""),
         "sandbox": extract_sandbox_repo(sandbox),
+        "cloud": meta.get("cloud", ""),
+        "categories": meta.get("category", []),
+        "infra": meta.get("infra", ""),
+        "stack": meta.get("stack", []),
+        "features": meta.get("features", []),
         "tags": meta.get("tags", []),
         "links": meta.get("links", {}),
         "github": f"https://github.com/nuonco/example-app-configs/tree/main/{demo_dir.name}",
@@ -105,6 +110,11 @@ def main():
     demos = []
     onboarding_apps = []
     all_tags = set()
+    all_clouds = set()
+    all_categories = set()
+    all_infra = set()
+    all_stack = set()
+    all_features = set()
 
     print("Building index.html from template...", file=sys.stderr)
 
@@ -118,6 +128,13 @@ def main():
         if demo:
             demos.append(demo)
             all_tags.update(demo["tags"])
+            if demo["cloud"]:
+                all_clouds.add(demo["cloud"])
+            all_categories.update(demo["categories"])
+            if demo["infra"]:
+                all_infra.add(demo["infra"])
+            all_stack.update(demo["stack"])
+            all_features.update(demo["features"])
             print(f"  ✓ {demo['name']}", file=sys.stderr)
 
         onboarding_entry = build_onboarding_entry(entry)
@@ -127,6 +144,11 @@ def main():
     site_data = {
         "demos": demos,
         "tags": sorted(all_tags),
+        "clouds": sorted(all_clouds),
+        "categories": sorted(all_categories),
+        "infra": sorted(all_infra),
+        "stack": sorted(all_stack),
+        "features": sorted(all_features),
     }
 
     env = Environment(loader=FileSystemLoader(DOCS_DIR))

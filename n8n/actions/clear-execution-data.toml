@@ -1,0 +1,58 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+
+name    = "clear_execution_data"
+timeout = "10m"
+description = "Clear old execution data to free up database space"
+
+[[triggers]]
+type = "manual"
+
+[[inputs]]
+name = "days_to_keep"
+description = "Number of days of execution data to keep (older data will be deleted)"
+required = true
+
+[[steps]]
+name = "clear_executions"
+inline_contents = """
+#!/bin/bash
+DAYS_TO_KEEP="{{ .action.inputs.days_to_keep }}"
+
+echo "Clearing execution data older than $DAYS_TO_KEEP days..."
+
+# Get PostgreSQL pod
+PG_POD=$(kubectl get pods -n n8n -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$PG_POD" ]; then
+    echo "Error: PostgreSQL pod not found"
+    exit 1
+fi
+
+# Count executions before cleanup
+BEFORE_COUNT=$(kubectl exec -n n8n $PG_POD -- psql -U n8n -d n8n -tAc "SELECT COUNT(*) FROM execution_entity;")
+echo "Execution records before cleanup: $BEFORE_COUNT"
+
+# Delete old executions
+CUTOFF_DATE=$(date -d "$DAYS_TO_KEEP days ago" '+%Y-%m-%d')
+echo "Deleting executions older than $CUTOFF_DATE..."
+
+kubectl exec -n n8n $PG_POD -- psql -U n8n -d n8n -c "
+  DELETE FROM execution_entity 
+  WHERE finished_at < '$CUTOFF_DATE 00:00:00' 
+  OR (finished_at IS NULL AND started_at < '$CUTOFF_DATE 00:00:00');
+"
+
+# Count executions after cleanup
+AFTER_COUNT=$(kubectl exec -n n8n $PG_POD -- psql -U n8n -d n8n -tAc "SELECT COUNT(*) FROM execution_entity;")
+echo "Execution records after cleanup: $AFTER_COUNT"
+
+DELETED_COUNT=$((BEFORE_COUNT - AFTER_COUNT))
+echo "Deleted $DELETED_COUNT execution records"
+
+# Vacuum the database
+echo "Running VACUUM ANALYZE to reclaim space..."
+kubectl exec -n n8n $PG_POD -- psql -U n8n -d n8n -c "VACUUM ANALYZE execution_entity;"
+
+echo "Cleanup completed successfully"
+"""
+

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: n8n-main
+description: n8n Workflow Automation Main Service
+type: application
+version: 0.1.0
+appVersion: "latest"

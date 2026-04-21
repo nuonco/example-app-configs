@@ -1,3 +1,11 @@
+cloud: gcp
+category:
+  - serverless
+infra: gcs
+stack:
+  - terraform
+features:
+  - actions
 tags:
   - gcp
   - gcs

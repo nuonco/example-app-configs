@@ -1,0 +1,6 @@
+namespace: "n8n"
+domain: ""
+domain_certificate: ""
+service_name: "n8n-main"
+service_port: "5678"
+healthcheck_path: "/healthz"

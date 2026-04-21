@@ -1,0 +1,18 @@
+cloud: aws
+category:
+  - architecture
+  - security
+infra: eks
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+  - policies
+  - secrets
+tags:
+  - eks
+  - kubernetes
+  - iam
+  - dynamic-roles
+links: {}

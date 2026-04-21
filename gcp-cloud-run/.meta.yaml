@@ -1,3 +1,12 @@
+cloud: gcp
+category:
+  - serverless
+infra: cloud-run
+stack:
+  - terraform
+  - container-image
+features:
+  - actions
 tags:
   - gcp
   - cloud-run
