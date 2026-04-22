@@ -1,0 +1,8 @@
+type = "custom"
+name = "{{.nuon.install.id}}-sandbox-deprovision"
+description = "deprovision the sandbox."
+display_name = "sandbox deprovision role"
+permissions_boundary = "./deprovision_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"
