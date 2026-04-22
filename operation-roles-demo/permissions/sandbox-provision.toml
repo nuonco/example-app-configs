@@ -1,0 +1,8 @@
+type = "custom"
+name = "{{.nuon.install.id}}-sandbox-provision"
+description = "provision the sandbox."
+display_name = "sandbox provision role"
+permissions_boundary = "./provision_boundary.json"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

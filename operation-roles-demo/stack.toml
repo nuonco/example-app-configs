@@ -1,0 +1,7 @@
+type        = "aws-cloudformation"
+name        = "nuon-operation-roles-{{.nuon.install.id}}"
+description = "Operation Roles Demo: per-operation least-privilege IAM for BYOC apps"
+
+# nested stack
+vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.2.0/vpc/eks/default/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.2.0/runner/asg/stack.yaml"
