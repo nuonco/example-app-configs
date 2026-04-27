@@ -6,6 +6,7 @@ namespace      = "kube-system"
 storage_driver = "configmap"
 
 dependencies   = ["storage_class", "crd_tailscale_operator"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "Altinity/clickhouse-operator"

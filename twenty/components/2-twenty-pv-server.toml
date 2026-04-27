@@ -21,3 +21,4 @@ spec:
     path: /tmp/data/twentycrm/server
   persistentVolumeReclaimPolicy: Retain
 """
+max_auto_retries = 5

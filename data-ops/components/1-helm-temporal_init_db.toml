@@ -5,6 +5,7 @@ storage_driver = "configmap"
 namespace      = "temporal"
 
 dependencies   = ["karpenter_nodepools", "rds_cluster_temporal"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

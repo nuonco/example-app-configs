@@ -3,6 +3,7 @@ name         = "application_load_balancer"
 chart_name   = "application-load-balancer"
 namespace    = "whoami"
 dependencies = ["whoami"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/components"

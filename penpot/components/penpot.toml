@@ -4,6 +4,7 @@ type           = "helm_chart"
 chart_name     = "penpot"
 namespace      = "penpot"
 storage_driver = "configmap"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "penpot/penpot-helm"

@@ -4,3 +4,4 @@ type         = "kubernetes_manifest"
 namespace    = "cockroach"
 manifest     = "./manifests/cockroach-cluster.yaml"
 dependencies = ["cockroach_operator"]
+max_auto_retries = 5

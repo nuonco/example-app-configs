@@ -5,3 +5,4 @@ namespace    = "kube-system"
 dependencies = ["image_cache"]
 
 manifest = "./manifests/ec2nodeclass.yaml"
+max_auto_retries = 5

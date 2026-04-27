@@ -21,3 +21,4 @@ spec:
       targetPort: 8065
       protocol: TCP
 """
+max_auto_retries = 5
