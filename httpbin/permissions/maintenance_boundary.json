@@ -8,6 +8,7 @@
         "organizations:DescribeOrganization",
         "ec2:*",
         "ecr:*",
+        "s3:*",
         "ssm:GetParameter"
       ],
       "Resource": "*"
