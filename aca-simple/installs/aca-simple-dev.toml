@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "aca-simple-dev"
+approval_option = "approve-all"
+
+[azure_account]
+  location = "eastus"
