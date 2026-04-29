@@ -5,6 +5,7 @@ resource "aws_s3_bucket" "httpbin_bucket" {
     Name      = "httpbin-${var.install_id}-bucket"
     ManagedBy = "Nuon"
     InstallID = var.install_id
+    Version   = "v2"
   }
 }
 
