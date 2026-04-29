@@ -4,3 +4,4 @@ type      = "kubernetes_manifest"
 namespace = "whoami"
 
 manifest = "./manifests/whoami.yaml"
+max_auto_retries = 5

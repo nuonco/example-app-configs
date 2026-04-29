@@ -46,6 +46,7 @@ namespace = "default"
 # -----------------------------------------------------------------------------
 # REPOSITORY CONFIGURATION
 # -----------------------------------------------------------------------------
+max_auto_retries = 5
 [helm_repo]
 repo_url = "https://kubernetes-sigs.github.io/headlamp"
 chart    = "headlamp"

@@ -6,3 +6,4 @@ namespace = "temporal-ai-agent"
 dependencies = ["temporal"]
 
 manifest  = "./manifests/temporal_ai_agent.yaml"
+max_auto_retries = 5

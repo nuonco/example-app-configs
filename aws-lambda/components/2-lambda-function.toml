@@ -3,6 +3,7 @@ name              = "lambda_function"
 type              = "terraform_module"
 terraform_version = "1.11.4"
 dependencies      = ["dynamodb_table"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

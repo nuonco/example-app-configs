@@ -6,3 +6,4 @@ namespace = "clickhouse"
 dependencies = ["clickhouse_ingress", "crd_tailscale_operator"]
 
 manifest  = "./manifests/ch_ui.yaml"
+max_auto_retries = 5

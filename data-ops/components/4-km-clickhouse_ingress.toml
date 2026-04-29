@@ -5,3 +5,4 @@ namespace = "clickhouse"
 
 dependencies = ["clickhouse_service", "tailscale_proxy"]
 manifest = "./manifests/clickhouse_ingress.yaml"
+max_auto_retries = 5

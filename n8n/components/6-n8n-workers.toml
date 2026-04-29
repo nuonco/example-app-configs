@@ -6,6 +6,7 @@ namespace      = "n8n"
 storage_driver = "configmap"
 dependencies   = ["n8n_main", "ollama_server"]
 timeout        = "10m"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

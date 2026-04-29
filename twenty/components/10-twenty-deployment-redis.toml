@@ -50,3 +50,4 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
 """
+max_auto_retries = 5

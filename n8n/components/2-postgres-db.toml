@@ -5,6 +5,7 @@ chart_name     = "postgresql"
 namespace      = "n8n"
 storage_driver = "configmap"
 timeout        = "15m"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

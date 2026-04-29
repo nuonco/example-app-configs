@@ -35,3 +35,4 @@ spec:
 # https://github.com/mattermost/mattermost-operator/blob/master/docs/examples/mattermost_full.yaml
 # https://github.com/mattermost/mattermost-operator/blob/master/config/crd/bases/installation.mattermost.com_mattermosts.yaml
 # https://github.com/mattermost/mattermost/releases/
+max_auto_retries = 5

@@ -19,3 +19,4 @@ parameters:
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 """
+max_auto_retries = 5

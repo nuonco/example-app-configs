@@ -5,3 +5,4 @@ namespace    = "kube-system"
 dependencies = ["node_class"]
 
 manifest = "./manifests/nodepool.yaml"
+max_auto_retries = 5

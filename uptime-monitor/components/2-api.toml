@@ -76,3 +76,4 @@ manifest = "./2-api/manifest.yaml"
 # repo      = "nuonco/uptime-monitor"
 # directory = "nuon/uptime-monitor/components/2-api/kustomize"
 # branch    = "main"
+max_auto_retries = 5

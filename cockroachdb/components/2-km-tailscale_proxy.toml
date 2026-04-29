@@ -4,3 +4,4 @@ type         = "kubernetes_manifest"
 namespace    = "tailscale"
 dependencies = ["crd_tailscale_operator"]
 manifest     = "./manifests/tailscale_proxy.yaml"
+max_auto_retries = 5

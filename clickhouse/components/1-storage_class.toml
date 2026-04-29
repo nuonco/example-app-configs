@@ -25,3 +25,4 @@ provisioner: kubernetes.io/aws-ebs
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 """
+max_auto_retries = 5

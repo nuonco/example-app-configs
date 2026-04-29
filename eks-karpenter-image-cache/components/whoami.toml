@@ -5,6 +5,7 @@ chart_name     = "whoami"
 namespace      = "whoami"
 storage_driver = "configmap"
 dependencies   = ["node_pool"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

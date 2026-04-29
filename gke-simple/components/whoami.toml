@@ -3,6 +3,7 @@ type           = "helm_chart"
 chart_name     = "whoami"
 namespace      = "whoami"
 storage_driver = "configmap"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

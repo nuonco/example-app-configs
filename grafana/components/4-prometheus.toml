@@ -5,6 +5,7 @@ chart_name     = "prometheus"
 namespace      = "grafana"
 storage_driver = "configmap"
 dependencies   = ["postgres_exporter"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "prometheus-community/helm-charts"

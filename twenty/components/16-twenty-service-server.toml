@@ -26,3 +26,4 @@ spec:
       timeoutSeconds: 10800
   type: ClusterIP
 """
+max_auto_retries = 5

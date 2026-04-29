@@ -5,3 +5,4 @@ namespace = "temporal"
 
 dependencies = ["temporal"]
 manifest = "./manifests/temporal_ingress.yaml"
+max_auto_retries = 5

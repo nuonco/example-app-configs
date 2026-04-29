@@ -2,6 +2,7 @@
 name    = "pulumi_gcs_bucket"
 type    = "pulumi"
 runtime = "go"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
