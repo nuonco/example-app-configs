@@ -20,3 +20,4 @@ spec:
     requests:
       storage: 10Gi
 """
+max_auto_retries = 5

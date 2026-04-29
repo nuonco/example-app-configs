@@ -5,6 +5,7 @@ type         = "helm_chart"
 chart_name   = "cert-manager"
 namespace    = "cert-manager"
 dependencies = ["dns_records"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

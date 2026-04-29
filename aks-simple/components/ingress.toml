@@ -4,6 +4,7 @@ name         = "ingress"
 type         = "helm_chart"
 chart_name   = "ingress"
 dependencies = ["whoami"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

@@ -3,6 +3,7 @@ name   = "docker_image"
 type = "docker_build"
 
 dockerfile = "Dockerfile"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

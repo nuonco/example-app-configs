@@ -38,3 +38,4 @@ spec:
         - -c
         - CREATE DATABASE "default";
 """
+max_auto_retries = 5

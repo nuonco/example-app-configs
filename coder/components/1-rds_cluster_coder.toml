@@ -3,6 +3,7 @@ name              = "rds_cluster_coder"
 type              = "terraform_module"
 terraform_version = "1.13.5"
 dependencies      = ["rds_subnet"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

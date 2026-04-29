@@ -42,6 +42,7 @@ dockerfile = "Dockerfile"
 # REPOSITORY CONFIGURATION
 # -----------------------------------------------------------------------------
 # Using a public repository (no authentication required):
+max_auto_retries = 5
 [public_repo]
 repo      = "nuonco/uptime-monitor"
 directory = "ui"

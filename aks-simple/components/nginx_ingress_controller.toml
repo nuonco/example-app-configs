@@ -4,6 +4,7 @@ name       = "nginx_ingress_controller"
 type       = "helm_chart"
 chart_name = "nginx-ingress-controller"
 namespace  = "ingress-nginx"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

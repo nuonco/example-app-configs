@@ -4,3 +4,4 @@ type      = "kubernetes_manifest"
 namespace = "default"
 
 manifest = "./manifests/storage_class.yaml"
+max_auto_retries = 5

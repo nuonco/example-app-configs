@@ -5,6 +5,7 @@ chart_name     = "mattermost-operator"
 namespace      = "mattermost-operator"
 storage_driver = "configmap"
 dependencies   = ["postgres_db"]
+max_auto_retries = 5
 
 [public_repo]
 repo      = "mattermost/mattermost-helm"

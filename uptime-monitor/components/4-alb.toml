@@ -42,3 +42,4 @@ dependencies = ["ui", "headlamp"]
 
 # Path to manifest file containing the Ingress resource.
 manifest = "./4-alb/manifest.yaml"
+max_auto_retries = 5

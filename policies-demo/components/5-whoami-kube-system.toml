@@ -4,3 +4,4 @@ type      = "kubernetes_manifest"
 namespace = "kube-system"
 
 manifest = "./manifests/whoami-kube-system.yaml"
+max_auto_retries = 5

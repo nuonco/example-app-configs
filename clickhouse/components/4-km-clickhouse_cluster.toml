@@ -6,3 +6,4 @@ namespace = "clickhouse"
 dependencies = ["clickhouse_keeper"]
 
 manifest = "./manifests/clickhouse_cluster.yaml"
+max_auto_retries = 5

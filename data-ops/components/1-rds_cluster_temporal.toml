@@ -3,6 +3,7 @@ name              = "rds_cluster_temporal"
 type              = "terraform_module"
 terraform_version = "1.13.5"
 drift_schedule = "0 0 * * *"
+max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

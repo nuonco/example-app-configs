@@ -5,6 +5,7 @@ chart_name     = "baserow"
 namespace      = "baserow"
 storage_driver = "configmap"
 dependencies   = ["default_storage_class", "baserow_s3_bucket"]
+max_auto_retries = 5
 
 [helm_repo]
 repo_url = "https://charts.christianhuth.de"

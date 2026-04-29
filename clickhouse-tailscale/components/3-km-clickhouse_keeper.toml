@@ -6,3 +6,4 @@ namespace = "clickhouse"
 dependencies = ["crd_clickhouse_operator", "karpenter_nodepools", "tailscale_proxy"]
 
 manifest = "./manifests/clickhouse_keeper.yaml"
+max_auto_retries = 5
