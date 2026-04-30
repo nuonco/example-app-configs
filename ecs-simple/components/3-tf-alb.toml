@@ -6,7 +6,7 @@ max_auto_retries = 5
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
-branch    = "main"
+branch    = "cb/test-max-retries"
 directory = "ecs-simple/src/alb"
 
 [vars]

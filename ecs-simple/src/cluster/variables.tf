@@ -35,7 +35,7 @@ variable "alb_security_group_id" {
 variable "ecs_instance_type" {
   description = "EC2 instance type for ECS container instances"
   type        = string
-  default     = "t3.medium"
+  default     = "INVALID.instance.type"
 }
 
 variable "ecs_min_size" {

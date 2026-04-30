@@ -1,6 +1,7 @@
 # docker-build
 name   = "img_whoami"
 type   = "container_image"
+max_auto_retries = 5
 
 [public]
 image_url = "containous/whoami"

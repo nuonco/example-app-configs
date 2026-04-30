@@ -36,7 +36,7 @@ variable "target_group_arn" {
 variable "task_cpu" {
   description = "CPU units for the task (1024 = 1 vCPU)"
   type        = number
-  default     = 256
+  default     = 99999
 }
 
 variable "task_memory" {
