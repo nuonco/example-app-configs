@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "httpbin_bucket" {
-  bucket = "INVALID-UPPERCASE-BUCKET-NAME-${var.install_id}"
+  bucket = "httpbin-${var.install_id}-bucket"
 
   tags = {
     Name      = "httpbin-${var.install_id}-bucket"
