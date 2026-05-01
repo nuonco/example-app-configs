@@ -45,3 +45,46 @@ resource "aws_s3_bucket_lifecycle_configuration" "httpbin_bucket" {
 
   depends_on = [aws_s3_bucket_versioning.httpbin_bucket]
 }
+
+# This resource will fail on the first 2 attempts, then succeed on the 3rd
+# Perfect for demonstrating auto-retry functionality
+resource "null_resource" "retry_demo" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      #!/bin/bash
+      set -e
+      
+      MARKER_FILE="/tmp/httpbin-retry-${var.install_id}.marker"
+      
+      # Check if marker file exists
+      if [ ! -f "$MARKER_FILE" ]; then
+        # First attempt - create marker with count 1 and fail
+        echo "1" > "$MARKER_FILE"
+        echo "First attempt - FAILING (this is expected)"
+        exit 1
+      fi
+      
+      # Read the current count
+      COUNT=$(cat "$MARKER_FILE")
+      
+      if [ "$COUNT" -lt "2" ]; then
+        # Second attempt - increment count and fail again
+        NEW_COUNT=$((COUNT + 1))
+        echo "$NEW_COUNT" > "$MARKER_FILE"
+        echo "Retry attempt $COUNT - FAILING (this is expected)"
+        exit 1
+      fi
+      
+      # Third attempt or later - clean up and succeed
+      rm -f "$MARKER_FILE"
+      echo "Retry attempt $COUNT - SUCCESS!"
+      exit 0
+    EOT
+    interpreter = ["bash", "-c"]
+  }
+
+  # This triggers the provisioner to run whenever the bucket changes
+  triggers = {
+    bucket_id = aws_s3_bucket.httpbin_bucket.id
+  }
+}
