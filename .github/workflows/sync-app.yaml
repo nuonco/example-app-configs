@@ -4,6 +4,19 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'CLAUDE.md'
+      - 'AGENTS.md'
+
+permissions:
+  contents: read
 
 jobs:
   detect-changes:
@@ -14,32 +27,61 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Get changed directories
+      - name: Get changed app directories
         id: set-matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
         run: |
-          # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          set -euo pipefail
 
-          # Extract unique top-level directories (excluding .github)
-          CHANGED_DIRS=$(echo "$CHANGED_FILES" | cut -d'/' -f1 | sort -u | grep -v '^\.' | grep -v '^$' || true)
-
-          if [ -z "$CHANGED_DIRS" ]; then
-            echo "No app directories changed"
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "matrix={\"app\":[]}" >> $GITHUB_OUTPUT
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE_SHA="$PR_BASE_SHA"
+            HEAD_SHA="$PR_HEAD_SHA"
           else
-            # Build JSON array for matrix
-            JSON_ARRAY=$(echo "$CHANGED_DIRS" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-            echo "Changed directories: $JSON_ARRAY"
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "matrix={\"app\":$JSON_ARRAY}" >> $GITHUB_OUTPUT
+            BASE_SHA="$PUSH_BEFORE"
+            HEAD_SHA="$PUSH_AFTER"
+          fi
+
+          # First push to a new branch reports an all-zero base; fall back to
+          # a single-commit diff in that case.
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA="${HEAD_SHA}~1"
+          fi
+
+          git fetch origin "$BASE_SHA" --depth=1 2>/dev/null || true
+
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          CHANGED_DIRS=$(echo "$CHANGED_FILES" | cut -d'/' -f1 | sort -u | grep -v '^$' || true)
+
+          APP_DIRS=()
+          for d in $CHANGED_DIRS; do
+            [ -f "$d/metadata.toml" ] && APP_DIRS+=("$d")
+          done
+
+          if [ "${#APP_DIRS[@]}" -eq 0 ]; then
+            echo "No app directories changed"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "matrix={\"app\":[]}" >> "$GITHUB_OUTPUT"
+          else
+            JSON_ARRAY=$(printf '%s\n' "${APP_DIRS[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "Changed app directories: $JSON_ARRAY"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "matrix={\"app\":$JSON_ARRAY}" >> "$GITHUB_OUTPUT"
           fi
 
   sync:
     needs: detect-changes
-    if: needs.detect-changes.outputs.has_changes == 'true'
+    # Skip on fork PRs since secrets aren't available to the runner.
+    if: >-
+      needs.detect-changes.outputs.has_changes == 'true' &&
+      (github.event_name != 'pull_request' ||
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
@@ -52,4 +94,4 @@ jobs:
         with:
           org_id: ${{ secrets.NUON_ORG_ID }}
           api_token: ${{ secrets.NUON_API_TOKEN }}
-          command: apps sync -d ${{ matrix.app }}
+          command: apps sync -d ${{ matrix.app }} --create
