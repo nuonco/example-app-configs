@@ -1,0 +1,24 @@
+# action
+name               = "start_dev_env"
+timeout            = "5m"
+enable_kube_config = false
+description        = "Start the dev environment VM"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "start_instance"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Starting instance $INSTANCE_ID..."
+aws ec2 start-instances --instance-ids "$INSTANCE_ID" --region "$REGION"
+aws ec2 wait instance-running --instance-ids "$INSTANCE_ID" --region "$REGION"
+echo "Instance is running"
+"""
+
+[steps.env_vars]
+INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION      = "{{.nuon.sandbox.outputs.account.region}}"

@@ -1,0 +1,12 @@
+# sandbox
+terraform_version = "1.11.4"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/aws-min-sandbox"
+branch    = "main"
+
+[vars]
+enable_nuon_dns      = "true"
+public_root_domain   = "{{ .nuon.install.id }}.nuon.run"
+internal_root_domain = "internal.{{ .nuon.install.id }}.nuon.run"

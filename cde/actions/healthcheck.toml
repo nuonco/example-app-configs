@@ -1,0 +1,41 @@
+# action
+name               = "healthcheck"
+timeout            = "30s"
+enable_kube_config = false
+description        = "Check SSH reachability and VS Code Web (if enabled)"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_dev_env"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking SSH on $SSH_HOSTNAME:22..."
+if nc -zv -w 5 "$SSH_HOSTNAME" 22; then
+  echo "SSH port is reachable"
+else
+  echo "SSH port is not reachable"
+  exit 1
+fi
+
+if [ "$INSTALL_VSCODE_WEB" = "true" ] && [ -n "$VSCODE_URL" ]; then
+  echo "Checking VS Code Web at $VSCODE_URL..."
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$VSCODE_URL" || echo "000")
+  if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ]; then
+    echo "VS Code Web is reachable (HTTP $STATUS)"
+  else
+    echo "VS Code Web check failed (HTTP $STATUS)"
+    exit 1
+  fi
+fi
+
+echo "Healthcheck passed"
+"""
+
+[steps.env_vars]
+SSH_HOSTNAME       = "{{.nuon.components.ec2.outputs.ssh_hostname}}"
+VSCODE_URL         = "{{.nuon.components.ec2.outputs.vscode_url}}"
+INSTALL_VSCODE_WEB = "{{.nuon.install.inputs.install_vscode_web}}"

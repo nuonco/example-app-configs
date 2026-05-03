@@ -1,0 +1,120 @@
+# action
+name               = "post_provision_setup"
+timeout            = "10m"
+enable_kube_config = false
+description        = "Install optional tools (Docker, VS Code Web, Claude Code) on the dev environment VM"
+
+[[triggers]]
+type = "post-provision"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "setup_dev_env"
+inline_contents = """
+#!/bin/bash
+set -e
+
+echo "Waiting for SSM agent to come online..."
+for i in $(seq 1 30); do
+  STATUS=$(aws ssm describe-instance-information \
+    --filters "Key=InstanceIds,Values=$INSTANCE_ID" \
+    --region "$REGION" \
+    --query "InstanceInformationList[0].PingStatus" \
+    --output text 2>/dev/null || echo "None")
+  [ "$STATUS" = "Online" ] && echo "SSM agent online" && break
+  echo "Attempt $i/30, status: $STATUS"
+  sleep 10
+done
+
+[ "$STATUS" = "Online" ] || { echo "SSM agent did not come online in time"; exit 1; }
+
+cat > /tmp/cde-setup.sh << 'SCRIPT'
+#!/bin/bash
+set -e
+
+if [ "INSTALL_DOCKER_VAL" = "true" ]; then
+  echo "Installing Docker..."
+  if [ "OS_VAL" = "ubuntu-24.04" ]; then
+    curl -fsSL https://get.docker.com | sh
+  else
+    dnf install -y docker
+  fi
+  systemctl enable --now docker
+  usermod -aG docker SSH_USER_VAL
+fi
+
+if [ "INSTALL_VSCODE_WEB_VAL" = "true" ]; then
+  echo "Installing code-server..."
+  curl -fsSL https://code-server.dev/install.sh | sh
+  mkdir -p /home/SSH_USER_VAL/.config/code-server
+  printf 'bind-addr: 0.0.0.0:8080\nauth: none\ncert: false\n' > /home/SSH_USER_VAL/.config/code-server/config.yaml
+  chown -R SSH_USER_VAL:SSH_USER_VAL /home/SSH_USER_VAL/.config
+  systemctl enable --now code-server@SSH_USER_VAL
+fi
+
+if [ "INSTALL_CLAUDE_CODE_VAL" = "true" ]; then
+  echo "Installing Claude Code..."
+  if [ "OS_VAL" = "ubuntu-24.04" ]; then
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+    apt-get install -y nodejs
+  else
+    dnf install -y nodejs npm
+  fi
+  npm install -g @anthropic-ai/claude-code
+  if [ -n "ANTHROPIC_API_KEY_VAL" ]; then
+    echo "export ANTHROPIC_API_KEY=ANTHROPIC_API_KEY_VAL" >> /home/SSH_USER_VAL/.bashrc
+  fi
+fi
+
+echo "Setup complete"
+SCRIPT
+
+sed -i "s|INSTALL_DOCKER_VAL|$INSTALL_DOCKER|g" /tmp/cde-setup.sh
+sed -i "s|INSTALL_VSCODE_WEB_VAL|$INSTALL_VSCODE_WEB|g" /tmp/cde-setup.sh
+sed -i "s|INSTALL_CLAUDE_CODE_VAL|$INSTALL_CLAUDE_CODE|g" /tmp/cde-setup.sh
+sed -i "s|OS_VAL|$OS|g" /tmp/cde-setup.sh
+sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/cde-setup.sh
+sed -i "s|ANTHROPIC_API_KEY_VAL|$ANTHROPIC_API_KEY|g" /tmp/cde-setup.sh
+
+SCRIPT_B64=$(base64 -w 0 /tmp/cde-setup.sh)
+
+COMMAND_ID=$(aws ssm send-command \
+  --instance-ids "$INSTANCE_ID" \
+  --document-name "AWS-RunShellScript" \
+  --parameters "{\\"commands\\":[\\"echo $SCRIPT_B64 | base64 -d | bash\\"]}" \
+  --region "$REGION" \
+  --output text \
+  --query "Command.CommandId")
+
+echo "SSM command ID: $COMMAND_ID"
+
+STATUS="InProgress"
+for i in $(seq 1 60); do
+  sleep 10
+  STATUS=$(aws ssm get-command-invocation \
+    --command-id "$COMMAND_ID" \
+    --instance-id "$INSTANCE_ID" \
+    --region "$REGION" \
+    --query "Status" \
+    --output text 2>/dev/null || echo "InProgress")
+  echo "Status: $STATUS"
+  case "$STATUS" in
+    Success) echo "Setup completed successfully"; break ;;
+    Failed|Cancelled|TimedOut|DeliveryTimedOut) echo "Setup failed: $STATUS"; exit 1 ;;
+  esac
+done
+
+[ "$STATUS" = "Success" ] || { echo "Timed out waiting for setup"; exit 1; }
+"""
+
+[steps.env_vars]
+INSTANCE_ID         = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION              = "{{.nuon.sandbox.outputs.account.region}}"
+OS                  = "{{.nuon.install.inputs.os}}"
+SSH_USER            = "{{.nuon.components.ec2.outputs.ssh_user}}"
+INSTALL_DOCKER      = "{{.nuon.install.inputs.install_docker}}"
+INSTALL_VSCODE_WEB  = "{{.nuon.install.inputs.install_vscode_web}}"
+INSTALL_CLAUDE_CODE = "{{.nuon.install.inputs.install_claude_code}}"
+ANTHROPIC_API_KEY   = "{{.nuon.install.inputs.anthropic_api_key}}"

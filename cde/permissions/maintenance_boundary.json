@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:*",
+        "organizations:DescribeOrganization",
+        "ec2:*",
+        "ecr:*",
+        "ssm:GetParameter"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
