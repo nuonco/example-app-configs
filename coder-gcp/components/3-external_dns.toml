@@ -1,0 +1,20 @@
+# terraform - external-dns Helm release for Cloud DNS reconciliation
+
+name              = "external_dns"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder-gcp/src/components/external_dns"
+branch    = "main"
+
+[vars]
+install_id              = "{{ .nuon.install.id }}"
+project_id              = "{{ .nuon.install_stack.outputs.project_id }}"
+region                  = "{{ .nuon.install_stack.outputs.region }}"
+domain_filters          = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+internal_domain_filters = "{{ .nuon.install.sandbox.outputs.nuon_dns.internal_domain.name }}"
+
+cluster_endpoint                   = "{{ .nuon.install.sandbox.outputs.cluster.endpoint }}"
+cluster_certificate_authority_data = "{{ .nuon.install.sandbox.outputs.cluster.certificate_authority_data }}"

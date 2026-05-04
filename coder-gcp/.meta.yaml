@@ -1,0 +1,21 @@
+cloud: gcp
+category:
+  - self-hosted
+infra: gke
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+  - policies
+  - secrets
+tags:
+  - gke
+  - kubernetes
+  - cloudsql
+  - postgresql
+  - dev-environments
+  - cde
+links:
+  blog: https://nuon.co/blog/installing-coder-with-nuon/
+  upstream: https://coder.com

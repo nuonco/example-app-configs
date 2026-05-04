@@ -1,0 +1,15 @@
+# helm - Coder control plane
+
+name           = "coder"
+type           = "helm_chart"
+chart_name     = "coder"
+namespace      = "coder"
+storage_driver = "configmap"
+dependencies   = ["cloudsql_coder"]
+
+[helm_repo]
+repo_url = "https://helm.coder.com/v2"
+chart    = "coder"
+
+[[values_file]]
+contents = "./values/coder.yaml"
