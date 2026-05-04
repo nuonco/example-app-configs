@@ -1,0 +1,31 @@
+# action
+
+name               = "coder_db_creds"
+timeout            = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "cloudsql_coder"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy Cloud SQL secret for Coder"
+command = "./import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder-gcp/src/actions/coder_db_creds"
+branch    = "main"
+
+[steps.env_vars]
+DB_USERNAME      = "{{ .nuon.components.cloudsql_coder.outputs.db_instance_username }}"
+DB_PASSWORD      = "{{ .nuon.components.cloudsql_coder.outputs.db_password }}"
+DB_ADDRESS       = "{{ .nuon.components.cloudsql_coder.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.cloudsql_coder.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.cloudsql_coder.outputs.database_name }}"
+TARGET_NAME      = "coder-db-url"
+TARGET_NAMESPACE = "coder"
+INSTALL_ID       = "{{ .nuon.install.id }}"

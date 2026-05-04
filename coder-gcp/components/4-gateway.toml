@@ -1,0 +1,27 @@
+# helm - GCP Gateway API resources fronting Coder + Grafana behind a single GCLB
+
+name           = "gateway"
+type           = "helm_chart"
+chart_name     = "gateway"
+storage_driver = "configmap"
+namespace      = "coder"
+dependencies   = ["coder", "certificate", "external_dns"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder-gcp/src/components/gateway"
+branch    = "main"
+
+[values]
+install_name      = "{{ .nuon.install.id }}"
+namespace         = "coder"
+domain            = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+cert_map          = "{{ .nuon.components.certificate.outputs.cert_map_name }}"
+
+coder_service     = "coder"
+coder_namespace   = "coder"
+coder_port        = "80"
+
+grafana_service   = "coder-observability-grafana"
+grafana_namespace = "coder-observability"
+grafana_port      = "80"

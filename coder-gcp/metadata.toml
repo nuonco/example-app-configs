@@ -1,0 +1,13 @@
+# metadata
+
+version = "v2"
+
+display_name = "Coder (GCP)"
+description  = "Cloud development environments in your GCP project, managed by Coder.com."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "gcp"
