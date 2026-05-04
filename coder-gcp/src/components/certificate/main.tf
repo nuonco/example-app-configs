@@ -1,6 +1,7 @@
 # Apex + wildcard cert (DNS-authorized) bound to a Certificate Map.
-# The cert map is consumed by the Gateway via the
-# `networking.gke.io/certmap` annotation.
+# A single DNS authorization on the apex domain authorizes issuance for
+# both the apex and *.apex — GCP rejects DnsAuthorization resources
+# created against a wildcard hostname.
 
 locals {
   apex = trimsuffix(var.domain_name, ".")
@@ -13,13 +14,6 @@ resource "google_certificate_manager_dns_authorization" "apex" {
   domain   = local.apex
 }
 
-resource "google_certificate_manager_dns_authorization" "wildcard" {
-  project  = var.project_id
-  name     = "${var.install_id}-wildcard-auth"
-  location = "global"
-  domain   = "*.${local.apex}"
-}
-
 resource "google_certificate_manager_certificate" "apex_wildcard" {
   project  = var.project_id
   name     = "${var.install_id}-apex-wildcard"
@@ -29,7 +23,6 @@ resource "google_certificate_manager_certificate" "apex_wildcard" {
     domains = [local.apex, "*.${local.apex}"]
     dns_authorizations = [
       google_certificate_manager_dns_authorization.apex.id,
-      google_certificate_manager_dns_authorization.wildcard.id,
     ]
   }
 
@@ -70,13 +63,4 @@ resource "google_dns_record_set" "apex_validation" {
   type         = google_certificate_manager_dns_authorization.apex.dns_resource_record[0].type
   ttl          = 300
   rrdatas      = [google_certificate_manager_dns_authorization.apex.dns_resource_record[0].data]
-}
-
-resource "google_dns_record_set" "wildcard_validation" {
-  project      = var.project_id
-  managed_zone = var.dns_zone_name
-  name         = google_certificate_manager_dns_authorization.wildcard.dns_resource_record[0].name
-  type         = google_certificate_manager_dns_authorization.wildcard.dns_resource_record[0].type
-  ttl          = 300
-  rrdatas      = [google_certificate_manager_dns_authorization.wildcard.dns_resource_record[0].data]
 }
