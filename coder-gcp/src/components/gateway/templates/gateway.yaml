@@ -1,0 +1,136 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.install_name }}-external
+  namespace: {{ .Values.namespace }}
+  annotations:
+    networking.gke.io/certmap: {{ .Values.cert_map | quote }}
+  labels:
+    app.nuon.co/install: {{ .Values.install_name }}
+spec:
+  gatewayClassName: gke-l7-global-external-managed
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+# Redirect plain HTTP to HTTPS at the load balancer edge.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.install_name }}-http-to-https
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: {{ .Values.install_name }}-external
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+# Coder serves the apex domain plus all workspace subdomains via wildcard cert.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.install_name }}-coder
+  namespace: {{ .Values.namespace }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }},*.{{ .Values.domain }}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: {{ .Values.install_name }}-external
+      sectionName: https
+  hostnames:
+    - {{ .Values.domain | quote }}
+    - "*.{{ .Values.domain }}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - kind: Service
+          name: {{ .Values.coder_service }}
+          namespace: {{ .Values.coder_namespace }}
+          port: {{ .Values.coder_port | int }}
+---
+# Grafana is served at /grafana on the same hostname.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.install_name }}-grafana
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: {{ .Values.install_name }}-external
+      sectionName: https
+  hostnames:
+    - {{ .Values.domain | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /grafana
+      backendRefs:
+        - kind: Service
+          name: {{ .Values.grafana_service }}
+          namespace: {{ .Values.grafana_namespace }}
+          port: {{ .Values.grafana_port | int }}
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: {{ .Values.install_name }}-coder-hc
+  namespace: {{ .Values.coder_namespace }}
+spec:
+  default:
+    checkIntervalSec: 5
+    timeoutSec: 2
+    healthyThreshold: 2
+    unhealthyThreshold: 2
+    config:
+      type: HTTP
+      httpHealthCheck:
+        requestPath: /livez
+        port: {{ .Values.coder_port | int }}
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ .Values.coder_service }}
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: {{ .Values.install_name }}-grafana-hc
+  namespace: {{ .Values.grafana_namespace }}
+spec:
+  default:
+    checkIntervalSec: 5
+    timeoutSec: 2
+    healthyThreshold: 2
+    unhealthyThreshold: 2
+    config:
+      type: HTTP
+      httpHealthCheck:
+        requestPath: /grafana/api/health
+        port: {{ .Values.grafana_port | int }}
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ .Values.grafana_service }}

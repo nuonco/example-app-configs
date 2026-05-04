@@ -1,0 +1,23 @@
+# action
+
+name               = "ingress_healthcheck"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "gateway-healthcheck"
+command = "./healthcheck.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder-gcp/src/actions/ingress-healthcheck"
+branch    = "main"
+
+[steps.env_vars]
+GATEWAY_NAME      = "{{ .nuon.install.id }}-external"
+GATEWAY_NAMESPACE = "coder"
+CODER_ROUTE_NAME  = "{{ .nuon.install.id }}-coder"
+GRAFANA_ROUTE_NAME = "{{ .nuon.install.id }}-grafana"
