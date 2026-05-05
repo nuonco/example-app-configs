@@ -32,6 +32,10 @@ cat > /tmp/install-claude-code.sh << 'SCRIPT'
 set -eo pipefail
 export HOME=/root
 
+if ! command -v aws &>/dev/null && [ "OS_VAL" = "ubuntu-24.04" ]; then
+  apt-get install -y awscli
+fi
+
 if [ "OS_VAL" = "ubuntu-24.04" ]; then
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
   apt-get install -y nodejs

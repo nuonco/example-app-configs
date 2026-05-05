@@ -35,6 +35,10 @@ cat > /tmp/cde-setup.sh << 'SCRIPT'
 set -eo pipefail
 export HOME=/root
 
+if ! command -v aws &>/dev/null && [ "OS_VAL" = "ubuntu-24.04" ]; then
+  apt-get install -y awscli
+fi
+
 if [ "INSTALL_DOCKER_VAL" = "true" ]; then
   echo "Installing Docker..."
   if [ "OS_VAL" = "ubuntu-24.04" ]; then
