@@ -30,17 +30,17 @@ done
 
 [ "$STATUS" = "Online" ] || { echo "SSM agent did not come online in time"; exit 1; }
 
+ANTHROPIC_KEY=$(aws ssm get-parameter \
+  --name "$ANTHROPIC_API_KEY_PARAM" \
+  --with-decryption \
+  --region "$REGION" \
+  --query "Parameter.Value" \
+  --output text 2>/dev/null || true)
+
 cat > /tmp/cde-setup.sh << 'SCRIPT'
 #!/bin/bash
 set -eo pipefail
 export HOME=/root
-
-if ! command -v aws &>/dev/null && [ "OS_VAL" = "ubuntu-24.04" ]; then
-  apt-get install -y unzip
-  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
-  unzip -q /tmp/awscliv2.zip -d /tmp
-  /tmp/aws/install
-fi
 
 if [ "INSTALL_DOCKER_VAL" = "true" ]; then
   echo "Installing Docker..."
@@ -71,9 +71,8 @@ if [ "INSTALL_CLAUDE_CODE_VAL" = "true" ]; then
     dnf install -y nodejs npm
   fi
   npm install -g @anthropic-ai/claude-code
-  API_KEY=$(aws ssm get-parameter --name "API_KEY_PARAM_VAL" --with-decryption --query Parameter.Value --output text 2>/dev/null || true)
-  if [ -n "$API_KEY" ]; then
-    echo "export ANTHROPIC_API_KEY=$API_KEY" >> /home/SSH_USER_VAL/.bashrc
+  if [ -n "ANTHROPIC_KEY_VAL" ] && ! grep -q ANTHROPIC_API_KEY /home/SSH_USER_VAL/.bashrc; then
+    echo "export ANTHROPIC_API_KEY=ANTHROPIC_KEY_VAL" >> /home/SSH_USER_VAL/.bashrc
   fi
 fi
 
@@ -85,14 +84,14 @@ sed -i "s|INSTALL_VSCODE_WEB_VAL|$INSTALL_VSCODE_WEB|g" /tmp/cde-setup.sh
 sed -i "s|INSTALL_CLAUDE_CODE_VAL|$INSTALL_CLAUDE_CODE|g" /tmp/cde-setup.sh
 sed -i "s|OS_VAL|$OS|g" /tmp/cde-setup.sh
 sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/cde-setup.sh
-sed -i "s|API_KEY_PARAM_VAL|$ANTHROPIC_API_KEY_PARAM|g" /tmp/cde-setup.sh
+sed -i "s|ANTHROPIC_KEY_VAL|$ANTHROPIC_KEY|g" /tmp/cde-setup.sh
 
 SCRIPT_B64=$(base64 -w 0 /tmp/cde-setup.sh)
 
 COMMAND_ID=$(aws ssm send-command \
   --instance-ids "$INSTANCE_ID" \
   --document-name "AWS-RunShellScript" \
-  --parameters "{\\"commands\\":[\\"echo $SCRIPT_B64 | base64 -d | bash\\"]}" \
+  --parameters "{\"commands\":[\"echo $SCRIPT_B64 | base64 -d | bash\"]}" \
   --region "$REGION" \
   --output text \
   --query "Command.CommandId")
@@ -135,11 +134,11 @@ done
 """
 
 [steps.env_vars]
-INSTANCE_ID         = "{{.nuon.components.ec2.outputs.instance_id}}"
-REGION              = "{{.nuon.sandbox.outputs.account.region}}"
-OS                  = "{{.nuon.install.inputs.os}}"
-SSH_USER            = "{{.nuon.components.ec2.outputs.ssh_user}}"
-INSTALL_DOCKER      = "{{.nuon.install.inputs.install_docker}}"
-INSTALL_VSCODE_WEB  = "{{.nuon.install.inputs.install_vscode_web}}"
-INSTALL_CLAUDE_CODE = "{{.nuon.install.inputs.install_claude_code}}"
+INSTANCE_ID             = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION                  = "{{.nuon.sandbox.outputs.account.region}}"
+OS                      = "{{.nuon.install.inputs.os}}"
+SSH_USER                = "{{.nuon.components.ec2.outputs.ssh_user}}"
+INSTALL_DOCKER          = "{{.nuon.install.inputs.install_docker}}"
+INSTALL_VSCODE_WEB      = "{{.nuon.install.inputs.install_vscode_web}}"
+INSTALL_CLAUDE_CODE     = "{{.nuon.install.inputs.install_claude_code}}"
 ANTHROPIC_API_KEY_PARAM = "/cde/{{.nuon.install.id}}/anthropic-api-key"

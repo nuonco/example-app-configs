@@ -27,17 +27,17 @@ done
 
 [ "$STATUS" = "Online" ] || { echo "SSM agent not available"; exit 1; }
 
+ANTHROPIC_KEY=$(aws ssm get-parameter \
+  --name "$ANTHROPIC_API_KEY_PARAM" \
+  --with-decryption \
+  --region "$REGION" \
+  --query "Parameter.Value" \
+  --output text 2>/dev/null || true)
+
 cat > /tmp/install-claude-code.sh << 'SCRIPT'
 #!/bin/bash
 set -eo pipefail
 export HOME=/root
-
-if ! command -v aws &>/dev/null && [ "OS_VAL" = "ubuntu-24.04" ]; then
-  apt-get install -y unzip
-  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
-  unzip -q /tmp/awscliv2.zip -d /tmp
-  /tmp/aws/install
-fi
 
 if [ "OS_VAL" = "ubuntu-24.04" ]; then
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
@@ -48,11 +48,8 @@ fi
 
 npm install -g @anthropic-ai/claude-code
 
-API_KEY=$(aws ssm get-parameter --name "API_KEY_PARAM_VAL" --with-decryption --query Parameter.Value --output text 2>/dev/null || true)
-if [ -n "$API_KEY" ]; then
-  if ! grep -q ANTHROPIC_API_KEY /home/SSH_USER_VAL/.bashrc; then
-    echo "export ANTHROPIC_API_KEY=$API_KEY" >> /home/SSH_USER_VAL/.bashrc
-  fi
+if [ -n "ANTHROPIC_KEY_VAL" ] && ! grep -q ANTHROPIC_API_KEY /home/SSH_USER_VAL/.bashrc; then
+  echo "export ANTHROPIC_API_KEY=ANTHROPIC_KEY_VAL" >> /home/SSH_USER_VAL/.bashrc
 fi
 
 echo "Claude Code installed"
@@ -60,7 +57,7 @@ SCRIPT
 
 sed -i "s|OS_VAL|$OS|g" /tmp/install-claude-code.sh
 sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/install-claude-code.sh
-sed -i "s|API_KEY_PARAM_VAL|$ANTHROPIC_API_KEY_PARAM|g" /tmp/install-claude-code.sh
+sed -i "s|ANTHROPIC_KEY_VAL|$ANTHROPIC_KEY|g" /tmp/install-claude-code.sh
 
 SCRIPT_B64=$(base64 -w 0 /tmp/install-claude-code.sh)
 
