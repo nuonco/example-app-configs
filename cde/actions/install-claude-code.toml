@@ -33,7 +33,10 @@ set -eo pipefail
 export HOME=/root
 
 if ! command -v aws &>/dev/null && [ "OS_VAL" = "ubuntu-24.04" ]; then
-  apt-get install -y awscli
+  apt-get install -y unzip
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+  unzip -q /tmp/awscliv2.zip -d /tmp
+  /tmp/aws/install
 fi
 
 if [ "OS_VAL" = "ubuntu-24.04" ]; then
