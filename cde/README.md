@@ -69,7 +69,7 @@ graph TD
 
 **VS Code Web is TLS-only.** If enabled, code-server runs on the VM on port 8080. The ALB terminates HTTPS with an ACM-managed certificate. Traffic from the ALB to code-server stays within the VPC on a separate security group rule that only allows traffic from the ALB.
 
-**Anthropic API key is stored as an SSM SecureString.** The key is encrypted at rest using AWS KMS and never passed in plaintext over the network. The EC2 instance profile is granted least-privilege access to read only its own parameter path.
+**Anthropic API key is stored as an SSM SecureString.** The key is entered by you at install time and stored encrypted at rest using AWS KMS in your AWS account. The vendor never sees it and has no access to it. The EC2 instance profile is granted least-privilege access to read only its own parameter path.
 
 **The Nuon runner never touches your secrets directly.** The runner operates using an IAM role with a permissions boundary scoped to only the AWS services this app requires (`ec2`, `iam`, `ssm`, `elasticloadbalancing`, `acm`, `route53`). It cannot access other resources in your account.
 
