@@ -1,18 +1,16 @@
 # Cloud Dev Environment
 
-{{ if .nuon.install_stack.outputs }}
-AWS | {{ dig "account_id" "000000000000" .nuon.install_stack.outputs }} | {{ .nuon.cloud_account.aws.region }} | {{ dig "vpc_id" "vpc-000000" .nuon.install_stack.outputs }}
-{{ else }}
-AWS | 000000000000 | xx-xxxx-00 | vpc-000000
-{{ end }}
+**SSH:** `ssh {{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
 
+**Zed:** `zed ssh://{{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
+
+**VS Code:** open the [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) extension, then `Cmd+Shift+P` → `Remote-SSH: Connect to Host` → `{{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
+
+{{ if .nuon.components.ec2.outputs.vscode_url -}}
+**VS Code Web:** [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components.ec2.outputs.vscode_url }})
+
+{{ end -}}
 A personal cloud development environment running in your AWS account. Connect via SSH with your private key, or open VS Code in the browser if you enabled it during setup.
-
-SSH: `ssh {{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
-
-{{ if .nuon.components.ec2.outputs.vscode_url }}
-VS Code Web: [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components.ec2.outputs.vscode_url }})
-{{ end }}
 
 ## Architecture
 
@@ -20,7 +18,6 @@ VS Code Web: [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components
 graph TD
     subgraph Nuon["Nuon Control Plane"]
         NuonAPI["Nuon API"]
-        Runner["Nuon Runner"]
     end
 
     subgraph Developer["Developer"]
@@ -29,6 +26,8 @@ graph TD
     end
 
     subgraph VPC["Customer Cloud VPC (AWS)"]
+        Runner["Nuon Runner\n(ASG via CloudFormation)"]
+
         subgraph EC2["EC2 Instance"]
             SSHD["sshd"]
             CodeServer["code-server (optional)"]
@@ -45,7 +44,7 @@ graph TD
         end
     end
 
-    NuonAPI -->|generates CF stack| Runner
+    Runner -->|polls for jobs| NuonAPI
     Runner -->|SSM send-command| EC2
     Runner -->|terraform| EIP
     Runner -->|terraform| DNS

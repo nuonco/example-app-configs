@@ -137,7 +137,7 @@ resource "aws_instance" "dev_env" {
   user_data = <<-EOF
     #!/bin/bash
     mkdir -p /home/${local.ssh_user}/.ssh
-    echo "${var.ssh_public_key}" >> /home/${local.ssh_user}/.ssh/authorized_keys
+    echo "${var.ssh_public_key}" | sed 's/&#43;/+/g; s/&#47;/\//g; s/&#61;/=/g' >> /home/${local.ssh_user}/.ssh/authorized_keys
     chmod 600 /home/${local.ssh_user}/.ssh/authorized_keys
     chown -R ${local.ssh_user}:${local.ssh_user} /home/${local.ssh_user}/.ssh
     sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
