@@ -1,6 +1,6 @@
 # action
 name               = "install_claude_code"
-timeout            = "5m"
+timeout            = "15m"
 enable_kube_config = false
 description        = "Install or update Claude Code CLI to the latest version"
 
@@ -36,7 +36,7 @@ fi
 COMMAND_ID=$(aws ssm send-command \
   --instance-ids "$INSTANCE_ID" \
   --document-name "AWS-RunShellScript" \
-  --parameters "{\"commands\":[\"$NODE_INSTALL\", \"npm install -g @anthropic-ai/claude-code\"]}" \
+  --parameters "{\"commands\":[\"export HOME=/root && $NODE_INSTALL && npm install -g @anthropic-ai/claude-code\"]}" \
   --region "$REGION" \
   --output text \
   --query "Command.CommandId")
@@ -55,7 +55,23 @@ for i in $(seq 1 30); do
   echo "Status: $STATUS"
   case "$STATUS" in
     Success) echo "Claude Code installed successfully"; break ;;
-    Failed|Cancelled|TimedOut|DeliveryTimedOut) echo "Install failed: $STATUS"; exit 1 ;;
+    Failed|Cancelled|TimedOut|DeliveryTimedOut)
+      echo "=== SSM stdout ==="
+      aws ssm get-command-invocation \
+        --command-id "$COMMAND_ID" \
+        --instance-id "$INSTANCE_ID" \
+        --region "$REGION" \
+        --query "StandardOutputContent" \
+        --output text 2>/dev/null || true
+      echo "=== SSM stderr ==="
+      aws ssm get-command-invocation \
+        --command-id "$COMMAND_ID" \
+        --instance-id "$INSTANCE_ID" \
+        --region "$REGION" \
+        --query "StandardErrorContent" \
+        --output text 2>/dev/null || true
+      echo "Install failed: $STATUS"
+      exit 1 ;;
   esac
 done
 

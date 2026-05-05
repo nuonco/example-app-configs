@@ -44,3 +44,9 @@ variable "install_vscode_web" {
   type    = string
   default = "false"
 }
+
+variable "anthropic_api_key" {
+  type      = string
+  default   = ""
+  sensitive = true
+}

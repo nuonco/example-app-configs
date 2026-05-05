@@ -58,6 +58,21 @@ resource "aws_iam_role_policy_attachment" "ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+resource "aws_iam_role_policy" "anthropic_api_key" {
+  count = var.anthropic_api_key != "" ? 1 : 0
+  name  = "anthropic-api-key"
+  role  = aws_iam_role.dev_env.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ssm:GetParameter"]
+      Resource = "arn:aws:ssm:*:*:parameter/cde/${var.install_id}/anthropic-api-key"
+    }]
+  })
+}
+
 resource "aws_iam_instance_profile" "dev_env" {
   name = "cde-${var.install_id}"
   role = aws_iam_role.dev_env.name
@@ -137,6 +152,13 @@ resource "aws_instance" "dev_env" {
 resource "aws_eip" "dev_env" {
   domain   = "vpc"
   instance = aws_instance.dev_env.id
+}
+
+resource "aws_ssm_parameter" "anthropic_api_key" {
+  count = var.anthropic_api_key != "" ? 1 : 0
+  name  = "/cde/${var.install_id}/anthropic-api-key"
+  type  = "SecureString"
+  value = var.anthropic_api_key
 }
 
 resource "aws_route53_record" "ssh" {
