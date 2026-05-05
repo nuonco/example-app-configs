@@ -7,7 +7,7 @@
 **VS Code:** open the [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) extension, then `Cmd+Shift+P` → `Remote-SSH: Connect to Host` → `{{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
 
 {{ if .nuon.components.ec2.outputs.vscode_url -}}
-**VS Code Web:** [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components.ec2.outputs.vscode_url }})
+**VS Code Web ([code-server](https://github.com/coder/code-server)):** [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components.ec2.outputs.vscode_url }})
 
 {{ end -}}
 A personal cloud development environment running in your AWS account. Connect via SSH with your private key, or open VS Code in the browser if you enabled it during setup.
@@ -63,11 +63,11 @@ graph TD
 
 **Your data stays in your AWS account.** The VM, its storage, and all code you work on run entirely within your VPC. Nuon's control plane never has network access to the instance.
 
-**SSH key authentication only.** Password authentication is disabled at provision time. Access requires the private key corresponding to the public key you provided at install.
+**SSH key authentication only.** The public key you provide at install time is the only key authorized to connect. Password authentication is disabled at provision time, so no other user can access the instance.
 
 **No inbound ports beyond SSH.** The security group allows inbound TCP:22 only. Post-provision setup (Docker, VS Code, Claude Code) is executed by the runner via AWS SSM Run Command — an outbound-only control channel — so no additional ports need to be opened.
 
-**VS Code Web is TLS-only.** If enabled, [code-server](https://github.com/coder/code-server) (an open-source VS Code in the browser) runs on the VM on port 8080. The ALB terminates HTTPS with an ACM-managed certificate. Traffic from the ALB to code-server stays within the VPC on a separate security group rule that only allows traffic from the ALB.
+**VS Code Web is TLS-only.** If enabled, code-server runs on the VM on port 8080. The ALB terminates HTTPS with an ACM-managed certificate. Traffic from the ALB to code-server stays within the VPC on a separate security group rule that only allows traffic from the ALB.
 
 **Anthropic API key is stored as an SSM SecureString.** The key is encrypted at rest using AWS KMS and never passed in plaintext over the network. The EC2 instance profile is granted least-privilege access to read only its own parameter path.
 
