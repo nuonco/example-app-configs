@@ -4,11 +4,14 @@
     {
       "Effect": "Allow",
       "Action": [
-        "iam:*",
-        "organizations:DescribeOrganization",
+        "acm:*",
         "ec2:*",
         "ecr:*",
-        "ssm:GetParameter"
+        "elasticloadbalancing:*",
+        "iam:*",
+        "organizations:DescribeOrganization",
+        "route53:*",
+        "ssm:*"
       ],
       "Resource": "*"
     }
