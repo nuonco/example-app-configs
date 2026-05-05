@@ -27,16 +27,40 @@ done
 
 [ "$STATUS" = "Online" ] || { echo "SSM agent not available"; exit 1; }
 
-if [ "$OS" = "ubuntu-24.04" ]; then
-  NODE_INSTALL='curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs'
+cat > /tmp/install-claude-code.sh << 'SCRIPT'
+#!/bin/bash
+set -eo pipefail
+export HOME=/root
+
+if [ "OS_VAL" = "ubuntu-24.04" ]; then
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+  apt-get install -y nodejs
 else
-  NODE_INSTALL='dnf install -y nodejs npm 2>/dev/null || true'
+  dnf install -y nodejs npm 2>/dev/null || true
 fi
+
+npm install -g @anthropic-ai/claude-code
+
+API_KEY=$(aws ssm get-parameter --name "API_KEY_PARAM_VAL" --with-decryption --query Parameter.Value --output text 2>/dev/null || true)
+if [ -n "$API_KEY" ]; then
+  if ! grep -q ANTHROPIC_API_KEY /home/SSH_USER_VAL/.bashrc; then
+    echo "export ANTHROPIC_API_KEY=$API_KEY" >> /home/SSH_USER_VAL/.bashrc
+  fi
+fi
+
+echo "Claude Code installed"
+SCRIPT
+
+sed -i "s|OS_VAL|$OS|g" /tmp/install-claude-code.sh
+sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/install-claude-code.sh
+sed -i "s|API_KEY_PARAM_VAL|$ANTHROPIC_API_KEY_PARAM|g" /tmp/install-claude-code.sh
+
+SCRIPT_B64=$(base64 -w 0 /tmp/install-claude-code.sh)
 
 COMMAND_ID=$(aws ssm send-command \
   --instance-ids "$INSTANCE_ID" \
   --document-name "AWS-RunShellScript" \
-  --parameters "{\"commands\":[\"export HOME=/root && $NODE_INSTALL && npm install -g @anthropic-ai/claude-code\"]}" \
+  --parameters "{\"commands\":[\"echo $SCRIPT_B64 | base64 -d | bash\"]}" \
   --region "$REGION" \
   --output text \
   --query "Command.CommandId")
@@ -79,6 +103,8 @@ done
 """
 
 [steps.env_vars]
-INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
-REGION      = "{{.nuon.sandbox.outputs.account.region}}"
-OS          = "{{.nuon.install.inputs.os}}"
+INSTANCE_ID             = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION                  = "{{.nuon.sandbox.outputs.account.region}}"
+OS                      = "{{.nuon.install.inputs.os}}"
+SSH_USER                = "{{.nuon.components.ec2.outputs.ssh_user}}"
+ANTHROPIC_API_KEY_PARAM = "/cde/{{.nuon.install.id}}/anthropic-api-key"
