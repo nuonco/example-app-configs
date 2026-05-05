@@ -59,6 +59,20 @@ graph TD
     Browser -->|HTTPS| HTTPS
 ```
 
+## Security
+
+**Your data stays in your AWS account.** The VM, its storage, and all code you work on run entirely within your VPC. Nuon's control plane never has network access to the instance.
+
+**SSH key authentication only.** Password authentication is disabled at provision time. Access requires the private key corresponding to the public key you provided at install.
+
+**No inbound ports beyond SSH.** The security group allows inbound TCP:22 only. Post-provision setup (Docker, VS Code, Claude Code) is executed by the runner via AWS SSM Run Command — an outbound-only control channel — so no additional ports need to be opened.
+
+**VS Code Web is TLS-only.** If enabled, the ALB terminates HTTPS with an ACM-managed certificate. Traffic from the ALB to code-server on port 8080 stays within the VPC on a separate security group rule that only allows traffic from the ALB.
+
+**Anthropic API key is stored as an SSM SecureString.** The key is encrypted at rest using AWS KMS and never passed in plaintext over the network. The EC2 instance profile is granted least-privilege access to read only its own parameter path.
+
+**The Nuon runner never touches your secrets directly.** The runner operates using an IAM role with a permissions boundary scoped to only the AWS services this app requires (`ec2`, `iam`, `ssm`, `elasticloadbalancing`, `acm`, `route53`). It cannot access other resources in your account.
+
 ## Cost estimate
 
 Instance cost depends on the type selected at install time. At default (`t3a.xlarge`):
