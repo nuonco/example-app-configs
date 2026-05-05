@@ -2,3 +2,10 @@ version = "v2"
 
 display_name = "GKE Secrets"
 description  = "Demonstrates Nuon secrets management, input groups, and Kubernetes secret sync on GKE"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "demo"
+difficulty     = "simple"
+cloud_provider = "gcp"

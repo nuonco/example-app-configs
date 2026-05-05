@@ -2,3 +2,10 @@ version = "v2"
 
 display_name = "GKE Workload Identity"
 description  = "Minimal GCP Workload Identity demo — zero-key pod-to-GCP access via GKE WI federation"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "demo"
+difficulty     = "simple"
+cloud_provider = "gcp"
