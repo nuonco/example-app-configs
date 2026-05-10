@@ -29,6 +29,13 @@ display_name = "Optional Tools"
 description  = "Tools installed via the post-provision action. Each can be re-run or updated independently."
 
 [[input]]
+name         = "dotfiles_repo"
+display_name = "Dotfiles Repo URL"
+description  = "HTTPS URL of your dotfiles git repository (e.g. https://github.com/you/dotfiles). If set, the repo is cloned to ~/.dotfiles and install.sh is run after provisioning."
+default      = ""
+group        = "optional_tools"
+
+[[input]]
 name         = "install_docker"
 display_name = "Install Docker"
 description  = "Install Docker and enable it as a system service (true/false)"
