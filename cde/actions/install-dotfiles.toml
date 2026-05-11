@@ -41,6 +41,7 @@ set -e
 USER_HOME=/home/SSH_USER_VAL
 export HOME=$USER_HOME
 cd $USER_HOME
+rm -rf $USER_HOME/.dotfiles /root/.dotfiles
 git clone DOTFILES_REPO_VAL $USER_HOME/.dotfiles
 cd $USER_HOME/.dotfiles
 bash install.sh
