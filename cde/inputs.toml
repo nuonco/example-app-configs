@@ -4,10 +4,11 @@ display_name = "Developer Configuration"
 description  = "SSH access and instance sizing for your development environment"
 
 [[input]]
-name         = "ssh_public_key"
-display_name = "SSH Public Key"
-description  = "Paste the contents of your public key file (e.g. cat ~/.ssh/id_rsa.pub)"
-group        = "developer"
+name              = "ssh_public_key"
+display_name      = "SSH Public Key"
+description       = "Paste the contents of your public key file (e.g. cat ~/.ssh/id_rsa.pub)"
+user_configurable = true
+group             = "developer"
 
 [[input]]
 name         = "os"
