@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compute-workload
+  namespace: {{ .Values.namespace | default .Release.Namespace | quote }}
+  labels:
+    app: compute-workload
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compute-workload
+  template:
+    metadata:
+      labels:
+        app: compute-workload
+    spec:
+      containers:
+      - name: whoami
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        env:
+        - name: "WHOAMI_PORT_NUMBER"
+          value: "{{ .Values.deployment.containerPort }}"
+        ports:
+        - containerPort: {{ .Values.deployment.containerPort }}
+        resources:
+          limits:
+            cpu: ".25"
+            memory: "128Mi"
+          requests:
+            cpu: ".1"
+            memory: "64Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.deployment.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.deployment.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 5

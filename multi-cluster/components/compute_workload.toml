@@ -1,0 +1,20 @@
+# helm
+name           = "compute_workload"
+type           = "helm_chart"
+chart_name     = "compute-workload"
+namespace      = "compute"
+storage_driver = "configmap"
+
+max_auto_retries = 0
+
+# Deploy onto the cluster created by the `cluster` peer component instead of
+# the sandbox EKS. See ../kubernetes_contexts.toml.
+kubernetes_context = "compute"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "multi-cluster/src/components/compute_workload"
+branch    = "fd/multi-cluster"
+
+[[values_file]]
+contents = "./values/compute.yaml"
