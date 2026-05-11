@@ -56,7 +56,7 @@ SCRIPT_B64=$(base64 -w 0 /tmp/add-ssh-key.sh)
 COMMAND_ID=$(aws ssm send-command \
   --instance-ids "$INSTANCE_ID" \
   --document-name "AWS-RunShellScript" \
-  --parameters "{\"commands\":[\"echo $SCRIPT_B64 | base64 -d | bash\"]}" \
+  --parameters "{\\"commands\\":[\\"echo $SCRIPT_B64 | base64 -d | bash\\"]}" \
   --region "$REGION" \
   --output text \
   --query "Command.CommandId")
