@@ -1,0 +1,9 @@
+---
+apiVersion: v2
+name: application-load-balancer
+description: A helm chart to create an alb.
+type: application
+version: v0.0.1
+appVersion: "0.0.1"
+
+dependencies: []
