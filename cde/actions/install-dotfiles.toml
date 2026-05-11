@@ -38,11 +38,13 @@ done
 cat > /tmp/install-dotfiles.sh << 'SCRIPT'
 #!/bin/bash
 set -e
-cd /home/SSH_USER_VAL
-git clone DOTFILES_REPO_VAL ~/.dotfiles
-cd ~/.dotfiles
+USER_HOME=/home/SSH_USER_VAL
+export HOME=$USER_HOME
+cd $USER_HOME
+git clone DOTFILES_REPO_VAL $USER_HOME/.dotfiles
+cd $USER_HOME/.dotfiles
 bash install.sh
-chown -R SSH_USER_VAL:SSH_USER_VAL /home/SSH_USER_VAL/.dotfiles
+chown -R SSH_USER_VAL:SSH_USER_VAL $USER_HOME/.dotfiles
 echo "Dotfiles installed successfully"
 SCRIPT
 
