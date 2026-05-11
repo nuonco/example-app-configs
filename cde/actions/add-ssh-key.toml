@@ -32,6 +32,7 @@ done
 
 [ "$STATUS" = "Online" ] || { echo "SSM agent did not come online in time"; exit 1; }
 
+NEW_SSH_KEY="{{ .action.inputs.ssh_public_key }}"
 KEY_B64=$(echo "$NEW_SSH_KEY" | base64 -w 0)
 
 cat > /tmp/add-ssh-key.sh << 'SCRIPT'
@@ -103,4 +104,3 @@ done
 INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
 REGION      = "{{.nuon.sandbox.outputs.account.region}}"
 SSH_USER    = "{{.nuon.components.ec2.outputs.ssh_user}}"
-NEW_SSH_KEY = "{{ .action.inputs.ssh_public_key }}"
