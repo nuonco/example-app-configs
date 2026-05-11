@@ -1,7 +1,7 @@
 version = "v1"
 
 display_name = "Cloud Dev Environment"
-description  = "A secure, cost-efficient cloud development environment on AWS EC2 with SSH access, optional VS Code Web, Docker, and Claude Code."
+description  = "Cloud dev environment on AWS EC2 with SSH access."
 readme       = "./README.md"
 
 [onboarding]

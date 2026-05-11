@@ -10,7 +10,7 @@
 **VS Code Web:** [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components.ec2.outputs.vscode_url }})
 
 {{ end -}}
-A personal cloud development environment running in your AWS account. Connect via SSH with your private key, or open VS Code in the browser if you enabled it during setup.
+A personal cloud development environment running in your AWS account. Connect via SSH with your private key, open VS Code in the browser if enabled, and have your dotfiles installed automatically on first boot.
 
 ## Architecture
 
@@ -33,6 +33,7 @@ graph TD
             CodeServer["code-server (optional)"]
             Docker["Docker (optional)"]
             ClaudeCode["Claude Code CLI (optional)"]
+            Dotfiles["~/.dotfiles (optional)"]
         end
 
         EIP["Elastic IP"]
@@ -85,4 +86,4 @@ Stop the VM via the portal when not in use to pause EC2 billing. The Elastic IP 
 
 ## About this App Config
 
-Provisions a single EC2 VM with SSH key authentication, optional VS Code Web via HTTPS, optional Docker, and optional Claude Code CLI. The runner uses AWS SSM to execute all post-provision setup — no additional inbound ports required beyond SSH.
+Provisions a single EC2 VM with SSH key authentication, optional VS Code Web via HTTPS, optional Docker, optional Claude Code CLI, and optional dotfiles bootstrap. If a dotfiles repo URL is provided, the repo is cloned to ~/.dotfiles and install.sh is run automatically after provisioning; the action can be re-run from the portal at any time. The runner uses AWS SSM to execute all post-provision setup — no additional inbound ports required beyond SSH.

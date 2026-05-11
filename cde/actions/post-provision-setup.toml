@@ -76,6 +76,13 @@ if [ "INSTALL_CLAUDE_CODE_VAL" = "true" ]; then
   fi
 fi
 
+if [ -n "GIT_USER_NAME_VAL" ]; then
+  sudo -u SSH_USER_VAL git config --global user.name "GIT_USER_NAME_VAL"
+fi
+if [ -n "GIT_USER_EMAIL_VAL" ]; then
+  sudo -u SSH_USER_VAL git config --global user.email "GIT_USER_EMAIL_VAL"
+fi
+
 echo "Setup complete"
 SCRIPT
 
@@ -85,6 +92,8 @@ sed -i "s|INSTALL_CLAUDE_CODE_VAL|$INSTALL_CLAUDE_CODE|g" /tmp/cde-setup.sh
 sed -i "s|OS_VAL|$OS|g" /tmp/cde-setup.sh
 sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/cde-setup.sh
 sed -i "s|ANTHROPIC_KEY_VAL|$ANTHROPIC_KEY|g" /tmp/cde-setup.sh
+sed -i "s|GIT_USER_NAME_VAL|$GIT_USER_NAME|g" /tmp/cde-setup.sh
+sed -i "s|GIT_USER_EMAIL_VAL|$GIT_USER_EMAIL|g" /tmp/cde-setup.sh
 
 SCRIPT_B64=$(base64 -w 0 /tmp/cde-setup.sh)
 
@@ -142,3 +151,5 @@ INSTALL_DOCKER          = "{{.nuon.install.inputs.install_docker}}"
 INSTALL_VSCODE_WEB      = "{{.nuon.install.inputs.install_vscode_web}}"
 INSTALL_CLAUDE_CODE     = "{{.nuon.install.inputs.install_claude_code}}"
 ANTHROPIC_API_KEY_PARAM = "/cde/{{.nuon.install.id}}/anthropic-api-key"
+GIT_USER_NAME           = "{{.nuon.install.inputs.git_user_name}}"
+GIT_USER_EMAIL          = "{{.nuon.install.inputs.git_user_email}}"

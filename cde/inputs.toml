@@ -23,17 +23,34 @@ description  = "EC2 instance type. t3a.medium (2vCPU/4GB), t3a.large (2vCPU/8GB)
 default      = "t3a.xlarge"
 group        = "developer"
 
+[[input]]
+name              = "git_user_name"
+display_name      = "Git User Name"
+description       = "Your full name for git commits (e.g. Jane Smith). Sets git config user.name globally."
+default           = ""
+user_configurable = true
+group             = "developer"
+
+[[input]]
+name              = "git_user_email"
+display_name      = "Git Email"
+description       = "Email address for git commits. Sets git config user.email globally."
+default           = ""
+user_configurable = true
+group             = "developer"
+
 [[group]]
 name         = "optional_tools"
 display_name = "Optional Tools"
 description  = "Tools installed via the post-provision action. Each can be re-run or updated independently."
 
 [[input]]
-name         = "dotfiles_repo"
-display_name = "Dotfiles Repo URL"
-description  = "HTTPS URL of your dotfiles git repository (e.g. https://github.com/you/dotfiles). If set, the repo is cloned to ~/.dotfiles and install.sh is run after provisioning."
-default      = ""
-group        = "optional_tools"
+name             = "dotfiles_repo"
+display_name     = "Dotfiles Repo URL"
+description      = "HTTPS URL of your dotfiles git repository (e.g. https://github.com/you/dotfiles). If set, the repo is cloned to ~/.dotfiles and install.sh is run after provisioning."
+default          = ""
+user_configurable = true
+group            = "optional_tools"
 
 [[input]]
 name         = "install_docker"
