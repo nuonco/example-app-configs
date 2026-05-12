@@ -1,0 +1,83 @@
+<center>
+<h1>EKS Multi Cluster </h1>
+Two EKS cluster with a helm components targetting different clusters.
+
+<small> AWS | {{ .nuon.install_stack.outputs.region }} </small>
+
+</center>
+
+To test, either click the url
+[https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}})
+or open a terminal and run the following command:
+
+```bash
+curl https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+```
+
+Expected output:
+
+```bash
+Hostname: whoami-78ffb6cbf9-w6tcc
+IP: 127.0.0.1
+IP: ::1
+IP: 10.128.134.220
+IP: fe80::a0b5:67ff:fe1f:795
+RemoteAddr: 10.128.0.152:44048
+GET / HTTP/1.1
+Host: whoami.inxxxxxxxxxxxxxxxxxxxxxxx.nuon.run
+User-Agent: curl/8.7.1
+Accept: */*
+X-Amzn-Trace-Id: Root=1-689f5793-4409b4cb4c923e0b0189cd69
+X-Forwarded-For: xxx.xxx.xxx.xxx
+X-Forwarded-Port: 443
+X-Forwarded-Proto: https
+```
+
+## Architecture
+
+```mermaid
+
+  graph TD
+
+      subgraph Nuon["Nuon Control Plane"]
+          NuonAPI["Nuon API"]
+      end
+
+      subgraph Clients["Clients"]
+          cURL["cURL"]
+          Browser["Web browser"]
+          cURL ~~~ Browser
+      end
+
+      subgraph VPC["Customer Cloud VPC (AWS)"]
+          Runner["Nuon Runner"]
+          ACM["ACM Certificate"]
+          ALB["Application Load Balancer"]
+          Stack["CloudFormation Stack"]
+
+          subgraph EKS["Sandbox"]
+              whoami["whoami"]
+          end
+
+          subgraph EKS["Cluster"]
+              whoami["whoami"]
+          end
+      end
+
+      NuonAPI -->|generates| Stack
+      Stack["CloudFormation Stack"] -->|provisions| Runner
+      Runner -->|provisions| EKS
+      Runner -->|provisions| ACM
+      Runner -->|provisions| ALB
+      Runner -->|provisions| whoami
+
+      ACM -->|TLS| ALB
+      ALB --> whoami
+      Browser -->|HTTPS| ALB
+      cURL -->|HTTPS| ALB
+
+```
+
+## Cost Estimate
+
+Running this app in your environment will cost around $8/day.
