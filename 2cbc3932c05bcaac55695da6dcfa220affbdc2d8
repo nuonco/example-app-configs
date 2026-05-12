@@ -1,0 +1,75 @@
+gke-simple/src/components/whoami/templates/deployment.yaml
+  5d7668d98a408f47 6-11,24-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.9",
+  "base_commit_sha": "2cbc3932c05bcaac55695da6dcfa220affbdc2d8",
+  "prompts": {
+    "279403f0ceb38413": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "toolu_vrtx_013pCW7jkc3ebjNVThcVTwAG",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 1,
+      "accepted_lines": 0,
+      "overriden_lines": 1
+    },
+    "2edeb049ad16c2e7": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "toolu_vrtx_01WTMmA2eCvuLZmp18hpssZp",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 1
+    },
+    "5d7668d98a408f47": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "toolu_vrtx_01C3HiC4LXsvRfYArncVh3Ja",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 11,
+      "total_deletions": 1,
+      "accepted_lines": 11,
+      "overriden_lines": 0
+    },
+    "7ff0a4a0a699ad68": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "toolu_vrtx_01VsfLxD66BSRzkkSkMhhgYj",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 0,
+      "accepted_lines": 16,
+      "overriden_lines": 0
+    },
+    "d4b7ed2d7a9a470f": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "toolu_vrtx_011e3h7z1xLbUpMY1xFYxH8t",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 21,
+      "total_deletions": 0,
+      "accepted_lines": 21,
+      "overriden_lines": 0
+    }
+  }
+}
