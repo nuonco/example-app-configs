@@ -3,6 +3,12 @@ kind: Deployment
 metadata:
   name: whoami
   namespace: {{ .Values.namespace }}
+  labels:
+    # display_tag is the human-friendly tag (e.g. "v1.5.0") and is for
+    # labels/annotations only — Phase 2 keeps it out of the pod-spec image
+    # field. Safe to render with single quotes since it may be empty for
+    # digest-only refs.
+    app.kubernetes.io/version: '{{ .Values.image_display_tag }}'
 spec:
   replicas: 1
   selector:
@@ -15,6 +21,10 @@ spec:
     spec:
       containers:
         - name: whoami
-          image: containous/whoami:latest
+          # Phase 2: image_repository is the digest-pinned full ref
+          # (`<registry>/<repo>@sha256:...`). Do NOT append ":{{ .Values.image_tag }}"
+          # — that would produce a trailing-colon ref and is rejected by
+          # design to prevent silent mutable-tag deploys.
+          image: {{ .Values.image_repository }}
           ports:
             - containerPort: 80
