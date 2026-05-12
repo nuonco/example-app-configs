@@ -67,11 +67,21 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-data "aws_security_groups" "runner" {
-  tags = {
-    "network.nuon.co/domain" = "runner"
-    "install.nuon.co/id"     = var.nuon_id
+# Resolve the runner SG by inspecting the EC2 instance(s) actually running in
+# the runner subnet. This is more reliable than a tag-based aws_security_groups
+# lookup, which can return the wrong group if anything else in the install
+# happens to be tagged with `network.nuon.co/domain = runner`.
+data "aws_instances" "runner" {
+  filter {
+    name   = "subnet-id"
+    values = data.aws_subnets.runner.ids
   }
+
+  instance_state_names = ["pending", "running"]
+}
+
+data "aws_instance" "runner" {
+  instance_id = data.aws_instances.runner.ids[0]
 }
 
 locals {

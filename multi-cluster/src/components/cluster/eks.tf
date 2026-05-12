@@ -70,14 +70,23 @@ module "eks" {
 
 # Allow the runner ASG to reach the cluster API endpoint. Required so the
 # runner can manage the cluster post-provision via the IAM access entries above.
+#
+# NOTE: target the EKS-managed *primary* cluster SG, not the module's additional
+# SG (`module.eks.cluster_security_group_id` in v21+ resolves to the additional
+# SG). The primary SG is created and managed by EKS itself, is always attached
+# to the API endpoint Hyperplane ENIs, and is never recreated — so an ingress
+# rule placed here propagates instantly and is never silently disassociated
+# from the ENIs by AWS during cluster lifecycle events (EKS Auto Mode in
+# particular re-touches ENI SG associations on its own schedule, which dropped
+# our second-apply traffic when the rule lived on the additional SG).
 resource "aws_security_group_rule" "runner_cluster_access" {
   type                     = "ingress"
-  description              = "Allow ingress traffic from runner."
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
-  security_group_id        = module.eks.cluster_security_group_id
-  source_security_group_id = data.aws_security_groups.runner.ids[0]
+  description              = "Allow runner ingress to EKS API endpoint."
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.eks.cluster_primary_security_group_id
+  source_security_group_id = tolist(data.aws_instance.runner.vpc_security_group_ids)[0]
 
   depends_on = [module.eks]
 }
