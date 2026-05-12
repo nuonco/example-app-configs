@@ -9,11 +9,10 @@ directory = "multi-cluster/src/components/cluster"
 branch    = "fd/multi-cluster"
 
 [vars]
-nuon_id                  = "{{ .nuon.install.id }}"
-region                   = "{{ .nuon.install_stack.outputs.region }}"
-vpc_id                   = "{{ .nuon.install_stack.outputs.vpc_id }}"
-runner_security_group_id = "{{ .nuon.install_stack.outputs.runner_security_group_id }}"
-cluster_name             = "c-{{ .nuon.install.id }}"
+nuon_id      = "{{ .nuon.install.id }}"
+region       = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id       = "{{ .nuon.install_stack.outputs.vpc_id }}"
+cluster_name = "c-{{ .nuon.install.id }}"
 
 provision_iam_role_arn   = "{{ .nuon.install_stack.outputs.provision_iam_role_arn }}"
 maintenance_iam_role_arn = "{{ .nuon.install_stack.outputs.maintenance_iam_role_arn }}"
