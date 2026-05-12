@@ -86,4 +86,6 @@ Stop the VM via the portal when not in use to pause EC2 billing. The Elastic IP 
 
 ## About this App Config
 
-Provisions a single EC2 VM with SSH key authentication, optional VS Code Web via HTTPS, optional Docker, optional Claude Code CLI, and optional dotfiles bootstrap. If a dotfiles repo URL is provided, the repo is cloned to ~/.dotfiles and install.sh is run automatically after provisioning; the action can be re-run from the portal at any time. The runner uses AWS SSM to execute all post-provision setup — no additional inbound ports required beyond SSH.
+Provisions a single EC2 VM with SSH key authentication, optional VS Code Web via HTTPS, optional Docker, optional Claude Code CLI, and optional dotfiles bootstrap. Git user name and email are configured at install time. If a dotfiles repo URL is provided, the repo is cloned to ~/.dotfiles and install.sh is run automatically after provisioning; the action can be re-run from the portal at any time. The runner uses AWS SSM to execute all post-provision setup — no additional inbound ports required beyond SSH.
+
+All install inputs are fixed at provision time. The Anthropic API key is the only input that can be updated after install from the portal.
