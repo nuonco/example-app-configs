@@ -1,0 +1,14 @@
+# Named kubernetes context bindings.
+#
+# The implicit "sandbox" context is always available when the sandbox emits
+# cluster outputs (the AWS EKS sandbox does, so it stays the default for
+# components that don't declare a kubernetes_context).
+#
+# Here we declare a `secondary` context backed by the peer `cluster`
+# component (components/cluster.toml). Components that opt in via
+# `kubernetes_context = "secondary"` will deploy onto that cluster instead
+# of the sandbox.
+
+[[kubernetes_context]]
+name      = "secondary"
+component = "cluster"
