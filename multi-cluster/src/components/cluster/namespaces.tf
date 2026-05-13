@@ -16,6 +16,7 @@ resource "kubectl_manifest" "namespaces" {
 
   depends_on = [
     module.eks,
-    resource.aws_security_group_rule.runner_cluster_access,
+    aws_security_group_rule.runner_cluster_access_primary,
+    aws_security_group_rule.runner_cluster_access_additional,
   ]
 }

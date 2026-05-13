@@ -22,7 +22,8 @@ resource "kubectl_manifest" "maintenance" {
   })
   depends_on = [
     module.eks,
-    resource.aws_security_group_rule.runner_cluster_access,
+    aws_security_group_rule.runner_cluster_access_primary,
+    aws_security_group_rule.runner_cluster_access_additional,
   ]
 }
 
@@ -32,6 +33,7 @@ resource "kubectl_manifest" "maintenance_role_binding" {
   yaml_body = file(local.groups.maintenance.role_binding)
   depends_on = [
     module.eks,
-    resource.aws_security_group_rule.runner_cluster_access,
+    aws_security_group_rule.runner_cluster_access_primary,
+    aws_security_group_rule.runner_cluster_access_additional,
   ]
 }

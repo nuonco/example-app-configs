@@ -32,6 +32,7 @@ resource "kubectl_manifest" "ebs_storage_class" {
 
   depends_on = [
     module.eks,
-    resource.aws_security_group_rule.runner_cluster_access,
+    aws_security_group_rule.runner_cluster_access_primary,
+    aws_security_group_rule.runner_cluster_access_additional,
   ]
 }

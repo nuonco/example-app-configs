@@ -79,14 +79,36 @@ module "eks" {
 # from the ENIs by AWS during cluster lifecycle events (EKS Auto Mode in
 # particular re-touches ENI SG associations on its own schedule, which dropped
 # our second-apply traffic when the rule lived on the additional SG).
-resource "aws_security_group_rule" "runner_cluster_access" {
-  type                     = "ingress"
-  description              = "Allow runner ingress to EKS API endpoint."
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  security_group_id        = module.eks.cluster_primary_security_group_id
-  source_security_group_id = tolist(data.aws_instance.runner.vpc_security_group_ids)[0]
+# Open the EKS API endpoint to the runner subnet CIDR on both cluster SGs.
+#
+# Source-SG matching turned out to be unreliable here: the runner ASG attaches
+# multiple SGs, AWS doesn't guarantee ordering on `vpc_security_group_ids`, and
+# a tag-based aws_security_groups lookup can return the wrong SG entirely. A
+# CIDR rule scoped to the (single) runner subnet sidesteps all of that.
+#
+# We attach to BOTH cluster SGs because the EKS module places the cross-account
+# API endpoint ENIs behind both the AWS-managed primary cluster SG and the
+# module's additional cluster SG; either one will be evaluated for ingress.
+resource "aws_security_group_rule" "runner_cluster_access_primary" {
+  type              = "ingress"
+  description       = "Allow runner subnet ingress to EKS API endpoint (primary SG)."
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = module.eks.cluster_primary_security_group_id
+  cidr_blocks       = [local.subnets.runner.cidrs[0]]
+
+  depends_on = [module.eks]
+}
+
+resource "aws_security_group_rule" "runner_cluster_access_additional" {
+  type              = "ingress"
+  description       = "Allow runner subnet ingress to EKS API endpoint (additional SG)."
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = module.eks.cluster_security_group_id
+  cidr_blocks       = [local.subnets.runner.cidrs[0]]
 
   depends_on = [module.eks]
 }
