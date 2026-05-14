@@ -12,6 +12,22 @@
 {{ end -}}
 A personal cloud development environment running in your AWS account. Connect via SSH with your private key, open VS Code in the browser if enabled, and have your dotfiles installed automatically on first boot.
 
+## Actions
+
+**post_provision_setup** (auto on provision, re-runnable) — installs Docker, VS Code Web, Claude Code, and configures git user name/email based on your install inputs.
+
+**install_dotfiles** (auto on provision, re-runnable) — clones your dotfiles repo to `~/.dotfiles` and runs `install.sh`. Re-run any time from the portal to pull updates.
+
+**add_ssh_key** (manual) — appends an additional SSH public key to `~/.ssh/authorized_keys`. Takes a key as input; prints fingerprints of all authorized keys after.
+
+**install_claude_code** (manual) — installs or updates Claude Code CLI to the latest version independently of the initial setup.
+
+**healthcheck** (manual) — confirms the instance is running and SSH port 22 is reachable. Also checks VS Code Web if enabled.
+
+**start_dev_env** (manual) — starts a stopped VM and echoes the SSH connect string when ready.
+
+**stop_dev_env** (manual) — stops the VM to pause EC2 billing. Elastic IP and DNS record are preserved.
+
 ## Architecture
 
 ```mermaid
@@ -84,8 +100,3 @@ Instance cost depends on the type selected at install time. At default (`t3a.xla
 
 Stop the VM via the portal when not in use to pause EC2 billing. The Elastic IP and DNS record persist through stop/start cycles so your SSH hostname never changes.
 
-## About this App Config
-
-Provisions a single EC2 VM with SSH key authentication, optional VS Code Web via HTTPS, optional Docker, optional Claude Code CLI, and optional dotfiles bootstrap. Git user name and email are configured at install time. If a dotfiles repo URL is provided, the repo is cloned to ~/.dotfiles and install.sh is run automatically after provisioning; the action can be re-run from the portal at any time. The runner uses AWS SSM to execute all post-provision setup — no additional inbound ports required beyond SSH.
-
-All install inputs are fixed at provision time. The Anthropic API key is the only input that can be updated after install from the portal.

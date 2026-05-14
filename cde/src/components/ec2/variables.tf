@@ -28,7 +28,7 @@ variable "dns_zone_name" {
 
 variable "instance_type" {
   type    = string
-  default = "t3a.large"
+  default = "t3a.xlarge"
 }
 
 variable "ssh_public_key" {

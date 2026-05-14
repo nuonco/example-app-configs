@@ -13,6 +13,15 @@ inline_contents = """
 #!/usr/bin/env sh
 set -e
 
+echo "Checking instance state..."
+STATE=$(aws ec2 describe-instances \
+  --instance-ids "$INSTANCE_ID" \
+  --region "$REGION" \
+  --query "Reservations[0].Instances[0].State.Name" \
+  --output text 2>/dev/null || echo "unknown")
+echo "Instance state: $STATE"
+[ "$STATE" = "running" ] || { echo "Instance is not running (state: $STATE)"; exit 1; }
+
 echo "Checking SSH on $SSH_HOSTNAME:22..."
 if nc -zv -w 5 "$SSH_HOSTNAME" 22; then
   echo "SSH port is reachable"
@@ -36,6 +45,8 @@ echo "Healthcheck passed"
 """
 
 [steps.env_vars]
+INSTANCE_ID        = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION             = "{{.nuon.sandbox.outputs.account.region}}"
 SSH_HOSTNAME       = "{{.nuon.components.ec2.outputs.ssh_hostname}}"
 VSCODE_URL         = "{{.nuon.components.ec2.outputs.vscode_url}}"
 INSTALL_VSCODE_WEB = "{{.nuon.install.inputs.install_vscode_web}}"

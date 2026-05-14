@@ -47,6 +47,8 @@ else
   chmod 600 "$AUTH_KEYS"
   echo "SSH key added successfully"
 fi
+echo "authorized_keys fingerprints:"
+ssh-keygen -l -f "$AUTH_KEYS"
 SCRIPT
 
 sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/add-ssh-key.sh

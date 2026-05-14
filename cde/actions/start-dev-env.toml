@@ -17,8 +17,11 @@ echo "Starting instance $INSTANCE_ID..."
 aws ec2 start-instances --instance-ids "$INSTANCE_ID" --region "$REGION"
 aws ec2 wait instance-running --instance-ids "$INSTANCE_ID" --region "$REGION"
 echo "Instance is running"
+echo "ssh $SSH_USER@$SSH_HOSTNAME"
 """
 
 [steps.env_vars]
-INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
-REGION      = "{{.nuon.sandbox.outputs.account.region}}"
+INSTANCE_ID  = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION       = "{{.nuon.sandbox.outputs.account.region}}"
+SSH_USER     = "{{.nuon.components.ec2.outputs.ssh_user}}"
+SSH_HOSTNAME = "{{.nuon.components.ec2.outputs.ssh_hostname}}"

@@ -7,7 +7,7 @@ max_auto_retries  = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "cde/src/components/ec2"
-branch    = "mm/cde"
+branch    = "main"
 
 [vars]
 install_id         = "{{.nuon.install.id}}"
