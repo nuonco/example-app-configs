@@ -1,0 +1,11 @@
+version = "v1"
+
+display_name = "Cloud Dev Environment"
+description  = "Cloud dev environment on AWS EC2 with SSH access."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

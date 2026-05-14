@@ -1,0 +1,108 @@
+# action
+name               = "add_ssh_key"
+timeout            = "5m"
+enable_kube_config = false
+description        = "Append an additional SSH public key to the VM's authorized_keys"
+
+[[triggers]]
+type = "manual"
+
+[[inputs]]
+name        = "ssh_public_key"
+description = "SSH public key to add (paste the full contents of your .pub file)"
+required    = true
+
+[[steps]]
+name = "add_ssh_key"
+inline_contents = """
+#!/bin/bash
+set -e
+
+echo "Waiting for SSM agent..."
+for i in $(seq 1 30); do
+  STATUS=$(aws ssm describe-instance-information \
+    --filters "Key=InstanceIds,Values=$INSTANCE_ID" \
+    --region "$REGION" \
+    --query "InstanceInformationList[0].PingStatus" \
+    --output text 2>/dev/null || echo "None")
+  [ "$STATUS" = "Online" ] && echo "SSM agent online" && break
+  echo "Attempt $i/30, status: $STATUS"
+  sleep 10
+done
+
+[ "$STATUS" = "Online" ] || { echo "SSM agent did not come online in time"; exit 1; }
+
+NEW_SSH_KEY="{{ .action.inputs.ssh_public_key }}"
+KEY_B64=$(echo "$NEW_SSH_KEY" | base64 -w 0)
+
+cat > /tmp/add-ssh-key.sh << 'SCRIPT'
+#!/bin/bash
+set -e
+AUTH_KEYS="/home/SSH_USER_VAL/.ssh/authorized_keys"
+DECODED_KEY=$(echo "KEY_B64_VAL" | base64 -d)
+if grep -qF "$DECODED_KEY" "$AUTH_KEYS" 2>/dev/null; then
+  echo "Key already present in authorized_keys, skipping"
+else
+  echo "$DECODED_KEY" >> "$AUTH_KEYS"
+  chmod 600 "$AUTH_KEYS"
+  echo "SSH key added successfully"
+fi
+echo "authorized_keys fingerprints:"
+ssh-keygen -l -f "$AUTH_KEYS"
+SCRIPT
+
+sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/add-ssh-key.sh
+sed -i "s|KEY_B64_VAL|$KEY_B64|g" /tmp/add-ssh-key.sh
+
+SCRIPT_B64=$(base64 -w 0 /tmp/add-ssh-key.sh)
+
+COMMAND_ID=$(aws ssm send-command \
+  --instance-ids "$INSTANCE_ID" \
+  --document-name "AWS-RunShellScript" \
+  --parameters "{\\"commands\\":[\\"echo $SCRIPT_B64 | base64 -d | bash\\"]}" \
+  --region "$REGION" \
+  --output text \
+  --query "Command.CommandId")
+
+echo "SSM command ID: $COMMAND_ID"
+
+STATUS="InProgress"
+for i in $(seq 1 30); do
+  sleep 10
+  STATUS=$(aws ssm get-command-invocation \
+    --command-id "$COMMAND_ID" \
+    --instance-id "$INSTANCE_ID" \
+    --region "$REGION" \
+    --query "Status" \
+    --output text 2>/dev/null || echo "InProgress")
+  echo "Status: $STATUS"
+  case "$STATUS" in
+    Success)
+      aws ssm get-command-invocation \
+        --command-id "$COMMAND_ID" \
+        --instance-id "$INSTANCE_ID" \
+        --region "$REGION" \
+        --query "StandardOutputContent" \
+        --output text 2>/dev/null || true
+      break ;;
+    Failed|Cancelled|TimedOut|DeliveryTimedOut)
+      echo "=== stdout ==="
+      aws ssm get-command-invocation \
+        --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" \
+        --region "$REGION" --query "StandardOutputContent" --output text 2>/dev/null || true
+      echo "=== stderr ==="
+      aws ssm get-command-invocation \
+        --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" \
+        --region "$REGION" --query "StandardErrorContent" --output text 2>/dev/null || true
+      echo "Failed to add SSH key: $STATUS"
+      exit 1 ;;
+  esac
+done
+
+[ "$STATUS" = "Success" ] || { echo "Timed out waiting for command"; exit 1; }
+"""
+
+[steps.env_vars]
+INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION      = "{{.nuon.sandbox.outputs.account.region}}"
+SSH_USER    = "{{.nuon.components.ec2.outputs.ssh_user}}"

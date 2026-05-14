@@ -38,6 +38,10 @@ Creates an EKS cluster with a `whoami` application deployed on it, an Applicatio
 the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this
 app.
 
+## cde
+
+A personal cloud development environment running entirely in your AWS account. Provisions a single EC2 VM with SSH key authentication, optional VS Code Web (ALB + ACM certificate), Docker, and Claude Code CLI. Connect via SSH, Zed remote SSH, or VS Code Remote-SSH. Dotfiles are bootstrapped automatically on first provision. Start and stop the VM from the vendor dashboard to save costs when not in use.
+
 ## eks-simple-auto
 
 Identical to eks-simple but makes use of our sandbox for AWS Auto Mode EKS sandbox -

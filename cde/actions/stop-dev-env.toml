@@ -1,0 +1,24 @@
+# action
+name               = "stop_dev_env"
+timeout            = "5m"
+enable_kube_config = false
+description        = "Stop the dev environment VM to save cost. SSH hostname and data are preserved."
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "stop_instance"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Stopping instance $INSTANCE_ID..."
+aws ec2 stop-instances --instance-ids "$INSTANCE_ID" --region "$REGION"
+aws ec2 wait instance-stopped --instance-ids "$INSTANCE_ID" --region "$REGION"
+echo "Instance stopped"
+"""
+
+[steps.env_vars]
+INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION      = "{{.nuon.sandbox.outputs.account.region}}"

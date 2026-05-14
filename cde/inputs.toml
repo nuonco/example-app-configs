@@ -1,0 +1,80 @@
+[[group]]
+name         = "developer"
+display_name = "Developer Configuration"
+description  = "SSH access and instance sizing for your development environment"
+
+[[input]]
+name         = "ssh_public_key"
+display_name = "SSH Public Key"
+description  = "Paste the contents of your public key file (e.g. cat ~/.ssh/id_rsa.pub)"
+group        = "developer"
+
+[[input]]
+name         = "os"
+display_name = "Operating System"
+description  = "VM operating system. ubuntu-24.04 (Ubuntu 24.04 LTS, recommended for development, uses apt) or al2023 (Amazon Linux 2023, uses dnf)"
+default      = "ubuntu-24.04"
+group        = "developer"
+
+[[input]]
+name         = "instance_type"
+display_name = "Instance Type"
+description  = "EC2 instance type. t3a.medium (2vCPU/4GB), t3a.large (2vCPU/8GB), t3a.xlarge (4vCPU/16GB), t3a.2xlarge (8vCPU/32GB), m7i.large (2vCPU/8GB consistent), m7i.xlarge (4vCPU/16GB consistent)"
+default      = "t3a.xlarge"
+group        = "developer"
+
+[[input]]
+name         = "git_user_name"
+display_name = "Git User Name"
+description  = "Your full name for git commits (e.g. Jane Smith). Sets git config user.name globally."
+default      = ""
+group        = "developer"
+
+[[input]]
+name         = "git_user_email"
+display_name = "Git Email"
+description  = "Email address for git commits. Sets git config user.email globally."
+default      = ""
+group        = "developer"
+
+[[group]]
+name         = "optional_tools"
+display_name = "Optional Tools"
+description  = "Tools installed via the post-provision action. Each can be re-run or updated independently."
+
+[[input]]
+name         = "dotfiles_repo"
+display_name = "Dotfiles Repo URL"
+description  = "HTTPS URL of your dotfiles git repository (e.g. https://github.com/you/dotfiles). If set, the repo is cloned to ~/.dotfiles and install.sh is run after provisioning."
+default      = ""
+group        = "optional_tools"
+
+[[input]]
+name         = "install_docker"
+display_name = "Install Docker"
+description  = "Install Docker and enable it as a system service (true/false)"
+default      = "false"
+group        = "optional_tools"
+
+[[input]]
+name         = "install_vscode_web"
+display_name = "Install VS Code Web"
+description  = "Install code-server (VS Code in the browser) over HTTPS via ALB and ACM cert (true/false)"
+default      = "false"
+group        = "optional_tools"
+
+[[input]]
+name         = "install_claude_code"
+display_name = "Install Claude Code"
+description  = "Install the Claude Code CLI (true/false)"
+default      = "false"
+group        = "optional_tools"
+
+[[input]]
+name              = "anthropic_api_key"
+display_name      = "Anthropic API Key"
+description       = "Your Anthropic API key for Claude Code (from console.anthropic.com). Only required if Install Claude Code is true."
+default           = ""
+sensitive         = true
+user_configurable = true
+group             = "optional_tools"

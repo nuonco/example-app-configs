@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "acm:*",
+        "ec2:*",
+        "ecr:*",
+        "elasticloadbalancing:*",
+        "iam:*",
+        "organizations:DescribeOrganization",
+        "route53:*",
+        "ssm:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

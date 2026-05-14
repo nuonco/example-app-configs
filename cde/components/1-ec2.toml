@@ -1,0 +1,24 @@
+# terraform
+name              = "ec2"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "cde/src/components/ec2"
+branch    = "main"
+
+[vars]
+install_id         = "{{.nuon.install.id}}"
+region             = "{{.nuon.sandbox.outputs.account.region}}"
+subnet_id_0        = "{{index .nuon.sandbox.outputs.vpc.public_subnet_ids 0}}"
+subnet_id_1        = "{{index .nuon.sandbox.outputs.vpc.public_subnet_ids 1}}"
+vpc_id             = "{{.nuon.sandbox.outputs.vpc.id}}"
+dns_zone_id        = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id}}"
+dns_zone_name      = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+os                 = "{{.nuon.install.inputs.os}}"
+instance_type      = "{{.nuon.install.inputs.instance_type}}"
+ssh_public_key     = "{{.nuon.install.inputs.ssh_public_key}}"
+install_vscode_web = "{{.nuon.install.inputs.install_vscode_web}}"
+anthropic_api_key  = "{{.nuon.install.inputs.anthropic_api_key}}"

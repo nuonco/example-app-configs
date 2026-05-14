@@ -1,0 +1,15 @@
+cloud: aws
+category:
+  - architecture
+infra: ec2
+stack:
+  - terraform
+features:
+  - actions
+  - inputs
+tags:
+  - ec2
+  - ssh
+  - vscode
+  - claude-code
+  - dev-environment

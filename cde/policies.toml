@@ -1,0 +1,25 @@
+# policies
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/warn-large-instance-type.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/warn-ssh-open-to-world.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/deny-eip-deletion.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/deny-instance-type-change.rego"
