@@ -1,9 +1,10 @@
 locals {
-  install_vscode_web = var.install_vscode_web == "true"
-  is_ubuntu          = var.os == "ubuntu-24.04"
-  ssh_user           = local.is_ubuntu ? "ubuntu" : "ec2-user"
-  sshd_service       = local.is_ubuntu ? "ssh" : "sshd"
-  ami_id             = local.is_ubuntu ? data.aws_ami.ubuntu.id : data.aws_ami.al2023.id
+  install_vscode_web  = var.install_vscode_web == "true"
+  is_ubuntu           = var.os == "ubuntu-24.04"
+  ssh_user            = local.is_ubuntu ? "ubuntu" : "ec2-user"
+  sshd_service        = local.is_ubuntu ? "ssh" : "sshd"
+  ami_id              = local.is_ubuntu ? data.aws_ami.ubuntu.id : data.aws_ami.al2023.id
+  ssh_public_key      = replace(replace(replace(var.ssh_public_key, "&#43;", "+"), "&#47;", "/"), "&#61;", "=")
 }
 
 data "aws_ami" "ubuntu" {
@@ -137,7 +138,7 @@ resource "aws_instance" "dev_env" {
   user_data = <<-EOF
     #!/bin/bash
     mkdir -p /home/${local.ssh_user}/.ssh
-    echo "${var.ssh_public_key}" | sed 's/&#43;/+/g; s/&#47;/\//g; s/&#61;/=/g' >> /home/${local.ssh_user}/.ssh/authorized_keys
+    echo "${local.ssh_public_key}" >> /home/${local.ssh_user}/.ssh/authorized_keys
     chmod 600 /home/${local.ssh_user}/.ssh/authorized_keys
     chown -R ${local.ssh_user}:${local.ssh_user} /home/${local.ssh_user}/.ssh
     sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
