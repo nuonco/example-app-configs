@@ -57,7 +57,7 @@ if [ "INSTALL_VSCODE_WEB_VAL" = "true" ]; then
   echo "Installing code-server..."
   curl -fsSL https://code-server.dev/install.sh | sh
   mkdir -p /home/SSH_USER_VAL/.config/code-server
-  printf 'bind-addr: 0.0.0.0:8080\nauth: none\ncert: false\n' > /home/SSH_USER_VAL/.config/code-server/config.yaml
+  printf 'bind-addr: 0.0.0.0:8080\nauth: password\npassword: VSCODE_PASSWORD_VAL\ncert: false\n' > /home/SSH_USER_VAL/.config/code-server/config.yaml
   chown -R SSH_USER_VAL:SSH_USER_VAL /home/SSH_USER_VAL/.config
   systemctl enable --now code-server@SSH_USER_VAL
 fi
@@ -72,6 +72,7 @@ if [ "INSTALL_CLAUDE_CODE_VAL" = "true" ]; then
   fi
   npm install -g @anthropic-ai/claude-code
   if [ -n "ANTHROPIC_KEY_VAL" ] && ! grep -q ANTHROPIC_API_KEY /home/SSH_USER_VAL/.bashrc; then
+    [ -s /home/SSH_USER_VAL/.bashrc ] && [ -n "$(tail -c1 /home/SSH_USER_VAL/.bashrc)" ] && echo "" >> /home/SSH_USER_VAL/.bashrc
     echo "export ANTHROPIC_API_KEY=ANTHROPIC_KEY_VAL" >> /home/SSH_USER_VAL/.bashrc
   fi
 fi
@@ -81,6 +82,46 @@ if [ -n "GIT_USER_NAME_VAL" ]; then
 fi
 if [ -n "GIT_USER_EMAIL_VAL" ]; then
   sudo -u SSH_USER_VAL git config --global user.email "GIT_USER_EMAIL_VAL"
+fi
+
+if [ -n "AUTO_STOP_INACTIVE_HOURS_VAL" ]; then
+  cat > /usr/local/bin/cde-idle-stop.sh << 'IDLESTOP'
+#!/bin/bash
+IDLE_FILE="/var/lib/cde-idle-count"
+MAX_HOURS=AUTO_STOP_INACTIVE_HOURS_VAL
+MAX_CHECKS=$(( MAX_HOURS * 6 ))
+SSH_CONNS=$(ss -tn state established | grep -c ':22 ' || echo 0)
+CS_CONNS=$(ss -tn state established | grep -c ':8080 ' || echo 0)
+if [ "$SSH_CONNS" -eq 0 ] && [ "$CS_CONNS" -eq 0 ]; then
+  COUNT=$(cat "$IDLE_FILE" 2>/dev/null || echo 0)
+  COUNT=$(( COUNT + 1 ))
+  echo "$COUNT" > "$IDLE_FILE"
+  logger "CDE idle-stop: idle count=$COUNT max=$MAX_CHECKS"
+  if [ "$COUNT" -ge "$MAX_CHECKS" ]; then
+    logger "CDE idle-stop: inactive for ${MAX_HOURS}h, shutting down"
+    shutdown -h now
+  fi
+else
+  echo "0" > "$IDLE_FILE"
+fi
+IDLESTOP
+  chmod +x /usr/local/bin/cde-idle-stop.sh
+  echo "*/10 * * * * root /usr/local/bin/cde-idle-stop.sh" > /etc/cron.d/cde-idle-stop
+fi
+
+if [ -n "AUTO_STOP_MAX_HOURS_VAL" ]; then
+  cat > /usr/local/bin/cde-max-stop.sh << 'MAXSTOP'
+#!/bin/bash
+MAX_HOURS=AUTO_STOP_MAX_HOURS_VAL
+UPTIME_SEC=$(awk '{print int($1)}' /proc/uptime)
+MAX_SEC=$(( MAX_HOURS * 3600 ))
+if [ "$UPTIME_SEC" -ge "$MAX_SEC" ]; then
+  logger "CDE max-stop: uptime ${UPTIME_SEC}s >= max ${MAX_SEC}s (${MAX_HOURS}h), shutting down"
+  shutdown -h now
+fi
+MAXSTOP
+  chmod +x /usr/local/bin/cde-max-stop.sh
+  echo "0 * * * * root /usr/local/bin/cde-max-stop.sh" > /etc/cron.d/cde-max-stop
 fi
 
 echo ""
@@ -104,17 +145,30 @@ GIT_NAME=$(sudo -u SSH_USER_VAL git config --global user.name 2>/dev/null || ech
 GIT_EMAIL=$(sudo -u SSH_USER_VAL git config --global user.email 2>/dev/null || echo '')
 [ -n "$GIT_NAME" ] && echo "git name:    $GIT_NAME" || echo "git name:    not set"
 [ -n "$GIT_EMAIL" ] && echo "git email:   $GIT_EMAIL" || echo "git email:   not set"
+if [ -n "AUTO_STOP_INACTIVE_HOURS_VAL" ]; then
+  echo "idle stop:   after AUTO_STOP_INACTIVE_HOURS_VAL hours inactive"
+else
+  echo "idle stop:   disabled"
+fi
+if [ -n "AUTO_STOP_MAX_HOURS_VAL" ]; then
+  echo "force stop:  after AUTO_STOP_MAX_HOURS_VAL hours uptime"
+else
+  echo "force stop:  disabled"
+fi
 echo "--- done ---"
 SCRIPT
 
 sed -i "s|INSTALL_DOCKER_VAL|$INSTALL_DOCKER|g" /tmp/cde-setup.sh
 sed -i "s|INSTALL_VSCODE_WEB_VAL|$INSTALL_VSCODE_WEB|g" /tmp/cde-setup.sh
+sed -i "s|VSCODE_PASSWORD_VAL|$VSCODE_PASSWORD|g" /tmp/cde-setup.sh
 sed -i "s|INSTALL_CLAUDE_CODE_VAL|$INSTALL_CLAUDE_CODE|g" /tmp/cde-setup.sh
 sed -i "s|OS_VAL|$OS|g" /tmp/cde-setup.sh
 sed -i "s|SSH_USER_VAL|$SSH_USER|g" /tmp/cde-setup.sh
 sed -i "s|ANTHROPIC_KEY_VAL|$ANTHROPIC_KEY|g" /tmp/cde-setup.sh
 sed -i "s|GIT_USER_NAME_VAL|$GIT_USER_NAME|g" /tmp/cde-setup.sh
 sed -i "s|GIT_USER_EMAIL_VAL|$GIT_USER_EMAIL|g" /tmp/cde-setup.sh
+sed -i "s|AUTO_STOP_INACTIVE_HOURS_VAL|$AUTO_STOP_INACTIVE_HOURS|g" /tmp/cde-setup.sh
+sed -i "s|AUTO_STOP_MAX_HOURS_VAL|$AUTO_STOP_MAX_HOURS|g" /tmp/cde-setup.sh
 
 SCRIPT_B64=$(base64 -w 0 /tmp/cde-setup.sh)
 
@@ -178,7 +232,10 @@ OS                      = "{{.nuon.install.inputs.os}}"
 SSH_USER                = "{{.nuon.components.ec2.outputs.ssh_user}}"
 INSTALL_DOCKER          = "{{.nuon.install.inputs.install_docker}}"
 INSTALL_VSCODE_WEB      = "{{.nuon.install.inputs.install_vscode_web}}"
+VSCODE_PASSWORD         = "{{.nuon.install.inputs.vscode_password}}"
 INSTALL_CLAUDE_CODE     = "{{.nuon.install.inputs.install_claude_code}}"
 ANTHROPIC_API_KEY_PARAM = "/cde/{{.nuon.install.id}}/anthropic-api-key"
-GIT_USER_NAME           = "{{.nuon.install.inputs.git_user_name}}"
-GIT_USER_EMAIL          = "{{.nuon.install.inputs.git_user_email}}"
+GIT_USER_NAME            = "{{.nuon.install.inputs.git_user_name}}"
+GIT_USER_EMAIL           = "{{.nuon.install.inputs.git_user_email}}"
+AUTO_STOP_INACTIVE_HOURS = "{{.nuon.install.inputs.auto_stop_inactive_hours}}"
+AUTO_STOP_MAX_HOURS      = "{{.nuon.install.inputs.auto_stop_max_hours}}"

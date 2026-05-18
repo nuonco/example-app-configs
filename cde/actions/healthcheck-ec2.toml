@@ -1,0 +1,32 @@
+# action
+name               = "healthcheck_ec2"
+timeout            = "2m"
+enable_kube_config = false
+description        = "Check EC2 instance state (running/stopped)"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
+[[steps]]
+name = "check_ec2"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+STATE=$(aws ec2 describe-instances \
+  --instance-ids "$INSTANCE_ID" \
+  --region "$REGION" \
+  --query "Reservations[0].Instances[0].State.Name" \
+  --output text 2>/dev/null || echo "unknown")
+echo "Instance state: $STATE"
+echo '{"state":"'$STATE'"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+[ "$STATE" = "running" ] || { echo "Instance is not running (state: $STATE)"; exit 1; }
+echo "EC2 healthcheck passed"
+"""
+
+[steps.env_vars]
+INSTANCE_ID = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION      = "{{.nuon.sandbox.outputs.account.region}}"

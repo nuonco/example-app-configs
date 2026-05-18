@@ -1,0 +1,32 @@
+# action
+name               = "healthcheck_ssh"
+timeout            = "30s"
+enable_kube_config = false
+description        = "Check SSH port reachability on the dev VM"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
+[[steps]]
+name = "check_ssh"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+echo "Checking SSH on $SSH_HOSTNAME:22..."
+if nc -zv -w 5 "$SSH_HOSTNAME" 22; then
+  echo '{"status":"reachable"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+  echo "SSH port is reachable"
+else
+  echo '{"status":"unreachable"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+  echo "SSH port is not reachable"
+  exit 1
+fi
+echo "SSH healthcheck passed"
+"""
+
+[steps.env_vars]
+SSH_HOSTNAME = "{{.nuon.components.ec2.outputs.ssh_hostname}}"
