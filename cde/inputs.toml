@@ -4,10 +4,11 @@ display_name = "Developer Configuration"
 description  = "SSH access and instance sizing for your development environment"
 
 [[input]]
-name         = "ssh_public_key"
-display_name = "SSH Public Key"
-description  = "Paste the contents of your public key file (e.g. cat ~/.ssh/id_rsa.pub)"
-group        = "developer"
+name              = "ssh_public_key"
+display_name      = "SSH Public Key"
+description       = "Paste the contents of your public key file (e.g. cat ~/.ssh/id_rsa.pub)"
+user_configurable = true
+group             = "developer"
 
 [[input]]
 name         = "os"
@@ -24,18 +25,20 @@ default      = "t3a.xlarge"
 group        = "developer"
 
 [[input]]
-name         = "git_user_name"
-display_name = "Git User Name"
-description  = "Your full name for git commits (e.g. Jane Smith). Sets git config user.name globally."
-default      = ""
-group        = "developer"
+name              = "git_user_name"
+display_name      = "Git User Name"
+description       = "Your full name for git commits (e.g. Jane Smith). Sets git config user.name globally."
+default           = ""
+user_configurable = true
+group             = "developer"
 
 [[input]]
-name         = "git_user_email"
-display_name = "Git Email"
-description  = "Email address for git commits. Sets git config user.email globally."
-default      = ""
-group        = "developer"
+name              = "git_user_email"
+display_name      = "Git Email"
+description       = "Email address for git commits. Sets git config user.email globally."
+default           = ""
+user_configurable = true
+group             = "developer"
 
 [[group]]
 name         = "optional_tools"
@@ -43,11 +46,12 @@ display_name = "Optional Tools"
 description  = "Tools installed via the post-provision action. Each can be re-run or updated independently."
 
 [[input]]
-name         = "dotfiles_repo"
-display_name = "Dotfiles Repo URL"
-description  = "HTTPS URL of your dotfiles git repository (e.g. https://github.com/you/dotfiles). If set, the repo is cloned to ~/.dotfiles and install.sh is run after provisioning."
-default      = ""
-group        = "optional_tools"
+name              = "dotfiles_repo"
+display_name      = "Dotfiles Repo URL"
+description       = "HTTPS URL of your dotfiles git repository (e.g. https://github.com/you/dotfiles). If set, the repo is cloned to ~/.dotfiles and install.sh is run after provisioning."
+default           = ""
+user_configurable = true
+group             = "optional_tools"
 
 [[input]]
 name         = "install_docker"
@@ -64,6 +68,14 @@ default      = "false"
 group        = "optional_tools"
 
 [[input]]
+name              = "vscode_password"
+display_name      = "VS Code Web Password"
+description       = "Password to access VS Code Web. Set this now so it is ready if you enable VS Code Web later. Not used if Install VS Code Web is false."
+sensitive         = true
+user_configurable = true
+group             = "optional_tools"
+
+[[input]]
 name         = "install_claude_code"
 display_name = "Install Claude Code"
 description  = "Install the Claude Code CLI (true/false)"
@@ -78,3 +90,22 @@ default           = ""
 sensitive         = true
 user_configurable = true
 group             = "optional_tools"
+
+[[group]]
+name         = "cost_controls"
+display_name = "Cost Controls"
+description  = "Automatic shutdown options to prevent idle instances from accumulating charges"
+
+[[input]]
+name         = "auto_stop_inactive_hours"
+display_name = "Inactive Auto-Stop (hours)"
+description  = "Shut down the VM after this many hours with no active SSH or VS Code connections. Leave blank to disable."
+default      = "2"
+group        = "cost_controls"
+
+[[input]]
+name         = "auto_stop_max_hours"
+display_name = "Force Auto-Stop (hours)"
+description  = "Shut down the VM after this many hours of uptime since last start, regardless of activity. Leave blank to disable."
+default      = "4"
+group        = "cost_controls"

@@ -1,0 +1,40 @@
+# action
+name               = "healthcheck_alb"
+timeout            = "2m"
+enable_kube_config = false
+description        = "Check VS Code Web ALB reachability via HTTPS"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
+[[steps]]
+name = "check_alb"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+if [ "$INSTALL_VSCODE_WEB" != "true" ] || [ -z "$VSCODE_URL" ]; then
+  echo "VS Code Web not enabled, skipping"
+  exit 0
+fi
+
+echo "Checking ALB at $VSCODE_URL..."
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$VSCODE_URL" || echo "000")
+echo '{"http_status":"'$HTTP_STATUS'"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "302" ]; then
+  echo "ALB reachable (HTTP $HTTP_STATUS)"
+elif [ "$HTTP_STATUS" = "503" ]; then
+  echo "ALB responding but no healthy targets (HTTP 503) — VM is likely stopped"
+else
+  echo "ALB check failed (HTTP $HTTP_STATUS)"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+VSCODE_URL         = "{{.nuon.components.ec2.outputs.vscode_url}}"
+INSTALL_VSCODE_WEB = "{{.nuon.install.inputs.install_vscode_web}}"

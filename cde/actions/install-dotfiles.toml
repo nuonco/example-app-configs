@@ -16,11 +16,6 @@ inline_contents = """
 #!/bin/bash
 set -e
 
-if [ -z "$DOTFILES_REPO" ]; then
-  echo "No dotfiles repo configured, skipping"
-  exit 0
-fi
-
 echo "Waiting for SSM agent..."
 for i in $(seq 1 30); do
   STATUS=$(aws ssm describe-instance-information \
@@ -41,6 +36,18 @@ set -e
 USER_HOME=/home/SSH_USER_VAL
 export HOME=$USER_HOME
 cd $USER_HOME
+
+if [ -z "DOTFILES_REPO_VAL" ]; then
+  if [ -d "$USER_HOME/.dotfiles" ]; then
+    rm -rf "$USER_HOME/.dotfiles" /root/.dotfiles
+    echo "dotfiles_repo is blank — removed ~/.dotfiles"
+    echo "Note: shell config changes from install.sh (e.g. .bashrc edits) are not automatically reverted"
+  else
+    echo "dotfiles_repo is blank and ~/.dotfiles does not exist, nothing to do"
+  fi
+  exit 0
+fi
+
 rm -rf $USER_HOME/.dotfiles /root/.dotfiles
 git clone DOTFILES_REPO_VAL $USER_HOME/.dotfiles
 cd $USER_HOME/.dotfiles

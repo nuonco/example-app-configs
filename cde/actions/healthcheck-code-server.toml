@@ -1,0 +1,65 @@
+# action
+name               = "healthcheck_code_server"
+timeout            = "2m"
+enable_kube_config = false
+description        = "Check code-server process is listening on :8080 via SSM"
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
+[[steps]]
+name = "check_code_server"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+if [ "$INSTALL_VSCODE_WEB" != "true" ]; then
+  echo "VS Code Web not enabled, skipping"
+  exit 0
+fi
+
+SSM_PING=$(aws ssm describe-instance-information \
+  --filters "Key=InstanceIds,Values=$INSTANCE_ID" \
+  --region "$REGION" \
+  --query "InstanceInformationList[0].PingStatus" \
+  --output text 2>/dev/null || echo "None")
+
+if [ "$SSM_PING" != "Online" ]; then
+  echo '{"status":"vm_stopped"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+  echo "SSM agent not reachable — VM is likely stopped"
+  exit 1
+fi
+
+COMMAND_ID=$(aws ssm send-command \
+  --instance-ids "$INSTANCE_ID" \
+  --document-name "AWS-RunShellScript" \
+  --parameters '{"commands":["ss -tlnp | grep -q :8080 && echo running || echo not_running"]}' \
+  --region "$REGION" \
+  --output text \
+  --query "Command.CommandId")
+
+sleep 8
+RESULT=$(aws ssm get-command-invocation \
+  --command-id "$COMMAND_ID" \
+  --instance-id "$INSTANCE_ID" \
+  --region "$REGION" \
+  --query "StandardOutputContent" \
+  --output text 2>/dev/null || echo "unknown")
+
+if echo "$RESULT" | grep -q "not_running"; then
+  echo '{"status":"not_running"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+  echo "code-server is not listening on :8080"
+  exit 1
+fi
+echo '{"status":"running"}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH:-/dev/null}"
+echo "code-server is running on :8080"
+"""
+
+[steps.env_vars]
+INSTANCE_ID        = "{{.nuon.components.ec2.outputs.instance_id}}"
+REGION             = "{{.nuon.sandbox.outputs.account.region}}"
+INSTALL_VSCODE_WEB = "{{.nuon.install.inputs.install_vscode_web}}"

@@ -26,15 +26,20 @@ A cloud development environment running in your AWS account — a single EC2 VM 
 
 ### What inputs can you enter?
 
-**Vendor-configured** (pre-set by your vendor before deployment):
-- SSH public key
+**Vendor-configured** (pre-set by your vendor, not editable by you):
 - Operating system (Ubuntu 24.04 LTS or Amazon Linux 2023)
 - Instance type (t3a.medium through m7i.xlarge)
-- Optional tools: Docker, VS Code Web, Claude Code
-- Git user name and email
-- Dotfiles repo URL
+- Install Docker (true/false)
+- Install VS Code Web (true/false)
+- Install Claude Code (true/false)
+- Inactive auto-stop (hours of no connections before shutdown; default 2, blank to disable)
+- Force auto-stop (hours of uptime before shutdown; default 4, blank to disable)
 
-**Customer-configured** (you enter this):
+**Customer-configured** (you enter these, and can update them at any time):
+- SSH public key (required — your public key for SSH access)
+- Git user name and email (optional — sets global git config on the VM)
+- Dotfiles repo URL (optional — cloned to `~/.dotfiles` on provision)
+- VS Code Web password (required if VS Code Web is enabled)
 - Anthropic API key (required if Claude Code is enabled)
 
 ### Day-2 operations
@@ -43,14 +48,16 @@ A cloud development environment running in your AWS account — a single EC2 VM 
 - **Add SSH Key** action appends an additional public key to `authorized_keys`
 - **Install Dotfiles** action re-clones and re-runs your dotfiles repo (useful after updates)
 - **Install Claude Code** action installs or updates the CLI to the latest version
-- **Healthcheck** action verifies instance state and SSH port reachability
+- **Healthcheck actions** (EC2 state, SSH port, code-server process, ALB reachability) run automatically every 5 minutes and surface live status in the portal
+- **Connections Status** action reports active SSH and VS Code Web session counts and client IPs, also runs every 5 minutes
 
 ### Security & compliance
 
 - [Nuon BYOC trust center](https://docs.nuon.co/guides/vendor-customers)
 - All provisioning runs inside your VPC — no cross-account access is granted to the vendor
-- SSH authentication is key-only; password authentication is disabled
-- The runner uses SSM (not an open inbound port) to execute setup scripts on the VM
+- SSH authentication is key-only; password authentication is disabled at provision time
+- VS Code Web (if enabled) requires a password you set at install time; the ALB enforces HTTPS-only access with an ACM-managed certificate — code-server is never exposed directly to the internet
+- The runner uses SSM (not an open inbound port) to execute setup scripts on the VM; the security group allows inbound TCP:22 only
 - Your Anthropic API key is stored as an AWS SSM SecureString encrypted at rest with KMS in your own account — the vendor never sees it, and the VM is granted least-privilege access to read only its own parameter path
 
 ### Nuon concepts
