@@ -17,7 +17,7 @@ A personal cloud development environment running in your AWS account. Connect vi
 {{ if .nuon.actions.populated -}}
 {{- $vsCodeEnabled := .nuon.install.inputs.install_vscode_web -}}
 {{- $vmStopped := eq (dig "status" "" .nuon.actions.workflows.healthcheck_ec2) "error" -}}
-*Checks run every 5 minutes. Last results:*
+*Checks run every 5 minutes. Last results (🟡 means a check is currently running — refresh in a moment):*
 
 {{ with .nuon.actions.workflows.healthcheck_ec2 -}}
 **EC2 VM ({{ $.nuon.install.inputs.instance_type }}):** {{ if eq .status "finished" }}🟢 running{{ else if eq .status "error" }}🔴 stopped{{ else }}🟡 unknown{{ end }}
