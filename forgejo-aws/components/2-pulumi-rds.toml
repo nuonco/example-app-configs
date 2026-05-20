@@ -1,0 +1,20 @@
+name             = "pulumi_rds"
+type             = "pulumi"
+runtime          = "go"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "forgejo-aws/src/components/pulumi-rds"
+branch    = "main"
+
+[config]
+"aws:region" = "{{ .nuon.install_stack.outputs.region }}"
+
+[env_vars]
+INSTALL_ID         = "{{ .nuon.install.id }}"
+VPC_ID             = "{{ .nuon.install.sandbox.outputs.vpc.id }}"
+PRIVATE_SUBNET_IDS = "{{ .nuon.install.sandbox.outputs.vpc.private_subnets }}"
+NODE_SECURITY_GROUP_ID = "{{ .nuon.install.sandbox.outputs.cluster.node_security_group_id }}"
+DB_INSTANCE_CLASS  = "{{ .nuon.inputs.inputs.db_instance_class }}"
+DB_STORAGE_GB      = "{{ .nuon.inputs.inputs.db_storage_gb }}"

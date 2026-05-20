@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "Forgejo (GCP)"
+description  = "Self-hosted git forge on GKE. Object storage, database, and cache are managed by Pulumi (GCS + Cloud SQL Postgres + Memorystore Redis)."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "gcp"

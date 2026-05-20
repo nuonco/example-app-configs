@@ -1,0 +1,25 @@
+name         = "forgejo_ssh_lb"
+type         = "kubernetes_manifest"
+dependencies = ["forgejo"]
+namespace    = "forgejo"
+
+manifest = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgejo-ssh
+  namespace: forgejo
+  annotations:
+    cloud.google.com/l4-rbs: "enabled"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app.kubernetes.io/name: forgejo
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: 2222
+      protocol: TCP
+"""
+max_auto_retries = 5

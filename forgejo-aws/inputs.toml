@@ -1,0 +1,96 @@
+[[group]]
+name         = "forgejo"
+display_name = "Forgejo Application"
+description  = "Forgejo image + persistence sizing. https://forgejo.org/"
+
+[[input]]
+name         = "forgejo_image"
+display_name = "Forgejo Image"
+description  = "Forgejo container image."
+default      = "codeberg.org/forgejo/forgejo:10.0.1"
+group        = "forgejo"
+
+[[input]]
+name         = "forgejo_admin_user"
+display_name = "Admin Username"
+description  = "Initial administrator username created on first boot."
+default      = "forgejo-admin"
+group        = "forgejo"
+
+[[input]]
+name         = "forgejo_admin_email"
+display_name = "Admin Email"
+description  = "Initial administrator email."
+default      = "admin@example.com"
+group        = "forgejo"
+
+[[input]]
+name         = "repo_storage_gb"
+display_name = "Repo PVC Size (GB)"
+description  = "Persistent volume size for git repo data."
+default      = "50"
+group        = "forgejo"
+
+[[group]]
+name         = "database"
+display_name = "Database (RDS Postgres)"
+description  = "Managed Postgres for Forgejo's primary data."
+
+[[input]]
+name         = "db_instance_class"
+display_name = "RDS Instance Class"
+description  = "https://aws.amazon.com/rds/instance-types/"
+default      = "db.t4g.small"
+group        = "database"
+
+[[input]]
+name         = "db_storage_gb"
+display_name = "RDS Storage (GB)"
+description  = "Allocated storage for the RDS Postgres instance."
+default      = "20"
+group        = "database"
+
+[[group]]
+name         = "cache"
+display_name = "Cache (ElastiCache Redis)"
+description  = "Managed Redis for sessions, queues, and cache."
+
+[[input]]
+name         = "redis_node_type"
+display_name = "Redis Node Type"
+description  = "https://aws.amazon.com/elasticache/pricing/"
+default      = "cache.t4g.micro"
+group        = "cache"
+
+[[group]]
+name         = "compute"
+display_name = "Kubernetes Nodes"
+description  = "EKS node group sizing. https://aws.amazon.com/ec2/instance-types/"
+
+[[input]]
+name         = "instance_type"
+display_name = "Node Instance Size"
+description  = "EKS worker instance type."
+default      = "t3a.medium"
+group        = "compute"
+
+[[input]]
+name         = "min_size"
+display_name = "Minimum Node Count"
+description  = "Minimum nodes in the EKS node group."
+default      = "2"
+group        = "compute"
+
+[[input]]
+name         = "max_size"
+display_name = "Maximum Node Count"
+description  = "Maximum nodes in the EKS node group."
+default      = "4"
+group        = "compute"
+
+[[input]]
+name         = "desired_size"
+display_name = "Desired Node Count"
+description  = "Desired nodes in the EKS node group."
+default      = "2"
+group        = "compute"

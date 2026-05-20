@@ -1,0 +1,18 @@
+name             = "pulumi_storage"
+type             = "pulumi"
+runtime          = "go"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "forgejo-gcp/src/components/pulumi-storage"
+branch    = "main"
+
+[config]
+"gcp:project" = "{{ .nuon.install_stack.outputs.project_id }}"
+"gcp:region"  = "{{ .nuon.install_stack.outputs.region }}"
+
+[env_vars]
+INSTALL_ID = "{{ .nuon.install.id }}"
+PROJECT_ID = "{{ .nuon.install_stack.outputs.project_id }}"
+REGION     = "{{ .nuon.install_stack.outputs.region }}"

@@ -1,0 +1,3 @@
+name: pulumi-rds
+runtime: go
+description: RDS Postgres instance for Forgejo, private-subnetted, password generated and exported.

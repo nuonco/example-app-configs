@@ -1,0 +1,19 @@
+name             = "pulumi_redis"
+type             = "pulumi"
+runtime          = "go"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "forgejo-aws/src/components/pulumi-redis"
+branch    = "main"
+
+[config]
+"aws:region" = "{{ .nuon.install_stack.outputs.region }}"
+
+[env_vars]
+INSTALL_ID             = "{{ .nuon.install.id }}"
+VPC_ID                 = "{{ .nuon.install.sandbox.outputs.vpc.id }}"
+PRIVATE_SUBNET_IDS     = "{{ .nuon.install.sandbox.outputs.vpc.private_subnets }}"
+NODE_SECURITY_GROUP_ID = "{{ .nuon.install.sandbox.outputs.cluster.node_security_group_id }}"
+REDIS_NODE_TYPE        = "{{ .nuon.inputs.inputs.redis_node_type }}"

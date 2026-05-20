@@ -1,0 +1,27 @@
+image: codeberg.org/forgejo/forgejo:10.0.1
+imagePullPolicy: IfNotPresent
+
+replicas: 1
+
+adminUser: forgejo-admin
+adminEmail: admin@example.com
+
+siteDomain: forgejo.example.com
+
+repoStorageGB: 50
+repoStorageClass: standard-rwo
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1
+    memory: 1Gi
+
+bucketName: ""
+bucketRegion: ""
+
+dbSecretName: forgejo-db
+cacheSecretName: forgejo-cache
+s3SecretName: forgejo-s3

@@ -1,0 +1,15 @@
+image: {{ .nuon.inputs.inputs.forgejo_image }}
+replicas: 1
+
+adminUser:  {{ .nuon.inputs.inputs.forgejo_admin_user }}
+adminEmail: {{ .nuon.inputs.inputs.forgejo_admin_email }}
+
+siteDomain: {{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}
+
+repoStorageGB: {{ .nuon.inputs.inputs.repo_storage_gb }}
+repoStorageClass: gp3
+
+serviceAccountRoleArn: {{ .nuon.components.pulumi_s3.outputs.role_arn }}
+
+bucketName:   {{ .nuon.components.pulumi_s3.outputs.bucket_name }}
+bucketRegion: {{ .nuon.components.pulumi_s3.outputs.bucket_region }}
