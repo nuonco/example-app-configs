@@ -1,0 +1,20 @@
+name             = "application_load_balancer"
+type             = "helm_chart"
+chart_name       = "application-load-balancer"
+dependencies     = ["forgejo", "certificate"]
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "forgejo-aws/src/components/alb"
+branch    = "main"
+
+[values]
+domain_certificate = "{{ .nuon.components.certificate.outputs.public_domain_certificate_arn }}"
+domain             = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+https_port         = "443"
+service_name       = "forgejo-http"
+service_port       = "3000"
+install_name       = "{{ .nuon.install.id }}"
+namespace          = "forgejo"
+healthcheck_path   = "/"

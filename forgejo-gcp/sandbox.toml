@@ -1,0 +1,19 @@
+terraform_version = "1.11.3"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/gcp-gke-sandbox"
+branch    = "main"
+
+[vars]
+nuon_id                = "{{ .nuon.install.id }}"
+project_id             = "{{ .nuon.install_stack.outputs.project_id }}"
+region                 = "{{ .nuon.install_stack.outputs.region }}"
+cluster_name           = "n-{{ .nuon.install.id }}"
+enable_nuon_dns        = "true"
+public_root_domain     = "{{ .nuon.install.id }}.nuon.run"
+internal_root_domain   = "internal.{{ .nuon.install.id }}.nuon.run"
+gke_node_pool_sa_email = "{{ .nuon.install_stack.outputs.gke_node_pool_sa_email }}"
+
+[[var_file]]
+contents = "./sandbox.tfvars"

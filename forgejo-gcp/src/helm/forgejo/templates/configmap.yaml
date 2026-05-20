@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forgejo-config
+  namespace: {{ .Release.Namespace }}
+data:
+  app.ini.tmpl: |
+    APP_NAME = Forgejo
+    RUN_USER = git
+    RUN_MODE = prod
+
+    [server]
+    DOMAIN           = {{ .Values.siteDomain }}
+    SSH_DOMAIN       = {{ .Values.siteDomain }}
+    ROOT_URL         = https://{{ .Values.siteDomain }}/
+    HTTP_PORT        = 3000
+    PROTOCOL         = http
+    DISABLE_SSH      = false
+    SSH_PORT         = 22
+    SSH_LISTEN_PORT  = 2222
+    START_SSH_SERVER = true
+    APP_DATA_PATH    = /data/forgejo
+    LFS_START_SERVER = true
+    LFS_JWT_SECRET   = __LFS_JWT_SECRET__
+
+    [database]
+    DB_TYPE  = postgres
+    HOST     = __DB_HOST__:__DB_PORT__
+    NAME     = __DB_NAME__
+    USER     = __DB_USER__
+    PASSWD   = __DB_PASSWORD__
+    SSL_MODE = require
+
+    [cache]
+    ADAPTER  = redis
+    HOST     = redis://__CACHE_HOST__:__CACHE_PORT__/0
+
+    [session]
+    PROVIDER          = redis
+    PROVIDER_CONFIG   = redis://__CACHE_HOST__:__CACHE_PORT__/1
+    COOKIE_SECURE     = true
+
+    [queue]
+    TYPE     = redis
+    CONN_STR = redis://__CACHE_HOST__:__CACHE_PORT__/2
+
+    [storage]
+    STORAGE_TYPE         = minio
+    MINIO_ENDPOINT       = storage.googleapis.com
+    MINIO_BUCKET         = {{ .Values.bucketName }}
+    MINIO_LOCATION       = {{ .Values.bucketRegion }}
+    MINIO_USE_SSL        = true
+    MINIO_ACCESS_KEY_ID     = __S3_ACCESS_ID__
+    MINIO_SECRET_ACCESS_KEY = __S3_ACCESS_SECRET__
+    SERVE_DIRECT         = false
+
+    [lfs]
+    STORAGE_TYPE = minio
+
+    [attachment]
+    STORAGE_TYPE = minio
+
+    [packages]
+    STORAGE_TYPE = minio
+
+    [repository]
+    ROOT = /data/git/repositories
+
+    [security]
+    INSTALL_LOCK   = true
+    SECRET_KEY     = __SECURITY_SECRET_KEY__
+    INTERNAL_TOKEN = __INTERNAL_TOKEN__
+
+    [service]
+    DISABLE_REGISTRATION = true
+    REQUIRE_SIGNIN_VIEW  = true
+
+    [log]
+    LEVEL = info
+    MODE  = console
+
+  entrypoint.sh: |
+    #!/bin/sh
+    set -eu
+
+    : "${FORGEJO_WORK_DIR:=/var/lib/gitea}"
+    : "${FORGEJO_CUSTOM:=/var/lib/gitea/custom}"
+    mkdir -p "${FORGEJO_CUSTOM}/conf"
+
+    sed \
+      -e "s|__DB_HOST__|${DB_HOST}|g" \
+      -e "s|__DB_PORT__|${DB_PORT}|g" \
+      -e "s|__DB_NAME__|${DB_NAME}|g" \
+      -e "s|__DB_USER__|${DB_USER}|g" \
+      -e "s|__DB_PASSWORD__|${DB_PASSWORD}|g" \
+      -e "s|__CACHE_HOST__|${CACHE_HOST}|g" \
+      -e "s|__CACHE_PORT__|${CACHE_PORT}|g" \
+      -e "s|__S3_ACCESS_ID__|${S3_ACCESS_ID}|g" \
+      -e "s|__S3_ACCESS_SECRET__|${S3_ACCESS_SECRET}|g" \
+      -e "s|__LFS_JWT_SECRET__|${LFS_JWT_SECRET}|g" \
+      -e "s|__SECURITY_SECRET_KEY__|${SECURITY_SECRET_KEY}|g" \
+      -e "s|__INTERNAL_TOKEN__|${INTERNAL_TOKEN}|g" \
+      /etc/forgejo/app.ini.tmpl > "${FORGEJO_CUSTOM}/conf/app.ini"
+
+    exec /usr/local/bin/docker-entrypoint.sh "$@"

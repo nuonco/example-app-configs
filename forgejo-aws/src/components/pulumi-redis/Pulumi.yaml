@@ -1,0 +1,3 @@
+name: pulumi-redis
+runtime: go
+description: ElastiCache Redis (single node) for Forgejo sessions, queues, and cache.

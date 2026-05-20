@@ -1,0 +1,11 @@
+install_name: ""
+
+name: ""
+domain: ""
+domain_certificate: ""
+https_port: "443"
+service_name: ""
+service_port: "3000"
+
+healthcheck_path: "/"
+namespace: ""
