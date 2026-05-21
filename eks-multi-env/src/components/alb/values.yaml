@@ -1,7 +1,6 @@
 install_name: ""
 
 public_domain: ""
-sub_domain: ""
 domain_certificate: ""
 https_port: "443"
 service_name: ""

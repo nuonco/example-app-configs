@@ -25,16 +25,16 @@ AWS Region: {{ .nuon.install_stack.outputs.region }}
 
 After install, each environment is reachable at its own subdomain:
 
-- dev: https://{{.nuon.inputs.inputs.sub_domain}}-dev.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
-- qa: https://{{.nuon.inputs.inputs.sub_domain}}-qa.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
-- prod: https://{{.nuon.inputs.inputs.sub_domain}}-prod.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+- dev: https://whoami-dev.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+- qa: https://whoami-qa.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+- prod: https://whoami-prod.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
 
 To verify each environment:
 
 ```bash
 for env in dev qa prod; do
   echo "=== $env ==="
-  curl -s "https://{{.nuon.inputs.inputs.sub_domain}}-${env}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/"
+  curl -s "https://whoami-${env}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/"
 done
 ```
 

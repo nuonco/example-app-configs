@@ -74,17 +74,16 @@ the namespace boundary.
 
 After install, each environment is reachable at its own hostname:
 
-- `https://{sub_domain}-dev.{install-id}.{domain}`
-- `https://{sub_domain}-qa.{install-id}.{domain}`
-- `https://{sub_domain}-prod.{install-id}.{domain}`
+- `https://whoami-dev.{install-id}.{domain}`
+- `https://whoami-qa.{install-id}.{domain}`
+- `https://whoami-prod.{install-id}.{domain}`
 
 ### What inputs can you enter?
 
 - AWS region
 - Public domain
-- Subdomain (used as the prefix for all three environment hostnames)
 
-Environment names (`dev`, `qa`, `prod`) are fixed by this app config.
+The app prefix (`whoami`) and environment names (`dev`, `qa`, `prod`) are fixed by this app config.
 
 ### Security & compliance
 

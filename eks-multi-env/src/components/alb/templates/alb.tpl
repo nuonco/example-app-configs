@@ -21,11 +21,11 @@ metadata:
     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
     alb.ingress.kubernetes.io/certificate-arn: {{ $.Values.domain_certificate }}
-    external-dns.alpha.kubernetes.io/hostname: {{ $.Values.sub_domain }}-{{ $env.name }}.{{ $.Values.public_domain }}
+    external-dns.alpha.kubernetes.io/hostname: whoami-{{ $env.name }}.{{ $.Values.public_domain }}
 spec:
   ingressClassName: alb
   rules:
-    - host: {{ $.Values.sub_domain }}-{{ $env.name }}.{{ $.Values.public_domain }}
+    - host: whoami-{{ $env.name }}.{{ $.Values.public_domain }}
       http:
         paths:
           - path: /

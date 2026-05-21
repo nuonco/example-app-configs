@@ -14,7 +14,6 @@ branch    = "mm/eks-multi-env"
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
 public_domain      = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
-sub_domain         = "{{.nuon.inputs.inputs.sub_domain}}"
 install_name       = "{{.nuon.install.id}}"
 healthcheck_path   = "/health"
 service_name       = "whoami"
