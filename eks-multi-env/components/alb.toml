@@ -21,17 +21,5 @@ service_name       = "whoami"
 service_port       = "80"
 https_port         = "443"
 
-[[values.environments]]
-name      = "dev"
-namespace = "dev"
-order     = "100"
-
-[[values.environments]]
-name      = "qa"
-namespace = "qa"
-order     = "200"
-
-[[values.environments]]
-name      = "prod"
-namespace = "prod"
-order     = "300"
+[[values_file]]
+contents = "./values/alb.yaml"

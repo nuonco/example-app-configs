@@ -1,0 +1,11 @@
+---
+environments:
+  - name: dev
+    namespace: dev
+    order: "100"
+  - name: qa
+    namespace: qa
+    order: "200"
+  - name: prod
+    namespace: prod
+    order: "300"
