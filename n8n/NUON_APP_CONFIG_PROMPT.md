@@ -17,7 +17,7 @@ I need you to create a complete Nuon app configuration for deploying [YOUR APPLI
 
 Nuon is a platform for deploying multi-tenant SaaS applications on Kubernetes. It uses:
 - TOML configuration files for declarative infrastructure
-- Helm charts for Kubernetes deployments  
+- Helm charts for Kubernetes deployments
 - Go template variables ({{ .nuon.* }}) for dynamic configuration
 - Components as deployment units with dependency management
 - Actions for operational tasks (backups, maintenance, scaling)
@@ -27,41 +27,18 @@ Nuon is a platform for deploying multi-tenant SaaS applications on Kubernetes. I
 Create the following directory structure:
 
 ```
-app-name/
-├── metadata.toml              # App metadata and description
-├── inputs.toml                # User-configurable inputs (grouped)
-├── secrets.toml               # Sensitive configuration (optional)
-├── runner.toml                # Runner configuration (AWS-specific)
-├── installer.toml             # Installer UI configuration
-├── sandbox.toml               # Sandbox/infrastructure configuration
-├── stack.toml                 # CloudFormation stack configuration
-├── components/                # Component TOML definitions
-│   ├── 1-component.toml       # Numbered for deployment order
-│   ├── 2-component.toml
-│   └── values/                # Helm values files
-│       └── component-name/
-│           └── values.yaml
-├── src/
-│   ├── components/            # Terraform modules
-│   │   └── module-name/
-│   │       ├── main.tf
-│   │       ├── variables.tf
-│   │       ├── outputs.tf
-│   │       └── providers.tf
-│   └── helm/                  # Custom Helm charts
-│       └── chart-name/
-│           ├── Chart.yaml
-│           ├── values.yaml
-│           └── templates/
-│               └── deployment.yaml
-├── actions/                   # Operational actions
-│   └── action-name.toml
-├── permissions/               # IAM permissions
-│   ├── provision.toml
-│   ├── maintenance.toml
-│   ├── deprovision.toml
-│   └── *_boundary.json
-└── README.md                  # User-facing documentation
+
+app-name/ ├── metadata.toml # App metadata and description ├── inputs.toml # User-configurable inputs (grouped) ├──
+secrets.toml # Sensitive configuration (optional) ├── runner.toml # Runner configuration (AWS-specific) ├──
+installer.toml # Installer UI configuration ├── sandbox.toml # Sandbox/infrastructure configuration ├── stack.toml #
+CloudFormation stack configuration ├── components/ # Component TOML definitions │ ├── 1-component.toml # Numbered for
+deployment order │ ├── 2-component.toml │ └── values/ # Helm values files │ └── component-name/ │ └── values.yaml ├──
+src/ │ ├── components/ # Terraform modules │ │ └── module-name/ │ │ ├── main.tf │ │ ├── variables.tf │ │ ├── outputs.tf
+│ │ └── providers.tf │ └── helm/ # Custom Helm charts │ └── chart-name/ │ ├── Chart.yaml │ ├── values.yaml │ └──
+templates/ │ └── deployment.yaml ├── actions/ # Operational actions │ └── action-name.toml ├── permissions/ # IAM
+permissions │ ├── provision.toml │ ├── maintenance.toml │ ├── deprovision.toml │ └── \*\_boundary.json └── README.md #
+User-facing documentation
+
 ```
 
 ## Key Syntax Rules
@@ -323,7 +300,7 @@ group        = "monitoring"
 #:schema https://api.nuon.co/v1/general/config-schema?source=runner
 runner_type     = "aws"
 helm_driver     = "configmap"
-init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/heads/main/scripts/aws/init-mng.sh"
+init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/aws-v0.1.0/scripts/aws/init-mng.sh"
 
 [env_vars]
 # Environment variables available to all components
@@ -538,7 +515,7 @@ name: your-app
 description: Your Application Description
 type: application
 version: 0.1.0
-appVersion: "latest"
+appVersion: 'latest'
 ```
 
 ### values.yaml (Template with Nuon Variables)
@@ -697,7 +674,7 @@ spec:
 ```hcl
 resource "aws_s3_bucket" "main" {
   bucket = "${var.install_id}-app-data"
-  
+
   tags = {
     Name        = "${var.install_id}-app-data"
     ManagedBy   = "Nuon"
@@ -1057,7 +1034,7 @@ managed_policy_name = "AdministratorAccess"
 
 ```
 
-### permissions/*_boundary.json (All Same)
+### permissions/\*\_boundary.json (All Same)
 
 ```json
 {
@@ -1070,7 +1047,6 @@ managed_policy_name = "AdministratorAccess"
     }
   ]
 }
-
 ```
 
 ---
@@ -1078,9 +1054,10 @@ managed_policy_name = "AdministratorAccess"
 ## 📐 COMMON DEPENDENCY PATTERNS
 
 ### Pattern 1: Standard Web App
+
 ```
 1. s3_buckets (no deps)
-2. certificate (no deps)  
+2. certificate (no deps)
 3. postgres_db (no deps)
 4. redis (no deps)
 5. main_app (deps: postgres_db, redis)
@@ -1089,6 +1066,7 @@ managed_policy_name = "AdministratorAccess"
 ```
 
 ### Pattern 2: With External AI
+
 ```
 1. s3_buckets (no deps)
 2. certificate (no deps)
@@ -1101,6 +1079,7 @@ managed_policy_name = "AdministratorAccess"
 ```
 
 ### Pattern 3: Minimal App
+
 ```
 1. certificate (no deps)
 2. postgres_db (no deps)
@@ -1125,6 +1104,7 @@ managed_policy_name = "AdministratorAccess"
 ### MUST NOT:
 
 1. **Don't use deprecated template syntax:**
+
    - ❌ `{{ .nuon.inputs.inputs.name }}`
    - ✅ `{{ .nuon.install.inputs.name }}`
 
@@ -1138,27 +1118,29 @@ managed_policy_name = "AdministratorAccess"
 
 ### Template Variable Quick Reference:
 
-| What You Need | Template Path |
-|--------------|---------------|
-| User input | `{{ .nuon.install.inputs.<name> }}` |
-| Secret | `{{ .nuon.install.secrets.<name> }}` |
-| Component output | `{{ .nuon.components.<comp>.outputs.<key> }}` |
-| Install ID | `{{ .nuon.install.id }}` |
-| Install name | `{{ .nuon.install.name }}` |
-| AWS region | `{{ .nuon.install_stack.outputs.region }}` |
-| Public domain | `{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}` |
-| Zone ID | `{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id }}` |
-| OIDC provider | `{{ .nuon.install.sandbox.outputs.cluster.oidc_provider }}` |
-| Action input | `{{ .action.inputs.<name> }}` |
+| What You Need    | Template Path                                                        |
+| ---------------- | -------------------------------------------------------------------- |
+| User input       | `{{ .nuon.install.inputs.<name> }}`                                  |
+| Secret           | `{{ .nuon.install.secrets.<name> }}`                                 |
+| Component output | `{{ .nuon.components.<comp>.outputs.<key> }}`                        |
+| Install ID       | `{{ .nuon.install.id }}`                                             |
+| Install name     | `{{ .nuon.install.name }}`                                           |
+| AWS region       | `{{ .nuon.install_stack.outputs.region }}`                           |
+| Public domain    | `{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}`    |
+| Zone ID          | `{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id }}` |
+| OIDC provider    | `{{ .nuon.install.sandbox.outputs.cluster.oidc_provider }}`          |
+| Action input     | `{{ .action.inputs.<name> }}`                                        |
 
 ---
 
 ## 🚀 DEPLOYMENT WORKFLOW
 
 ### Step 1: Create Files
+
 Use the templates above to create all necessary files.
 
 ### Step 2: Validate TOML Syntax
+
 ```bash
 # Check for trailing newlines
 for f in $(find . -name "*.toml"); do
@@ -1167,6 +1149,7 @@ done
 ```
 
 ### Step 3: Commit to Git
+
 ```bash
 git add -A
 git commit -m "Add Nuon app configuration"
@@ -1174,11 +1157,13 @@ git push origin main
 ```
 
 ### Step 4: Sync with Nuon
+
 ```bash
 nuon sync
 ```
 
 ### Step 5: Deploy Components Incrementally
+
 ```bash
 # Deploy infrastructure first
 nuon plan s3_buckets && nuon apply s3_buckets
@@ -1197,6 +1182,7 @@ nuon plan ingress && nuon apply ingress
 ```
 
 ### Step 6: Verify Deployment
+
 ```bash
 kubectl get pods -n your-namespace
 kubectl get svc,ingress -n your-namespace
