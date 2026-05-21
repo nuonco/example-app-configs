@@ -8,7 +8,7 @@ max_auto_retries = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "data-ops/src/components/karpenter-nodepools"
-branch    = "fd/new-demo/data-ops"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/karpenter-nodepools.yaml"
