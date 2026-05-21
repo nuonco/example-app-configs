@@ -1,0 +1,37 @@
+# helm
+
+name             = "application_load_balancer"
+type             = "helm_chart"
+chart_name       = "application-load-balancer"
+dependencies     = ["whoami_dev", "whoami_qa", "whoami_prod"]
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-multi-env/src/components/alb"
+branch    = "mm/eks-multi-env"
+
+[values]
+domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"
+public_domain      = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+sub_domain         = "{{.nuon.inputs.inputs.sub_domain}}"
+install_name       = "{{.nuon.install.id}}"
+healthcheck_path   = "/health"
+service_name       = "whoami"
+service_port       = "80"
+https_port         = "443"
+
+[[values.environments]]
+name      = "dev"
+namespace = "dev"
+order     = "100"
+
+[[values.environments]]
+name      = "qa"
+namespace = "qa"
+order     = "200"
+
+[[values.environments]]
+name      = "prod"
+namespace = "prod"
+order     = "300"

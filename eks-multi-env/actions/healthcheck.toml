@@ -1,0 +1,20 @@
+# action
+name    = "alb_healthcheck"
+timeout = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "alb-healthcheck"
+command = "./healthcheck.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-multi-env/src/actions/alb"
+branch    = "mm/eks-multi-env"
+
+[steps.env_vars]
+INGRESS_NAME      = "{{.nuon.install.id}}-dev"
+INGRESS_NAMESPACE = "dev"

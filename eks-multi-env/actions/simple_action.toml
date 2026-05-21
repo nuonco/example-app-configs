@@ -1,0 +1,27 @@
+# action
+
+name    = "simple_demonstration"
+timeout = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type = "post-provision"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "create secrets in cluster"
+inline_contents = """
+#!/usr/bin/env sh
+NAMESPACES="dev qa prod"
+
+for ns in $NAMESPACES; do
+  password=`openssl rand -hex 12`
+  kubectl create -n "$ns" secret generic whoami \\
+    --save-config    \\
+    --dry-run=client \\
+    --from-literal=value="$password" \\
+    -o yaml | kubectl apply -f -
+done
+"""

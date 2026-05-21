@@ -1,0 +1,30 @@
+# action
+name    = "whoami"
+timeout = "15s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "exec"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+PUBLIC_DOMAIN="{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+SUB_DOMAIN="{{.nuon.inputs.inputs.sub_domain}}"
+ENVIRONMENTS="dev qa prod"
+
+response="{}"
+for env in $ENVIRONMENTS; do
+  host="${SUB_DOMAIN}-${env}.${PUBLIC_DOMAIN}"
+  body=`curl -s "https://${host}/api" | jq -c`
+  response=`echo "$response" | jq --arg env "$env" --argjson body "$body" '. + {($env): $body}'`
+done
+
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
