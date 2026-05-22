@@ -9,7 +9,7 @@ max_auto_retries = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "eks-multi-env/src/components/alb"
-branch    = "mm/eks-multi-env"
+branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"

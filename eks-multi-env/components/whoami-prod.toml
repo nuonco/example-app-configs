@@ -9,7 +9,7 @@ max_auto_retries = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "eks-multi-env/src/components/whoami"
-branch    = "mm/eks-multi-env"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/whoami.yaml"
