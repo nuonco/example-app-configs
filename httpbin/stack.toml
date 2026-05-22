@@ -1,5 +1,5 @@
 type        = "aws-cloudformation"
-name        = "nuon-demos-httpbin-{{.nuon.install.id}}"
+name        = "nuon-httpbin-{{.nuon.install.id}}"
 description = "QuickLink to install runner for the HTTPBin app config: Install {{.nuon.install.id}}"
 
 # nested stack
