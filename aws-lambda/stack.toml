@@ -1,5 +1,5 @@
 type        = "aws-cloudformation"
-name        = "nuon-demos-lambda-{{.nuon.install.id}}"
+name        = "nuon-aws-lambda-{{.nuon.install.id}}"
 description = "QuickLink to install runner for Lambda app config: Install {{.nuon.install.id}}"
 
 # nested stack
