@@ -1,0 +1,56 @@
+# action
+name    = "deployment_restart"
+timeout = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "restart"
+inline_contents = """
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+set -u
+
+NAMESPACES="dev qa prod"
+DEPLOYMENT_NAME="whoami"
+
+echo >&2 "restarting whoami in each environment..."
+
+for ns in $NAMESPACES; do
+  kubectl --namespace "$ns" rollout restart deployment/$DEPLOYMENT_NAME
+done
+
+sleep 5
+
+payload='{"restarted": "ok"}'
+echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name    = "status"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+NAMESPACES="dev qa prod"
+
+for ns in $NAMESPACES; do
+  echo "=== $ns ==="
+  kubectl get -n "$ns" deployments
+done
+
+response="{}"
+for ns in $NAMESPACES; do
+  envjson=`kubectl get -n "$ns" deployments -o json | jq -c`
+  response=`echo "$response" | jq --arg ns "$ns" --argjson env "$envjson" '. + {($ns): $env}'`
+done
+
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

@@ -47,6 +47,13 @@ A personal cloud development environment running entirely in your AWS account. P
 Identical to eks-simple but makes use of our sandbox for AWS Auto Mode EKS sandbox -
 [`aws-eks-auto-sandbox`](https://github.com/nuonco/aws-eks-auto-sandbox).
 
+## eks-multi-env
+
+Re-uses one EKS cluster across `dev`, `qa`, and `prod` environments to save cost and operational complexity. Deploys the
+`whoami` app into three isolated namespaces and serves all three through a single ALB (joined via
+`alb.ingress.kubernetes.io/group.name`) and a single wildcard ACM certificate. Environments share infrastructure but
+remain isolated at the namespace boundary for traffic, RBAC, secrets, and resource limits.
+
 ## grafana
 
 [Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana,

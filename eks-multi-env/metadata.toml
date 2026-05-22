@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "EKS Multi-Env"
+description  = "One EKS cluster, three environments (dev/qa/prod): one ALB and one wildcard cert serving three isolated namespaces"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

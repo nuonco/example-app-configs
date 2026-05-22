@@ -1,0 +1,55 @@
+[[role]]
+name                 = "{{.nuon.install.id}}-eks-simple-sandbox-break-glass"
+description          = "grants access to the sandbox for install {{.nuon.install.id}}."
+display_name         = "break glass role"
+permissions_boundary = ""
+
+[[role.policies]]
+managed_policy_name = "AdministratorAccess"
+
+[[role.policies]]
+name = "remove-secrets-manager"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenySecretsManagerAccess",
+            "Effect": "Deny",
+            "Action": [
+                "secretsmanager:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""
+
+[[role]]
+name = "{{.nuon.install.id}}-s3-object-break-glass"
+description = "grants S3 object deletion permissions for bucket cleanup during deprovisioning"
+display_name = "s3 object operations break glass"
+permissions_boundary = ""
+
+[[role.policies]]
+name = "s3-object-operations"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:ListBucketVersions",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
+            ],
+            "Resource": [
+                "arn:aws:s3:::*-nuon-bucket",
+                "arn:aws:s3:::*-nuon-bucket/*"
+            ]
+        }
+    ]
+}
+"""
