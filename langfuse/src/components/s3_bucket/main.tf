@@ -102,8 +102,7 @@ data "aws_iam_policy_document" "langfuse_trust_policy" {
       test     = "StringEquals"
       variable = "${var.cluster_oidc_provider}:sub"
       values = [
-        "system:serviceaccount:langfuse:langfuse-web",
-        "system:serviceaccount:langfuse:langfuse-worker",
+        "system:serviceaccount:langfuse:langfuse",
       ]
     }
   }
