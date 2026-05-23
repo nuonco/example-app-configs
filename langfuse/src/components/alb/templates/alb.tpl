@@ -1,0 +1,35 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "common.name" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.nuon.co/install: {{ .Values.install_name }}
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":{{ .Values.https_port | default "443" }}}]'
+    alb.ingress.kubernetes.io/aws-load-balancer-ssl-ports: https
+    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.healthcheck_path | default "/api/public/health" | quote }}
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.domain_certificate }}
+    alb.ingress.kubernetes.io/group.name: {{ .Values.install_name }}
+    alb.ingress.kubernetes.io/group.order: "1000"
+
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }},*.{{ .Values.domain }}
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.service_name }}
+                port:
+                  number: {{ .Values.service_port | default "3000" }}

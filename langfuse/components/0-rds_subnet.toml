@@ -1,0 +1,17 @@
+# terraform
+name              = "rds_subnet"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/components"
+directory = "aws/rds-subnet"
+branch    = "main"
+
+[vars]
+install_id              = "{{ .nuon.install.id }}"
+rds_subnet_name         = "rds-subnet-langfuse-{{ .nuon.install.id }}"
+rds_subnet_display_name = "Langfuse RDS Subnet {{ .nuon.install.id }}"
+region                  = "{{ .nuon.sandbox.outputs.account.region }}"
+private_subnet_ids      = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"

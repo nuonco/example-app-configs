@@ -1,0 +1,23 @@
+cloud: aws
+category:
+  - self-hosted
+infra: eks
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+  - secrets
+tags:
+  - eks
+  - kubernetes
+  - postgresql
+  - clickhouse
+  - redis
+  - s3
+  - llm
+  - observability
+  - tracing
+  - ai
+links:
+  upstream: https://langfuse.com

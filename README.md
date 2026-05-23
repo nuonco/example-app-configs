@@ -115,6 +115,10 @@ A fully featured application deploying an RDS Cluster, ClickHouse, datadog,
 [temporal](https://github.com/temporalio/helm-charts), and a
 [temporal-ai-agent](https://github.com/temporal-community/temporal-ai-agent/).
 
+## langfuse
+
+[Langfuse](https://langfuse.com) is an open-source LLM observability and tracing platform. This app deploys a full-plane Langfuse v3 install into the customer's AWS account: RDS Postgres for transactional data, an Altinity-operated ClickHouse cluster for traces and observations, an in-cluster Redis for the BullMQ queue, an S3 bucket with KMS + IRSA for event payloads, and the Langfuse Helm release behind an ALB with an ACM certificate. Sandbox is `aws-eks-auto-sandbox`.
+
 ## aws-lambda
 
 Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table,

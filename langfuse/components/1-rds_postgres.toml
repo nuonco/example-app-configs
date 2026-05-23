@@ -1,0 +1,33 @@
+# terraform
+name              = "rds_postgres"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+dependencies      = ["rds_subnet"]
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "langfuse/src/components/rds_postgres"
+branch    = "mm/langfuse"
+
+[vars]
+identifier      = "langfuse-{{ .nuon.install.id }}"
+port            = "5432"
+db_name         = "langfuse"
+db_user         = "langfuse"
+instance_class  = "{{ .nuon.install.inputs.langfuse_db_instance_type }}"
+subnet_group_id = "{{ .nuon.components.rds_subnet.outputs.id }}"
+
+region     = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id     = "{{ .nuon.install_stack.outputs.vpc_id }}"
+subnet_ids = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+
+nuon_id = "{{ .nuon.install.id }}"
+
+iam_database_authentication_enabled = "true"
+deletion_protection                 = "false"
+skip_final_snapshot                 = "true"
+storage_encrypted                   = "true"
+
+allocated_storage = "{{ .nuon.install.inputs.langfuse_db_storage_gb }}"
+apply_immediately = "true"

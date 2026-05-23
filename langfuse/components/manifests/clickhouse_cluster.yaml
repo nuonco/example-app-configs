@@ -1,0 +1,98 @@
+apiVersion: 'clickhouse.altinity.com/v1'
+kind: 'ClickHouseInstallation'
+metadata:
+  name: 'clickhouse-installation'
+  namespace: 'clickhouse'
+spec:
+  configuration:
+    clusters:
+      - name: 'langfuse'
+        layout:
+          replicasCount: {{ .nuon.inputs.inputs.clickhouse_replicas }}
+          shardsCount: 1
+        templates:
+          podTemplate: clickhouse-cluster
+          serviceTemplate: clickhouse-cluster
+    users:
+      default/networks/ip: '::/0'
+      default/password:
+        valueFrom:
+          secretKeyRef:
+            name: clickhouse-credentials
+            key: password
+      default/profile: 'default'
+      default/quota: 'default'
+      default/access_management: '1'
+      default/named_collection_control: '1'
+    settings:
+      logger/console: true
+      logger/level: information
+      max_concurrent_queries: 2500
+      prometheus/asynchronous_metrics: true
+      prometheus/endpoint: /metrics
+      prometheus/events: true
+      prometheus/metrics: true
+      prometheus/port: 9363
+      prometheus/status_info: true
+    zookeeper:
+      nodes:
+        - host: chk-clickhouse-keeper-chk-simple-0-0.clickhouse.svc.cluster.local
+        - host: chk-clickhouse-keeper-chk-simple-0-1.clickhouse.svc.cluster.local
+        - host: chk-clickhouse-keeper-chk-simple-0-2.clickhouse.svc.cluster.local
+
+  defaults:
+    templates:
+      dataVolumeClaimTemplate: clickhouse-cluster
+      serviceTemplate: clickhouse-cluster
+  templates:
+    podTemplates:
+      - name: clickhouse-cluster
+        spec:
+          containers:
+            - name: clickhouse
+              image: '{{ .nuon.components.img_clickhouse_server.outputs.image.repository }}:{{ .nuon.components.img_clickhouse_server.outputs.image.tag }}'
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS
+                  value: 'true'
+                - name: TZ
+                  value: 'UTC'
+              volumeMounts:
+                - mountPath: /var/lib/clickhouse
+                  name: clickhouse-cluster
+
+          topologySpreadConstraints:
+          - labelSelector:
+              matchLabels:
+                clickhouse.altinity.com/chi: clickhouse-installation
+            maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: ScheduleAnyway
+
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      clickhouse.altinity.com/chi: clickhouse-installation
+                  topologyKey: kubernetes.io/hostname
+
+    serviceTemplates:
+      - name: clickhouse-cluster
+        spec:
+          ports:
+            - name: http
+              port: 8123
+            - name: client
+              port: 9000
+    volumeClaimTemplates:
+      - name: clickhouse-cluster
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ .nuon.inputs.inputs.clickhouse_disk_size }}
+          storageClassName: ebs-auto

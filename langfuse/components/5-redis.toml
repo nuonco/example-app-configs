@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "redis"
+type           = "helm_chart"
+chart_name     = "redis"
+namespace      = "langfuse"
+storage_driver = "configmap"
+dependencies   = []
+timeout        = "10m"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "langfuse/src/helm/redis"
+branch    = "mm/langfuse"
+
+[[values_file]]
+contents = "./values/redis.yaml"

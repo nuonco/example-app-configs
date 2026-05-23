@@ -1,0 +1,113 @@
+# Langfuse Helm values. Chart: langfuse/langfuse 1.5.31
+# Upstream values reference: https://github.com/langfuse/langfuse-k8s/tree/main/charts/langfuse
+#
+# All four bundled subcharts (postgresql, clickhouse, redis, s3/minio) are disabled.
+# Langfuse is wired to external infra provisioned by this app's components.
+
+langfuse:
+  telemetry:
+    enabled: "{{ .nuon.install.inputs.telemetry }}"
+
+  licenseKey: "{{ .nuon.install.inputs.license_key }}"
+
+  nextauth:
+    url: "https://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+    secret:
+      secretKeyRef:
+        name: langfuse-secrets
+        key: nextauth-secret
+
+  salt:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: salt
+
+  encryptionKey:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: encryption-key
+
+  web:
+    replicas: "{{ .nuon.install.inputs.web_replicas }}"
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{ .nuon.components.langfuse_s3_bucket.outputs.role_arn }}"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+  worker:
+    replicas: "{{ .nuon.install.inputs.worker_replicas }}"
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: "{{ .nuon.components.langfuse_s3_bucket.outputs.role_arn }}"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+
+  ingress:
+    enabled: false
+
+postgresql:
+  deploy: false
+  host: "{{ .nuon.components.rds_postgres.outputs.address }}"
+  port: "{{ .nuon.components.rds_postgres.outputs.db_instance_port }}"
+  auth:
+    username: langfuse
+    database: langfuse
+    existingSecret: langfuse-db-creds
+    secretKeys:
+      adminPasswordKey: password
+      userPasswordKey: password
+
+clickhouse:
+  deploy: false
+  host: "clickhouse.clickhouse.svc.cluster.local"
+  httpPort: 8123
+  nativePort: 9000
+  database: default
+  auth:
+    username: default
+    existingSecret: clickhouse-credentials
+    secretKeys:
+      passwordKey: password
+  migration:
+    url: "tcp://clickhouse.clickhouse.svc.cluster.local:9000"
+    ssl: false
+
+redis:
+  deploy: false
+  host: "redis-master.langfuse.svc.cluster.local"
+  port: 6379
+  auth:
+    existingSecret: langfuse-redis
+    existingSecretPasswordKey: password
+  tls:
+    enabled: false
+
+s3:
+  deploy: false
+  storageProvider: s3
+  region: "{{ .nuon.components.langfuse_s3_bucket.outputs.region }}"
+  bucket: "{{ .nuon.components.langfuse_s3_bucket.outputs.bucket_name }}"
+  endpoint: ""
+  forcePathStyle: false
+  eventUpload:
+    enabled: true
+    prefix: events/
+  mediaUpload:
+    enabled: true
+    prefix: media/
+  batchExport:
+    enabled: true
+    prefix: exports/

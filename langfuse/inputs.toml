@@ -1,0 +1,111 @@
+# inputs
+
+[[group]]
+name         = "langfuse"
+description  = "Langfuse application configuration. https://github.com/langfuse/langfuse-k8s"
+display_name = "Langfuse Configuration"
+
+[[input]]
+name         = "release"
+description  = "The Langfuse Helm chart version to deploy."
+default      = "1.5.31"
+display_name = "Chart Version"
+internal     = true
+group        = "langfuse"
+
+[[input]]
+name         = "web_replicas"
+description  = "Number of langfuse-web replicas."
+default      = "2"
+display_name = "Web Replicas"
+internal     = false
+user_configurable = true
+group        = "langfuse"
+
+[[input]]
+name         = "worker_replicas"
+description  = "Number of langfuse-worker replicas."
+default      = "2"
+display_name = "Worker Replicas"
+internal     = false
+user_configurable = true
+group        = "langfuse"
+
+[[input]]
+name         = "telemetry"
+description  = "Enable Langfuse telemetry (anonymous usage reporting to vendor)."
+default      = "true"
+display_name = "Telemetry"
+internal     = false
+user_configurable = true
+group        = "langfuse"
+
+[[input]]
+name         = "license_key"
+description  = "Optional Langfuse Enterprise license key. Leave empty for OSS install."
+default      = ""
+display_name = "Enterprise License Key"
+sensitive    = true
+internal     = false
+user_configurable = true
+group        = "langfuse"
+
+[[group]]
+name         = "infrastructure"
+description  = "EKS https://docs.aws.amazon.com/eks/"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "cluster_version"
+description  = "Kubernetes version for the EKS cluster."
+default      = "1.34"
+display_name = "Kubernetes Version"
+required     = true
+internal     = true
+group        = "infrastructure"
+
+[[group]]
+name         = "database"
+description  = "RDS PostgreSQL for Langfuse transactional data. See https://aws.amazon.com/rds/instance-types/"
+display_name = "Database Configuration"
+
+[[input]]
+name         = "langfuse_db_instance_type"
+description  = "RDS instance type for the Langfuse Postgres database."
+default      = "db.t4g.medium"
+display_name = "Database Instance Type"
+required     = true
+internal     = true
+group        = "database"
+
+[[input]]
+name         = "langfuse_db_storage_gb"
+description  = "Allocated storage (GB) for the Langfuse Postgres database."
+default      = "50"
+display_name = "Database Storage (GB)"
+required     = true
+internal     = true
+group        = "database"
+
+[[group]]
+name         = "clickhouse"
+description  = "ClickHouse cluster for Langfuse trace and observation data."
+display_name = "ClickHouse Configuration"
+
+[[input]]
+name         = "clickhouse_replicas"
+description  = "Number of ClickHouse replicas in the single-shard cluster. Langfuse only supports single-shard clusters; scale vertically, not horizontally."
+default      = "2"
+display_name = "ClickHouse Replicas"
+required     = true
+internal     = true
+group        = "clickhouse"
+
+[[input]]
+name         = "clickhouse_disk_size"
+description  = "PVC size for each ClickHouse replica."
+default      = "50Gi"
+display_name = "ClickHouse Disk Size"
+required     = true
+internal     = true
+group        = "clickhouse"

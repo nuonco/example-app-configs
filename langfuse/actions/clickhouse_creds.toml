@@ -1,0 +1,27 @@
+# action
+name               = "clickhouse_creds"
+timeout            = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "pre-deploy-component"
+component_name = "clickhouse_cluster"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Generate and propagate ClickHouse credentials"
+command = "./generate.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "langfuse/src/actions/clickhouse_creds"
+branch    = "mm/langfuse"
+
+[steps.env_vars]
+CLICKHOUSE_NAMESPACE = "clickhouse"
+LANGFUSE_NAMESPACE   = "langfuse"
+SECRET_NAME          = "clickhouse-credentials"
+CH_USERNAME          = "default"
+INSTALL_ID           = "{{ .nuon.install.id }}"

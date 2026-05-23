@@ -1,0 +1,30 @@
+# action
+name               = "rds_creds"
+timeout            = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_postgres"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy RDS Secret for Langfuse"
+command = "./import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "langfuse/src/actions/rds_creds"
+branch    = "mm/langfuse"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_postgres.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "langfuse-db-creds"
+TARGET_NAMESPACE = "langfuse"
+DB_ADDRESS       = "{{ .nuon.components.rds_postgres.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.rds_postgres.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.rds_postgres.outputs.db_instance_name }}"
+INSTALL_ID       = "{{ .nuon.install.id }}"
