@@ -27,6 +27,40 @@ langfuse:
       name: langfuse-secrets
       key: encryption-key
 
+  # Headless initialization: seeds an org, project, admin user, and API keys
+  # on first start so the seed_demo_traces action can run without manual signup.
+  # https://docs.langfuse.com/self-hosting/headless-initialization
+  # If the chart exposes a dedicated init block instead of additionalEnv,
+  # move these onto that block on first install.
+  additionalEnv:
+    - name: LANGFUSE_INIT_ORG_ID
+      value: "demo"
+    - name: LANGFUSE_INIT_ORG_NAME
+      value: "Demo Organization"
+    - name: LANGFUSE_INIT_PROJECT_ID
+      value: "demo-project"
+    - name: LANGFUSE_INIT_PROJECT_NAME
+      value: "Demo Project"
+    - name: LANGFUSE_INIT_USER_EMAIL
+      value: "admin@langfuse.local"
+    - name: LANGFUSE_INIT_USER_NAME
+      value: "Admin"
+    - name: LANGFUSE_INIT_PROJECT_PUBLIC_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: init-public-key
+    - name: LANGFUSE_INIT_PROJECT_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: init-secret-key
+    - name: LANGFUSE_INIT_USER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: init-user-password
+
   web:
     replicas: "{{ .nuon.install.inputs.web_replicas }}"
     serviceAccount:

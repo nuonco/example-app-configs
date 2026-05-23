@@ -10,7 +10,7 @@ name         = "release"
 description  = "The Langfuse Helm chart version to deploy."
 default      = "1.5.31"
 display_name = "Chart Version"
-internal     = true
+required     = true
 group        = "langfuse"
 
 [[input]]
@@ -18,8 +18,7 @@ name         = "web_replicas"
 description  = "Number of langfuse-web replicas."
 default      = "2"
 display_name = "Web Replicas"
-internal     = false
-user_configurable = true
+required     = true
 group        = "langfuse"
 
 [[input]]
@@ -27,18 +26,17 @@ name         = "worker_replicas"
 description  = "Number of langfuse-worker replicas."
 default      = "2"
 display_name = "Worker Replicas"
-internal     = false
-user_configurable = true
+required     = true
 group        = "langfuse"
 
 [[input]]
-name         = "telemetry"
-description  = "Enable Langfuse telemetry (anonymous usage reporting to vendor)."
-default      = "true"
-display_name = "Telemetry"
-internal     = false
+name              = "telemetry"
+description       = "Enable Langfuse telemetry (anonymous usage reporting to Langfuse)."
+default           = "true"
+display_name      = "Telemetry"
+required          = true
 user_configurable = true
-group        = "langfuse"
+group             = "langfuse"
 
 [[input]]
 name         = "license_key"
@@ -46,9 +44,21 @@ description  = "Optional Langfuse Enterprise license key. Leave empty for OSS in
 default      = ""
 display_name = "Enterprise License Key"
 sensitive    = true
-internal     = false
-user_configurable = true
 group        = "langfuse"
+
+[[group]]
+name         = "demo"
+description  = "Optional demo traces: a manual action that runs a small tool-using agent against Claude and sends traces to this Langfuse install."
+display_name = "Demo Traces"
+
+[[input]]
+name              = "anthropic_api_key"
+description       = "Anthropic API key (from console.anthropic.com). Used only by the seed_demo_traces manual action. Leave empty if you don't want to run the demo."
+default           = ""
+display_name      = "Anthropic API Key"
+sensitive         = true
+user_configurable = true
+group             = "demo"
 
 [[group]]
 name         = "infrastructure"
@@ -61,7 +71,6 @@ description  = "Kubernetes version for the EKS cluster."
 default      = "1.34"
 display_name = "Kubernetes Version"
 required     = true
-internal     = true
 group        = "infrastructure"
 
 [[group]]
@@ -75,7 +84,6 @@ description  = "RDS instance type for the Langfuse Postgres database."
 default      = "db.t4g.medium"
 display_name = "Database Instance Type"
 required     = true
-internal     = true
 group        = "database"
 
 [[input]]
@@ -84,7 +92,6 @@ description  = "Allocated storage (GB) for the Langfuse Postgres database."
 default      = "50"
 display_name = "Database Storage (GB)"
 required     = true
-internal     = true
 group        = "database"
 
 [[group]]
@@ -98,7 +105,6 @@ description  = "Number of ClickHouse replicas in the single-shard cluster. Langf
 default      = "2"
 display_name = "ClickHouse Replicas"
 required     = true
-internal     = true
 group        = "clickhouse"
 
 [[input]]
@@ -107,5 +113,4 @@ description  = "PVC size for each ClickHouse replica."
 default      = "50Gi"
 display_name = "ClickHouse Disk Size"
 required     = true
-internal     = true
 group        = "clickhouse"
