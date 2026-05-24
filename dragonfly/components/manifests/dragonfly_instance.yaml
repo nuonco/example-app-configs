@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dragonfly
+  namespace: dragonfly
+  annotations:
+    eks.amazonaws.com/role-arn: '{{ .nuon.components.dragonfly_s3_bucket.outputs.role_arn }}'
+  labels:
+    app.kubernetes.io/name: dragonfly
+    app.kubernetes.io/part-of: dragonfly-operator
+    component.nuon.co/name: dragonfly
+---
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: dragonfly
+  namespace: dragonfly
+  labels:
+    app.kubernetes.io/name: dragonfly
+    app.kubernetes.io/part-of: dragonfly-operator
+    component.nuon.co/name: dragonfly
+spec:
+  image: 'docker.dragonflydb.io/dragonflydb/dragonfly:{{ .nuon.inputs.inputs.dragonfly_image_tag }}'
+  replicas: {{ .nuon.inputs.inputs.replicas }}
+  serviceAccountName: dragonfly
+  resources:
+    requests:
+      cpu: '{{ .nuon.inputs.inputs.cpu_request }}'
+      memory: '{{ .nuon.inputs.inputs.memory_request }}'
+    limits:
+      cpu: '{{ .nuon.inputs.inputs.cpu_limit }}'
+      memory: '{{ .nuon.inputs.inputs.memory_limit }}'
+  env:
+    - name: AWS_REGION
+      value: '{{ .nuon.components.dragonfly_s3_bucket.outputs.region }}'
+{{- if eq .nuon.inputs.inputs.auth_enabled "true" }}
+  authentication:
+    passwordFromSecret:
+      name: dragonfly-auth
+      key: password
+{{- end }}
+{{- if eq .nuon.inputs.inputs.snapshot_enabled "true" }}
+  snapshot:
+    dir: 's3://{{ .nuon.components.dragonfly_s3_bucket.outputs.bucket_name }}/snapshots'
+    cron: '{{ .nuon.inputs.inputs.snapshot_cron }}'
+{{- end }}

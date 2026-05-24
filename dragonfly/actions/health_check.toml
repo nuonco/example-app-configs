@@ -1,0 +1,20 @@
+# action
+name               = "health_check"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "redis-cli PING"
+command = "./check.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dragonfly/src/actions/health_check"
+branch    = "mm/dragonfly"
+
+[steps.env_vars]
+TARGET_NAMESPACE = "dragonfly"
+AUTH_ENABLED     = "{{ .nuon.inputs.inputs.auth_enabled }}"

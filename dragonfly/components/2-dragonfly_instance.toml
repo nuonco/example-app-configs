@@ -1,0 +1,9 @@
+# kubernetes-manifest
+name      = "dragonfly_instance"
+type      = "kubernetes_manifest"
+namespace = "dragonfly"
+
+dependencies = ["dragonfly_operator", "dragonfly_s3_bucket"]
+
+manifest         = "./manifests/dragonfly_instance.yaml"
+max_auto_retries = 5

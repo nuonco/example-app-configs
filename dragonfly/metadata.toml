@@ -1,0 +1,13 @@
+# metadata
+
+version = "v2"
+
+display_name = "Dragonfly"
+description  = "Dragonfly in-memory data store (Redis/Memcached compatible) deployed in-cluster on EKS via the official operator."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "aws"

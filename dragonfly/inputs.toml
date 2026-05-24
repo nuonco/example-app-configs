@@ -1,0 +1,126 @@
+# inputs
+
+[[group]]
+name         = "dragonfly"
+description  = "Dragonfly in-memory store. https://github.com/dragonflydb/dragonfly-operator"
+display_name = "Dragonfly Configuration"
+
+[[input]]
+name         = "operator_version"
+description  = "Dragonfly operator chart version (git ref in dragonflydb/dragonfly-operator)."
+default      = "v1.5.0"
+display_name = "Operator Version"
+required     = true
+group        = "dragonfly"
+
+[[input]]
+name         = "dragonfly_image_tag"
+description  = "Dragonfly server image tag."
+default      = "v1.38.1"
+display_name = "Dragonfly Image Tag"
+required     = true
+group        = "dragonfly"
+
+[[input]]
+name         = "cpu_request"
+description  = "Dragonfly pod CPU request."
+default      = "500m"
+display_name = "CPU Request"
+required     = true
+group        = "dragonfly"
+
+[[input]]
+name         = "cpu_limit"
+description  = "Dragonfly pod CPU limit."
+default      = "2"
+display_name = "CPU Limit"
+required     = true
+group        = "dragonfly"
+
+[[input]]
+name         = "memory_request"
+description  = "Dragonfly pod memory request."
+default      = "1Gi"
+display_name = "Memory Request"
+required     = true
+group        = "dragonfly"
+
+[[input]]
+name         = "memory_limit"
+description  = "Dragonfly pod memory limit."
+default      = "4Gi"
+display_name = "Memory Limit"
+required     = true
+group        = "dragonfly"
+
+[[group]]
+name         = "data"
+description  = "Customer-owned data handling toggles. Affect durability, network exposure, and authentication posture."
+display_name = "Data Handling"
+
+[[input]]
+name              = "replicas"
+description       = "Dragonfly replicas. 1 = single node. 3+ = enables automatic failover via the operator."
+default           = "1"
+display_name      = "Replicas"
+required          = true
+user_configurable = true
+group             = "data"
+
+[[input]]
+name              = "auth_enabled"
+description       = "Require an AUTH password to connect. Password is generated at install time and stored in a Kubernetes secret."
+default           = "false"
+display_name      = "Require AUTH"
+required          = true
+user_configurable = true
+group             = "data"
+
+[[input]]
+name              = "tls_enabled"
+description       = "Enable TLS for client connections. Requires a TLS secret to be provided out-of-band."
+default           = "false"
+display_name      = "Enable TLS"
+required          = true
+user_configurable = true
+group             = "data"
+
+[[input]]
+name              = "snapshot_enabled"
+description       = "Take periodic snapshots to S3."
+default           = "true"
+display_name      = "Enable Snapshots"
+required          = true
+user_configurable = true
+group             = "data"
+
+[[input]]
+name              = "snapshot_cron"
+description       = "Cron expression for snapshot cadence."
+default           = "0 */6 * * *"
+display_name      = "Snapshot Cron"
+required          = true
+user_configurable = true
+group             = "data"
+
+[[input]]
+name              = "snapshot_retention_days"
+description       = "S3 object lifecycle expiration for snapshot files, in days."
+default           = "7"
+display_name      = "Snapshot Retention (days)"
+required          = true
+user_configurable = true
+group             = "data"
+
+[[group]]
+name         = "infrastructure"
+description  = "EKS https://docs.aws.amazon.com/eks/"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "cluster_version"
+description  = "Kubernetes version for the EKS cluster."
+default      = "1.34"
+display_name = "Kubernetes Version"
+required     = true
+group        = "infrastructure"

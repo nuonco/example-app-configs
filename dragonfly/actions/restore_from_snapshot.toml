@@ -1,0 +1,21 @@
+# action
+name               = "restore_from_snapshot"
+timeout            = "5m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Restart pod to load latest snapshot"
+command = "./restore.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dragonfly/src/actions/restore_from_snapshot"
+branch    = "mm/dragonfly"
+
+[steps.env_vars]
+TARGET_NAMESPACE = "dragonfly"
+BUCKET_NAME      = "{{ .nuon.components.dragonfly_s3_bucket.outputs.bucket_name }}"
+AWS_REGION       = "{{ .nuon.components.dragonfly_s3_bucket.outputs.region }}"

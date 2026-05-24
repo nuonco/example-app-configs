@@ -1,0 +1,21 @@
+# action
+name               = "connection_info"
+timeout            = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Print in-cluster connection info"
+command = "./info.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dragonfly/src/actions/connection_info"
+branch    = "mm/dragonfly"
+
+[steps.env_vars]
+TARGET_NAMESPACE = "dragonfly"
+AUTH_ENABLED     = "{{ .nuon.inputs.inputs.auth_enabled }}"
+TLS_ENABLED      = "{{ .nuon.inputs.inputs.tls_enabled }}"

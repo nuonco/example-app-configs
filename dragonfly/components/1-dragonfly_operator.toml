@@ -1,0 +1,17 @@
+# helm
+name           = "dragonfly_operator"
+chart_name     = "dragonfly-operator"
+type           = "helm_chart"
+namespace      = "dragonfly-operator-system"
+storage_driver = "configmap"
+
+dependencies     = []
+max_auto_retries = 5
+
+[public_repo]
+repo      = "dragonflydb/dragonfly-operator"
+directory = "charts/dragonfly-operator"
+branch    = "{{ .nuon.inputs.inputs.operator_version }}"
+
+[[values_file]]
+contents = "./values/dragonfly-operator.yaml"

@@ -1,0 +1,17 @@
+# terraform
+name              = "dragonfly_s3_bucket"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "dragonfly/src/components/s3_bucket"
+branch    = "mm/dragonfly"
+
+[vars]
+install_name            = "{{ .nuon.install.name }}"
+region                  = "{{ .nuon.install_stack.outputs.region }}"
+install_id              = "{{ .nuon.install.id }}"
+cluster_oidc_provider   = "{{ .nuon.install.sandbox.outputs.cluster.oidc_provider }}"
+snapshot_retention_days = "{{ .nuon.inputs.inputs.snapshot_retention_days }}"

@@ -1,0 +1,9 @@
+podLabels:
+  "component.nuon.co/name": "dragonfly-operator"
+  "component.nuon.co/tier": "core"
+
+serviceMonitor:
+  enabled: false
+
+grafana:
+  enabled: false
