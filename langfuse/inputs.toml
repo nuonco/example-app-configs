@@ -81,7 +81,7 @@ display_name = "Database Configuration"
 [[input]]
 name         = "langfuse_db_instance_type"
 description  = "RDS instance type for the Langfuse Postgres database."
-default      = "db.t4g.medium"
+default      = "db.t4g.micro"
 display_name = "Database Instance Type"
 required     = true
 group        = "database"
@@ -89,7 +89,7 @@ group        = "database"
 [[input]]
 name         = "langfuse_db_storage_gb"
 description  = "Allocated storage (GB) for the Langfuse Postgres database."
-default      = "50"
+default      = "20"
 display_name = "Database Storage (GB)"
 required     = true
 group        = "database"
@@ -102,7 +102,7 @@ display_name = "ClickHouse Configuration"
 [[input]]
 name         = "clickhouse_replicas"
 description  = "Number of ClickHouse replicas in the single-shard cluster. Langfuse only supports single-shard clusters; scale vertically, not horizontally."
-default      = "2"
+default      = "1"
 display_name = "ClickHouse Replicas"
 required     = true
 group        = "clickhouse"
@@ -110,7 +110,7 @@ group        = "clickhouse"
 [[input]]
 name         = "clickhouse_disk_size"
 description  = "PVC size for each ClickHouse replica."
-default      = "50Gi"
+default      = "20Gi"
 display_name = "ClickHouse Disk Size"
 required     = true
 group        = "clickhouse"
