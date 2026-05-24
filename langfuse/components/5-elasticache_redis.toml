@@ -1,0 +1,16 @@
+# terraform
+name              = "elasticache_redis"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "langfuse/src/components/elasticache_redis"
+branch    = "mm/langfuse"
+
+[vars]
+install_id = "{{ .nuon.install.id }}"
+region     = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id     = "{{ .nuon.install_stack.outputs.vpc_id }}"
+subnet_ids = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"

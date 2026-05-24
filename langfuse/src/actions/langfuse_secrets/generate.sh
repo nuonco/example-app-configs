@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Generates and persists the secrets Langfuse needs at runtime:
+# Generates and persists the Langfuse application secret:
 #   langfuse-secrets:
 #     - salt (base64 32-byte)             — hashes API keys
 #     - nextauth-secret (hex 32-byte)     — NextAuth JWT signing
@@ -8,8 +8,9 @@
 #     - init-public-key   (pk-lf-{hex32}) — used by Langfuse headless init + demo action
 #     - init-secret-key   (sk-lf-{hex64}) — paired with init-public-key
 #     - init-user-password (hex 24-byte)  — admin account bootstrapped by headless init
-#   langfuse-redis:
-#     - password (hex 24-byte)            — for in-cluster Redis
+#
+# Redis credentials are NOT generated here: ElastiCache (Valkey) runs without
+# auth for the demo, gated by the private subnet + security group.
 #
 # Idempotent: existing secrets are left alone. Rotating encryption-key would
 # break reads of previously-encrypted columns; rotating init-* keys would
@@ -21,7 +22,6 @@ set -u
 
 namespace="$TARGET_NAMESPACE"
 langfuse_secret_name="langfuse-secrets"
-redis_secret_name="langfuse-redis"
 
 echo "[langfuse-secrets] ensuring namespace ${namespace}"
 kubectl create namespace "$namespace" --dry-run=client -o yaml | kubectl apply -f -
@@ -49,16 +49,6 @@ else
     --from-literal=init-public-key="$init_public_key" \
     --from-literal=init-secret-key="$init_secret_key" \
     --from-literal=init-user-password="$init_user_password"
-fi
-
-if kubectl get secret "$redis_secret_name" -n "$namespace" >/dev/null 2>&1; then
-  echo "[langfuse-secrets] ${redis_secret_name} already exists, leaving in place"
-else
-  echo "[langfuse-secrets] generating ${redis_secret_name}"
-  redis_password=$(openssl rand -hex 24)
-
-  kubectl create -n "$namespace" secret generic "$redis_secret_name" \
-    --from-literal=password="$redis_password"
 fi
 
 echo "[langfuse-secrets] done"

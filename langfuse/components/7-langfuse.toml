@@ -5,7 +5,7 @@ type           = "helm_chart"
 chart_name     = "langfuse"
 namespace      = "langfuse"
 storage_driver = "configmap"
-dependencies   = ["rds_postgres", "clickhouse_service", "redis", "langfuse_s3_bucket"]
+dependencies   = ["rds_postgres", "clickhouse_service", "elasticache_redis", "langfuse_s3_bucket"]
 timeout        = "15m"
 max_auto_retries = 5
 

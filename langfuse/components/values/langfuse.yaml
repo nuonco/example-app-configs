@@ -123,11 +123,14 @@ clickhouse:
 
 redis:
   deploy: false
-  host: "redis-master.langfuse.svc.cluster.local"
-  port: 6379
+  host: "{{ .nuon.components.elasticache_redis.outputs.endpoint }}"
+  port: "{{ .nuon.components.elasticache_redis.outputs.port }}"
+  # ElastiCache Valkey with no auth, no TLS — security is the private subnet +
+  # SG ingress restriction. For prod, enable transit_encryption + auth_token in
+  # the TF module and wire existingSecret here.
   auth:
-    existingSecret: langfuse-redis
-    existingSecretPasswordKey: password
+    username: null
+    password: null
   tls:
     enabled: false
 
