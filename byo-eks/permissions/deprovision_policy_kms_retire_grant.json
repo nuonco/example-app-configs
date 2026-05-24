@@ -5,7 +5,7 @@
       "Sid": "KMSRetireGrantTagged",
       "Effect": "Allow",
       "Action": ["kms:RetireGrant"],
-      "Resource": "*",
+      "Resource": "arn:aws:kms:*:${aws:PrincipalAccount}:key/*",
       "Condition": {
         "StringEquals": {
           "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
