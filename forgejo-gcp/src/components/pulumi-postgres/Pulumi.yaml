@@ -1,0 +1,3 @@
+name: pulumi-postgres
+runtime: go
+description: Cloud SQL Postgres with Private Services Access on the sandbox VPC.

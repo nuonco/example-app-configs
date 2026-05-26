@@ -1,0 +1,2 @@
+src/components/pulumi-*/pulumi-*
+!src/components/pulumi-*/Pulumi.yaml
