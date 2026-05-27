@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "Forgejo (AWS)"
+description  = "Self-hosted git forge on AWS EKS. Object storage, database, and cache are managed by Pulumi (S3 + RDS Postgres + ElastiCache Redis)."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "aws"

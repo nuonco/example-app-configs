@@ -28,7 +28,7 @@ variable "dns_zone_name" {
 
 variable "instance_type" {
   type    = string
-  default = "t3a.xlarge"
+  default = "t3a.large"
 }
 
 variable "ssh_public_key" {
@@ -42,7 +42,7 @@ variable "os" {
 
 variable "install_vscode_web" {
   type    = string
-  default = "false"
+  default = "true"
 }
 
 variable "anthropic_api_key" {

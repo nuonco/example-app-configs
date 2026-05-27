@@ -1,0 +1,16 @@
+name         = "certificate"
+type         = "kubernetes_manifest"
+dependencies = ["forgejo"]
+namespace    = "forgejo"
+
+manifest = """
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  domains:
+    - {{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}
+"""
+max_auto_retries = 5

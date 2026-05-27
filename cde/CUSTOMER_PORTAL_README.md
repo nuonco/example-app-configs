@@ -1,6 +1,6 @@
 ### What this app does?
 
-A cloud development environment running in your AWS account — a single EC2 VM with SSH access, an optional browser-based VS Code IDE, Docker, and Claude Code CLI.
+A cloud development environment running in your AWS account — a single EC2 VM with SSH access, a browser-based VS Code IDE, Docker, and Claude Code CLI (all on by default; each can be disabled at install time).
 
 ### Prerequisites
 
@@ -11,8 +11,8 @@ A cloud development environment running in your AWS account — a single EC2 VM 
 ### How to install / What to expect next?
 
 - Clicking install generates a CloudFormation link to deploy the stack in your AWS account
-- The stack provisions a VPC, EC2 instance, Elastic IP, DNS record, and an optional HTTPS-fronted IDE
-- After provisioning, a setup action runs automatically to install any optional tools you selected
+- The stack provisions a VPC, EC2 instance, Elastic IP, DNS record, and an HTTPS-fronted browser IDE (on by default; can be disabled)
+- After provisioning, a setup action runs automatically to install the configured tools (Docker, VS Code Web, Claude Code are on by default)
 - SSH access is available immediately at the DNS hostname shown in the customer portal
 - Average installation time is 10–15 minutes
 
@@ -21,19 +21,21 @@ A cloud development environment running in your AWS account — a single EC2 VM 
 - VPC with public subnets
 - EC2 instance (instance type of your choice) with an Elastic IP and Route53 A record (`dev.<install-id>.nuon.run`)
 - IAM instance profile with SSM access (used by the runner to configure the VM)
-- Optional: ALB + ACM certificate + Route53 alias for VS Code Web at `ide.<install-id>.nuon.run`
-- Optional: Docker, VS Code Web (code-server), Claude Code CLI
+- ALB + ACM certificate + Route53 alias for VS Code Web at `ide.<install-id>.nuon.run` (on by default; omitted if VS Code Web is disabled)
+- Docker, VS Code Web (code-server), Claude Code CLI (all on by default; each can be disabled at install time)
 
 ### What inputs can you enter?
 
 **Vendor-configured** (pre-set by your vendor, not editable by you):
 - Operating system (Ubuntu 24.04 LTS or Amazon Linux 2023)
-- Instance type (t3a.medium through m7i.xlarge)
-- Install Docker (true/false)
-- Install VS Code Web (true/false)
-- Install Claude Code (true/false)
+- Instance type (t3a.medium through m7i.xlarge; default t3a.large)
+- Install Docker (true/false; default true)
+- Install VS Code Web (true/false; default true)
+- Install Claude Code (true/false; default true)
 - Inactive auto-stop (hours of no connections before shutdown; default 2, blank to disable)
 - Force auto-stop (hours of uptime before shutdown; default 4, blank to disable)
+
+The default `t3a.large` (2vCPU/8GB) is a modest starting size for trying out Nuon. Drop to `t3a.medium` for cheaper evaluation or step up for heavier development and engineering work — see [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/).
 
 **Customer-configured** (you enter these, and can update them at any time):
 - SSH public key (required — your public key for SSH access)

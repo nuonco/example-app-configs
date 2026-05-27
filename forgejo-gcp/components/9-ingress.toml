@@ -1,0 +1,24 @@
+name         = "forgejo_ingress"
+type         = "kubernetes_manifest"
+dependencies = ["forgejo", "certificate"]
+namespace    = "forgejo"
+
+manifest = """
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forgejo
+  namespace: forgejo
+  annotations:
+    kubernetes.io/ingress.class: gce
+    kubernetes.io/ingress.global-static-ip-name: forgejo-{{ .nuon.install.id }}
+    networking.gke.io/managed-certificates: forgejo
+    external-dns.alpha.kubernetes.io/hostname: {{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}
+spec:
+  defaultBackend:
+    service:
+      name: forgejo-http
+      port:
+        number: 3000
+"""
+max_auto_retries = 5

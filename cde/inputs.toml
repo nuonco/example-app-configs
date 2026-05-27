@@ -21,7 +21,7 @@ group        = "developer"
 name         = "instance_type"
 display_name = "Instance Type"
 description  = "EC2 instance type. t3a.medium (2vCPU/4GB), t3a.large (2vCPU/8GB), t3a.xlarge (4vCPU/16GB), t3a.2xlarge (8vCPU/32GB), m7i.large (2vCPU/8GB consistent), m7i.xlarge (4vCPU/16GB consistent)"
-default      = "t3a.xlarge"
+default      = "t3a.large"
 group        = "developer"
 
 [[input]]
@@ -57,14 +57,14 @@ group             = "optional_tools"
 name         = "install_docker"
 display_name = "Install Docker"
 description  = "Install Docker and enable it as a system service (true/false)"
-default      = "false"
+default      = "true"
 group        = "optional_tools"
 
 [[input]]
 name         = "install_vscode_web"
 display_name = "Install VS Code Web"
 description  = "Install code-server (VS Code in the browser) over HTTPS via ALB and ACM cert (true/false)"
-default      = "false"
+default      = "true"
 group        = "optional_tools"
 
 [[input]]
@@ -79,7 +79,7 @@ group             = "optional_tools"
 name         = "install_claude_code"
 display_name = "Install Claude Code"
 description  = "Install the Claude Code CLI (true/false)"
-default      = "false"
+default      = "true"
 group        = "optional_tools"
 
 [[input]]

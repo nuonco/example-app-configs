@@ -1,0 +1,63 @@
+[[group]]
+name         = "forgejo"
+display_name = "Forgejo Application"
+description  = "Forgejo image + persistence sizing. https://forgejo.org/"
+
+[[input]]
+name         = "forgejo_image"
+display_name = "Forgejo Image"
+description  = "Forgejo container image."
+default      = "codeberg.org/forgejo/forgejo:10.0.1"
+group        = "forgejo"
+
+[[input]]
+name         = "forgejo_admin_user"
+display_name = "Admin Username"
+description  = "Initial administrator username created on first boot."
+default      = "forgejo-admin"
+group        = "forgejo"
+
+[[input]]
+name         = "forgejo_admin_email"
+display_name = "Admin Email"
+description  = "Initial administrator email."
+default      = "admin@example.com"
+group        = "forgejo"
+
+[[input]]
+name         = "repo_storage_gb"
+display_name = "Repo PVC Size (GB)"
+description  = "Persistent volume size for git repo data."
+default      = "50"
+group        = "forgejo"
+
+[[group]]
+name         = "database"
+display_name = "Database (Cloud SQL Postgres)"
+description  = "Managed Postgres for Forgejo's primary data."
+
+[[input]]
+name         = "db_tier"
+display_name = "Cloud SQL Tier"
+description  = "https://cloud.google.com/sql/docs/postgres/instance-settings"
+default      = "db-custom-1-3840"
+group        = "database"
+
+[[input]]
+name         = "db_storage_gb"
+display_name = "Cloud SQL Storage (GB)"
+description  = "Allocated storage for the Cloud SQL Postgres instance."
+default      = "20"
+group        = "database"
+
+[[group]]
+name         = "cache"
+display_name = "Cache (Memorystore Redis)"
+description  = "Managed Redis for sessions, queues, and cache."
+
+[[input]]
+name         = "redis_memory_gb"
+display_name = "Redis Memory (GB)"
+description  = "Memorystore Redis instance memory size."
+default      = "1"
+group        = "cache"

@@ -1,0 +1,32 @@
+# action
+name    = "deployments_status"
+timeout = "30s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "status"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+NAMESPACES="dev qa prod"
+
+for ns in $NAMESPACES; do
+  echo "=== $ns ==="
+  kubectl get -n "$ns" deployments
+done
+
+response="{}"
+for ns in $NAMESPACES; do
+  envjson=`kubectl get -n "$ns" deployments -o json | jq -c`
+  response=`echo "$response" | jq --arg ns "$ns" --argjson env "$envjson" '. + {($ns): $env}'`
+done
+
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""

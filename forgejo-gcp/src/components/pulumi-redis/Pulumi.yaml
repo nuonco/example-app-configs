@@ -1,0 +1,3 @@
+name: pulumi-redis
+runtime: go
+description: Memorystore Redis (basic tier) on the sandbox VPC.

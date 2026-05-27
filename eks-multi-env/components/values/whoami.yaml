@@ -1,0 +1,10 @@
+---
+image:
+  tag: "latest"
+  repository: "traefik/whoami"
+
+deployment:
+  containerPort: 8000
+
+service:
+  port: 80

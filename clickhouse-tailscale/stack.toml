@@ -1,5 +1,5 @@
 type        = "aws-cloudformation"
-name        = "nuon-demos-clickhouse-{{.nuon.install.id}}"
+name        = "nuon-clickhouse-tailscale-{{.nuon.install.id}}"
 description = "QuickLink to install runner for Clickhouse Demo: Install {{.nuon.install.id}}"
 
 # nested stack

@@ -1,0 +1,26 @@
+name           = "forgejo"
+type           = "helm_chart"
+chart_name     = "forgejo"
+namespace      = "forgejo"
+storage_driver = "configmap"
+timeout        = "15m"
+max_auto_retries = 5
+dependencies   = ["forgejo_db_secret", "forgejo_cache_secret", "forgejo_s3_secret"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "forgejo-aws/src/helm/forgejo"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/forgejo/values.yaml"
+
+[values]
+image                = "{{ .nuon.inputs.inputs.forgejo_image }}"
+adminUser            = "{{ .nuon.inputs.inputs.forgejo_admin_user }}"
+adminEmail           = "{{ .nuon.inputs.inputs.forgejo_admin_email }}"
+repoStorageGB        = "{{ .nuon.inputs.inputs.repo_storage_gb }}"
+serviceAccountRoleArn = "{{ .nuon.components.pulumi_s3.outputs.role_arn }}"
+bucketName           = "{{ .nuon.components.pulumi_s3.outputs.bucket_name }}"
+bucketRegion         = "{{ .nuon.components.pulumi_s3.outputs.bucket_region }}"
+siteDomain           = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"

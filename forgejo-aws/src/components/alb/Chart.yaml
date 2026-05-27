@@ -1,0 +1,8 @@
+apiVersion: v2
+name: application-load-balancer
+description: ALB Ingress for Forgejo HTTPS traffic.
+type: application
+version: v0.0.1
+appVersion: "0.0.1"
+
+dependencies: []
