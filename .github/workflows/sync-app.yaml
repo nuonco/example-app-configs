@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Sync ${{ matrix.app }}
-        uses: nuonco/actions-nuon@v0.2.0
+        uses: nuonco/actions-nuon@v0.3.0
         with:
           org_id: ${{ secrets.NUON_ORG_ID }}
           api_token: ${{ secrets.NUON_API_TOKEN }}
