@@ -1,6 +1,6 @@
 #:schema https://api.nuon.co/v1/general/config-schema?source=runner
-runner_type     = "aws"
-helm_driver     = "configmap"
+runner_type = "aws"
+helm_driver = "configmap"
 init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/aws-v0.1.4/scripts/aws/init-mng.sh"
 
 [env_vars]
@@ -23,4 +23,3 @@ QUEUE_BULL_REDIS_HOST = "redis-master"
 QUEUE_BULL_REDIS_PORT = "6379"
 QUEUE_BULL_REDIS_DB = "0"
 N8N_METRICS = "{{ .nuon.inputs.inputs.enable_metrics }}"
-
