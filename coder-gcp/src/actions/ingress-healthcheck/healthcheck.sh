@@ -41,7 +41,7 @@ else
   fi
 fi
 
-outputs=$(jq --null-input \
+outputs=$(jq --null-input --compact-output \
   --argjson gw_addresses "$gw_addresses" \
   --arg gw_ind "$gw_indicator" \
   --argjson coder_parents "$coder_parents" \
@@ -53,4 +53,4 @@ outputs=$(jq --null-input \
     "coder":    {"indicator": $coder_ind, "parents": $coder_parents},
     "grafana":  {"indicator": $grafana_ind, "parents": $grafana_parents}
   }')
-echo "$outputs" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+printf '%s' "$outputs" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
