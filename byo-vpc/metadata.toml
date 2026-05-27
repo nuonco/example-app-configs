@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "EKS Auto Mode + BYO VPC"
+description  = "Whoami on AWS EKS + Auto Mode with a customer-provided VPC"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

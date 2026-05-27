@@ -1,0 +1,22 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - terraform
+  - helm
+  - manifest
+features:
+  - byo
+  - actions
+  - policies
+  - secrets
+tags:
+  - eks
+  - eks-auto-mode
+  - kubernetes
+  - alb
+  - certificate
+  - byovpc
+links:
+  sandbox: https://github.com/nuonco/aws-eks-auto-sandbox
