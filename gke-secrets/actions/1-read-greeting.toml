@@ -23,4 +23,8 @@ kubectl exec -n secrets-demo "$POD" -- sh -c 'test -n "$API_KEY" && echo yes || 
 echo ""
 echo "=== AUTO_TOKEN present ==="
 kubectl exec -n secrets-demo "$POD" -- sh -c 'test -n "$AUTO_TOKEN" && echo yes || echo no'
+
+echo ""
+echo "=== EXTERNAL_TOKEN present ==="
+kubectl exec -n secrets-demo "$POD" -- sh -c 'test -n "$EXTERNAL_TOKEN" && echo yes || echo no'
 """
