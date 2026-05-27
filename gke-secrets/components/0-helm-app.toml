@@ -8,7 +8,7 @@ max_auto_retries = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "gke-secrets/src/components/secrets-demo"
-branch    = "am/conf-updates"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/secrets-demo.yaml"
