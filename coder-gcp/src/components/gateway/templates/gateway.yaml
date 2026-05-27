@@ -93,6 +93,21 @@ spec:
           namespace: {{ .Values.grafana_namespace }}
           port: {{ .Values.grafana_port | int }}
 ---
+# Permits the HTTPRoute in {{ .Values.namespace }} to reference the grafana Service in {{ .Values.grafana_namespace }}.
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: {{ .Values.install_name }}-allow-grafana-backend
+  namespace: {{ .Values.grafana_namespace }}
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: {{ .Values.namespace }}
+  to:
+    - group: ""
+      kind: Service
+---
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
 metadata:
@@ -108,7 +123,7 @@ spec:
       type: HTTP
       httpHealthCheck:
         requestPath: /livez
-        port: {{ .Values.coder_port | int }}
+        portSpecification: USE_SERVING_PORT
   targetRef:
     group: ""
     kind: Service
@@ -129,7 +144,7 @@ spec:
       type: HTTP
       httpHealthCheck:
         requestPath: /grafana/api/health
-        port: {{ .Values.grafana_port | int }}
+        portSpecification: USE_SERVING_PORT
   targetRef:
     group: ""
     kind: Service

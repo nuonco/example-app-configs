@@ -7,6 +7,6 @@ coder_service: "coder"
 coder_namespace: "coder"
 coder_port: "80"
 
-grafana_service: "coder-observability-grafana"
+grafana_service: "grafana"
 grafana_namespace: "coder-observability"
 grafana_port: "80"

@@ -1,7 +1,7 @@
 <center>
 <h1>GKE Secrets</h1>
 
-Demonstrates Nuon's secrets management on GKE Autopilot — input groups, sensitive inputs, auto-generated platform secrets, and one-way Kubernetes secret sync.
+Demonstrates Nuon's secrets management on GKE Autopilot — input groups, sensitive inputs, auto-generated platform secrets, and operator-provided secrets synced to Kubernetes.
 
 Nuon Install Id: {{ .nuon.install.id }}
 
@@ -9,7 +9,7 @@ GCP Project: {{ .nuon.install_stack.outputs.project_id }}
 
 </center>
 
-A `secrets-demo` pod boots with a plaintext greeting (from a regular input), an operator-provided API key (sensitive input synced into a `Secret`), and a Nuon-auto-generated token (synced into a separate `Secret`). Use it as a reference when wiring inputs and secrets into your own app config.
+A `secrets-demo` pod boots with four values exercising the four distinct Nuon mechanisms: a non-sensitive input (`greeting`), a sensitive input templated into helm values (`api_key`), an auto-generated platform secret synced into a k8s `Secret` (`auto_generated_token`), and an operator-provided secret captured at install time and synced into a k8s `Secret` (`external_api_token`).
 
 ## Architecture
 
@@ -20,15 +20,17 @@ A `secrets-demo` pod boots with a plaintext greeting (from a regular input), an 
       subgraph Nuon["Nuon Control Plane"]
           NuonAPI["Nuon API"]
           Inputs["Inputs (greeting, api_key)"]
-          AutoGen["Auto-Generated Secret"]
+          OpSecret["Operator Secret (external_api_token)"]
+          AutoGen["Auto-Generated Secret (auto_generated_token)"]
       end
 
       subgraph Project["Customer GCP Project"]
           Runner["Nuon Runner"]
+          SM["GCP Secret Manager"]
 
           subgraph GKE["GKE Autopilot Cluster"]
               subgraph NS["secrets-demo namespace"]
-                  ApiSec["Secret: api-key-secret"]
+                  ExtSec["Secret: external-api-token"]
                   TokSec["Secret: auto-generated-token"]
                   Pod["secrets-demo Pod"]
               end
@@ -36,33 +38,36 @@ A `secrets-demo` pod boots with a plaintext greeting (from a regular input), an 
       end
 
       NuonAPI -->|provisions| Runner
+      Inputs -->|template values| Runner
+      OpSecret --> SM
+      AutoGen --> SM
       Runner -->|installs helm| Pod
-      Inputs -->|values + sensitive| Runner
-      AutoGen -->|generated| Runner
-      Runner -->|syncs| ApiSec
+      Runner -->|syncs| ExtSec
       Runner -->|syncs| TokSec
-      ApiSec -->|env API_KEY| Pod
+      SM --> Runner
+      Inputs -->|env GREETING + API_KEY| Pod
+      ExtSec -->|env EXTERNAL_TOKEN| Pod
       TokSec -->|env AUTO_TOKEN| Pod
 
 ```
 
 ## Components
 
-- **secrets_demo** — Helm chart that deploys a single pod consuming `GREETING` (input value), `API_KEY` (sensitive input synced to k8s `Secret`), and `AUTO_TOKEN` (auto-generated Nuon secret synced to k8s `Secret`)
+- **secrets_demo** — Helm chart that deploys a single pod consuming four env vars: `GREETING` (non-sensitive input, templated), `API_KEY` (sensitive input, templated), `AUTO_TOKEN` (auto-generated secret from k8s `Secret`), and `EXTERNAL_TOKEN` (operator-provided secret from k8s `Secret`)
 
 ## Inputs and Input Groups
 
 | Group | Input | Sensitive | Description |
 |---|---|---|---|
 | `app` | `greeting` | no | Greeting message displayed by the demo pod (default `Hello from Nuon`) |
-| `credentials` | `api_key` | yes | API key provided by the install operator |
+| `credentials` | `api_key` | yes | Sensitive value templated directly into the pod's environment |
 
 ## Secrets
 
 | Secret | Source | K8s Secret |
 |---|---|---|
-| `auto_generated_token` | `auto_generate = true` (platform-generated) | `secrets-demo/auto-generated-token` |
-| `api_key_secret` | `input_name = "api_key"` (sync from sensitive input) | `secrets-demo/api-key-secret` |
+| `auto_generated_token` | `auto_generate = true` — install-stack random_password in GCP Secret Manager | `secrets-demo/auto-generated-token` |
+| `external_api_token` | `required = true` — operator-provided at install time, stored in GCP Secret Manager | `secrets-demo/external-api-token` |
 
 Both use `kubernetes_sync = true` to materialize values as Kubernetes `Secret` resources in the `secrets-demo` namespace.
 
@@ -85,7 +90,7 @@ gcloud services enable \
 ## Actions
 
 - **verify_secrets** — lists and describes the synced `Secret` resources (auto-runs after `secrets_demo` deploys)
-- **read_greeting** — execs into the pod and prints `GREETING`, plus a present/absent check for `API_KEY` and `AUTO_TOKEN`
+- **read_greeting** — execs into the pod and prints `GREETING`, plus a present/absent check for `API_KEY`, `AUTO_TOKEN`, and `EXTERNAL_TOKEN`
 - **post_secrets_sync** — restarts the deployment after every full deploy so the pod picks up rotated secrets
 
 ## Resources
