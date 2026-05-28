@@ -1,0 +1,109 @@
+gke-simple/src/components/kustomize-demo/configmap.yaml
+  eb2383a810f787d5 1-15
+gke-simple/src/components/kustomize-demo/kustomization.yaml
+  acfd1390f1b9eec6 1-7,10
+  582ba6882aa36d2e 8-9,11
+gke-simple/src/components/kustomize-demo/deployment.yaml
+  a49aa76b3d3509cd 1-33
+gke-simple/components/kustomize-demo.toml
+  a351533bbd87fa21 1-18,20-24
+  54ed629c935907ea 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.9",
+  "base_commit_sha": "72288bd7a47af9eb344299b5a6647eb2213ce5c9",
+  "prompts": {
+    "54ed629c935907ea": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033Oa6jz4a7po57AEw9HDL",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "582ba6882aa36d2e": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OZxre0tsJgP3DUpWeAM",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 2,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    },
+    "a351533bbd87fa21": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OZxOEM3cR326yFpZzFk",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 24,
+      "total_deletions": 0,
+      "accepted_lines": 23,
+      "overriden_lines": 0
+    },
+    "a49aa76b3d3509cd": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OZwweAF8VA13vScoDSH",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 33,
+      "total_deletions": 0,
+      "accepted_lines": 33,
+      "overriden_lines": 0
+    },
+    "acfd1390f1b9eec6": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OZwWEIllC9Wm7nzEJgG",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 0,
+      "accepted_lines": 8,
+      "overriden_lines": 0
+    },
+    "eb2383a810f787d5": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OZwin4RelQwhcYT1PZx",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 15,
+      "total_deletions": 0,
+      "accepted_lines": 15,
+      "overriden_lines": 0
+    },
+    "fe044a8492bc4d79": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "toolu_01LBwEKquX42sxYua6Kyh2j8",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 158,
+      "total_deletions": 0,
+      "accepted_lines": 158,
+      "overriden_lines": 0
+    }
+  }
+}
