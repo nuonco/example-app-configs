@@ -1,0 +1,38 @@
+gke-simple/src/components/kustomize-demo/namespace.yaml
+  9ddc1c7f89201e17 1-4
+gke-simple/src/components/kustomize-demo/kustomization.yaml
+  2b4895de479d059b 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.9",
+  "base_commit_sha": "a01ce7a30fd4be257da2e333af9ccafefd5b30cd",
+  "prompts": {
+    "2b4895de479d059b": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OaymkvKm2CBWiEHxv05",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 0,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "9ddc1c7f89201e17": {
+      "agent_id": {
+        "tool": "amp",
+        "id": "TU-033OayMVseSFJG4LscW7UG",
+        "model": "unknown"
+      },
+      "human_author": "Harsh <harsh@nuon.co>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 0,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
