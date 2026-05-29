@@ -1,3 +1,7 @@
+> [!WARNING]
+> **Experimental** — this sample app config is a work in progress and is not
+> guaranteed to deploy successfully. Use it as a reference only.
+
 <center>
 <h1>Forgejo (AWS)</h1>
 

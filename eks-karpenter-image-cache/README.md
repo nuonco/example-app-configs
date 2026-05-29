@@ -1,3 +1,7 @@
+> [!WARNING]
+> **Experimental** — this sample app config is a work in progress and is not
+> guaranteed to deploy successfully. Use it as a reference only.
+
 <center>
 <h1> EKS Karpenter Image Cache </h1>
 EKS cluster with Karpenter and pre-cached container images via custom AMIs.
