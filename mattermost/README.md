@@ -1,3 +1,7 @@
+> [!WARNING]
+> **Experimental** — this sample app config is a work in progress and is not
+> guaranteed to deploy successfully. Use it as a reference only.
+
 <center>
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Mattermost_logo_horizontal.svg"

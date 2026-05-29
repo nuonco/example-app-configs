@@ -1,3 +1,7 @@
+> [!WARNING]
+> **Experimental** — this sample app config is a work in progress and is not
+> guaranteed to deploy successfully. Use it as a reference only.
+
 {{ $region := .nuon.install_stack.outputs.region }}
 
 <p align="center">
