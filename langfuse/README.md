@@ -145,6 +145,42 @@ Recommended changes when moving past demo:
 - Postgres, ClickHouse, and Redis/Valkey all run UTC (a Langfuse requirement).
 - ElastiCache Valkey runs without auth or TLS; security is the private subnet + SG ingress restriction. For production, enable `transit_encryption` and `auth_token` in the TF module and wire `existingSecret` into the helm values.
 
+## What `seed_demo_traces` Does
+
+The `seed_demo_traces` action is a smoke test for the full end-to-end install. It runs a single-shot tool-using Claude agent that makes real Anthropic API calls and writes a real trace tree back to this install's Langfuse — confirming every layer works.
+
+### Flow
+
+1. `run.sh` reads `anthropic_api_key` from the install inputs, pulls the bootstrapped Langfuse public/secret keys from the `langfuse-secrets` Kubernetes secret, installs `langfuse` and `anthropic` Python SDKs, and runs `agent.py`.
+2. `agent.py` defines three small tools for Claude to call:
+   - `current_time` — returns UTC now
+   - `add_days(iso_date, days)` — date math
+   - `knowledge_lookup(topic)` — canned facts about Langfuse, BYOC, and Nuon
+3. Claude is prompted with: *"Get today's date, add 100 days, look up langfuse/byoc/nuon, then write a 3-sentence summary."* This forces a multi-step agent loop — Claude requests tool calls, the script runs them, results feed back into the next Claude call, until Claude returns `end_turn`.
+4. Every step is wrapped with Langfuse `@observe` decorators that POST traces to your install's Langfuse API:
+   - `demo-agent` (parent trace) — full prompt → final answer
+   - `agent-step` (generation) for each Anthropic call — model name, messages in, content blocks out, token usage
+   - `tool` (span) for each tool invocation — name, args, result
+
+### What you see in the Langfuse Dashboard
+
+Navigate to `Demo Project` → Traces:
+
+- One `demo-agent` trace row
+- Nested generation spans for each Claude call (cost, latency, and token counts auto-computed from usage)
+- Nested tool spans alongside, showing tool inputs and outputs
+- Token usage and cost rolled up to the trace level
+
+### What this proves end-to-end
+
+- ALB → `langfuse-web` accepts trace POSTs from outside the cluster
+- The bootstrapped Langfuse API keys authenticate
+- Postgres + ClickHouse write paths work for trace ingestion
+- The worker processes queued events into ClickHouse
+- The web UI reads back from ClickHouse
+
+If the action succeeds and the trace appears in the UI within seconds, every layer of the install is functional. If anything fails, the action errors at the broken layer — a deliberate smoke test, not just a demo.
+
 ## Resources
 
 [Langfuse Documentation](https://langfuse.com/docs)

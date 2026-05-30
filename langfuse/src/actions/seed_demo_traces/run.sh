@@ -24,6 +24,18 @@ if [ -z "$LANGFUSE_PUBLIC_KEY" ] || [ -z "$LANGFUSE_SECRET_KEY" ]; then
 fi
 
 echo "[demo] installing python deps (langfuse, anthropic)"
+# Nuon runner's Python 3 may not ship with pip pre-installed (we hit
+# "/usr/bin/python3: No module named pip" on first try). Bootstrap pip
+# via ensurepip — built into Python's stdlib since 3.4 and works
+# offline (uses a bundled wheel). Falls back to get-pip.py over HTTP
+# if ensurepip isn't available either.
+if ! python3 -m pip --version >/dev/null 2>&1; then
+  echo "[demo] pip not found; bootstrapping via ensurepip"
+  if ! python3 -m ensurepip --user --upgrade 2>/dev/null; then
+    echo "[demo] ensurepip unavailable; falling back to get-pip.py"
+    curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user
+  fi
+fi
 python3 -m pip install --quiet --user --disable-pip-version-check langfuse anthropic
 
 echo "[demo] running agent against ${LANGFUSE_HOST}"
