@@ -17,6 +17,7 @@ variable "region" {
   type = string
 }
 
-variable "cluster_oidc_provider" {
-  type = string
+variable "cluster_name" {
+  type        = string
+  description = "EKS cluster name — used to scope the aws_eks_pod_identity_association"
 }

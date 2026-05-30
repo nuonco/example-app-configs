@@ -10,7 +10,7 @@ directory = "langfuse/src/components/s3_bucket"
 branch    = "mm/langfuse"
 
 [vars]
-install_name          = "{{ .nuon.install.name }}"
-region                = "{{ .nuon.install_stack.outputs.region }}"
-install_id            = "{{ .nuon.install.id }}"
-cluster_oidc_provider = "{{ .nuon.install.sandbox.outputs.cluster.oidc_provider }}"
+install_name = "{{ .nuon.install.name }}"
+region       = "{{ .nuon.install_stack.outputs.region }}"
+install_id   = "{{ .nuon.install.id }}"
+cluster_name = "{{ .nuon.install.sandbox.outputs.cluster.name }}"

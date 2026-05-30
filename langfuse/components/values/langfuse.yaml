@@ -30,13 +30,16 @@ langfuse:
       key: encryption-key
 
   # Single shared ServiceAccount (the chart uses one SA for both web and worker
-  # pods). Naming it explicitly so the IRSA trust policy in s3_bucket can target
-  # a known principal: system:serviceaccount:langfuse:langfuse
+  # pods). Naming it explicitly so the aws_eks_pod_identity_association in the
+  # s3_bucket component can bind to a known SA name:
+  #   namespace=langfuse, service_account=langfuse → langfuse_role
+  # No eks.amazonaws.com/role-arn annotation needed: EKS Pod Identity
+  # doesn't use the IRSA annotation; the Pod Identity agent looks up
+  # creds via the cluster-side association resource and injects them
+  # into the pod at startup.
   serviceAccount:
     create: true
     name: "langfuse"
-    annotations:
-      eks.amazonaws.com/role-arn: "{{ .nuon.components.langfuse_s3_bucket.outputs.role_arn }}"
 
   web:
     replicas: "{{ .nuon.install.inputs.web_replicas }}"

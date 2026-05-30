@@ -85,25 +85,21 @@ data "aws_iam_policy_document" "langfuse_bucket_access_policy" {
   }
 }
 
+# EKS Pod Identity trust policy — used instead of IRSA because the
+# aws-eks-auto-sandbox doesn't register an OIDC provider with IAM
+# (sts:AssumeRoleWithWebIdentity was being rejected for the langfuse
+# service account). Pod Identity is the native auth mechanism for
+# EKS Auto Mode: the pod identity agent (built in to Auto Mode) sees
+# the aws_eks_pod_identity_association below, intercepts AWS SDK
+# calls from pods running as the langfuse SA, and provides creds
+# for this role. No OIDC, no SA annotation required.
 data "aws_iam_policy_document" "langfuse_trust_policy" {
   statement {
     effect  = "Allow"
-    actions = ["sts:AssumeRoleWithWebIdentity"]
+    actions = ["sts:AssumeRole", "sts:TagSession"]
     principals {
-      type        = "Federated"
-      identifiers = ["arn:aws:iam::${local.account_id}:oidc-provider/${var.cluster_oidc_provider}"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "${var.cluster_oidc_provider}:aud"
-      values   = ["sts.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "${var.cluster_oidc_provider}:sub"
-      values = [
-        "system:serviceaccount:langfuse:langfuse",
-      ]
+      type        = "Service"
+      identifiers = ["pods.eks.amazonaws.com"]
     }
   }
 }
@@ -118,6 +114,18 @@ resource "aws_iam_role_policy" "langfuse_bucket_access" {
   name   = "${var.install_id}-nuon-langfuse-bucket-access"
   role   = aws_iam_role.langfuse_role.id
   policy = data.aws_iam_policy_document.langfuse_bucket_access_policy.json
+}
+
+# Binds the langfuse k8s service account (namespace/langfuse, sa/langfuse)
+# to the IAM role above. The Pod Identity agent in EKS Auto Mode uses this
+# association to inject AWS creds into the langfuse-web and langfuse-worker
+# pods at startup.
+resource "aws_eks_pod_identity_association" "langfuse" {
+  cluster_name    = var.cluster_name
+  namespace       = "langfuse"
+  service_account = "langfuse"
+  role_arn        = aws_iam_role.langfuse_role.arn
+  tags            = local.tags
 }
 
 module "langfuse_bucket" {
