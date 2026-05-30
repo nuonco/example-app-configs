@@ -103,9 +103,13 @@ postgresql:
     username: langfuse
     database: langfuse
     existingSecret: langfuse-db-creds
+    # Langfuse builds DATABASE_URL by concatenating DATABASE_PASSWORD raw into
+    # the URL. RDS-managed master passwords can contain ':' or '/' which break
+    # Prisma's URL parser (P1013). Point at the URL-encoded copy of the
+    # password written by the rds_creds action.
     secretKeys:
-      adminPasswordKey: password
-      userPasswordKey: password
+      adminPasswordKey: password-encoded
+      userPasswordKey: password-encoded
 
 clickhouse:
   deploy: false

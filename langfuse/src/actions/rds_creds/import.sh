@@ -34,6 +34,7 @@ kubectl create -n "$namespace" secret generic "$name" \
   --dry-run=client \
   --from-literal=username="$username" \
   --from-literal=password="$password" \
+  --from-literal=password-encoded="$encoded_password" \
   --from-literal=database="$db_name" \
   --from-literal=host="$db_address" \
   --from-literal=port="$db_port" \
