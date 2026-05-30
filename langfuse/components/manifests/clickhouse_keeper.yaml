@@ -107,8 +107,12 @@ data:
   env.sh: |
     #!/usr/bin/env bash
     HOST=$(hostname -s)
-    FQDN=$(cat /etc/hostname)
-    DOMAIN=${FQDN#${HOST}.}
+    # FQDN can't be set via setHostnameAsFQDN because
+    # clickhouse-keeper-0.clickhouse-keepers.clickhouse.svc.cluster.local is
+    # 67 chars and the kernel hostname max is 64. Derive DOMAIN from the
+    # headless service + the pod's namespace instead.
+    NS=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+    DOMAIN="clickhouse-keepers.${NS}.svc.cluster.local"
     export DOMAIN
     export CLIENT_HOST=clickhouse-keeper
     export CLIENT_PORT=2181
@@ -318,7 +322,12 @@ spec:
         prometheus.io/port: '7000'
         prometheus.io/scrape: 'true'
     spec:
-      setHostnameAsFQDN: true
+      # setHostnameAsFQDN: true was in the upstream Altinity manifest but
+      # the resulting FQDN (clickhouse-keeper-0.clickhouse-keepers.clickhouse.svc.cluster.local
+      # = 67 chars) exceeds the kernel's 64-char hostname limit and blocks
+      # pod sandbox creation. DOMAIN is now derived in env.sh from the
+      # serviceaccount namespace file instead, so the FQDN is constructed
+      # in scripts rather than via the pod hostname.
       securityContext:
         fsGroup: 101
         runAsUser: 101
