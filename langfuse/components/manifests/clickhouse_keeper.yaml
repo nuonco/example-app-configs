@@ -1,73 +1,411 @@
+# Vanilla ClickHouse Keeper deployment — Service + headless Service + PDB +
+# ConfigMaps + StatefulSet. Adapted from Altinity's reference single-node
+# manifest at:
+#   github.com/Altinity/clickhouse-operator/blob/0.25.5/
+#     deploy/clickhouse-keeper/clickhouse-keeper-manually/clickhouse-keeper-1-node.yaml
+#
+# Why this exists instead of a ClickHouseKeeperInstallation (CHK) CR:
+# the Altinity clickhouse-operator (verified on both 0.24.5 and 0.25.5) does
+# not actually reconcile CHK CRs — the operator binary creates the keeper
+# Service + PDB but never the StatefulSet, leaving the CHK in a stale
+# "Completed" status with no backing pods. ClickHouse then can't coordinate
+# any ReplicatedMergeTree DDL (Langfuse's schema migrations included) and
+# fails with code 999 KEEPER_EXCEPTION. Deploying keeper as plain
+# Kubernetes primitives sidesteps the missing reconciler entirely.
 ---
-apiVersion: "clickhouse-keeper.altinity.com/v1"
-kind: "ClickHouseKeeperInstallation"
+apiVersion: v1
+kind: Service
 metadata:
-  name: "clickhouse-keeper"
-  namespace: "clickhouse"
+  name: clickhouse-keeper
+  namespace: clickhouse
+  labels:
+    app: clickhouse-keeper
 spec:
-  defaults:
-    templates:
-      podTemplate: clickhouse-keeper
-      dataVolumeClaimTemplate: clickhouse-keeper
-      serviceTemplate: clickhouse-keeper
-  configuration:
-    clusters:
-      - name: chk-simple
-        layout:
-          replicasCount: 1
-        templates:
-          podTemplate: clickhouse-keeper
-          dataVolumeClaimTemplate: clickhouse-keeper
-          serviceTemplate: clickhouse-keeper
-        settings:
-          keeper_server/coordination_settings/raft_logs_level: information
-          keeper_server/four_letter_word_white_list: '*'
-          keeper_server/raft_configuration/server/port: '9444'
-          keeper_server/storage_path: '/var/lib/clickhouse-keeper'
-          keeper_server/tcp_port: '2181'
-          listen_host: 0.0.0.0
-          logger/console: 'true'
-          logger/level: information
-          prometheus/asynchronous_metrics: 'true'
-          prometheus/endpoint: /metrics
-          prometheus/events: 'true'
-          prometheus/metrics: 'true'
-          prometheus/port: '7000'
-          prometheus/status_info: 'false'
-  templates:
-    podTemplates:
-    - name: clickhouse-keeper
-      spec:
-        containers:
-          - name: clickhouse-keeper
-            image: "{{ .nuon.components.img_clickhouse_keeper.outputs.image.repository }}:{{ .nuon.components.img_clickhouse_keeper.outputs.image.tag }}"
-            imagePullPolicy: IfNotPresent
-        topologySpreadConstraints:
-          - maxSkew: 1
-            minDomains: 3
-            topologyKey: kubernetes.io/hostname
-            whenUnsatisfiable: ScheduleAnyway
-            labelSelector:
-              matchLabels:
-                "app": "clickhouse-keeper"
-        securityContext:
-          fsGroup: 101
-          runAsUser: 101
-    serviceTemplates:
-      - name: clickhouse-keeper
-        metadata:
-          namespace: clickhouse
-        spec:
-          ports:
-            - name: tcp
-              port: 2181
-              targetPort: 2181
-    volumeClaimTemplates:
-      - name: clickhouse-keeper
-        spec:
-          accessModes:
-            - ReadWriteOnce
+  ports:
+    - port: 2181
+      name: client
+    - port: 7000
+      name: prometheus
+  selector:
+    app: clickhouse-keeper
+    what: node
+---
+# Headless service so each pod is addressable as
+# clickhouse-keeper-N.clickhouse-keepers.clickhouse.svc.cluster.local —
+# that's the hostname ClickHouse's zookeeper.nodes points at.
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse-keepers
+  namespace: clickhouse
+  labels:
+    app: clickhouse-keeper
+spec:
+  ports:
+    - port: 9444
+      name: raft
+  clusterIP: None
+  selector:
+    app: clickhouse-keeper
+    what: node
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: clickhouse-keeper-pod-disruption-budget
+  namespace: clickhouse
+spec:
+  selector:
+    matchLabels:
+      app: clickhouse-keeper
+  maxUnavailable: 1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-keeper-settings
+  namespace: clickhouse
+data:
+  keeper_config.xml: |
+    <clickhouse>
+        <include_from>/tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml</include_from>
+        <logger>
+            <level>information</level>
+            <console>true</console>
+        </logger>
+        <listen_host>0.0.0.0</listen_host>
+        <keeper_server incl="keeper_server">
+            <enable_reconfiguration>true</enable_reconfiguration>
+            <path>/var/lib/clickhouse-keeper</path>
+            <tcp_port>2181</tcp_port>
+            <four_letter_word_white_list>*</four_letter_word_white_list>
+            <coordination_settings>
+                <raft_logs_level>information</raft_logs_level>
+            </coordination_settings>
+            <http_control>
+                <port>9182</port>
+                <readiness><endpoint>/ready</endpoint></readiness>
+            </http_control>
+        </keeper_server>
+        <prometheus>
+            <endpoint>/metrics</endpoint>
+            <port>7000</port>
+            <metrics>true</metrics>
+            <events>true</events>
+            <asynchronous_metrics>true</asynchronous_metrics>
+            <status_info>true</status_info>
+        </prometheus>
+    </clickhouse>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-keeper-scripts
+  namespace: clickhouse
+  labels:
+    app: clickhouse-keeper
+data:
+  env.sh: |
+    #!/usr/bin/env bash
+    HOST=$(hostname -s)
+    FQDN=$(cat /etc/hostname)
+    DOMAIN=${FQDN#${HOST}.}
+    export DOMAIN
+    export CLIENT_HOST=clickhouse-keeper
+    export CLIENT_PORT=2181
+    export RAFT_PORT=9444
+  keeperFunctions.sh: |
+    #!/usr/bin/env bash
+    set -ex
+    function keeperConfig() {
+      echo "$HOST.$DOMAIN:$RAFT_PORT;$ROLE;$WEIGHT"
+    }
+    function keeperConnectionString() {
+      set +e
+      getent hosts "${CLIENT_HOST}" 2>/dev/null 1>/dev/null
+      if [[ $? -ne 0 ]]; then
+        set -e
+        echo "-h localhost -p ${CLIENT_PORT}"
+      else
+        set -e
+        echo "-h ${CLIENT_HOST} -p ${CLIENT_PORT}"
+      fi
+    }
+  keeperStart.sh: |
+    #!/usr/bin/env bash
+    set -ex
+    source /conf/env.sh
+    source /conf/keeperFunctions.sh
+
+    HOST=`hostname -s`
+    if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+      NAME=${BASH_REMATCH[1]}
+      ORD=${BASH_REMATCH[2]}
+    else
+      echo Failed to parse name and ordinal of Pod
+      exit 1
+    fi
+    export MY_ID=$((ORD+1))
+    set +e
+    getent hosts $DOMAIN
+    if [[ $? -eq 0 ]]; then
+      ACTIVE_ENSEMBLE=true
+    else
+      ACTIVE_ENSEMBLE=false
+    fi
+    set -e
+    mkdir -p /tmp/clickhouse-keeper/config.d/
+    if [[ "true" == "${ACTIVE_ENSEMBLE}" ]]; then
+      CURRENT_KEEPER_CONFIG=$(clickhouse-keeper-client --history-file=/dev/null -h ${CLIENT_HOST} -p ${CLIENT_PORT} -q "get '/keeper/config'" || true)
+      {
+        echo "<yandex><keeper_server>"
+        echo "<server_id>${MY_ID}</server_id>"
+        echo "<raft_configuration>"
+        if [[ "0" == $(echo "${CURRENT_KEEPER_CONFIG}" | grep -c "${HOST}.${DOMAIN}") ]]; then
+          echo "<server><id>${MY_ID}</id><hostname>${HOST}.${DOMAIN}</hostname><port>${RAFT_PORT}</port><priority>1</priority><start_as_follower>true</start_as_follower></server>"
+        fi
+        while IFS= read -r line; do
+          id=$(echo "$line" | cut -d '=' -f 1 | cut -d '.' -f 2)
+          if [[ "" != "${id}" ]]; then
+            hostname=$(echo "$line" | cut -d '=' -f 2 | cut -d ';' -f 1 | cut -d ':' -f 1)
+            port=$(echo "$line" | cut -d '=' -f 2 | cut -d ';' -f 1 | cut -d ':' -f 2)
+            priority=$(echo "$line" | cut -d ';' -f 3)
+            priority=${priority:-1}
+            port=${port:-$RAFT_PORT}
+            echo "<server><id>$id</id><hostname>$hostname</hostname><port>$port</port><priority>$priority</priority></server>"
+          fi
+        done <<< "$CURRENT_KEEPER_CONFIG"
+        echo "</raft_configuration>"
+        echo "</keeper_server></yandex>"
+      } > /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
+    else
+      {
+        echo "<yandex><keeper_server>"
+        echo "<server_id>${MY_ID}</server_id>"
+        echo "<raft_configuration>"
+        echo "<server><id>${MY_ID}</id><hostname>${HOST}.${DOMAIN}</hostname><port>${RAFT_PORT}</port><priority>1</priority></server>"
+        echo "</raft_configuration>"
+        echo "</keeper_server></yandex>"
+      } > /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
+    fi
+
+    cat /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
+    rm -rfv /var/lib/clickhouse-keeper/terminated
+    clickhouse-keeper --config-file=/etc/clickhouse-keeper/keeper_config.xml
+  keeperTeardown.sh: |
+    #!/usr/bin/env bash
+    set -ex
+    exec > /proc/1/fd/1
+    exec 2> /proc/1/fd/2
+    source /conf/env.sh
+    source /conf/keeperFunctions.sh
+    set +e
+    KEEPER_URL=$(keeperConnectionString)
+    set -e
+    HOST=`hostname -s`
+    if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+        NAME=${BASH_REMATCH[1]}
+        ORD=${BASH_REMATCH[2]}
+    else
+        echo Failed to parse name and ordinal of Pod
+        exit 1
+    fi
+    export MY_ID=$((ORD+1))
+
+    CURRENT_KEEPER_CONFIG=$(clickhouse-keeper-client --history-file=/dev/null -h localhost -p ${CLIENT_PORT} -q "get '/keeper/config'")
+    CLUSTER_SIZE=$(echo -e "${CURRENT_KEEPER_CONFIG}" | grep -c -E '^server\.[0-9]+=')
+    echo "CLUSTER_SIZE=$CLUSTER_SIZE, MyId=$MY_ID"
+    if [[ "$CLUSTER_SIZE" -gt "1" ]]; then
+      clickhouse-keeper-client --history-file=/dev/null -q "reconfig remove $MY_ID" ${KEEPER_URL}
+    fi
+
+    for (( i = 0; i < 3; i++ )); do
+      CONN_COUNT=`echo $(exec 3<>/dev/tcp/127.0.0.1/2181 ; printf "cons" >&3 ; IFS=; tee <&3; exec 3<&- ;) | grep -v "^$" | grep -v "127.0.0.1" | wc -l`
+      if [[ "$CONN_COUNT" -gt "0" ]]; then
+        echo "$CONN_COUNT non-local connections still connected."
+        sleep 1
+      else
+        echo "$CONN_COUNT non-local connections"
+        break
+      fi
+    done
+
+    touch /var/lib/clickhouse-keeper/terminated
+    ps -ef | grep clickhouse-keeper | grep -v grep | awk '{print $1}' | xargs kill
+  keeperLive.sh: |
+    #!/usr/bin/env bash
+    set -ex
+    source /conf/env.sh
+    OK=$(exec 3<>/dev/tcp/127.0.0.1/${CLIENT_PORT} ; printf "ruok" >&3 ; IFS=; tee <&3; exec 3<&- ;)
+    if [[ "$OK" == "imok" ]]; then
+      exit 0
+    else
+      exit 1
+    fi
+  keeperReady.sh: |
+    #!/usr/bin/env bash
+    set -ex
+    exec > /proc/1/fd/1
+    exec 2> /proc/1/fd/2
+    source /conf/env.sh
+    source /conf/keeperFunctions.sh
+
+    HOST=`hostname -s`
+
+    set +e
+    getent hosts $DOMAIN
+    if [[ $? -ne 0 ]]; then
+      echo "no active DNS records in service, first running pod"
+      exit 0
+    elif [[ -f /var/lib/clickhouse-keeper/terminated ]]; then
+      echo "termination in progress"
+      exit 0
+    else
+      set -e
+      if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+        NAME=${BASH_REMATCH[1]}
+        ORD=${BASH_REMATCH[2]}
+      else
+        echo "Failed to parse name and ordinal of Pod"
+        exit 1
+      fi
+      set +e
+      HTTP_READY_STATUS=$(wget -qO- http://127.0.0.1:9182/ready)
+      if [[ "0" == "$?" ]]; then
+        if [[ "0" != $(echo $HTTP_READY_STATUS | grep -c '"status":"ok"') ]]; then
+          echo $HTTP_READY_STATUS
+          exit 0
+        fi
+      fi
+      set -e
+      MY_ID=$((ORD+1))
+
+      CURRENT_KEEPER_CONFIG=$(clickhouse-keeper-client --history-file=/dev/null -h ${CLIENT_HOST} -p ${CLIENT_PORT} -q "get '/keeper/config'" || exit 0)
+      if [[ "1" == $(echo -e "${CURRENT_KEEPER_CONFIG}" | grep -c -E "^server.${MY_ID}=${HOST}.+participant;1$") ]]; then
+        echo "clickhouse-keeper instance is available and an active participant"
+        exit 0
+      else
+        echo "clickhouse-keeper instance is ready to add as participant with 1 weight."
+
+        ROLE=participant
+        WEIGHT=1
+        KEEPER_URL=$(keeperConnectionString)
+        NEW_KEEPER_CONFIG=$(keeperConfig)
+        clickhouse-keeper-client --history-file=/dev/null -q "reconfig add 'server.$MY_ID=$NEW_KEEPER_CONFIG'" ${KEEPER_URL}
+        exit 0
+      fi
+    fi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: clickhouse-keeper
+  namespace: clickhouse
+  labels:
+    app: clickhouse-keeper
+spec:
+  selector:
+    matchLabels:
+      app: clickhouse-keeper
+  serviceName: clickhouse-keepers
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: clickhouse-keeper
+        what: node
+      annotations:
+        prometheus.io/port: '7000'
+        prometheus.io/scrape: 'true'
+    spec:
+      setHostnameAsFQDN: true
+      securityContext:
+        fsGroup: 101
+        runAsUser: 101
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - clickhouse-keeper
+              topologyKey: "kubernetes.io/hostname"
+      volumes:
+        - name: clickhouse-keeper-settings
+          configMap:
+            name: clickhouse-keeper-settings
+            items:
+              - key: keeper_config.xml
+                path: keeper_config.xml
+        - name: clickhouse-keeper-scripts
+          configMap:
+            name: clickhouse-keeper-scripts
+            defaultMode: 0755
+      containers:
+        - name: clickhouse-keeper
+          imagePullPolicy: IfNotPresent
+          image: "{{ .nuon.components.img_clickhouse_keeper.outputs.image.repository }}:{{ .nuon.components.img_clickhouse_keeper.outputs.image.tag }}"
           resources:
             requests:
-              storage: 5Gi
-          storageClassName: ebs-auto
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          volumeMounts:
+            - name: clickhouse-keeper-settings
+              mountPath: /etc/clickhouse-keeper/
+            - name: clickhouse-keeper-datadir-volume
+              mountPath: /var/lib/clickhouse-keeper
+            - name: clickhouse-keeper-scripts
+              mountPath: /conf/
+          command:
+            - /conf/keeperStart.sh
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /conf/keeperTeardown.sh
+          livenessProbe:
+            exec:
+              command:
+                - /conf/keeperLive.sh
+            failureThreshold: 6
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /conf/keeperReady.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          ports:
+            - containerPort: 2181
+              name: client
+              protocol: TCP
+            - containerPort: 9444
+              name: quorum
+              protocol: TCP
+            - containerPort: 7000
+              name: metrics
+              protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 40
+  volumeClaimTemplates:
+    - metadata:
+        name: clickhouse-keeper-datadir-volume
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: ebs-auto
