@@ -9,6 +9,7 @@
           "eks:*",
           "elasticache:*",
           "iam:*",
+          "logs:*",
           "rds:*",
           "s3:*",
           "secretsmanager:*",
