@@ -2,31 +2,9 @@
 
 [Langfuse](https://langfuse.com) is an open-source LLM observability and tracing platform. This Nuon app config deploys a full-plane Langfuse v3 install into a customer's AWS account: every component runs in the customer's VPC, with no tether back to Langfuse Cloud.
 
-## What This Deploys
-
-- EKS Auto Mode cluster (`nuonco/aws-eks-auto-sandbox`)
-- RDS PostgreSQL (single instance) — transactional store: users, orgs, projects, encrypted API keys
-- ClickHouse cluster (Altinity operator, single-shard, replicated) — OLAP store: traces, observations, scores
-- ClickHouse Keeper (vanilla StatefulSet, single node) — raft coordination for replicated tables
-- ElastiCache Valkey (`cache.t4g.micro`, single node) — BullMQ queue + cache, `maxmemory-policy=noeviction`
-- S3 bucket with KMS encryption + IRSA — raw event payloads, multimodal media, batch exports
-- Langfuse Helm release — `langfuse-web` and `langfuse-worker` deployments
-- ALB + ACM certificate — public HTTPS access to the Langfuse UI and API
-
-## Install
-
-```bash
-brew install nuonco/tap/nuon
-nuon auth login
-nuon apps create --name langfuse
-nuon apps sync
-```
-
-Then install via the Nuon dashboard at https://app.nuon.co. Provision time is roughly 25–35 minutes for the first install (EKS + RDS + ClickHouse all need to come up).
-
 ## Access
 
-Once the workflow completes, the install exposes the full Langfuse web UI — projects, traces, observations, datasets, evals, settings — at the install's public domain.
+Once deployed, the install exposes the full Langfuse web UI — projects, traces, observations, datasets, evals, settings — at the install's public domain.
 
 If you're using Nuon-managed DNS (the default), the URL is:
 
@@ -54,6 +32,28 @@ The `seed_demo_traces` action runs a small tool-using Claude agent against the i
 1. Set `anthropic_api_key` on the install (Nuon dashboard → install → Inputs).
 2. Run the action: dashboard → install → Actions → `seed_demo_traces` → Run.
 3. Open the Langfuse UI, log in, navigate to `Demo Project` → Traces. The agent run should be there within seconds of the action completing.
+
+## What This Deploys
+
+- EKS Auto Mode cluster (`nuonco/aws-eks-auto-sandbox`)
+- RDS PostgreSQL (single instance) — transactional store: users, orgs, projects, encrypted API keys
+- ClickHouse cluster (Altinity operator, single-shard, replicated) — OLAP store: traces, observations, scores
+- ClickHouse Keeper (vanilla StatefulSet, single node) — raft coordination for replicated tables
+- ElastiCache Valkey (`cache.t4g.micro`, single node) — BullMQ queue + cache, `maxmemory-policy=noeviction`
+- S3 bucket with KMS encryption + IRSA — raw event payloads, multimodal media, batch exports
+- Langfuse Helm release — `langfuse-web` and `langfuse-worker` deployments
+- ALB + ACM certificate — public HTTPS access to the Langfuse UI and API
+
+## Install
+
+```bash
+brew install nuonco/tap/nuon
+nuon auth login
+nuon apps create --name langfuse
+nuon apps sync
+```
+
+Then install via the Nuon dashboard at https://app.nuon.co. Provision time is roughly 25–35 minutes for the first install (EKS + RDS + ClickHouse all need to come up).
 
 ## Notes
 
