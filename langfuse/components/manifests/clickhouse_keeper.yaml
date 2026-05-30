@@ -14,7 +14,7 @@ spec:
     clusters:
       - name: chk-simple
         layout:
-          replicasCount: 3
+          replicasCount: 1
         templates:
           podTemplate: clickhouse-keeper
           dataVolumeClaimTemplate: clickhouse-keeper
@@ -69,5 +69,5 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 10Gi
+              storage: 5Gi
           storageClassName: ebs-auto
