@@ -8,14 +8,16 @@ AWS Region: {{ .nuon.install_stack.outputs.region }}
 
 [Langfuse](https://langfuse.com) is an open-source LLM observability and tracing platform. Your install runs full-plane in your AWS account — every component (web, worker, Postgres, ClickHouse, Keeper, Valkey, S3) lives in your VPC with no tether back to Langfuse Cloud.
 
-Open the Langfuse Access URL above and sign in with the headless-init admin user:
+Open the Langfuse Access URL above and sign in with the headless-init admin user.
 
-- Email: `admin@langfuse.local`
-- Password: stored in the `langfuse-secrets` Kubernetes secret. Pull it with:
-  ```bash
-  kubectl get secret langfuse-secrets -n langfuse \
-    -o jsonpath='{.data.init-user-password}' | base64 -d
-  ```
+**To retrieve your admin credentials:**
+
+1. In the Nuon dashboard, go to this install
+2. Open the **Actions** tab
+3. Run the `admin_password` action
+4. The output displays the URL, email (`admin@langfuse.local`), and the generated password
+
+The `admin_password` action also runs automatically post-deploy, so the credentials appear in the install's workflow output the first time langfuse comes up.
 
 The org (`Demo Organization`), project (`Demo Project`), and a starter public/secret API key pair are also pre-seeded by the headless init — see `LANGFUSE_INIT_*` env vars in `components/values/langfuse.yaml`.
 
