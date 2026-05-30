@@ -32,8 +32,11 @@ echo "[demo] creating isolated python venv for deps"
 VENV_DIR="/tmp/seed-demo-traces-venv"
 python3 -m venv "$VENV_DIR"
 
-echo "[demo] installing python deps (langfuse, anthropic) into venv"
-"$VENV_DIR/bin/pip" install --quiet --disable-pip-version-check langfuse anthropic
+echo "[demo] installing python deps (langfuse<3, anthropic) into venv"
+# Pin to langfuse 2.x — v3 restructured the SDK and removed
+# langfuse.decorators (where @observe and langfuse_context live).
+# agent.py uses the v2 decorator pattern; bump to v3 + rewrite later.
+"$VENV_DIR/bin/pip" install --quiet --disable-pip-version-check "langfuse>=2,<3" anthropic
 
 echo "[demo] running agent against ${LANGFUSE_HOST}"
 "$VENV_DIR/bin/python" "$(dirname "$0")/agent.py"
