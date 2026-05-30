@@ -113,6 +113,32 @@ Changing inputs triggers a redeploy of the affected components. The workflow sho
 - Langfuse Helm release — `langfuse-web` and `langfuse-worker` deployments
 - ALB + ACM certificate — public HTTPS access to the Langfuse UI and API
 
+## Sizing
+
+This app config is shaped for fast demo provisioning. Defaults trade HA and headroom for shorter install times (~25–35 min on a fresh AWS account). Concrete current values:
+
+| Component | Demo Default | Why |
+|---|---|---|
+| RDS Postgres | `db.t4g.micro`, 20 GB, no multi-AZ, 7-day backups | smallest free-tier-eligible Postgres |
+| ClickHouse | 1 replica × 1 shard × 20 Gi EBS gp3 | single-node, no replication overhead |
+| ClickHouse Keeper | 1 replica × 5 Gi EBS gp3 | no raft quorum, fastest to provision |
+| ElastiCache Valkey | `cache.t4g.micro`, 1 node, no TLS, no auth | smallest Valkey node, security via private subnet + SG |
+| Langfuse web / worker | 2 / 2 replicas | minimum for rolling deploys |
+| S3 | no lifecycle, no versioning | demo retention only |
+
+### Scaling for production
+
+Recommended changes when moving past demo:
+
+- **RDS Postgres** (knobs are inputs): bump `langfuse_db_instance_type` to `db.r6g.large` or larger based on org/project count, `langfuse_db_storage_gb` to 100+, enable multi-AZ and longer backup retention in the TF, turn on deletion protection.
+- **ClickHouse** (knobs are inputs): still single-shard (Langfuse hard requirement — do not shard), but raise `clickhouse_replicas` to 3 for HA and `clickhouse_disk_size` to 100Gi+. Consider pinning the CH pod to a ClickHouse-optimized EC2 family via a dedicated node pool.
+- **ClickHouse Keeper** (manifest edit): scale `replicas` in `components/manifests/clickhouse_keeper.yaml` to 3 for raft quorum HA, bump the volume claim to 10 Gi. Don't forget to scale the `zookeeper.nodes` list in `clickhouse_cluster.yaml` to match.
+- **ElastiCache Valkey** (TF edit): switch to `cache.r6g.large`+, enable `transit_encryption_enabled` + `auth_token` in `src/components/elasticache_redis/main.tf`, add a replica with multi-AZ failover. Wire the auth token through to Langfuse via the helm values' `redis.auth` block.
+- **Langfuse** (knobs are inputs): scale `web_replicas` to match query load and `worker_replicas` to match trace ingest rate — start 5/5 and tune from Langfuse's `/metrics` endpoint.
+- **S3** (TF edit): add lifecycle rules for old event payloads (e.g. `events/` → Glacier after 90 days, expire after 365). Enable versioning if compliance requires it.
+- **Monitoring**: Langfuse exposes Prometheus metrics on `/metrics`; ClickHouse + Keeper expose them on port 7000. Wire to your existing Prometheus stack, or add a Grafana component (see the coder app config in this repo for an example pattern).
+- **Backups**: RDS auto-backups are already enabled. For ClickHouse, add the [clickhouse-backup](https://github.com/Altinity/clickhouse-backup) operator or schedule EBS snapshots of the CH PVCs.
+
 ## Notes
 
 - ClickHouse is deployed via the [Altinity clickhouse-operator](https://github.com/Altinity/clickhouse-operator), but Keeper is deployed as a vanilla StatefulSet — the operator's `ClickHouseKeeperInstallation` reconciler is incomplete in current chart versions and creates the surrounding resources but never the StatefulSet itself.
