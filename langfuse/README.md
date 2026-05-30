@@ -1,25 +1,23 @@
-Langfuse Access URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}})
+Langfuse Dashboard URL: [https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}})
 
 Nuon Install Id: {{ .nuon.install.id }}
 
 AWS Region: {{ .nuon.install_stack.outputs.region }}
 
-## Getting Started
-
 [Langfuse](https://langfuse.com) is an open-source LLM observability and tracing platform. Your install runs full-plane in your AWS account — every component (web, worker, Postgres, ClickHouse, Keeper, Valkey, S3) lives in your VPC with no tether back to Langfuse Cloud.
 
-Open the Langfuse Access URL above and sign in with the headless-init admin user.
+## Sign In
 
-**To retrieve your admin credentials:**
+To retrieve your admin credentials, run the `admin_password` action:
 
-1. In the Nuon dashboard, go to this install
-2. Open the **Actions** tab
-3. Run the `admin_password` action
-4. The output displays the URL, email (`admin@langfuse.local`), and the generated password
+1. In the Nuon dashboard, open this install
+2. Go to the **Actions** tab
+3. Run `admin_password`
+4. The output prints the Dashboard URL, email (`admin@langfuse.local`), and the generated password
 
-The `admin_password` action also runs automatically post-deploy, so the credentials appear in the install's workflow output the first time langfuse comes up.
+The action also fires automatically after the `langfuse` component deploys, so credentials show up in the install's workflow output the first time it comes up — no need to dig for them on first install.
 
-The org (`Demo Organization`), project (`Demo Project`), and a starter public/secret API key pair are also pre-seeded by the headless init — see `LANGFUSE_INIT_*` env vars in `components/values/langfuse.yaml`.
+Then open the Langfuse Dashboard URL above and sign in. The org (`Demo Organization`), project (`Demo Project`), and a starter public/secret API key pair are pre-seeded by Langfuse's headless init.
 
 ## Verify with a Real Trace
 
@@ -27,7 +25,7 @@ The `seed_demo_traces` action runs a small tool-using Claude agent against this 
 
 1. Set `anthropic_api_key` on the install (**Manage → Edit Inputs**).
 2. Run the action: **Actions → `seed_demo_traces` → Run**.
-3. Open the Langfuse Access URL, log in, navigate to `Demo Project` → Traces. The agent run should appear within seconds.
+3. Open the Langfuse Dashboard URL, log in, navigate to `Demo Project` → Traces. The agent run should appear within seconds.
 
 ## Architecture
 
