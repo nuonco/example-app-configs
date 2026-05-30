@@ -136,65 +136,37 @@ data:
     }
   keeperStart.sh: |
     #!/usr/bin/env bash
+    # Single-node keeper startup. The upstream Altinity script had a separate
+    # ACTIVE_ENSEMBLE branch using `done <<<` here-strings to reconfigure into
+    # an existing raft quorum at startup — that's only needed for HA scale-out
+    # and was failing bash parse on our keeper image. For 1-replica keeper
+    # there is no peer cluster to join, so we always generate a fresh
+    # single-server raft config and start.
     set -ex
     source /conf/env.sh
-    source /conf/keeperFunctions.sh
 
-    HOST=`hostname -s`
+    HOST=$(hostname -s)
     if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
-      NAME=${BASH_REMATCH[1]}
       ORD=${BASH_REMATCH[2]}
     else
-      echo Failed to parse name and ordinal of Pod
+      echo "Failed to parse name and ordinal of Pod"
       exit 1
     fi
     export MY_ID=$((ORD+1))
-    set +e
-    getent hosts $DOMAIN
-    if [[ $? -eq 0 ]]; then
-      ACTIVE_ENSEMBLE=true
-    else
-      ACTIVE_ENSEMBLE=false
-    fi
-    set -e
+
     mkdir -p /tmp/clickhouse-keeper/config.d/
-    if [[ "true" == "${ACTIVE_ENSEMBLE}" ]]; then
-      CURRENT_KEEPER_CONFIG=$(clickhouse-keeper-client --history-file=/dev/null -h ${CLIENT_HOST} -p ${CLIENT_PORT} -q "get '/keeper/config'" || true)
-      {
-        echo "<yandex><keeper_server>"
-        echo "<server_id>${MY_ID}</server_id>"
-        echo "<raft_configuration>"
-        if [[ "0" == $(echo "${CURRENT_KEEPER_CONFIG}" | grep -c "${HOST}.${DOMAIN}") ]]; then
-          echo "<server><id>${MY_ID}</id><hostname>${HOST}.${DOMAIN}</hostname><port>${RAFT_PORT}</port><priority>1</priority><start_as_follower>true</start_as_follower></server>"
-        fi
-        while IFS= read -r line; do
-          id=$(echo "$line" | cut -d '=' -f 1 | cut -d '.' -f 2)
-          if [[ "" != "${id}" ]]; then
-            hostname=$(echo "$line" | cut -d '=' -f 2 | cut -d ';' -f 1 | cut -d ':' -f 1)
-            port=$(echo "$line" | cut -d '=' -f 2 | cut -d ';' -f 1 | cut -d ':' -f 2)
-            priority=$(echo "$line" | cut -d ';' -f 3)
-            priority=${priority:-1}
-            port=${port:-$RAFT_PORT}
-            echo "<server><id>$id</id><hostname>$hostname</hostname><port>$port</port><priority>$priority</priority></server>"
-          fi
-        done <<< "$CURRENT_KEEPER_CONFIG"
-        echo "</raft_configuration>"
-        echo "</keeper_server></yandex>"
-      } > /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
-    else
-      {
-        echo "<yandex><keeper_server>"
-        echo "<server_id>${MY_ID}</server_id>"
-        echo "<raft_configuration>"
-        echo "<server><id>${MY_ID}</id><hostname>${HOST}.${DOMAIN}</hostname><port>${RAFT_PORT}</port><priority>1</priority></server>"
-        echo "</raft_configuration>"
-        echo "</keeper_server></yandex>"
-      } > /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
-    fi
+    {
+      echo "<yandex><keeper_server>"
+      echo "<server_id>${MY_ID}</server_id>"
+      echo "<raft_configuration>"
+      echo "<server><id>${MY_ID}</id><hostname>${HOST}.${DOMAIN}</hostname><port>${RAFT_PORT}</port><priority>1</priority></server>"
+      echo "</raft_configuration>"
+      echo "</keeper_server></yandex>"
+    } > /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
 
     cat /tmp/clickhouse-keeper/config.d/generated-keeper-settings.xml
-    rm -rfv /var/lib/clickhouse-keeper/terminated
-    clickhouse-keeper --config-file=/etc/clickhouse-keeper/keeper_config.xml
+    rm -rfv /var/lib/clickhouse-keeper/terminated 2>/dev/null || true
+    exec clickhouse-keeper --config-file=/etc/clickhouse-keeper/keeper_config.xml
   keeperTeardown.sh: |
     #!/usr/bin/env bash
     set -ex
@@ -372,29 +344,26 @@ spec:
               mountPath: /conf/
           command:
             - /conf/keeperStart.sh
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                  - /conf/keeperTeardown.sh
+          # No preStop/teardown hook — the upstream script reconfigures the
+          # raft quorum on shutdown, which is HA-only behavior. For 1-node
+          # keeper there's nothing to reconfigure; SIGTERM is enough.
+          # Probes use plain TCP socket checks on the client port instead of
+          # the upstream shell scripts (which depend on clickhouse-keeper-client
+          # and the same HA reconfig logic that broke startup).
           livenessProbe:
-            exec:
-              command:
-                - /conf/keeperLive.sh
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 30
+            periodSeconds: 10
             failureThreshold: 6
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
+            timeoutSeconds: 5
           readinessProbe:
-            exec:
-              command:
-                - /conf/keeperReady.sh
-            failureThreshold: 3
+            tcpSocket:
+              port: 2181
             initialDelaySeconds: 10
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 30
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
           ports:
             - containerPort: 2181
               name: client
