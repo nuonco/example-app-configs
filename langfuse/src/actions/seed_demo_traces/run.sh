@@ -23,23 +23,20 @@ if [ -z "$LANGFUSE_PUBLIC_KEY" ] || [ -z "$LANGFUSE_SECRET_KEY" ]; then
   exit 1
 fi
 
-echo "[demo] installing python deps (langfuse, anthropic)"
-# Nuon runner's Python 3 may not ship with pip pre-installed (we hit
-# "/usr/bin/python3: No module named pip" on first try). Bootstrap pip
-# via ensurepip — built into Python's stdlib since 3.4 and works
-# offline (uses a bundled wheel). Falls back to get-pip.py over HTTP
-# if ensurepip isn't available either.
-if ! python3 -m pip --version >/dev/null 2>&1; then
-  echo "[demo] pip not found; bootstrapping via ensurepip"
-  if ! python3 -m ensurepip --user --upgrade 2>/dev/null; then
-    echo "[demo] ensurepip unavailable; falling back to get-pip.py"
-    curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user
-  fi
-fi
-python3 -m pip install --quiet --user --disable-pip-version-check langfuse anthropic
+echo "[demo] creating isolated python venv for deps"
+# Nuon runner's system Python is marked PEP 668 "externally-managed-environment"
+# (we hit "error: externally-managed-environment" trying to pip install at the
+# user level, and even bootstrapping pip via get-pip.py fails). venv is
+# explicitly exempt from PEP 668 — packages installed inside the venv don't
+# touch the system site-packages, so pip works normally there.
+VENV_DIR="/tmp/seed-demo-traces-venv"
+python3 -m venv "$VENV_DIR"
+
+echo "[demo] installing python deps (langfuse, anthropic) into venv"
+"$VENV_DIR/bin/pip" install --quiet --disable-pip-version-check langfuse anthropic
 
 echo "[demo] running agent against ${LANGFUSE_HOST}"
-python3 "$(dirname "$0")/agent.py"
+"$VENV_DIR/bin/python" "$(dirname "$0")/agent.py"
 
 echo
 echo "[demo] done — open ${LANGFUSE_HOST} and sign in as admin@langfuse.local"
