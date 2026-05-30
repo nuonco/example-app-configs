@@ -115,7 +115,7 @@ Changing inputs triggers a redeploy of the affected components. The workflow sho
 
 ## Sizing
 
-This app config is shaped for fast demo provisioning. Defaults trade HA and headroom for shorter install times (~25–35 min on a fresh AWS account). Concrete current values:
+This app config is shaped for fast, low-cost demo provisioning. Defaults trade HA and headroom for shorter install times (~25–35 min on a fresh AWS account) and the lowest possible AWS bill — smallest instance classes, single-AZ, single-replica everywhere, no provisioned IOPS, no premium features. A demo install at idle runs in the low single-digit dollars per day; production sizing (next section) is materially more. Concrete current values:
 
 | Component | Demo Default | Why |
 |---|---|---|
