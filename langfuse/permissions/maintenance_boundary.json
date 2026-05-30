@@ -7,6 +7,7 @@
           "cloudwatch:*",
           "ec2:*",
           "eks:*",
+          "elasticache:*",
           "iam:*",
           "rds:*",
           "s3:*",
