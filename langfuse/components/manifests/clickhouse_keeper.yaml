@@ -12,7 +12,6 @@
 # any ReplicatedMergeTree DDL (Langfuse's schema migrations included) and
 # fails with code 999 KEEPER_EXCEPTION. Deploying keeper as plain
 # Kubernetes primitives sidesteps the missing reconciler entirely.
----
 apiVersion: v1
 kind: Service
 metadata:
