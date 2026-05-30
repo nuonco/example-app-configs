@@ -26,17 +26,15 @@ Then install via the Nuon dashboard at https://app.nuon.co. Provision time is ro
 
 ## Access
 
-Once the workflow completes, the install is reachable at the public domain Nuon assigned to it. Find the URL:
+Once the workflow completes, the install exposes the full Langfuse web UI — projects, traces, observations, datasets, evals, settings — at the install's public domain.
 
-```bash
-nuon installs describe <install-id>
-```
-
-Look for the `sandbox.outputs.nuon_dns.public_domain.name` value. Open it in a browser:
+If you're using Nuon-managed DNS (the default), the URL is:
 
 ```
-https://<install-id>.<your-org-domain>
+https://<install-id>.nuon.run
 ```
+
+The install ID is shown on the install's page in the Nuon dashboard (also visible as the `n-<id>` EKS context, e.g. `n-inlk4xgrxg1h361hxpl2yrhgty` → `inlk4xgrxg1h361hxpl2yrhgty.nuon.run`). If you brought your own DNS, the domain is whatever you wired into the sandbox's `nuon_dns.public_domain` config.
 
 Sign in with the headless-init admin user:
 
