@@ -122,7 +122,12 @@ clickhouse:
     existingSecret: clickhouse-credentials
     existingSecretKey: password
   migration:
-    url: "tcp://clickhouse.clickhouse.svc.cluster.local:9000"
+    # Langfuse 3.x uses the golang-migrate clickhouse driver which is
+    # registered under the "clickhouse://" scheme. The chart docs still say
+    # "TCP protocol" but tcp:// throws: unknown driver tcp (forgotten import?).
+    # Auth comes from CLICKHOUSE_USER/CLICKHOUSE_PASSWORD env vars set
+    # separately by the chart's auth block.
+    url: "clickhouse://clickhouse.clickhouse.svc.cluster.local:9000"
     ssl: false
 
 redis:
