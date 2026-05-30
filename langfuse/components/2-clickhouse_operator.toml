@@ -11,11 +11,7 @@ max_auto_retries = 5
 [public_repo]
 repo      = "Altinity/clickhouse-operator"
 directory = "deploy/helm/clickhouse-operator"
-# Pinned to release-0.24.5 to match nuonco/byoc-nuon — the 0.25.x branch ships
-# partial ClickHouseKeeperInstallation reconciliation (creates Service + PDB
-# but never the StatefulSet), so the CHK CR reports "Completed" with no pods.
-# 0.24.5 fully reconciles CHK into a working keeper StatefulSet.
-branch    = "release-0.24.5"
+branch    = "0.25.5"
 
 [[values_file]]
 contents = "./values/clickhouse-operator.yaml"

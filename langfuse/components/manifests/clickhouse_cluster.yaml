@@ -34,11 +34,16 @@ spec:
       prometheus/metrics: true
       prometheus/port: 9363
       prometheus/status_info: true
+    # Vanilla keeper StatefulSet is exposed via the headless `clickhouse-keepers`
+    # service; per-pod DNS resolves as
+    # clickhouse-keeper-N.clickhouse-keepers.clickhouse.svc.cluster.local.
+    # We run a single keeper for the demo, so only ordinal 0 exists.
+    # Scale this list (and the keeper StatefulSet replicas) together when
+    # moving to an HA keeper ensemble.
     zookeeper:
       nodes:
-        - host: chk-clickhouse-keeper-chk-simple-0-0.clickhouse.svc.cluster.local
-        - host: chk-clickhouse-keeper-chk-simple-0-1.clickhouse.svc.cluster.local
-        - host: chk-clickhouse-keeper-chk-simple-0-2.clickhouse.svc.cluster.local
+        - host: clickhouse-keeper-0.clickhouse-keepers.clickhouse.svc.cluster.local
+          port: 2181
 
   defaults:
     templates:
