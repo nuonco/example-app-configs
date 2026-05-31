@@ -10,7 +10,7 @@ max_auto_retries = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "langfuse/src/components/alb"
-branch    = "mm/langfuse"
+branch    = "main"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"

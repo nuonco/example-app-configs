@@ -17,7 +17,7 @@ command = "./generate.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "langfuse/src/actions/clickhouse_creds"
-branch    = "mm/langfuse"
+branch    = "main"
 
 [steps.env_vars]
 CLICKHOUSE_NAMESPACE = "clickhouse"

@@ -7,7 +7,7 @@ max_auto_retries  = 5
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "langfuse/src/components/s3_bucket"
-branch    = "mm/langfuse"
+branch    = "main"
 
 [vars]
 install_name = "{{ .nuon.install.name }}"

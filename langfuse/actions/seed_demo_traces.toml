@@ -13,7 +13,7 @@ command = "./run.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "langfuse/src/actions/seed_demo_traces"
-branch    = "mm/langfuse"
+branch    = "main"
 
 [steps.env_vars]
 LANGFUSE_HOST        = "https://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"

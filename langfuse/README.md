@@ -174,7 +174,7 @@ The `seed_demo_traces` action is a smoke test for the full end-to-end install. I
 
 ### Flow
 
-1. `run.sh` reads `anthropic_api_key` from the install inputs, pulls the bootstrapped Langfuse public/secret keys from the `langfuse-secrets` Kubernetes secret, installs `langfuse` and `anthropic` Python SDKs, and runs `agent.py`.
+1. `run.sh` fetches the Anthropic API key from AWS Secrets Manager (via the install stack's `anthropic_api_key_arn` output), pulls the bootstrapped Langfuse public/secret keys from the `langfuse-secrets` Kubernetes secret, creates a Python venv (the runner's system Python is PEP 668 externally-managed), installs `langfuse` and `anthropic` SDKs into the venv, and runs `agent.py`.
 2. `agent.py` defines three small tools for Claude to call:
    - `current_time` — returns UTC now
    - `add_days(iso_date, days)` — date math
