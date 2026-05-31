@@ -1,0 +1,9 @@
+# kubernetes-manifest
+name      = "clickhouse_cluster"
+type      = "kubernetes_manifest"
+namespace = "clickhouse"
+
+dependencies = ["clickhouse_keeper"]
+
+manifest         = "./manifests/clickhouse_cluster.yaml"
+max_auto_retries = 5

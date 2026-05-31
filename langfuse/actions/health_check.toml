@@ -1,0 +1,18 @@
+# action
+name    = "health_check"
+timeout = "30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Hit /api/public/health"
+command = "./check.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "langfuse/src/actions/health_check"
+branch    = "main"
+
+[steps.env_vars]
+LANGFUSE_URL = "https://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"

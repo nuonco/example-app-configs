@@ -1,0 +1,169 @@
+# Langfuse Helm values. Chart: langfuse/langfuse 1.5.31
+# Upstream values reference: https://github.com/langfuse/langfuse-k8s/tree/main/charts/langfuse
+# Verified against `helm show values langfuse/langfuse --version 1.5.31`.
+#
+# All four bundled subcharts (postgresql, clickhouse, redis, s3/minio) are disabled.
+# Langfuse is wired to external infra provisioned by this app's components.
+
+langfuse:
+  features:
+    telemetryEnabled: "{{ .nuon.install.inputs.telemetry }}"
+
+  licenseKey:
+    value: "{{ .nuon.install.inputs.license_key }}"
+
+  nextauth:
+    url: "https://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+    secret:
+      secretKeyRef:
+        name: langfuse-secrets
+        key: nextauth-secret
+
+  salt:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: salt
+
+  encryptionKey:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: encryption-key
+
+  # Single shared ServiceAccount (the chart uses one SA for both web and worker
+  # pods). Naming it explicitly so the aws_eks_pod_identity_association in the
+  # s3_bucket component can bind to a known SA name:
+  #   namespace=langfuse, service_account=langfuse → langfuse_role
+  # No eks.amazonaws.com/role-arn annotation needed: EKS Pod Identity
+  # doesn't use the IRSA annotation; the Pod Identity agent looks up
+  # creds via the cluster-side association resource and injects them
+  # into the pod at startup.
+  serviceAccount:
+    create: true
+    name: "langfuse"
+
+  web:
+    replicas: "{{ .nuon.install.inputs.web_replicas }}"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+    # Headless initialization: seeds an org, project, admin user, and API keys
+    # on the *web* pod's first start so the seed_demo_traces action can run
+    # without manual signup. Putting these only on the web deployment avoids a
+    # bootstrap race with the worker.
+    # https://docs.langfuse.com/self-hosting/headless-initialization
+    pod:
+      additionalEnv:
+        - name: LANGFUSE_INIT_ORG_ID
+          value: "demo"
+        - name: LANGFUSE_INIT_ORG_NAME
+          value: "Demo Organization"
+        - name: LANGFUSE_INIT_PROJECT_ID
+          value: "demo-project"
+        - name: LANGFUSE_INIT_PROJECT_NAME
+          value: "Demo Project"
+        - name: LANGFUSE_INIT_USER_EMAIL
+          value: "admin@langfuse.local"
+        - name: LANGFUSE_INIT_USER_NAME
+          value: "Admin"
+        - name: LANGFUSE_INIT_PROJECT_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: init-public-key
+        - name: LANGFUSE_INIT_PROJECT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: init-secret-key
+        - name: LANGFUSE_INIT_USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: init-user-password
+
+  worker:
+    replicas: "{{ .nuon.install.inputs.worker_replicas }}"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+
+  ingress:
+    enabled: false
+
+postgresql:
+  deploy: false
+  host: "{{ .nuon.components.rds_postgres.outputs.address }}"
+  port: "{{ .nuon.components.rds_postgres.outputs.db_instance_port }}"
+  auth:
+    username: langfuse
+    database: langfuse
+    existingSecret: langfuse-db-creds
+    # Langfuse builds DATABASE_URL by concatenating DATABASE_PASSWORD raw into
+    # the URL. RDS-managed master passwords can contain ':' or '/' which break
+    # Prisma's URL parser (P1013). Point at the URL-encoded copy of the
+    # password written by the rds_creds action.
+    secretKeys:
+      adminPasswordKey: password-encoded
+      userPasswordKey: password-encoded
+
+clickhouse:
+  deploy: false
+  host: "clickhouse.clickhouse.svc.cluster.local"
+  httpPort: 8123
+  nativePort: 9000
+  database: default
+  auth:
+    username: default
+    existingSecret: clickhouse-credentials
+    existingSecretKey: password
+  migration:
+    # Langfuse 3.x uses the golang-migrate clickhouse driver which is
+    # registered under the "clickhouse://" scheme. The chart docs still say
+    # "TCP protocol" but tcp:// throws: unknown driver tcp (forgotten import?).
+    # Auth comes from CLICKHOUSE_USER/CLICKHOUSE_PASSWORD env vars set
+    # separately by the chart's auth block.
+    url: "clickhouse://clickhouse.clickhouse.svc.cluster.local:9000"
+    ssl: false
+
+redis:
+  deploy: false
+  host: "{{ .nuon.components.elasticache_redis.outputs.endpoint }}"
+  port: "{{ .nuon.components.elasticache_redis.outputs.port }}"
+  # ElastiCache Valkey with no auth, no TLS — security is the private subnet +
+  # SG ingress restriction. For prod, enable transit_encryption + auth_token in
+  # the TF module and wire existingSecret here.
+  auth:
+    username: null
+    password: null
+  tls:
+    enabled: false
+
+s3:
+  deploy: false
+  storageProvider: s3
+  region: "{{ .nuon.components.langfuse_s3_bucket.outputs.region }}"
+  bucket: "{{ .nuon.components.langfuse_s3_bucket.outputs.bucket_name }}"
+  endpoint: ""
+  forcePathStyle: false
+  eventUpload:
+    bucket: "{{ .nuon.components.langfuse_s3_bucket.outputs.bucket_name }}"
+    prefix: events/
+    region: "{{ .nuon.components.langfuse_s3_bucket.outputs.region }}"
+  mediaUpload:
+    enabled: true
+    bucket: "{{ .nuon.components.langfuse_s3_bucket.outputs.bucket_name }}"
+    prefix: media/
+    region: "{{ .nuon.components.langfuse_s3_bucket.outputs.region }}"
+  batchExport:
+    enabled: true
+    bucket: "{{ .nuon.components.langfuse_s3_bucket.outputs.bucket_name }}"
+    prefix: exports/
+    region: "{{ .nuon.components.langfuse_s3_bucket.outputs.region }}"

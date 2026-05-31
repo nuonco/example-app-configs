@@ -1,0 +1,17 @@
+# helm
+name           = "clickhouse_operator"
+chart_name     = "clickhouse-operator"
+type           = "helm_chart"
+namespace      = "kube-system"
+storage_driver = "configmap"
+
+dependencies     = []
+max_auto_retries = 5
+
+[public_repo]
+repo      = "Altinity/clickhouse-operator"
+directory = "deploy/helm/clickhouse-operator"
+branch    = "0.25.5"
+
+[[values_file]]
+contents = "./values/clickhouse-operator.yaml"

@@ -1,0 +1,17 @@
+# helm
+
+name           = "langfuse"
+type           = "helm_chart"
+chart_name     = "langfuse"
+namespace      = "langfuse"
+storage_driver = "configmap"
+dependencies   = ["rds_postgres", "clickhouse_service", "elasticache_redis", "langfuse_s3_bucket"]
+timeout        = "15m"
+max_auto_retries = 5
+
+[helm_repo]
+repo_url = "https://langfuse.github.io/langfuse-k8s"
+chart    = "langfuse"
+
+[[values_file]]
+contents = "./values/langfuse.yaml"

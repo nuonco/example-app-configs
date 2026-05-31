@@ -54,6 +54,10 @@ Re-uses one EKS cluster across `dev`, `qa`, and `prod` environments to save cost
 `alb.ingress.kubernetes.io/group.name`) and a single wildcard ACM certificate. Environments share infrastructure but
 remain isolated at the namespace boundary for traffic, RBAC, secrets, and resource limits.
 
+## langfuse
+
+[Langfuse](https://langfuse.com) is an open-source LLM observability and tracing platform. This app deploys a full-plane Langfuse v3 install into the customer's AWS account: RDS Postgres for transactional data, an Altinity-operated ClickHouse cluster (with a vanilla Keeper StatefulSet) for traces and observations, ElastiCache Valkey for the BullMQ queue and cache, and an S3 bucket with KMS + EKS Pod Identity for event payloads. Langfuse runs as a Helm release behind an ALB with an ACM certificate. Includes manual actions for end-to-end smoke testing (`seed_demo_traces`, `run_agent_prompt`) that make real Anthropic API calls and write trace trees back to the install. The Anthropic key is a customer-owned CFN-parameter secret stored in AWS Secrets Manager. Sandbox is `aws-eks-auto-sandbox`.
+
 ## grafana
 
 [Grafana](https://grafana.com) is an open-source platform for monitoring and observability. This app deploys Grafana,
