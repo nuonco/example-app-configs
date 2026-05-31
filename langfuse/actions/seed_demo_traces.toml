@@ -19,4 +19,9 @@ branch    = "mm/langfuse"
 LANGFUSE_HOST        = "https://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
 LANGFUSE_NAMESPACE   = "langfuse"
 LANGFUSE_SECRET_NAME = "langfuse-secrets"
-ANTHROPIC_API_KEY    = "{{ .nuon.install.inputs.anthropic_api_key }}"
+# The Anthropic API key is no longer a Nuon input — it's a CFN-parameter
+# secret stored in AWS Secrets Manager. The install stack exposes the
+# ARN as an output; run.sh fetches the SecretString via the AWS CLI at
+# run time using the maintenance role's secretsmanager:GetSecretValue.
+ANTHROPIC_SECRET_ARN = "{{ .nuon.install_stack.outputs.anthropic_api_key_arn }}"
+REGION               = "{{ .nuon.install_stack.outputs.region }}"

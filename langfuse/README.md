@@ -23,7 +23,7 @@ Then open the Langfuse Dashboard URL above and sign in. The org (`Demo Organizat
 
 The `seed_demo_traces` action runs a small tool-using Claude agent against this install's Langfuse API and writes a real trace tree.
 
-1. Set `anthropic_api_key` on the install (**Manage → Edit Inputs**).
+1. Make sure the **Anthropic API Key** is set on the install stack (see [Secrets](#secrets)).
 2. Run the action: **Actions → `seed_demo_traces` → Run**.
 3. Open the Langfuse Dashboard URL, log in, navigate to `Demo Project` → Traces. The agent run should appear within seconds.
 
@@ -31,7 +31,7 @@ The `seed_demo_traces` action runs a small tool-using Claude agent against this 
 
 The `run_agent_prompt` action sends a single custom prompt to Claude and traces the call in Langfuse. Useful for poking at the install with realistic inputs without wiring up an external SDK client.
 
-1. Make sure `anthropic_api_key` is set on the install.
+1. Make sure the **Anthropic API Key** is set on the install stack (see [Secrets](#secrets)).
 2. Open **Actions → `run_agent_prompt`**.
 3. In the run dialog, edit the **PROMPT** field with whatever you want to ask Claude (default is a placeholder fun-fact prompt). Optionally edit **CLAUDE_MODEL** (default `claude-sonnet-4-6`) to test against a different Claude model.
 4. Click Run.
@@ -99,7 +99,6 @@ The following inputs can be changed at any time from **Manage → Edit Inputs** 
 
 | Input | Default | Description |
 |---|---|---|
-| `anthropic_api_key` | _(empty)_ | Anthropic API key used by the `seed_demo_traces` and `run_agent_prompt` actions to make real Claude calls |
 | `telemetry` | `true` | Send anonymized usage telemetry to Langfuse |
 | `license_key` | _(empty)_ | Langfuse Enterprise license key (optional; OSS features work without it) |
 | `web_replicas` | `2` | Number of `langfuse-web` pods |
@@ -110,6 +109,18 @@ The following inputs can be changed at any time from **Manage → Edit Inputs** 
 | `clickhouse_disk_size` | `20Gi` | ClickHouse pod EBS volume size |
 
 Changing inputs triggers a redeploy of the affected components. The workflow shows a diff and pauses for approval before applying.
+
+## Secrets
+
+Sensitive values that the customer (not the vendor) owns are passed as **CloudFormation parameters at install time**, then stored in the customer's own AWS Secrets Manager. The vendor and Nuon never see the value — it lives entirely in the customer's account.
+
+| Secret | Required | Used by |
+|---|---|---|
+| `anthropic_api_key` | No | `seed_demo_traces`, `run_agent_prompt` actions for real Claude calls |
+
+When the customer applies the install stack CFN template, the dashboard surfaces each declared secret as a CFN parameter input. The customer enters the value, CFN writes it to AWS Secrets Manager, and the install stack exposes `<name>_arn` as a stack output. Actions read the value at run time via `aws secretsmanager get-secret-value` using the maintenance role's `secretsmanager:*` permission.
+
+To change a secret value later: update the install stack (Manage → Reprovision install, or apply a CFN change set on the stack), then re-run any action that depends on it.
 
 ## What This Deploys
 

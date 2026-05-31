@@ -47,20 +47,6 @@ sensitive    = true
 group        = "langfuse"
 
 [[group]]
-name         = "demo"
-description  = "Optional demo traces: a manual action that runs a small tool-using agent against Claude and sends traces to this Langfuse install."
-display_name = "Demo Traces"
-
-[[input]]
-name              = "anthropic_api_key"
-description       = "Anthropic API key (from console.anthropic.com). Used only by the seed_demo_traces manual action. Leave empty if you don't want to run the demo."
-default           = ""
-display_name      = "Anthropic API Key"
-sensitive         = true
-user_configurable = true
-group             = "demo"
-
-[[group]]
 name         = "infrastructure"
 description  = "EKS https://docs.aws.amazon.com/eks/"
 display_name = "Infrastructure"

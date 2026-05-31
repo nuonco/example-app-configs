@@ -9,9 +9,20 @@ set -e
 set -o pipefail
 set -u
 
+# Anthropic API key lives in AWS Secrets Manager (see secrets.toml) — fetch
+# the SecretString at run time via the install_stack-exposed ARN.
+if [ -z "${ANTHROPIC_SECRET_ARN:-}" ]; then
+  echo "[prompt] anthropic_api_key secret not set on this install." >&2
+  echo "[prompt] Apply the install stack with an Anthropic API key value in the CFN parameter, then re-run." >&2
+  exit 1
+fi
+echo "[prompt] fetching Anthropic API key from Secrets Manager"
+ANTHROPIC_API_KEY=$(aws --region "$REGION" secretsmanager get-secret-value \
+  --secret-id "$ANTHROPIC_SECRET_ARN" --query SecretString --output text)
+export ANTHROPIC_API_KEY
 if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  echo "[prompt] ANTHROPIC_API_KEY input is empty." >&2
-  echo "[prompt] Set the 'anthropic_api_key' input on the install and re-run." >&2
+  echo "[prompt] Secrets Manager returned an empty value for $ANTHROPIC_SECRET_ARN." >&2
+  echo "[prompt] Update the install stack with a non-empty Anthropic API key." >&2
   exit 1
 fi
 
