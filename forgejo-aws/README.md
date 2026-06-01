@@ -5,6 +5,8 @@
 <center>
 <h1>Forgejo (AWS)</h1>
 
+<img src="https://github.com/nuonco/example-app-configs/blob/main/forgejo-aws/screenshot.png?raw=true" alt="Screenshot"/>
+
 Self-hosted git forge on AWS EKS. **Two Pulumi (Go) components** provision the managed data layer — primary database and cache — alongside the in-cluster app. Repositories, LFS, attachments, and packages are stored locally on the EBS-backed PVC (`local` storage), keeping the demo simple:
 
 - **`pulumi_rds`** — RDS Postgres (private-subnetted, EKS-only SG ingress, generated password)
