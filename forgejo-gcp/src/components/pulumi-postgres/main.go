@@ -65,6 +65,7 @@ func main() {
 			DatabaseVersion:    pulumi.String("POSTGRES_16"),
 			DeletionProtection: pulumi.Bool(false),
 			Settings: &sql.DatabaseInstanceSettingsArgs{
+				Edition:          pulumi.String("ENTERPRISE"),
 				Tier:             pulumi.String(tier),
 				DiskSize:         pulumi.Int(storageGB),
 				DiskType:         pulumi.String("PD_SSD"),

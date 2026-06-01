@@ -1,6 +1,6 @@
 name         = "forgejo_ingress"
 type         = "kubernetes_manifest"
-dependencies = ["forgejo", "certificate"]
+dependencies = ["forgejo", "certificate", "external_dns"]
 namespace    = "forgejo"
 
 manifest = """
@@ -11,7 +11,6 @@ metadata:
   namespace: forgejo
   annotations:
     kubernetes.io/ingress.class: gce
-    kubernetes.io/ingress.global-static-ip-name: forgejo-{{ .nuon.install.id }}
     networking.gke.io/managed-certificates: forgejo
     external-dns.alpha.kubernetes.io/hostname: {{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}
 spec:

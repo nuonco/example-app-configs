@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/pulumi/pulumi-gcp/sdk/v8/go/gcp/projects"
 	"github.com/pulumi/pulumi-gcp/sdk/v8/go/gcp/redis"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -24,6 +25,16 @@ func main() {
 			return fmt.Errorf("REDIS_MEMORY_GB must be int: %w", err)
 		}
 
+		svc, err := projects.NewService(ctx, "redis-api", &projects.ServiceArgs{
+			Project:                  pulumi.String(projectID),
+			Service:                  pulumi.String("redis.googleapis.com"),
+			DisableOnDestroy:         pulumi.Bool(false),
+			DisableDependentServices: pulumi.Bool(false),
+		})
+		if err != nil {
+			return fmt.Errorf("enable redis api: %w", err)
+		}
+
 		instance, err := redis.NewInstance(ctx, "forgejo", &redis.InstanceArgs{
 			Name:                  pulumi.Sprintf("nuon-forgejo-%s", installID),
 			Project:               pulumi.String(projectID),
@@ -38,7 +49,7 @@ func main() {
 				"install-nuon-co-id":     pulumi.String(installID),
 				"component-nuon-co-name": pulumi.String("pulumi-redis"),
 			},
-		})
+		}, pulumi.DependsOn([]pulumi.Resource{svc}))
 		if err != nil {
 			return fmt.Errorf("redis: %w", err)
 		}

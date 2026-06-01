@@ -1,3 +1,0 @@
-name: pulumi-storage
-runtime: go
-description: GCS bucket + dedicated service account + HMAC keys for S3-compatible access by Forgejo.

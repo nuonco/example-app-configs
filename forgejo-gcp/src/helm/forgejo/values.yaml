@@ -1,4 +1,4 @@
-image: codeberg.org/forgejo/forgejo:10.0.1
+image: code.forgejo.org/forgejo/forgejo:15.0.2
 imagePullPolicy: IfNotPresent
 
 replicas: 1
@@ -19,9 +19,5 @@ resources:
     cpu: 1
     memory: 1Gi
 
-bucketName: ""
-bucketRegion: ""
-
 dbSecretName: forgejo-db
 cacheSecretName: forgejo-cache
-s3SecretName: forgejo-s3

@@ -100,3 +100,6 @@ tags
 [._]*.un~
 
 .idea
+# compiled pulumi go component binaries
+forgejo-gcp/src/components/*/pulumi-*
+!forgejo-gcp/src/components/*/*.go

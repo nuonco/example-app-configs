@@ -1,14 +1,19 @@
 [[group]]
+name         = "dns"
+display_name = "DNS"
+description  = "Public DNS root domain. The install is served at <install-id>.<domain>."
+
+[[input]]
+name         = "domain"
+display_name = "Domain"
+description  = "Root domain for the install's public/internal hostnames (e.g. nuon.run, or stage.nuon.run on staging)."
+default      = "nuon.run"
+group        = "dns"
+
+[[group]]
 name         = "forgejo"
 display_name = "Forgejo Application"
 description  = "Forgejo image + persistence sizing. https://forgejo.org/"
-
-[[input]]
-name         = "forgejo_image"
-display_name = "Forgejo Image"
-description  = "Forgejo container image."
-default      = "codeberg.org/forgejo/forgejo:10.0.1"
-group        = "forgejo"
 
 [[input]]
 name         = "forgejo_admin_user"

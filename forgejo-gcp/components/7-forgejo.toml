@@ -5,7 +5,7 @@ namespace        = "forgejo"
 storage_driver   = "configmap"
 timeout          = "15m"
 max_auto_retries = 5
-dependencies     = ["forgejo_db_secret", "forgejo_cache_secret", "forgejo_s3_secret"]
+dependencies     = ["img_forgejo", "forgejo_db_secret", "forgejo_cache_secret"]
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
@@ -16,10 +16,8 @@ branch    = "main"
 contents = "./values/forgejo/values.yaml"
 
 [values]
-image          = "{{ .nuon.inputs.inputs.forgejo_image }}"
+image          = "{{ .nuon.components.img_forgejo.outputs.image.repository }}:{{ .nuon.components.img_forgejo.outputs.image.tag }}"
 adminUser      = "{{ .nuon.inputs.inputs.forgejo_admin_user }}"
 adminEmail     = "{{ .nuon.inputs.inputs.forgejo_admin_email }}"
 repoStorageGB  = "{{ .nuon.inputs.inputs.repo_storage_gb }}"
-bucketName     = "{{ .nuon.components.pulumi_storage.outputs.bucket_name }}"
-bucketRegion   = "{{ .nuon.components.pulumi_storage.outputs.bucket_region }}"
 siteDomain     = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"

@@ -25,7 +25,7 @@ spec:
           image: {{ .Values.image | quote }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           command: ["/bin/sh", "/etc/forgejo/entrypoint.sh"]
-          args: ["/bin/s6-svscan", "/etc/s6"]
+          args: ["/usr/bin/s6-svscan", "/etc/s6"]
           env:
             - {name: DB_HOST,       valueFrom: {secretKeyRef: {name: {{ .Values.dbSecretName }},    key: host}}}
             - {name: DB_PORT,       valueFrom: {secretKeyRef: {name: {{ .Values.dbSecretName }},    key: port}}}
@@ -34,12 +34,10 @@ spec:
             - {name: DB_PASSWORD,   valueFrom: {secretKeyRef: {name: {{ .Values.dbSecretName }},    key: password}}}
             - {name: CACHE_HOST,    valueFrom: {secretKeyRef: {name: {{ .Values.cacheSecretName }}, key: host}}}
             - {name: CACHE_PORT,    valueFrom: {secretKeyRef: {name: {{ .Values.cacheSecretName }}, key: port}}}
-            - {name: LFS_JWT_SECRET,      valueFrom: {secretKeyRef: {name: forgejo-internal, key: LFS_JWT_SECRET}}}
-            - {name: SECURITY_SECRET_KEY, valueFrom: {secretKeyRef: {name: forgejo-internal, key: SECURITY_SECRET_KEY}}}
-            - {name: INTERNAL_TOKEN,      valueFrom: {secretKeyRef: {name: forgejo-internal, key: INTERNAL_TOKEN}}}
+            - {name: LFS_JWT_SECRET,      valueFrom: {secretKeyRef: {name: forgejo-lfs-jwt,        key: value}}}
+            - {name: SECURITY_SECRET_KEY, valueFrom: {secretKeyRef: {name: forgejo-security-key,   key: value}}}
+            - {name: INTERNAL_TOKEN,      valueFrom: {secretKeyRef: {name: forgejo-internal-token, key: value}}}
             - {name: FORGEJO__service__DISABLE_REGISTRATION, value: "true"}
-            - {name: FORGEJO__admin__USER_NAME, value: {{ .Values.adminUser | quote }}}
-            - {name: FORGEJO__admin__EMAIL,     value: {{ .Values.adminEmail | quote }}}
           ports:
             - name: http
               containerPort: 3000

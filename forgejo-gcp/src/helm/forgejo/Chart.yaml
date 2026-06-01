@@ -3,4 +3,4 @@ name: forgejo
 description: Thin Forgejo chart that consumes externally-managed Cloud SQL, Memorystore, and GCS.
 type: application
 version: 0.1.0
-appVersion: "10.0.1"
+appVersion: "15.0.2"
