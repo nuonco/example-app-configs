@@ -3,4 +3,4 @@ name: forgejo
 description: Thin Forgejo chart that consumes externally-managed DB, cache, and object storage.
 type: application
 version: 0.1.0
-appVersion: "10.0.1"
+appVersion: "15.0.2"

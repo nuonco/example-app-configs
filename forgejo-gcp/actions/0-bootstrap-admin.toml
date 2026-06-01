@@ -1,0 +1,45 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name               = "bootstrap_admin"
+timeout            = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "forgejo"
+
+[[triggers]]
+type = "post-update-inputs"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "create_or_update_admin"
+inline_contents = """
+#!/usr/bin/env sh
+set -eu
+
+NS=forgejo
+ADMIN_USER="{{ .nuon.inputs.inputs.forgejo_admin_user }}"
+ADMIN_EMAIL="{{ .nuon.inputs.inputs.forgejo_admin_email }}"
+
+POD=$(kubectl get pod -n "$NS" -l app.kubernetes.io/name=forgejo -o jsonpath='{.items[0].metadata.name}')
+PASS=$(kubectl get secret forgejo-admin-password -n "$NS" -o jsonpath='{.data.value}' | base64 -d)
+
+if [ -z "$PASS" ]; then
+  echo "forgejo-admin-password secret is empty/missing; set the required admin password and re-run."
+  exit 1
+fi
+if [ "${#PASS}" -lt 8 ]; then
+  echo "forgejo_admin_password must be at least 8 characters (Forgejo policy)."
+  exit 1
+fi
+
+if kubectl exec -n "$NS" "$POD" -- su-exec git forgejo admin user list | awk 'NR>1{print $2}' | grep -qx "$ADMIN_USER"; then
+  echo "admin '$ADMIN_USER' exists; updating password"
+  kubectl exec -n "$NS" "$POD" -- su-exec git forgejo admin user change-password --username "$ADMIN_USER" --password "$PASS"
+else
+  echo "creating admin '$ADMIN_USER'"
+  kubectl exec -n "$NS" "$POD" -- su-exec git forgejo admin user create --admin --username "$ADMIN_USER" --email "$ADMIN_EMAIL" --password "$PASS" --must-change-password=false
+fi
+"""

@@ -5,13 +5,12 @@
 <center>
 <h1>Forgejo (GCP)</h1>
 
-Self-hosted git forge on GKE. **Three Pulumi (Go) components** provision the managed data layer — object storage, primary database, and cache — alongside the in-cluster app:
+Self-hosted git forge on GKE. **Two Pulumi (Go) components** provision the managed data layer — primary database and cache — alongside the in-cluster app. Repositories, LFS, attachments, and packages are stored locally on the persistent-disk-backed PVC (`local` storage), keeping the demo simple:
 
-- **`pulumi_storage`** — GCS bucket + service account + HMAC keys (S3-compat access)
 - **`pulumi_postgres`** — Cloud SQL Postgres with Private Services Access on the sandbox VPC
 - **`pulumi_redis`** — Memorystore Redis (basic tier) on the sandbox VPC
 
-A sibling app config, **`forgejo-aws`**, mirrors the same shape on EKS using S3, RDS, and ElastiCache.
+A sibling app config, **`forgejo-aws`**, runs on EKS using RDS and ElastiCache (also local storage).
 
 Nuon Install Id: {{ .nuon.install.id }}
 
@@ -31,21 +30,18 @@ graph TD
         Runner["Nuon Runner"]
         subgraph GKE["GKE Cluster"]
             Forgejo["Forgejo Pod"]
-            PVC[("Repo PVC<br/>(Persistent Disk)")]
+            PVC[("Data PVC<br/>(Persistent Disk)<br/>repos · LFS · attachments · packages")]
             Ingress["GCE Ingress<br/>(HTTPS :443)"]
             SSHLB["TCP LB Service<br/>(SSH :22)"]
         end
-        GCS[("GCS Bucket<br/>LFS · attachments · packages")]
         SQL[("Cloud SQL Postgres<br/>private IP via PSA")]
         Memorystore[("Memorystore Redis<br/>direct VPC peering")]
     end
 
     NuonAPI -->|provisions| Runner
-    Runner -->|pulumi up| GCS
     Runner -->|pulumi up| SQL
     Runner -->|pulumi up| Memorystore
     Runner -->|helm install| Forgejo
-    Forgejo -->|HMAC| GCS
     Forgejo --> SQL
     Forgejo --> Memorystore
     Forgejo --> PVC
@@ -55,18 +51,18 @@ graph TD
 
 ## Components
 
-| # | Component | Type | Purpose |
-|---|---|---|---|
-| 1 | `pulumi_storage` | pulumi (go) | GCS bucket + service account + HMAC keys |
-| 2 | `pulumi_postgres` | pulumi (go) | Cloud SQL Postgres + PSA peering + password |
-| 3 | `pulumi_redis` | pulumi (go) | Memorystore Redis (basic tier) |
-| 4 | `forgejo_db_secret` | kubernetes_manifest | Render Cloud SQL outputs into k8s Secret |
-| 5 | `forgejo_cache_secret` | kubernetes_manifest | Render Memorystore outputs into k8s Secret |
-| 6 | `forgejo_s3_secret` | kubernetes_manifest | Render GCS bucket + HMAC creds into k8s Secret |
-| 7 | `forgejo` | helm_chart | Forgejo Deployment, Service, PVC, BackendConfig |
-| 8 | `certificate` | kubernetes_manifest | GKE ManagedCertificate |
-| 9 | `forgejo_ingress` | kubernetes_manifest | GCE Ingress (HTTPS) |
-| 10 | `forgejo_ssh_lb` | kubernetes_manifest | TCP LoadBalancer Service for git-over-SSH on :22 |
+| Component | Type | Purpose |
+|---|---|---|
+| `img_forgejo` | container_image | Mirror Forgejo image into GAR (from code.forgejo.org) |
+| `pulumi_postgres` | pulumi (go) | Cloud SQL Postgres + PSA peering + password |
+| `pulumi_redis` | pulumi (go) | Memorystore Redis (basic tier) |
+| `forgejo_db_secret` | kubernetes_manifest | Render Cloud SQL outputs into k8s Secret |
+| `forgejo_cache_secret` | kubernetes_manifest | Render Memorystore outputs into k8s Secret |
+| `forgejo` | helm_chart | Forgejo Deployment, Service, PVC, BackendConfig |
+| `certificate` | kubernetes_manifest | GKE ManagedCertificate |
+| `external_dns` | terraform_module | external-dns for Cloud DNS |
+| `forgejo_ingress` | kubernetes_manifest | GCE Ingress (HTTPS) |
+| `forgejo_ssh_lb` | kubernetes_manifest | TCP LoadBalancer Service for git-over-SSH on :22 |
 
 ## Configuration
 
@@ -75,7 +71,6 @@ Editable any time from **Manage → Edit Inputs** in the Nuon dashboard.
 ### Application
 | Input | Default | Description |
 |---|---|---|
-| `forgejo_image` | `codeberg.org/forgejo/forgejo:10.0.1` | Forgejo image |
 | `forgejo_admin_user` | `forgejo-admin` | Initial admin username |
 | `forgejo_admin_email` | `admin@example.com` | Initial admin email |
 | `repo_storage_gb` | `50` | Repo PVC size |
@@ -91,14 +86,25 @@ Editable any time from **Manage → Edit Inputs** in the Nuon dashboard.
 |---|---|---|
 | `redis_memory_gb` | `1` | Memorystore memory size |
 
+## Secrets
+
+Defined under `secrets/` and synced into the `forgejo` namespace as Kubernetes secrets (value under key `value`).
+
+| Secret | Source | k8s secret | Used for |
+|---|---|---|---|
+| `forgejo_admin_password` | **required** at install (min 8 chars) | `forgejo-admin-password` | Initial admin, created on first boot by the `bootstrap_admin` action |
+| `forgejo_security_secret_key` | auto-generated | `forgejo-security-key` | Forgejo `SECRET_KEY` |
+| `forgejo_internal_token` | auto-generated | `forgejo-internal-token` | Forgejo internal API token |
+| `forgejo_lfs_jwt_secret` | auto-generated | `forgejo-lfs-jwt` | Git LFS token signing |
+
 ## Notes for the Pulumi components
 
 - Pulumi state is persisted by the Nuon runner — no `Pulumi.<stack>.yaml` is committed, and no backend configuration is required in the Go programs.
 - `[config]` blocks in each component TOML map to Pulumi stack config (`gcp:project`, `gcp:region`).
 - `[env_vars]` blocks pass install/sandbox values into each program at execution time.
-- Forgejo accesses GCS via S3-compatible HMAC keys (no native GCS adapter in Forgejo). The HMAC access ID + secret are emitted by `pulumi_storage` and rendered into `forgejo-s3` k8s secret.
+- Object storage (repos, LFS, attachments, packages) is `local` on the persistent-disk-backed PVC — no GCS bucket is provisioned, keeping the demo simple.
 - Cloud SQL is reachable only over private IP. `pulumi_postgres` provisions the PSA range + `servicenetworking.Connection` on the sandbox VPC.
 
 ## Sibling
 
-See [`forgejo-aws/`](../forgejo-aws) for the EKS / RDS / ElastiCache / S3 variant.
+See [`forgejo-aws/`](../forgejo-aws) for the EKS / RDS / ElastiCache variant.

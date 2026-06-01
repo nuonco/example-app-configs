@@ -1,3 +1,0 @@
-name: pulumi-s3
-runtime: go
-description: S3 bucket + IRSA role granting Forgejo's ServiceAccount access to its object store.

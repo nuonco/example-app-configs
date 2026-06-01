@@ -1,3 +1,6 @@
 runner_type = "aws"
 helm_driver = "configmap"
 init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/aws-v0.1.0/scripts/aws/init-mng.sh"
+
+# 4 vCPU / 16 GiB — Pulumi (build + providers) needs more than the t3a.medium default.
+instance_type = "t3a.xlarge"

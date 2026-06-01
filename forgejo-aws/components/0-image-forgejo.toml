@@ -1,0 +1,6 @@
+name = "img_forgejo"
+type = "container_image"
+
+[public]
+image_url = "code.forgejo.org/forgejo/forgejo"
+tag       = "15.0.2"

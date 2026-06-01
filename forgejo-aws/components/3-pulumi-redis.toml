@@ -14,6 +14,6 @@ branch    = "main"
 [env_vars]
 INSTALL_ID             = "{{ .nuon.install.id }}"
 VPC_ID                 = "{{ .nuon.install.sandbox.outputs.vpc.id }}"
-PRIVATE_SUBNET_IDS     = "{{ .nuon.install.sandbox.outputs.vpc.private_subnets }}"
+PRIVATE_SUBNET_IDS     = "{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 0 }},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 2 }}"
 NODE_SECURITY_GROUP_ID = "{{ .nuon.install.sandbox.outputs.cluster.node_security_group_id }}"
 REDIS_NODE_TYPE        = "{{ .nuon.inputs.inputs.redis_node_type }}"
