@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "Programmable Runbook & README"
+description  = "Whoami on AWS EKS Auto Mode, with Runbooks and rendered READMEs"
+readme       = "./app-readme.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

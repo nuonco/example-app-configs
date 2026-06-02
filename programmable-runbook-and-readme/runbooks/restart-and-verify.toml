@@ -1,0 +1,21 @@
+name        = "restart-and-verify"
+description = "Roll the whoami deployment and confirm it's serving traffic again — the on-call restart, encoded."
+readme      = "./runbooks/restart-and-verify.md"
+
+[labels]
+team = "platform"
+kind = "incident-response"
+
+[[steps]]
+name        = "restart"
+type        = "action"
+action_name = "deployments_restart"
+
+[[steps]]
+name    = "verify"
+type    = "action"
+command = 'curl --fail --show-error --silent --retry $MAX_RETRIES --retry-delay 15 https://{{ $sub := "whoami" }}{{ with .nuon.inputs }}{{ with .inputs }}{{ with .subdomain }}{{ $sub = . }}{{ end }}{{ end }}{{ end }}{{ $sub }}.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}/'
+timeout = "5m"
+
+[steps.env_vars]
+MAX_RETRIES = "20"
