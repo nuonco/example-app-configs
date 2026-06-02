@@ -1,0 +1,16 @@
+name        = "whoami-smoke-test"
+description = "Verify the whoami service is reachable over HTTPS from the runner."
+readme      = "./runbooks/whoami-smoke-test.md"
+
+[labels]
+team = "platform"
+kind = "verification"
+
+[[steps]]
+name    = "curl-whoami"
+type    = "action"
+command = 'curl --fail --show-error --silent --retry $MAX_RETRIES --retry-delay 15 https://{{ $sub := "whoami" }}{{ with .nuon.inputs }}{{ with .inputs }}{{ with .subdomain }}{{ $sub = . }}{{ end }}{{ end }}{{ end }}{{ $sub }}.{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}/'
+timeout = "5m"
+
+[steps.env_vars]
+MAX_RETRIES = "10"

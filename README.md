@@ -54,6 +54,16 @@ Re-uses one EKS cluster across `dev`, `qa`, and `prod` environments to save cost
 `alb.ingress.kubernetes.io/group.name`) and a single wildcard ACM certificate. Environments share infrastructure but
 remain isolated at the namespace boundary for traffic, RBAC, secrets, and resource limits.
 
+## programmable-runbook-and-readme
+
+Builds on `eks-simple-auto` to demonstrate two operator-facing Nuon features: **runbooks** and **rendered READMEs**.
+Runbooks are named, ordered procedures (defined as TOML in `runbooks/`) that you run against an install on demand — this
+app ships `restart-and-verify` (composes the existing `deployments_restart` action with an inline health-check `curl`)
+and `whoami-smoke-test` (a single inline action step). The per-install app README and each runbook's README are Markdown
+rendered with Go templating and `<nuon-*>` components, surfacing live install values and embedding the runbooks as
+runnable cards. Deploys `whoami` on AWS EKS Auto Mode behind an ALB and ACM certificate; sandbox is
+`aws-eks-auto-sandbox`.
+
 ## langfuse
 
 [Langfuse](https://langfuse.com) is an open-source LLM observability and tracing platform. This app deploys a full-plane Langfuse v3 install into the customer's AWS account: RDS Postgres for transactional data, an Altinity-operated ClickHouse cluster (with a vanilla Keeper StatefulSet) for traces and observations, ElastiCache Valkey for the BullMQ queue and cache, and an S3 bucket with KMS + EKS Pod Identity for event payloads. Langfuse runs as a Helm release behind an ALB with an ACM certificate. Includes manual actions for end-to-end smoke testing (`seed_demo_traces`, `run_agent_prompt`) that make real Anthropic API calls and write trace trees back to the install. The Anthropic key is a customer-owned CFN-parameter secret stored in AWS Secrets Manager. Sandbox is `aws-eks-auto-sandbox`.

@@ -1,0 +1,24 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - terraform
+  - helm
+  - manifest
+features:
+  - actions
+  - runbooks
+  - readmes
+  - policies
+  - secrets
+tags:
+  - eks
+  - eks-auto-mode
+  - kubernetes
+  - alb
+  - certificate
+  - runbooks
+  - readmes
+links:
+  sandbox: https://github.com/nuonco/aws-eks-auto-sandbox
