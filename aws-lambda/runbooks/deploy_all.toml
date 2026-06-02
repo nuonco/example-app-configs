@@ -1,0 +1,28 @@
+name        = "deploy_all"
+description = "Deploys all Lambda app components in order."
+readme      = "./runbooks/deploy_all.md"
+
+[[steps]]
+name           = "Deploy Docker image"
+type           = "deploy"
+component_name = "docker_image"
+
+[[steps]]
+name           = "Deploy DynamoDB table"
+type           = "deploy"
+component_name = "dynamodb_table"
+
+[[steps]]
+name           = "Deploy Lambda function"
+type           = "deploy"
+component_name = "lambda_function"
+
+[[steps]]
+name           = "Deploy certificate"
+type           = "deploy"
+component_name = "certificate"
+
+[[steps]]
+name           = "Deploy API Gateway"
+type           = "deploy"
+component_name = "api_gateway"
