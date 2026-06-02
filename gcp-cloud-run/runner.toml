@@ -1,2 +1,5 @@
 runner_type = "gcp"
 helm_driver = "configmap"
+
+# 4 vCPU / 16 GiB — Pulumi (build + providers) needs more than the default.
+instance_type = "e2-standard-4"
