@@ -1,0 +1,13 @@
+name        = "operational_actions"
+description = "Runs operational actions that modify resources: creates secrets and restarts deployment."
+readme      = "./runbooks/operational_actions.md"
+
+[[steps]]
+name        = "Simple demonstration"
+type        = "action"
+action_name = "simple_demonstration"
+
+[[steps]]
+name        = "Restart deployment"
+type        = "action"
+action_name = "deployment_restart"
