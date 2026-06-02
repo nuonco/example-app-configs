@@ -44,6 +44,9 @@ func main() {
 			Network:               pulumi.String(network),
 			Service:               pulumi.String("servicenetworking.googleapis.com"),
 			ReservedPeeringRanges: pulumi.StringArray{psaRange.Name},
+			// A peering connection is per-network and may already exist from a
+			// prior partial run; update it instead of failing the create.
+			UpdateOnCreationFail: pulumi.Bool(true),
 		})
 		if err != nil {
 			return fmt.Errorf("psa connection: %w", err)
@@ -89,9 +92,10 @@ func main() {
 		}
 
 		db, err := sql.NewDatabase(ctx, "forgejo", &sql.DatabaseArgs{
-			Name:     pulumi.String("forgejo"),
-			Project:  pulumi.String(projectID),
-			Instance: instance.Name,
+			Name:           pulumi.String("forgejo"),
+			Project:        pulumi.String(projectID),
+			Instance:       instance.Name,
+			DeletionPolicy: pulumi.String("ABANDON"),
 		})
 		if err != nil {
 			return fmt.Errorf("database: %w", err)
@@ -102,6 +106,9 @@ func main() {
 			Project:  pulumi.String(projectID),
 			Instance: instance.Name,
 			Password: password.Result,
+			// Postgres won't DROP a role that owns objects; abandon on destroy
+			// (the instance teardown removes the user anyway).
+			DeletionPolicy: pulumi.String("ABANDON"),
 		})
 		if err != nil {
 			return fmt.Errorf("user: %w", err)

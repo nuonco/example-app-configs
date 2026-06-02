@@ -1,9 +1,10 @@
-terraform_version = "1.11.3"
+type    = "pulumi"
+runtime = "go"
 
 [public_repo]
 directory = "."
-repo      = "nuonco/gcp-min-sandbox"
+repo      = "nuonco/gcp-min-sandbox-pulumi"
 branch    = "main"
 
-[vars]
-enable_nuon_dns = "false"
+[pulumi_config]
+"nuon:enable_nuon_dns" = "false"
