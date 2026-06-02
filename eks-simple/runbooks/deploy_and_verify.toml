@@ -1,0 +1,43 @@
+name        = "deploy_and_verify"
+description = "Deploys all components, then runs verification checks."
+readme      = "./runbooks/deploy_and_verify.md"
+
+[[steps]]
+name           = "Deploy certificate"
+type           = "deploy"
+component_name = "certificate"
+
+[[steps]]
+name           = "Deploy whoami"
+type           = "deploy"
+component_name = "whoami"
+
+[[steps]]
+name           = "Deploy ALB"
+type           = "deploy"
+component_name = "application_load_balancer"
+
+[[steps]]
+name        = "Certificate status"
+type        = "action"
+action_name = "certificate_status"
+
+[[steps]]
+name        = "Deployment status"
+type        = "action"
+action_name = "deployments_status"
+
+[[steps]]
+name        = "ALB details"
+type        = "action"
+action_name = "alb"
+
+[[steps]]
+name        = "ALB healthcheck"
+type        = "action"
+action_name = "alb_healthcheck"
+
+[[steps]]
+name        = "Whoami endpoint"
+type        = "action"
+action_name = "whoami"
