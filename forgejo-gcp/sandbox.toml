@@ -1,19 +1,15 @@
-terraform_version = "1.11.3"
+type    = "pulumi"
+runtime = "go"
 
 [public_repo]
 directory = "."
-repo      = "nuonco/gcp-gke-sandbox"
+repo      = "nuonco/gcp-gke-sandbox-pulumi"
 branch    = "main"
 
-[vars]
-nuon_id                = "{{ .nuon.install.id }}"
-project_id             = "{{ .nuon.install_stack.outputs.project_id }}"
-region                 = "{{ .nuon.install_stack.outputs.region }}"
-cluster_name           = "n-{{ .nuon.install.id }}"
-enable_nuon_dns        = "true"
-public_root_domain    = "{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.domain }}"
-internal_root_domain  = "internal.{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.domain }}"
-gke_node_pool_sa_email = "{{ .nuon.install_stack.outputs.gke_node_pool_sa_email }}"
-
-[[var_file]]
-contents = "./sandbox.tfvars"
+# nuon_id, project_id, region, network and subnetwork are injected automatically
+# for GCP runners; only app-specific config is set here.
+[pulumi_config]
+"nuon:cluster_name"         = "n-{{ .nuon.install.id }}"
+"nuon:enable_nuon_dns"      = "true"
+"nuon:public_root_domain"   = "{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.domain }}"
+"nuon:internal_root_domain" = "internal.{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.domain }}"

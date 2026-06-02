@@ -2,6 +2,11 @@
 > **Experimental** — this sample app config is a work in progress and is not
 > guaranteed to deploy successfully. Use it as a reference only.
 
+> [!IMPORTANT]
+> This app uses a **Pulumi-typed sandbox** (`sandbox.type = "pulumi"`, see `sandbox.toml`).
+> Your org must have the **`pulumi-sandbox`** feature flag enabled before installing —
+> otherwise the sandbox config sync is rejected. Enable it in org settings (or ask Nuon).
+
 <center>
 <h1>Forgejo (GCP)</h1>
 

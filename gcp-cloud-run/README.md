@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> This app uses a **Pulumi-typed sandbox** (`sandbox.type = "pulumi"`, see `sandbox.toml`).
+> Your org must have the **`pulumi-sandbox`** feature flag enabled before installing —
+> otherwise the sandbox config sync is rejected. Enable it in org settings (or ask Nuon).
+
 <center>
 <h1>GCP Cloud Run</h1>
 
