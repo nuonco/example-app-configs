@@ -1,0 +1,28 @@
+name        = "verify_status"
+description = "Runs verification and status checks for certificate, deployments, ALB, and endpoint."
+readme      = "./runbooks/verify_status.md"
+
+[[steps]]
+name        = "Certificate status"
+type        = "action"
+action_name = "certificate_status"
+
+[[steps]]
+name        = "Deployment status"
+type        = "action"
+action_name = "deployments_status"
+
+[[steps]]
+name        = "ALB details"
+type        = "action"
+action_name = "alb"
+
+[[steps]]
+name        = "ALB healthcheck"
+type        = "action"
+action_name = "alb_healthcheck"
+
+[[steps]]
+name        = "Whoami endpoint"
+type        = "action"
+action_name = "whoami"
