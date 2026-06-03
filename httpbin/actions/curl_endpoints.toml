@@ -1,0 +1,42 @@
+# action
+name    = "curl_endpoints"
+timeout = "30s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "test_endpoints"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Testing httpbin endpoints at: http://${PUBLIC_IP}"
+echo ""
+
+# Test /get endpoint
+echo "Testing /get endpoint..."
+curl -s "http://${PUBLIC_IP}/get" | head -5
+echo ""
+
+# Test /headers endpoint
+echo "Testing /headers endpoint..."
+curl -s "http://${PUBLIC_IP}/headers" | head -5
+echo ""
+
+# Test /ip endpoint
+echo "Testing /ip endpoint..."
+curl -s "http://${PUBLIC_IP}/ip"
+echo ""
+
+# Test /user-agent endpoint
+echo "Testing /user-agent endpoint..."
+curl -s "http://${PUBLIC_IP}/user-agent"
+echo ""
+
+echo "✓ Endpoint tests complete"
+"""
+
+[steps.env_vars]
+PUBLIC_IP = "{{.nuon.components.ec2.outputs.public_ip}}"
