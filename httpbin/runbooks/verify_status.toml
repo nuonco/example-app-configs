@@ -1,0 +1,18 @@
+name        = "verify_status"
+description = "Runs verification checks for EC2 instance and httpbin endpoints."
+readme      = "./runbooks/verify_status.md"
+
+[[steps]]
+name        = "Healthcheck"
+type        = "action"
+action_name = "healthcheck"
+
+[[steps]]
+name        = "Instance status"
+type        = "action"
+action_name = "instance_status"
+
+[[steps]]
+name        = "Curl endpoints"
+type        = "action"
+action_name = "curl_endpoints"
