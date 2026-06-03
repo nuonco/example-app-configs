@@ -1,0 +1,29 @@
+# action
+name    = "instance_status"
+timeout = "30s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_instance"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking EC2 instance status..."
+
+# Get EC2 instance details by public IP
+aws ec2 describe-instances \
+  --filters "Name=ip-address,Values=${PUBLIC_IP}" \
+  --region ${REGION} \
+  --output table
+
+echo ""
+echo "✓ Instance status check complete"
+"""
+
+[steps.env_vars]
+PUBLIC_IP = "{{.nuon.components.ec2.outputs.public_ip}}"
+REGION = "{{.nuon.sandbox.outputs.account.region}}"
