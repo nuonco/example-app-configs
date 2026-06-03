@@ -93,3 +93,9 @@ coder:
       value: "/dev/stderr"
     - name: CODER_UPDATE_CHECK
       value: "true"
+    - name: CODER_AI_GATEWAY_ANTHROPIC_KEY
+      valueFrom:
+        secretKeyRef:
+          name: coder-anthropic-key
+          key: value
+          optional: true
