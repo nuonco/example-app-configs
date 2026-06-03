@@ -1,0 +1,18 @@
+name        = "verify_status"
+description = "Runs verification checks for ECS service, certificate, and endpoint."
+readme      = "./runbooks/verify_status.md"
+
+[[steps]]
+name        = "Service status"
+type        = "action"
+action_name = "service_status"
+
+[[steps]]
+name        = "Certificate status"
+type        = "action"
+action_name = "certificate_status"
+
+[[steps]]
+name        = "Curl endpoint"
+type        = "action"
+action_name = "curl_endpoint"
