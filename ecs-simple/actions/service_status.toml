@@ -1,0 +1,31 @@
+# action
+name    = "service_status"
+timeout = "30s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_service"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking ECS service status..."
+
+# Get ECS service details
+aws ecs describe-services \
+  --cluster ${CLUSTER_NAME} \
+  --services ${SERVICE_NAME} \
+  --region ${REGION} \
+  --output table
+
+echo ""
+echo "✓ Service status check complete"
+"""
+
+[steps.env_vars]
+CLUSTER_NAME = "{{.nuon.components.cluster.outputs.cluster_name}}"
+SERVICE_NAME = "{{.nuon.components.whoami.outputs.service_name}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"
