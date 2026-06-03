@@ -1,0 +1,57 @@
+# action
+name    = "restart_service"
+timeout = "45s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "restart"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Forcing new deployment for ECS service..."
+
+# Force new deployment
+aws ecs update-service \
+  --cluster ${CLUSTER_NAME} \
+  --service ${SERVICE_NAME} \
+  --force-new-deployment \
+  --region ${REGION} \
+  --output table
+
+echo ""
+echo "✓ Service restart initiated"
+"""
+
+[steps.env_vars]
+CLUSTER_NAME = "{{.nuon.components.cluster.outputs.cluster_name}}"
+SERVICE_NAME = "{{.nuon.components.whoami.outputs.service_name}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"
+
+[[steps]]
+name = "status"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking service status after restart..."
+sleep 5
+
+aws ecs describe-services \
+  --cluster ${CLUSTER_NAME} \
+  --services ${SERVICE_NAME} \
+  --region ${REGION} \
+  --query 'services[0].[serviceName,status,runningCount,desiredCount,deployments[0].rolloutState]' \
+  --output table
+
+echo ""
+echo "✓ Status check complete"
+"""
+
+[steps.env_vars]
+CLUSTER_NAME = "{{.nuon.components.cluster.outputs.cluster_name}}"
+SERVICE_NAME = "{{.nuon.components.whoami.outputs.service_name}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"
