@@ -1,0 +1,22 @@
+# action
+name    = "curl_endpoint"
+timeout = "30s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "curl_service"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Curling service endpoint..."
+curl -s ${SERVICE_URL}
+echo ""
+echo "✓ Endpoint check complete"
+"""
+
+[steps.env_vars]
+SERVICE_URL = "{{.nuon.components.alb.outputs.url}}"

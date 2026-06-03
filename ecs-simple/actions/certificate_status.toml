@@ -1,0 +1,29 @@
+# action
+name    = "certificate_status"
+timeout = "30s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "describe"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking certificate status..."
+
+export AWS_PAGER=""
+aws acm describe-certificate \
+  --certificate-arn ${CERTIFICATE_ARN} \
+  --region ${REGION} \
+  --output table
+
+echo ""
+echo "✓ Certificate status check complete"
+"""
+
+[steps.env_vars]
+CERTIFICATE_ARN = "{{.nuon.components.certificate.outputs.arn}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"

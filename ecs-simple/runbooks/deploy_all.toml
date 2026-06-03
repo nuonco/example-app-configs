@@ -1,0 +1,28 @@
+name        = "deploy_all"
+description = "Deploys all ECS components in order."
+readme      = "./runbooks/deploy_all.md"
+
+[[steps]]
+name           = "Deploy container image"
+type           = "deploy"
+component_name = "img_whoami"
+
+[[steps]]
+name           = "Deploy ECS cluster"
+type           = "deploy"
+component_name = "cluster"
+
+[[steps]]
+name           = "Deploy certificate"
+type           = "deploy"
+component_name = "certificate"
+
+[[steps]]
+name           = "Deploy ECS service"
+type           = "deploy"
+component_name = "whoami"
+
+[[steps]]
+name           = "Deploy ALB"
+type           = "deploy"
+component_name = "alb"

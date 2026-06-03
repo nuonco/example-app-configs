@@ -1,0 +1,43 @@
+name        = "deploy_and_verify"
+description = "Deploys all components, then runs verification checks."
+readme      = "./runbooks/deploy_and_verify.md"
+
+[[steps]]
+name           = "Deploy container image"
+type           = "deploy"
+component_name = "img_whoami"
+
+[[steps]]
+name           = "Deploy ECS cluster"
+type           = "deploy"
+component_name = "cluster"
+
+[[steps]]
+name           = "Deploy certificate"
+type           = "deploy"
+component_name = "certificate"
+
+[[steps]]
+name           = "Deploy ECS service"
+type           = "deploy"
+component_name = "whoami"
+
+[[steps]]
+name           = "Deploy ALB"
+type           = "deploy"
+component_name = "alb"
+
+[[steps]]
+name        = "Service status"
+type        = "action"
+action_name = "service_status"
+
+[[steps]]
+name        = "Certificate status"
+type        = "action"
+action_name = "certificate_status"
+
+[[steps]]
+name        = "Curl endpoint"
+type        = "action"
+action_name = "curl_endpoint"
