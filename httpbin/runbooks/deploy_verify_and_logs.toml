@@ -1,0 +1,28 @@
+name        = "deploy_verify_and_logs"
+description = "Deploys the EC2 component, runs verification checks, then retrieves logs."
+readme      = "./runbooks/deploy_verify_and_logs.md"
+
+[[steps]]
+name           = "Deploy EC2 instance"
+type           = "deploy"
+component_name = "ec2"
+
+[[steps]]
+name        = "Healthcheck"
+type        = "action"
+action_name = "healthcheck"
+
+[[steps]]
+name        = "Instance status"
+type        = "action"
+action_name = "instance_status"
+
+[[steps]]
+name        = "Curl endpoints"
+type        = "action"
+action_name = "curl_endpoints"
+
+[[steps]]
+name        = "Instance logs"
+type        = "action"
+action_name = "instance_logs"
