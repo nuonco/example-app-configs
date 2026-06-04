@@ -4,6 +4,32 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      sync_all:
+        description: Sync all apps (ignore changed-dir detection)
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      NUON_DEBUG:
+        description: NUON_DEBUG
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NUON_DEBUG: "${{ github.event.inputs.NUON_DEBUG }}"
+  NUON_ORG_ID: orghrsmmlfozvjxraku0ubb4qq
 
 jobs:
   detect-changes:
@@ -19,11 +45,16 @@ jobs:
       - name: Get changed directories
         id: set-matrix
         run: |
-          # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          if [ "${{ github.event.inputs.sync_all }}" = "true" ]; then
+            # Manual dispatch: sync every app dir (exclude dotfiles, scripts, docs)
+            CHANGED_DIRS=$(find . -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort -u | grep -v '^\.' | grep -vE '^(scripts|docs)$' || true)
+          else
+            # Get list of changed files
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
 
-          # Extract unique top-level directories (excluding .github)
-          CHANGED_DIRS=$(echo "$CHANGED_FILES" | cut -d'/' -f1 | sort -u | grep -v '^\.' | grep -v '^$' || true)
+            # Extract unique top-level directories (excluding dotfiles, scripts, docs)
+            CHANGED_DIRS=$(echo "$CHANGED_FILES" | cut -d'/' -f1 | sort -u | grep -v '^\.' | grep -v '^$' | grep -vE '^(scripts|docs)$' || true)
+          fi
 
           if [ -z "$CHANGED_DIRS" ]; then
             echo "No app directories changed"
@@ -41,15 +72,35 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
+    name: Push to Nuon
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for skip-sync label
+        id: check_label
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --state merged --json number -q '.[0].number')
+          if [ -n "$PR_NUMBER" ]; then
+            LABELS=$(gh pr view "$PR_NUMBER" --json labels -q '.labels[].name')
+            if echo "$LABELS" | grep -q "skip-sync"; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Skipping sync due to skip-sync label on PR #$PR_NUMBER"
+            fi
+          fi
+
+      - name: Install CLI
+        if: steps.check_label.outputs.skip != 'true'
+        run: ./scripts/install-cli.sh
 
       - name: Sync ${{ matrix.app }}
-        uses: nuonco/actions-nuon@v0.3.0
-        with:
-          org_id: ${{ secrets.NUON_ORG_ID }}
-          api_token: ${{ secrets.NUON_API_TOKEN }}
-          command: apps sync -d ${{ matrix.app }}
+        if: steps.check_label.outputs.skip != 'true'
+        working-directory: ${{ matrix.app }}
+        run: nuon apps sync .
+        env:
+          NUON_API_TOKEN: ${{ secrets.NUON_API_TOKEN }}
