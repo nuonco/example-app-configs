@@ -1,0 +1,40 @@
+# action
+name    = "instance_logs"
+timeout = "30s"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "get_logs"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Fetching EC2 instance console output..."
+
+# Get instance ID from public IP
+INSTANCE_ID=$(aws ec2 describe-instances \
+  --filters "Name=ip-address,Values=${PUBLIC_IP}" \
+  --region ${REGION} \
+  --query 'Reservations[0].Instances[0].InstanceId' \
+  --output text)
+
+echo "Instance ID: $INSTANCE_ID"
+echo ""
+
+# Get console output (system logs)
+aws ec2 get-console-output \
+  --instance-id $INSTANCE_ID \
+  --region ${REGION} \
+  --query 'Output' \
+  --output text | tail -50
+
+echo ""
+echo "✓ Logs retrieved (last 50 lines)"
+"""
+
+[steps.env_vars]
+PUBLIC_IP = "{{.nuon.components.ec2.outputs.public_ip}}"
+REGION = "{{.nuon.sandbox.outputs.account.region}}"
