@@ -97,5 +97,5 @@ coder:
       valueFrom:
         secretKeyRef:
           name: coder-anthropic-key
-          key: value
+          key: api-key
           optional: true
