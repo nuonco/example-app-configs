@@ -33,9 +33,10 @@ See the [Coder documentation](https://coder.com/docs) to get started.
       end
 
       subgraph Clients["Clients"]
+          Customer["Customer / Admin"]
           IDE["IDE with SSH"]
           Dashboard["Coder & Grafana Dashboards & Web IDE"]
-          IDE ~~~ Dashboard
+          Customer ~~~ IDE ~~~ Dashboard
       end
 
       subgraph VPC["Customer Cloud VPC (AWS)"]
@@ -43,18 +44,22 @@ See the [Coder documentation](https://coder.com/docs) to get started.
           RDS[("PostgreSQL RDS")]
           ACM["ACM Certificate"]
           ALB["Application Load Balancer"]
-          Stack["CloudFormation Stack"]
+          Stack["CloudFormation Stack<br/>(anthropic_api_key parameter)"]
+          SM[("AWS Secrets Manager<br/>anthropic_api_key")]
 
           subgraph EKS["EKS Cluster"]
-              Coder["Coder"]
+              K8sSecret[("Kubernetes Secret<br/>coder-anthropic-key")]
+              Coder["Coder<br/>(AI Gateway)"]
               Logstream["Kubelogstream"]
               Observability["Grafana & Prometheus Observability"]
               DevEnv["Development Environment"]
           end
       end
 
-      NuonAPI -->|generates| Stack
-      Stack["CloudFormation Stack"] -->|provisions| Runner
+      NuonAPI -->|generates template| Stack
+      Customer -->|applies CloudFormation Stack<br/>with anthropic_api_key| Stack
+      Stack -->|CloudFormation provisions| Runner
+      Stack -->|CloudFormation writes key to| SM
       Runner -->|provisions| EKS
       Runner -->|provisions| RDS
       Runner -->|provisions| ACM
@@ -62,6 +67,9 @@ See the [Coder documentation](https://coder.com/docs) to get started.
       Runner -->|provisions| Coder
       Runner -->|provisions| Logstream
       Runner -->|provisions| Observability
+      Runner -->|reads anthropic_api_key| SM
+      Runner -->|syncs to| K8sSecret
+      K8sSecret -->|CODER_AI_GATEWAY_ANTHROPIC_KEY| Coder
 
       ACM -->|TLS| ALB
       ALB --> Coder
@@ -94,6 +102,29 @@ The following inputs can be changed at any time from **Manage → Edit Inputs** 
 | `block_direct` | `false` | Force all workspace connections through the Coder relay (disables direct peer-to-peer) |
 
 Changing inputs triggers a redeploy of the affected components. The workflow shows a diff and pauses for approval before applying.
+
+## AI Coding Agents (Optional)
+
+Coder ships a built-in AI gateway that turns this install into a hosted home for [Coder Agents](https://coder.com/docs/ai-coder/agents) — Anthropic-powered coding agents that run in the control plane (not inside the workspace) so prompts, diffs, and tool calls are auditable and isolated from your code.
+
+What your developers get when this is turned on:
+
+- A chat UI in the Coder web app (or via the REST API) for running an agent — the agent loop runs in the Coder control plane, not inside the workspace, so prompts stay isolated from the code being edited
+- Centralized auth — developers use their Coder login, not a personal Anthropic key
+- An audit trail of every prompt and tool invocation, attributed back to the user
+
+Read more in the [Coder AI Gateway docs](https://coder.com/docs/ai-coder/ai-gateway).
+
+### How to enable it
+
+Your Anthropic API key never touches Nuon or the vendor. The flow:
+
+1. Grab a key from [console.anthropic.com](https://console.anthropic.com).
+2. When you applied the install stack CloudFormation template, you saw an `anthropic_api_key` parameter. Re-apply the stack with that parameter populated (or set it the first time around).
+3. Nuon stores the value in your own AWS Secrets Manager and syncs it as a Kubernetes Secret named `coder-anthropic-key` in the `coder` namespace.
+4. The Coder server picks it up from the `CODER_AI_GATEWAY_ANTHROPIC_KEY` environment variable on startup.
+
+If you leave the CloudFormation parameter blank, Coder still boots normally — no key is wired in at deploy time, and a Coder admin would need to add the Anthropic key directly through the Coder dashboard. To rotate the key managed through Nuon, update the parameter in the install stack and use **Manage → Sync Secrets** in the Nuon dashboard.
 
 ## Monitoring
 
@@ -136,6 +167,10 @@ The deploy workflow shows a Helm diff and pauses for approval before applying.
 [Coder CLI Reference](https://coder.com/docs/reference/cli/server)
 
 [Coder OSS Repository](https://github.com/coder/coder)
+
+[Coder Agents (AI)](https://coder.com/docs/ai-coder/agents)
+
+[Coder AI Gateway](https://coder.com/docs/ai-coder/ai-gateway)
 
 [AWS Instance Types](https://aws.amazon.com/ec2/instance-types/)
 
