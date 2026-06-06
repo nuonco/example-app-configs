@@ -17,3 +17,9 @@ type       = "terraform_module"
 engine     = "opa"
 components = ["dynamodb_table"]
 contents   = "./policies/warn-dynamodb-on-demand.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["lambda_function"]
+contents   = "./policies/warn-lambda-minimal-memory.rego"
