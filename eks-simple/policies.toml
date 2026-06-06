@@ -16,3 +16,9 @@ contents = "./policies/pass-multi-az-subnets.rego"
 type     = "sandbox"
 engine   = "opa"
 contents = "./policies/warn-public-eks-endpoint.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["certificate"]
+contents   = "./policies/warn-wildcard-certificate.rego"
