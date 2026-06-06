@@ -1,0 +1,23 @@
+# policies
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/pass-vpc-cidr.rego"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/pass-multi-az-subnets.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/pass-instance-tags.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["ec2"]
+contents   = "./policies/warn-public-security-group.rego"
