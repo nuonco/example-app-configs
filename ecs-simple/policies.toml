@@ -15,3 +15,9 @@ type       = "terraform_module"
 engine     = "opa"
 components = ["alb"]
 contents   = "./policies/warn-alb-public-access.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["whoami"]
+contents   = "./policies/warn-minimal-task-resources.rego"
