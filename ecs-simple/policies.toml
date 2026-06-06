@@ -1,1 +1,6 @@
+# policies
 
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/pass-vpc-cidr.rego"
