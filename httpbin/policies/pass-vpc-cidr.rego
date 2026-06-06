@@ -6,7 +6,38 @@ pass contains msg if {
     resource.type == "aws_vpc"
     resource.change.actions[_] in ["create", "update"]
     cidr := resource.change.after.cidr_block
-    startswith(cidr, "10.") or startswith(cidr, "172.") or startswith(cidr, "192.168.")
+    
+    # Check if CIDR starts with valid private range
+    startswith(cidr, "10.")
+    
+    msg := sprintf(
+        "VPC '%s' uses proper private CIDR block: %s",
+        [resource.address, cidr],
+    )
+}
+
+pass contains msg if {
+    some resource in input.plan.resource_changes
+    resource.type == "aws_vpc"
+    resource.change.actions[_] in ["create", "update"]
+    cidr := resource.change.after.cidr_block
+    
+    startswith(cidr, "172.")
+    
+    msg := sprintf(
+        "VPC '%s' uses proper private CIDR block: %s",
+        [resource.address, cidr],
+    )
+}
+
+pass contains msg if {
+    some resource in input.plan.resource_changes
+    resource.type == "aws_vpc"
+    resource.change.actions[_] in ["create", "update"]
+    cidr := resource.change.after.cidr_block
+    
+    startswith(cidr, "192.168.")
+    
     msg := sprintf(
         "VPC '%s' uses proper private CIDR block: %s",
         [resource.address, cidr],
