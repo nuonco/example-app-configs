@@ -6,3 +6,8 @@ contents = "./policies/disallow-ingress-nginx-custom-snippets.yml"
 type     = "sandbox"
 engine   = "opa"
 contents = "./policies/pass-vpc-cidr.rego"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/pass-multi-az-subnets.rego"
