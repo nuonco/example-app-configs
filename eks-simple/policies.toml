@@ -3,6 +3,10 @@ type = "kubernetes_cluster"
 contents = "./policies/disallow-ingress-nginx-custom-snippets.yml"
 
 [[policy]]
+type = "kubernetes_cluster"
+contents = "./policies/set-karpenter-non-cpu-limits.yaml"
+
+[[policy]]
 type     = "sandbox"
 engine   = "opa"
 contents = "./policies/pass-vpc-cidr.rego"
