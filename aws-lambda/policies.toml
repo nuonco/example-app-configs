@@ -11,3 +11,9 @@ contents = "./policies/pass-vpc-cidr.rego"
 type     = "sandbox"
 engine   = "opa"
 contents = "./policies/pass-multi-az-subnets.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["dynamodb_table"]
+contents   = "./policies/warn-dynamodb-on-demand.rego"
