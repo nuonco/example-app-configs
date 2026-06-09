@@ -62,6 +62,22 @@ Uses default roles from `permissions/provision.toml`, `maintenance.toml`, and `d
 
 Note the contrast: `deployments_status` only needs `eks:DescribeCluster` while `deployment_restart` also needs EKS edit access via its cluster access entry.
 
+### Runbooks
+
+A runbook can assign a role **per step** via the `role` field on inline action
+steps — the step-level analogue of the entity roles used by components and
+actions.
+
+| Runbook | Step | Role |
+|---------|------|------|
+| `operate-whoami` | `status` (read-only) | `{{.nuon.install.id}}-deployments-status-trigger` |
+| `operate-whoami` | `restart` (write) | `{{.nuon.install.id}}-deployment-restart-trigger` |
+| `operate-whoami` | `verify` (curl) | _runner default_ |
+
+The runbook reuses the already-provisioned trigger roles, so the read step is
+held to the namespace-scoped EKS View policy while the restart step gets Cluster
+Admin — the same least-privilege split, now within a single workflow.
+
 ---
 
 ## File Structure
@@ -85,6 +101,10 @@ Note the contrast: `deployments_status` only needs `eks:DescribeCluster` while `
 ├── actions/
 │   ├── deployments_status.toml    # Read-only action (view role)
 │   └── deployment_restart.toml    # Write action (edit role)
+│
+├── runbooks/
+│   ├── operate-whoami.toml        # status/restart/verify, role per step
+│   └── operate-whoami.md          # Runbook readme
 │
 ├── permissions/
 │   ├── provision.toml             # Default provision role
