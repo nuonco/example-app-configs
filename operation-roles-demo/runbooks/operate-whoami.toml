@@ -1,0 +1,48 @@
+name        = "operate-whoami"
+description = "Inspect, restart, and verify the whoami deployment — each step runs under its own per-operation IAM role."
+readme      = "./runbooks/operate-whoami.md"
+
+[labels]
+team = "platform"
+kind = "operation-roles"
+
+[[steps]]
+name    = "status"
+type    = "action"
+role    = "{{.nuon.install.id}}-deployments-status-trigger"
+inline_contents = """
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+kubectl get -n whoami deployments
+
+response=`kubectl get -n whoami deployments -o json | jq -c`
+echo $response >> $NUON_ACTIONS_OUTPUT_FILEPATH
+"""
+
+[[steps]]
+name    = "restart"
+type    = "action"
+role    = "{{.nuon.install.id}}-deployment-restart-trigger"
+inline_contents = """
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+set -u
+
+kubectl --namespace whoami rollout restart deployment whoami
+kubectl --namespace whoami rollout status deployment whoami --timeout=2m
+"""
+
+[[steps]]
+name    = "verify"
+type    = "action"
+command = 'curl --fail --show-error --silent --retry $MAX_RETRIES --retry-delay 15 https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/'
+timeout = "5m"
+
+[steps.env_vars]
+MAX_RETRIES = "20"
