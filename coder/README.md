@@ -214,7 +214,7 @@ The vendor pins these in the app config and updates them via release. The big on
 
 </nuon-tab>
 
-<nuon-tab name="Agents">
+<nuon-tab name="agents">
 
 <br/>
 
