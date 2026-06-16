@@ -107,7 +107,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Infra health</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_infra</code>
   {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -133,7 +132,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder health</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_deployment_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -172,7 +170,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_workspaces.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code></a>
   {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -216,7 +213,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -242,7 +238,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -271,7 +266,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_builds_jobs.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code></a>
   {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -317,7 +311,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_provisioners.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code></a>
   {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
