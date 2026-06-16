@@ -26,13 +26,16 @@ http=$(curl --silent --show-error --max-time 30 --retry 3 --retry-delay 5 \
   -o "$tmp" -w '%{http_code}' "$url")
 body=$(cat "$tmp")
 
+updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
+
 if [ "$http" != "200" ]; then
   indicator="🔴"
   rc=1
   output=$(jq --null-input -c \
     --arg indicator "$indicator" --arg url "$url" \
+    --arg updated_at "$updated_at" \
     --arg http "$http" --arg body "$body" \
-    '{indicator: $indicator, url: $url, http_code: $http, body: $body}')
+    '{indicator: $indicator, updated_at: $updated_at, url: $url, http_code: $http, body: $body}')
 else
   version=$(echo    "$body" | jq -r '.version       // "unknown"')
   deployment=$(echo "$body" | jq -r '.deployment_id // null')
@@ -44,8 +47,9 @@ else
   fi
   output=$(jq --null-input -c \
     --arg indicator "$indicator" --arg url "$url" \
+    --arg updated_at "$updated_at" \
     --arg version "$version" --arg deployment "$deployment" --arg dashboard "$dashboard" \
-    '{indicator: $indicator, url: $url,
+    '{indicator: $indicator, updated_at: $updated_at, url: $url,
       version: $version, deployment_id: $deployment, dashboard_url: $dashboard}')
 fi
 

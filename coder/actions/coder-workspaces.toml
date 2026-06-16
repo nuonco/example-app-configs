@@ -16,10 +16,12 @@ set -u
 
 echo "==> coder-workspaces: workspaces grouped by latest-build status"
 
+updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
+
 url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
   -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
 if [ -z "$url" ]; then
-  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
   exit 1
 fi
 
@@ -88,10 +90,11 @@ fi
 
 output=$(jq --null-input -c \
   --arg ind "$ind" \
+  --arg updated_at "$updated_at" \
   --argjson data "$data" \
   --argjson total "$total" \
   --argjson failed "$failed" \
-  '{indicator: $ind, total_active: $total, failed: $failed, counts: $data.counts, recent: $data.recent}')
+  '{indicator: $ind, updated_at: $updated_at, total_active: $total, failed: $failed, counts: $data.counts, recent: $data.recent}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"

@@ -14,7 +14,7 @@ command = "./healthcheck.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/actions/alb"
-branch    = "main"
+branch    = "mm/coder-runbook-timestamps"
 
 [steps.env_vars]
 INGRESS_NAME              = "{{.nuon.install.id}}-public"

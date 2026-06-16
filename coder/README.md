@@ -47,6 +47,15 @@
 {{ $tfReady  := and (dig "populated" false $tf) (eq (dig "status" "" $tf) "finished") }}
 {{ $tfCount  := dig "count" 0 $tfOut }}
 
+{{ $promUpdated := dig "outputs" "updated_at" "" $prom }}
+{{ $dhUpdated   := dig "outputs" "updated_at" "" $dh }}
+{{ $wsUpdated   := dig "outputs" "updated_at" "" $ws }}
+{{ $utUpdated   := dig "outputs" "updated_at" "" $ut }}
+{{ $bjUpdated   := dig "outputs" "updated_at" "" $bj }}
+{{ $provUpdated := dig "outputs" "updated_at" "" $prov }}
+{{ $tfUpdated   := dig "outputs" "updated_at" "" $tf }}
+{{ $agUpdated   := dig "outputs" "updated_at" "" $ag }}
+
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
   <video autoplay loop muted playsinline width="480" height="270">
     <source src="https://coder.together.agency/videos/logo/sections/0/content/9/value/video.mp4" type="video/mp4">
@@ -55,8 +64,14 @@
   <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
     <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
     <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
-    <nuon-run-runbook name="full-healthcheck"></nuon-run-runbook>
-    <nuon-run-runbook name="refresh_coder_data"></nuon-run-runbook>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+      <nuon-run-runbook name="full-healthcheck"></nuon-run-runbook>
+      {{ with $promUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+      <nuon-run-runbook name="refresh_coder_data"></nuon-run-runbook>
+      {{ with $bjUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+    </div>
   </div>
 </div>
 
@@ -80,7 +95,10 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; flex-direction:column;">
 
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Install healthcheck</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Install healthcheck</p>
+  {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 <nuon-group gap="8" align="center">
   {{ if $hcAllGreen }}<nuon-status status="active" variant="badge"></nuon-status>
@@ -89,7 +107,10 @@ Coder's cloud development environment platform — for developers and agents. Th
   <span>Rolled-up status from the six <strong>full-healthcheck</strong> steps.</span>
 </nuon-group>
 
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Deployment health</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Deployment health</p>
+  {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 {{ if $dhReady }}
 <table>
@@ -123,7 +144,10 @@ Coder's cloud development environment platform — for developers and agents. Th
 </table>
 {{ end }}
 
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Workspaces</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
+  {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 {{ if $wsReady }}
 {{ $counts := dig "counts" (dict) $wsOut }}
@@ -162,7 +186,10 @@ Coder's cloud development environment platform — for developers and agents. Th
 <nuon-banner theme="warn">Waiting on <code>coder_workspaces</code> action. Run it from the Operations tab to populate.</nuon-banner>
 {{ end }}
 
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Users & templates</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Users & templates</p>
+  {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 {{ if $utReady }}
 {{ $u := dig "users" (dict) $utOut }}
@@ -204,7 +231,10 @@ Coder's cloud development environment platform — for developers and agents. Th
 <nuon-banner theme="warn">Waiting on <code>coder_users_templates</code> action. Run it from the Operations tab to populate.</nuon-banner>
 {{ end }}
 
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Recent builds & job queue</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
+  {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 {{ if $bjReady }}
 {{ $queue := dig "queue" (dict) $bjOut }}
@@ -245,7 +275,10 @@ Coder's cloud development environment platform — for developers and agents. Th
 <nuon-banner theme="warn">Waiting on <code>coder_builds_jobs</code> action. Run it from the Operations tab to populate.</nuon-banner>
 {{ end }}
 
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Provisioners</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
+  {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 {{ if $provReady }}
 {{ $daemons := dig "daemons" (list) $provOut }}
@@ -493,7 +526,10 @@ Day-2 actions you can run from here. Each one executes inside your install with 
 </nuon-group>
 
 {{ if and $tfReady (gt $tfCount 0.0) }}
-<p style="font-size:1.05rem; font-weight:700; margin-top:1.25rem; margin-bottom:0.5rem;">Stale templates (90+ days)</p>
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Stale templates (90+ days)</p>
+  {{ with $tfUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
 
 <table>
   <thead><tr><th>Template</th><th>Display name</th><th>Stale</th><th>Workspaces</th></tr></thead>

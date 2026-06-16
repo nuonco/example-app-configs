@@ -40,7 +40,7 @@ else
 fi
 
 # compose the output
-outputs=$(jq --null-input \
+outputs=$(jq --null-input -c \
   --arg coder_cert "$coder_cert" \
   --arg coder_hn "$coder_hostname" \
   --arg coder_ind "$coder_indicator" \
@@ -48,7 +48,9 @@ outputs=$(jq --null-input \
   --arg grafana_hn "$grafana_hostname" \
   --arg grafana_ind "$grafana_indicator" \
   --argjson grafana_status "$grafana_status" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
   '{
+    "updated_at": $updated_at,
     "coder": {"status": $coder_status, "indicator": $coder_ind, "certificate_arn": $coder_cert, "hostname": $coder_hn},
     "grafana": {"status": $grafana_status, "indicator": $grafana_ind, "hostname": $grafana_hn}
   }')
