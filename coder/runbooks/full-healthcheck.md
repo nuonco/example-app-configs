@@ -5,14 +5,23 @@
 {{ $grafana := default dict (index (default dict .nuon.actions.workflows) "grafana_health") }}
 {{ $prom    := default dict (index (default dict .nuon.actions.workflows) "prom_targets") }}
 
-{{ $k8sInd   := dig "outputs" "indicator" "" $k8s }}
-{{ $coderInd := dig "outputs" "indicator" "" $coder }}
-{{ $dbInd    := dig "outputs" "indicator" "" $db }}
-{{ $grafInd  := dig "outputs" "indicator" "" $grafana }}
-{{ $promInd  := dig "outputs" "indicator" "" $prom }}
+{{ $k8sOut     := default dict (dig "outputs" dict $k8s) }}
+{{ $coderOut   := default dict (dig "outputs" dict $coder) }}
+{{ $dbOut      := default dict (dig "outputs" dict $db) }}
+{{ $albOut     := default dict (dig "outputs" dict $alb) }}
+{{ $grafanaOut := default dict (dig "outputs" dict $grafana) }}
+{{ $promOut    := default dict (dig "outputs" dict $prom) }}
 
-{{ $albCoder := dig "outputs" "coder" "indicator" "" $alb }}
-{{ $albGraf  := dig "outputs" "grafana" "indicator" "" $alb }}
+{{ $k8sInd   := dig "indicator" "" $k8sOut }}
+{{ $coderInd := dig "indicator" "" $coderOut }}
+{{ $dbInd    := dig "indicator" "" $dbOut }}
+{{ $grafInd  := dig "indicator" "" $grafanaOut }}
+{{ $promInd  := dig "indicator" "" $promOut }}
+
+{{ $albCoderMap := default dict (dig "coder" dict $albOut) }}
+{{ $albGrafMap  := default dict (dig "grafana" dict $albOut) }}
+{{ $albCoder    := dig "indicator" "" $albCoderMap }}
+{{ $albGraf     := dig "indicator" "" $albGrafMap }}
 {{ $albInd   := "" }}
 {{ if and (eq $albCoder "🟢") (eq $albGraf "🟢") }}{{ $albInd = "🟢" }}{{ else if or (eq $albCoder "🔴") (eq $albGraf "🔴") }}{{ $albInd = "🔴" }}{{ end }}
 
