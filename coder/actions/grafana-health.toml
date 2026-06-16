@@ -1,0 +1,49 @@
+# action
+
+name    = "grafana_health"
+timeout = "1m"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "grafana-health"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+url="$GRAFANA_URL/api/health"
+echo "==> grafana-health: $url"
+
+body=$(curl --silent --show-error --max-time 30 --retry 3 --retry-delay 5 "$url")
+
+database=$(echo "$body" | jq -r '.database // "unknown"')
+version=$(echo  "$body" | jq -r '.version  // "unknown"')
+
+if [ "$database" = "ok" ]; then
+  indicator="🟢"
+  rc=0
+else
+  indicator="🔴"
+  rc=1
+fi
+
+output=$(jq --null-input -c \
+  --arg indicator "$indicator" \
+  --arg url       "$url" \
+  --arg database  "$database" \
+  --arg version   "$version" \
+  '{indicator: $indicator, url: $url, database: $database, version: $version}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+
+exit $rc
+'''
+
+[steps.env_vars]
+GRAFANA_URL = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana"

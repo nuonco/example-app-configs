@@ -1,0 +1,66 @@
+# action
+
+name    = "prom_targets"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "prom-targets"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "==> prom-targets: querying Prometheus /api/v1/targets in $OBS_NAMESPACE"
+
+pod=$(kubectl get pods -n "$OBS_NAMESPACE" \
+  -l app.kubernetes.io/name=prometheus,app.kubernetes.io/component=server \
+  -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$pod" ]; then
+  echo "no Prometheus server pod found in $OBS_NAMESPACE" >&2
+  exit 1
+fi
+
+# The prometheus-server image is distroless busybox; wget is available.
+body=$(kubectl exec -n "$OBS_NAMESPACE" "$pod" -c prometheus-server -- \
+  wget -qO- 'http://localhost:9090/api/v1/targets?state=active')
+
+down=$(echo "$body" | jq -c '
+  [.data.activeTargets[]
+   | select(.health != "up")
+   | {job: .labels.job, instance: .labels.instance, health: .health, lastError: .lastError}]
+')
+down_count=$(echo "$down" | jq 'length')
+total=$(echo "$body" | jq '.data.activeTargets | length')
+up=$(( total - down_count ))
+
+if [ "$down_count" = "0" ]; then
+  indicator="🟢"
+  rc=0
+else
+  indicator="🔴"
+  rc=1
+fi
+
+output=$(jq --null-input -c \
+  --arg indicator "$indicator" \
+  --arg pod "$pod" \
+  --argjson total "$total" \
+  --argjson up "$up" \
+  --argjson down "$down" \
+  '{indicator: $indicator, pod: $pod, total: $total, up: $up, down: $down}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+
+exit $rc
+'''
+
+[steps.env_vars]
+OBS_NAMESPACE = "coder-observability"

@@ -1,0 +1,37 @@
+name        = "full-healthcheck"
+description = "End-to-end healthcheck across Kubernetes, Coder, RDS, ALB, Grafana, and Prometheus."
+readme      = "./runbooks/full-healthcheck.md"
+
+[labels]
+team = "platform"
+kind = "healthcheck"
+
+[[steps]]
+name        = "k8s-status"
+type        = "action"
+action_name = "k8s_status"
+
+[[steps]]
+name        = "coder-health"
+type        = "action"
+action_name = "coder_health"
+
+[[steps]]
+name        = "db-ping"
+type        = "action"
+action_name = "db_ping"
+
+[[steps]]
+name        = "alb-status"
+type        = "action"
+action_name = "alb_healthcheck"
+
+[[steps]]
+name        = "grafana-health"
+type        = "action"
+action_name = "grafana_health"
+
+[[steps]]
+name        = "prom-targets"
+type        = "action"
+action_name = "prom_targets"

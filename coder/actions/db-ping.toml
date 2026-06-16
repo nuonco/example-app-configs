@@ -1,0 +1,65 @@
+# action
+
+name    = "db_ping"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "db-ping"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "==> db-ping: SELECT 1 via $DB_SECRET_NAME in $CODER_NAMESPACE"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' | base64 -d)
+if [ -z "$url" ]; then
+  echo "secret $CODER_NAMESPACE/$DB_SECRET_NAME has empty .data.url" >&2
+  exit 1
+fi
+
+pod="db-ping-$(date +%s)-$$"
+
+start=$(date +%s)
+result=$(kubectl run "$pod" \
+  --namespace "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine \
+  --command -- psql "$url" -tAc 'SELECT 1;' 2>&1 || true)
+end=$(date +%s)
+
+got=$(printf '%s\n' "$result" | grep -E '^1$' | head -1 || true)
+elapsed_s=$(( end - start ))
+
+if [ "$got" = "1" ]; then
+  indicator="🟢"
+  rc=0
+else
+  indicator="🔴"
+  rc=1
+fi
+
+output=$(jq --null-input -c \
+  --arg indicator "$indicator" \
+  --arg secret    "$DB_SECRET_NAME" \
+  --arg namespace "$CODER_NAMESPACE" \
+  --argjson elapsed_s "$elapsed_s" \
+  --arg raw "$result" \
+  '{indicator: $indicator, namespace: $namespace, secret: $secret, elapsed_s: $elapsed_s, raw: $raw}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+
+exit $rc
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"

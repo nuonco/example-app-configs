@@ -1,0 +1,74 @@
+# action
+
+name    = "coder_users_templates"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-users-templates"
+inline_contents = '''
+#!/usr/bin/env bash
+set -o pipefail
+set -u
+
+echo "==> coder-users-templates: user counts + template list with workspace counts"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$url" ]; then
+  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  exit 1
+fi
+
+read -r -d '' SQL <<'EOF' || true
+SELECT json_build_object(
+  'users', (SELECT json_build_object(
+    'total',      COUNT(*),
+    'active',     COUNT(*) FILTER (WHERE status = 'active'),
+    'dormant',    COUNT(*) FILTER (WHERE status = 'dormant'),
+    'suspended',  COUNT(*) FILTER (WHERE status = 'suspended'),
+    'active_24h', COUNT(*) FILTER (WHERE last_seen_at > NOW() - INTERVAL '24 hours')
+  ) FROM users WHERE deleted = false),
+  'templates', COALESCE((SELECT json_agg(row_to_json(t)) FROM (
+    SELECT
+      t.name,
+      t.display_name,
+      COALESCE(t.deprecated, '') AS deprecated,
+      (SELECT COUNT(*) FROM workspaces w WHERE w.template_id = t.id AND w.deleted = false) AS workspace_count
+    FROM templates t
+    WHERE t.deleted = false
+    ORDER BY workspace_count DESC, t.name
+  ) t), '[]'::json)
+);
+EOF
+
+pod="psql-ut-$(date +%s)-$$"
+raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine --command -- \
+  psql "$url" -tAc "$SQL" 2>&1 || true)
+
+data=$(printf '%s\n' "$raw" | grep -E '^\{' | head -1 || true)
+[ -z "$data" ] && data='{"users":{},"templates":[]}'
+
+user_total=$(echo "$data" | jq '.users.total // 0')
+tpl_count=$(echo "$data" | jq '.templates | length')
+
+# Indicator: green if at least one user and at least one template exist.
+if [ "$user_total" != "0" ] && [ "$tpl_count" != "0" ]; then ind="🟢"; else ind="🟡"; fi
+
+output=$(jq --null-input -c \
+  --arg ind "$ind" \
+  --argjson data "$data" \
+  '{indicator: $ind, users: $data.users, templates: $data.templates}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"
