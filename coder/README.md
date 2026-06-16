@@ -107,7 +107,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Infra health</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <a href="./{{ .nuon.install.id }}/runbooks/{{ .nuon.runbooks.healthcheck_infra.id }}/readme" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">healthcheck_infra</code></a>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_infra</code>
   {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
