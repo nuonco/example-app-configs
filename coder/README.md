@@ -5,56 +5,66 @@
 {{ $grafana := default dict (index (default dict .nuon.actions.workflows) "grafana_health") }}
 {{ $prom    := default dict (index (default dict .nuon.actions.workflows) "prom_targets") }}
 
-{{ $k8sInd   := dig "outputs" "indicator" "" $k8s }}
-{{ $coderInd := dig "outputs" "indicator" "" $coder }}
-{{ $dbInd    := dig "outputs" "indicator" "" $db }}
-{{ $grafInd  := dig "outputs" "indicator" "" $grafana }}
-{{ $promInd  := dig "outputs" "indicator" "" $prom }}
-{{ $albCoder := dig "outputs" "coder" "indicator" "" $alb }}
-{{ $albGraf  := dig "outputs" "grafana" "indicator" "" $alb }}
+{{ $k8sOut     := default dict (dig "outputs" dict $k8s) }}
+{{ $coderOut   := default dict (dig "outputs" dict $coder) }}
+{{ $dbOut      := default dict (dig "outputs" dict $db) }}
+{{ $albOut     := default dict (dig "outputs" dict $alb) }}
+{{ $grafanaOut := default dict (dig "outputs" dict $grafana) }}
+{{ $promOut    := default dict (dig "outputs" dict $prom) }}
+
+{{ $k8sInd   := dig "indicator" "" $k8sOut }}
+{{ $coderInd := dig "indicator" "" $coderOut }}
+{{ $dbInd    := dig "indicator" "" $dbOut }}
+{{ $grafInd  := dig "indicator" "" $grafanaOut }}
+{{ $promInd  := dig "indicator" "" $promOut }}
+
+{{ $albCoderMap := default dict (dig "coder" dict $albOut) }}
+{{ $albGrafMap  := default dict (dig "grafana" dict $albOut) }}
+{{ $albCoder    := dig "indicator" "" $albCoderMap }}
+{{ $albGraf     := dig "indicator" "" $albGrafMap }}
 
 {{ $hcAllGreen := and (eq $k8sInd "🟢") (eq $coderInd "🟢") (eq $dbInd "🟢") (eq $albCoder "🟢") (eq $albGraf "🟢") (eq $grafInd "🟢") (eq $promInd "🟢") }}
 {{ $hcAnyRed   := or  (eq $k8sInd "🔴") (eq $coderInd "🔴") (eq $dbInd "🔴") (eq $albCoder "🔴") (eq $albGraf "🔴") (eq $grafInd "🔴") (eq $promInd "🔴") }}
 
 {{ $prov   := default dict (index (default dict .nuon.actions.workflows) "coder_provisioners") }}
-{{ $provOut    := dig "outputs" dict $prov }}
+{{ $provOut    := default dict (dig "outputs" dict $prov) }}
 {{ $provReady  := and (dig "populated" false $prov) (eq (dig "status" "" $prov) "finished") }}
 
 {{ $ws     := default dict (index (default dict .nuon.actions.workflows) "coder_workspaces") }}
-{{ $wsOut      := dig "outputs" dict $ws }}
+{{ $wsOut      := default dict (dig "outputs" dict $ws) }}
 {{ $wsReady    := and (dig "populated" false $ws) (eq (dig "status" "" $ws) "finished") }}
 
 {{ $ut     := default dict (index (default dict .nuon.actions.workflows) "coder_users_templates") }}
-{{ $utOut      := dig "outputs" dict $ut }}
+{{ $utOut      := default dict (dig "outputs" dict $ut) }}
 {{ $utReady    := and (dig "populated" false $ut) (eq (dig "status" "" $ut) "finished") }}
 
 {{ $bj     := default dict (index (default dict .nuon.actions.workflows) "coder_builds_jobs") }}
-{{ $bjOut      := dig "outputs" dict $bj }}
+{{ $bjOut      := default dict (dig "outputs" dict $bj) }}
 {{ $bjReady    := and (dig "populated" false $bj) (eq (dig "status" "" $bj) "finished") }}
 
 {{ $dh    := default dict (index (default dict .nuon.actions.workflows) "coder_deployment_health") }}
-{{ $dhOut    := dig "outputs" dict $dh }}
-{{ $dhSub    := dig "subsystems" dict $dhOut }}
+{{ $dhOut    := default dict (dig "outputs" dict $dh) }}
+{{ $dhSub    := default dict (dig "subsystems" dict $dhOut) }}
 {{ $dhReady  := and (dig "populated" false $dh) (eq (dig "status" "" $dh) "finished") }}
 
 {{ $ag    := default dict (index (default dict .nuon.actions.workflows) "coder_agents_health") }}
-{{ $agOut    := dig "outputs" dict $ag }}
+{{ $agOut    := default dict (dig "outputs" dict $ag) }}
 {{ $agReady  := and (dig "populated" false $ag) (eq (dig "status" "" $ag) "finished") }}
 {{ $agCount  := dig "count" 0 $agOut }}
 
 {{ $tf    := default dict (index (default dict .nuon.actions.workflows) "coder_template_freshness") }}
-{{ $tfOut    := dig "outputs" dict $tf }}
+{{ $tfOut    := default dict (dig "outputs" dict $tf) }}
 {{ $tfReady  := and (dig "populated" false $tf) (eq (dig "status" "" $tf) "finished") }}
 {{ $tfCount  := dig "count" 0 $tfOut }}
 
-{{ $promUpdated := dig "outputs" "updated_at" "" $prom }}
-{{ $dhUpdated   := dig "outputs" "updated_at" "" $dh }}
-{{ $wsUpdated   := dig "outputs" "updated_at" "" $ws }}
-{{ $utUpdated   := dig "outputs" "updated_at" "" $ut }}
-{{ $bjUpdated   := dig "outputs" "updated_at" "" $bj }}
-{{ $provUpdated := dig "outputs" "updated_at" "" $prov }}
-{{ $tfUpdated   := dig "outputs" "updated_at" "" $tf }}
-{{ $agUpdated   := dig "outputs" "updated_at" "" $ag }}
+{{ $promUpdated := dig "updated_at" "" $promOut }}
+{{ $dhUpdated   := dig "updated_at" "" $dhOut }}
+{{ $wsUpdated   := dig "updated_at" "" $wsOut }}
+{{ $utUpdated   := dig "updated_at" "" $utOut }}
+{{ $bjUpdated   := dig "updated_at" "" $bjOut }}
+{{ $provUpdated := dig "updated_at" "" $provOut }}
+{{ $tfUpdated   := dig "updated_at" "" $tfOut }}
+{{ $agUpdated   := dig "updated_at" "" $agOut }}
 
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
   <video autoplay loop muted playsinline width="480" height="270">
@@ -108,20 +118,21 @@ Coder's cloud development environment platform — for developers and agents. Th
 </nuon-group>
 
 <table>
-  <thead><tr><th>Subsystem</th><th>Status</th></tr></thead>
+  <thead><tr><th>Subsystem</th><th>Status</th><th>Action</th></tr></thead>
   <tbody>
-    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>Database</td><td>{{ if eq $dbInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $dbInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.k8s_status.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a></td></tr>
+    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a></td></tr>
+    <tr><td>Database</td><td>{{ if eq $dbInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $dbInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.db_ping.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">db_ping</code></a></td></tr>
+    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.alb_healthcheck.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
+    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.alb_healthcheck.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
+    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.grafana_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a></td></tr>
+    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.prom_targets.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a></td></tr>
   </tbody>
 </table>
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder control plane health</p>
+  <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_deployment_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -159,6 +170,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
+  <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_workspaces.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code></a>
   {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -201,6 +213,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
+  <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -225,6 +238,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
+  <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -252,6 +266,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
+  <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_builds_jobs.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code></a>
   {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -296,6 +311,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
+  <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_provisioners.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code></a>
   {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
