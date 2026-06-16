@@ -1,6 +1,6 @@
-name        = "full-healthcheck"
+name        = "healthcheck_infra"
 description = "End-to-end healthcheck across Kubernetes, Coder, RDS, ALB, Grafana, and Prometheus."
-readme      = "./runbooks/full-healthcheck.md"
+readme      = "./runbooks/healthcheck_infra.md"
 
 [labels]
 team = "platform"

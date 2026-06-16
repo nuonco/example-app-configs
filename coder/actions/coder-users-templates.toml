@@ -1,15 +1,15 @@
 # action
 
 name    = "coder_users_templates"
-timeout = "2m"
+timeout = "5m"
 enable_kube_config = true
-
-[[triggers]]
-type = "manual"
 
 [[triggers]]
 type          = "cron"
 cron_schedule = "0,30 * * * *"
+
+[[triggers]]
+type = "manual"
 
 [[steps]]
 name = "coder-users-templates"
