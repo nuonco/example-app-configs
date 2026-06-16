@@ -1,0 +1,102 @@
+# action
+
+name    = "coder_workspaces"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-workspaces"
+inline_contents = '''
+#!/usr/bin/env bash
+set -o pipefail
+set -u
+
+echo "==> coder-workspaces: workspaces grouped by latest-build status"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$url" ]; then
+  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  exit 1
+fi
+
+read -r -d '' SQL <<'EOF' || true
+WITH latest AS (
+  SELECT DISTINCT ON (workspace_id)
+    workspace_id,
+    transition,
+    job_id,
+    created_at
+  FROM workspace_builds
+  ORDER BY workspace_id, build_number DESC
+),
+joined AS (
+  SELECT
+    w.id,
+    w.name,
+    w.deleted,
+    w.last_used_at,
+    l.transition,
+    pj.job_status,
+    pj.completed_at,
+    pj.canceled_at,
+    pj.error,
+    CASE
+      WHEN w.deleted THEN 'deleted'
+      WHEN l.transition = 'delete' THEN 'deleted'
+      WHEN pj.error IS NOT NULL OR pj.canceled_at IS NOT NULL THEN 'failed'
+      WHEN l.transition = 'stop'  AND pj.completed_at IS NOT NULL THEN 'stopped'
+      WHEN l.transition = 'start' AND pj.completed_at IS NOT NULL THEN 'running'
+      WHEN pj.completed_at IS NULL THEN 'pending'
+      ELSE 'unknown'
+    END AS status
+  FROM workspaces w
+  LEFT JOIN latest l         ON l.workspace_id = w.id
+  LEFT JOIN provisioner_jobs pj ON pj.id = l.job_id
+)
+SELECT json_build_object(
+  'counts',  COALESCE((SELECT json_object_agg(status, c) FROM (SELECT status, COUNT(*) AS c FROM joined GROUP BY status) s), '{}'::json),
+  'recent', COALESCE((SELECT json_agg(row_to_json(r)) FROM (
+              SELECT name, status, last_used_at::text AS last_used_at
+              FROM joined
+              WHERE status != 'deleted'
+              ORDER BY last_used_at DESC NULLS LAST
+              LIMIT 10
+            ) r), '[]'::json)
+);
+EOF
+
+pod="psql-ws-$(date +%s)-$$"
+raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine --command -- \
+  psql "$url" -tAc "$SQL" 2>&1 || true)
+
+data=$(printf '%s\n' "$raw" | grep -E '^\{' | head -1 || true)
+[ -z "$data" ] && data='{"counts":{},"recent":[]}'
+
+failed=$(echo "$data" | jq '.counts.failed // 0')
+total=$(echo "$data" | jq '[.counts | to_entries[] | select(.key != "deleted") | .value] | add // 0')
+
+if [ "$failed" != "0" ]; then ind="🔴"
+elif [ "$total" = "0" ]; then ind="🟢"
+else ind="🟢"
+fi
+
+output=$(jq --null-input -c \
+  --arg ind "$ind" \
+  --argjson data "$data" \
+  --argjson total "$total" \
+  --argjson failed "$failed" \
+  '{indicator: $ind, total_active: $total, failed: $failed, counts: $data.counts, recent: $data.recent}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"

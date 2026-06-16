@@ -1,0 +1,42 @@
+name        = "refresh_coder_data"
+description = "Refreshes the Coder data tables on the install README — deployment health, agents, template freshness, provisioners, workspaces, users, templates, builds, job queue — by querying the Coder database and public API directly."
+readme      = "./runbooks/refresh_coder_data.md"
+
+[labels]
+team = "platform"
+kind = "refresh"
+
+[[steps]]
+name        = "coder-deployment-health"
+type        = "action"
+action_name = "coder_deployment_health"
+
+[[steps]]
+name        = "coder-agents-health"
+type        = "action"
+action_name = "coder_agents_health"
+
+[[steps]]
+name        = "coder-template-freshness"
+type        = "action"
+action_name = "coder_template_freshness"
+
+[[steps]]
+name        = "coder-provisioners"
+type        = "action"
+action_name = "coder_provisioners"
+
+[[steps]]
+name        = "coder-workspaces"
+type        = "action"
+action_name = "coder_workspaces"
+
+[[steps]]
+name        = "coder-users-templates"
+type        = "action"
+action_name = "coder_users_templates"
+
+[[steps]]
+name        = "coder-builds-jobs"
+type        = "action"
+action_name = "coder_builds_jobs"

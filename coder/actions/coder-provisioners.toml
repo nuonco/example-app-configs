@@ -1,0 +1,72 @@
+# action
+
+name    = "coder_provisioners"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-provisioners"
+inline_contents = '''
+#!/usr/bin/env bash
+set -o pipefail
+set -u
+
+echo "==> coder-provisioners: SELECT from provisioner_daemons via $DB_SECRET_NAME"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$url" ]; then
+  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  exit 1
+fi
+
+read -r -d '' SQL <<'EOF' || true
+-- Filter out terminated/stale provisioners. Coder's heartbeat is ~60s; any
+-- daemon not seen in the last 5 minutes is from a previous pod replica that
+-- was rolled. Keeps the table to currently-active replicas only.
+SELECT COALESCE(json_agg(row_to_json(t)), '[]'::json) FROM (
+  SELECT
+    name,
+    last_seen_at::text AS last_seen_at,
+    EXTRACT(EPOCH FROM (NOW() - last_seen_at))::int AS age_sec,
+    version
+  FROM provisioner_daemons
+  WHERE last_seen_at > NOW() - INTERVAL '5 minutes'
+  ORDER BY last_seen_at DESC NULLS LAST
+) t;
+EOF
+
+pod="psql-prov-$(date +%s)-$$"
+raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine --command -- \
+  psql "$url" -tAc "$SQL" 2>&1 || true)
+
+data=$(printf '%s\n' "$raw" | grep -E '^\[' | head -1 || true)
+[ -z "$data" ] && data="[]"
+
+total=$(echo "$data" | jq 'length' 2>/dev/null || echo 0)
+healthy=$(echo "$data" | jq '[.[] | select(.age_sec != null and .age_sec < 60)] | length' 2>/dev/null || echo 0)
+
+if [ "$total" = "0" ]; then ind="🔴"
+elif [ "$healthy" = "0" ]; then ind="🔴"
+else ind="🟢"
+fi
+
+output=$(jq --null-input -c \
+  --arg ind "$ind" \
+  --argjson data "$data" \
+  --argjson total "$total" \
+  --argjson healthy "$healthy" \
+  '{indicator: $ind, total: $total, healthy: $healthy, daemons: $data}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"

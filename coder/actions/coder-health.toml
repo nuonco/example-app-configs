@@ -1,0 +1,59 @@
+# action
+
+name    = "coder_health"
+timeout = "1m"
+enable_kube_config = false
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-health"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+url="$CODER_URL/api/v2/buildinfo"
+echo "==> coder-health: $url"
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+
+http=$(curl --silent --show-error --max-time 30 --retry 3 --retry-delay 5 \
+  -o "$tmp" -w '%{http_code}' "$url")
+body=$(cat "$tmp")
+
+if [ "$http" != "200" ]; then
+  indicator="🔴"
+  rc=1
+  output=$(jq --null-input -c \
+    --arg indicator "$indicator" --arg url "$url" \
+    --arg http "$http" --arg body "$body" \
+    '{indicator: $indicator, url: $url, http_code: $http, body: $body}')
+else
+  version=$(echo    "$body" | jq -r '.version       // "unknown"')
+  deployment=$(echo "$body" | jq -r '.deployment_id // null')
+  dashboard=$(echo  "$body" | jq -r '.dashboard_url // null')
+  if [ "$version" = "unknown" ] || [ "$version" = "null" ]; then
+    indicator="🔴"; rc=1
+  else
+    indicator="🟢"; rc=0
+  fi
+  output=$(jq --null-input -c \
+    --arg indicator "$indicator" --arg url "$url" \
+    --arg version "$version" --arg deployment "$deployment" --arg dashboard "$dashboard" \
+    '{indicator: $indicator, url: $url,
+      version: $version, deployment_id: $deployment, dashboard_url: $dashboard}')
+fi
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+
+exit $rc
+'''
+
+[steps.env_vars]
+CODER_URL = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"

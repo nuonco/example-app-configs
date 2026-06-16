@@ -1,0 +1,101 @@
+# action
+
+name    = "coder_deployment_health"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-deployment-health"
+inline_contents = '''
+#!/usr/bin/env bash
+set -o pipefail
+set -u
+
+echo "==> coder-deployment-health: 6-subsystem health matrix"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$url" ]; then
+  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  exit 1
+fi
+
+access_http=$(curl --silent --max-time 15 -o /dev/null -w '%{http_code}' "$CODER_URL/api/v2/buildinfo" || echo 000)
+if [ "$access_http" = "200" ]; then access="🟢"; else access="🔴"; fi
+
+derp_http=$(curl --silent --max-time 10 -o /dev/null -w '%{http_code}' "$CODER_URL/derp/latency-check" || echo 000)
+case "$derp_http" in
+  200)    derp="🟢" ;;
+  000|5*) derp="🔴" ;;
+  *)      [ "$access" = "🟢" ] && derp="🟢" || derp="🔴" ;;
+esac
+
+ws_http=$(curl --silent --max-time 10 -o /dev/null -w '%{http_code}' \
+  -H "Connection: Upgrade" \
+  -H "Upgrade: websocket" \
+  -H "Sec-WebSocket-Version: 13" \
+  -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
+  "$CODER_URL/api/v2/workspaceagents/me/coordinate" || echo 000)
+case "$ws_http" in
+  101|401|426) websocket="🟢" ;;
+  000|5*)      websocket="🔴" ;;
+  *)           [ "$access" = "🟢" ] && websocket="🟢" || websocket="🔴" ;;
+esac
+
+if [ "$access" = "🟢" ]; then proxy="🟢"; else proxy="🔴"; fi
+
+pod="psql-dh-$(date +%s)-$$"
+raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine --command -- \
+  psql "$url" -tA --set=ON_ERROR_STOP=off \
+    -c "SELECT 'db_ok:1';" \
+    -c "SELECT 'prov_count:' || COUNT(*) FROM provisioner_daemons WHERE last_seen_at > NOW() - INTERVAL '60 seconds';" \
+  2>&1 || true)
+
+echo "--- psql raw output ---"
+echo "$raw"
+echo "--- end psql output ---"
+
+db_ok=$(echo "$raw"      | grep -E '^db_ok:'      | head -1 | cut -d: -f2)
+prov_count=$(echo "$raw" | grep -E '^prov_count:' | head -1 | cut -d: -f2)
+
+[ -z "$db_ok" ]      && db_ok=0
+[ -z "$prov_count" ] && prov_count=0
+
+if [ "$db_ok" = "1" ]; then database="🟢"; else database="🔴"; fi
+if [ "$prov_count" -gt 0 ] 2>/dev/null; then provisioner="🟢"; else provisioner="🔴"; fi
+
+reds=0
+for s in "$access" "$database" "$provisioner" "$derp" "$websocket" "$proxy"; do
+  [ "$s" = "🔴" ] && reds=$((reds+1))
+done
+if [ "$reds" -gt 0 ]; then overall="🔴"; else overall="🟢"; fi
+
+output=$(jq --null-input -c \
+  --arg ind "$overall" \
+  --arg access "$access" --arg database "$database" --arg provisioner "$provisioner" \
+  --arg derp "$derp" --arg websocket "$websocket" --arg proxy "$proxy" \
+  --arg access_http "$access_http" --arg derp_http "$derp_http" --arg ws_http "$ws_http" \
+  '{indicator: $ind,
+    subsystems: {
+      access_url: $access,
+      database: $database,
+      provisioner_daemons: $provisioner,
+      derp: $derp,
+      websocket: $websocket,
+      workspace_proxy: $proxy
+    },
+    probes: {access_http: $access_http, derp_http: $derp_http, ws_http: $ws_http}}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"
+CODER_URL       = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"

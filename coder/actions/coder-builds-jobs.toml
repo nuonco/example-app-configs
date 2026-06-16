@@ -1,0 +1,87 @@
+# action
+
+name    = "coder_builds_jobs"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-builds-jobs"
+inline_contents = '''
+#!/usr/bin/env bash
+set -o pipefail
+set -u
+
+echo "==> coder-builds-jobs: last 10 builds + provisioner_jobs queue (last hour)"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$url" ]; then
+  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  exit 1
+fi
+
+read -r -d '' SQL <<'EOF' || true
+SELECT json_build_object(
+  'recent_builds', COALESCE((SELECT json_agg(row_to_json(b)) FROM (
+    SELECT
+      w.name AS workspace_name,
+      wb.transition,
+      wb.created_at::text AS created_at,
+      pj.job_status,
+      COALESCE(pj.completed_at::text, '') AS completed_at,
+      COALESCE(pj.error, '')             AS error
+    FROM workspace_builds wb
+    JOIN workspaces w        ON w.id = wb.workspace_id
+    JOIN provisioner_jobs pj ON pj.id = wb.job_id
+    ORDER BY wb.created_at DESC
+    LIMIT 10
+  ) b), '[]'::json),
+  'queue', COALESCE((SELECT json_object_agg(status, c) FROM (
+    SELECT
+      CASE
+        WHEN started_at IS NULL                                THEN 'pending'
+        WHEN completed_at IS NULL                              THEN 'running'
+        WHEN canceled_at IS NOT NULL OR error IS NOT NULL      THEN 'failed'
+        ELSE 'completed'
+      END AS status,
+      COUNT(*) AS c
+    FROM provisioner_jobs
+    WHERE created_at > NOW() - INTERVAL '1 hour'
+    GROUP BY status
+  ) q), '{}'::json)
+);
+EOF
+
+pod="psql-bj-$(date +%s)-$$"
+raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine --command -- \
+  psql "$url" -tAc "$SQL" 2>&1 || true)
+
+data=$(printf '%s\n' "$raw" | grep -E '^\{' | head -1 || true)
+[ -z "$data" ] && data='{"recent_builds":[],"queue":{}}'
+
+failed=$(echo "$data" | jq '.queue.failed // 0')
+pending=$(echo "$data" | jq '.queue.pending // 0')
+
+# Indicator: red if any failed jobs in last hour; yellow if >5 pending; else green.
+if [ "$failed" != "0" ]; then ind="🔴"
+elif [ "$pending" -gt 5 ] 2>/dev/null; then ind="🟡"
+else ind="🟢"
+fi
+
+output=$(jq --null-input -c \
+  --arg ind "$ind" \
+  --argjson data "$data" \
+  '{indicator: $ind, recent_builds: $data.recent_builds, queue: $data.queue}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"

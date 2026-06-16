@@ -1,0 +1,67 @@
+# action
+
+name    = "coder_template_freshness"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "coder-template-freshness"
+inline_contents = '''
+#!/usr/bin/env bash
+set -o pipefail
+set -u
+
+echo "==> coder-template-freshness: templates not updated in 90+ days"
+
+url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
+  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
+if [ -z "$url" ]; then
+  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  exit 1
+fi
+
+read -r -d '' SQL <<'EOF' || true
+SELECT COALESCE(json_agg(row_to_json(t)), '[]'::json) FROM (
+  SELECT
+    t.name,
+    t.display_name,
+    t.updated_at::text                                                  AS updated_at,
+    (EXTRACT(EPOCH FROM (NOW() - t.updated_at)) / 86400)::int           AS stale_days,
+    (SELECT COUNT(*) FROM workspaces w
+      WHERE w.template_id = t.id AND w.deleted = false)                  AS workspace_count
+  FROM templates t
+  WHERE t.deleted = false
+    AND t.updated_at < NOW() - INTERVAL '90 days'
+  ORDER BY t.updated_at ASC
+) t;
+EOF
+
+pod="psql-tf-$(date +%s)-$$"
+raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
+  --rm -i --restart=Never --quiet \
+  --image=postgres:16-alpine --command -- \
+  psql "$url" -tAc "$SQL" 2>&1 || true)
+
+data=$(printf '%s\n' "$raw" | grep -E '^\[' | head -1 || true)
+[ -z "$data" ] && data="[]"
+
+count=$(echo "$data" | jq 'length')
+
+if [ "$count" = "0" ]; then ind="🟢"; else ind="🟡"; fi
+
+output=$(jq --null-input -c \
+  --arg ind "$ind" \
+  --argjson count "$count" \
+  --argjson stale "$data" \
+  '{indicator: $ind, count: $count, stale: $stale}')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+DB_SECRET_NAME  = "coder-db-url"

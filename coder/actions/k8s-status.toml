@@ -1,0 +1,105 @@
+# action
+
+name    = "k8s_status"
+timeout = "2m"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "k8s-status"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "==> k8s-status: $CODER_NAMESPACE, $OBS_NAMESPACE"
+
+nodes_json=$(kubectl get nodes -o json)
+nodes_total=$(echo "$nodes_json" | jq '.items | length')
+nodes_ready=$(echo "$nodes_json" | jq '[.items[] | select(.status.conditions[]? | select(.type=="Ready" and .status=="True"))] | length')
+
+pod_stats() {
+  ns=$1
+  kubectl get pods -n "$ns" -o json | jq -c --arg ns "$ns" '{
+    namespace: $ns,
+    total: (.items | length),
+    ready: ([.items[]
+      | select(((.status.containerStatuses // []) | length) > 0
+              and ((.status.containerStatuses // []) | all(.ready)))] | length),
+    not_ready: [.items[]
+      | select(((.status.containerStatuses // []) | any(.ready | not))
+              or (.status.phase != "Running" and .status.phase != "Succeeded"))
+      | {name: .metadata.name, phase: .status.phase,
+         reason: (.status.containerStatuses // [] | map(.state | keys[0]?) | join(","))}]
+  }'
+}
+
+deploy_stats() {
+  ns=$1
+  kubectl get deployments -n "$ns" -o json | jq -c --arg ns "$ns" '{
+    namespace: $ns,
+    total: (.items | length),
+    available: ([.items[]
+      | select((.status.availableReplicas // 0) == (.spec.replicas // 0))] | length),
+    under_replicated: [.items[]
+      | select((.status.availableReplicas // 0) != (.spec.replicas // 0))
+      | {name: .metadata.name,
+         want: (.spec.replicas // 0),
+         have: (.status.availableReplicas // 0)}]
+  }'
+}
+
+coder_pods=$(pod_stats "$CODER_NAMESPACE")
+obs_pods=$(pod_stats "$OBS_NAMESPACE")
+coder_deploys=$(deploy_stats "$CODER_NAMESPACE")
+obs_deploys=$(deploy_stats "$OBS_NAMESPACE")
+
+fail=0
+for stats in "$coder_pods" "$obs_pods"; do
+  if [ "$(echo "$stats" | jq '.not_ready | length')" != "0" ]; then
+    fail=1
+  fi
+done
+for stats in "$coder_deploys" "$obs_deploys"; do
+  if [ "$(echo "$stats" | jq '.under_replicated | length')" != "0" ]; then
+    fail=1
+  fi
+done
+if [ "$nodes_ready" -lt "$nodes_total" ]; then
+  fail=1
+fi
+
+if [ "$fail" = "0" ]; then
+  indicator="🟢"
+else
+  indicator="🔴"
+fi
+
+output=$(jq --null-input -c \
+  --arg indicator "$indicator" \
+  --argjson nodes_total "$nodes_total" \
+  --argjson nodes_ready "$nodes_ready" \
+  --argjson coder_pods "$coder_pods" \
+  --argjson obs_pods "$obs_pods" \
+  --argjson coder_deploys "$coder_deploys" \
+  --argjson obs_deploys "$obs_deploys" \
+  '{
+    indicator: $indicator,
+    nodes: {total: $nodes_total, ready: $nodes_ready},
+    pods: [$coder_pods, $obs_pods],
+    deployments: [$coder_deploys, $obs_deploys]
+  }')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+
+[ "$fail" = "0" ] || exit 1
+'''
+
+[steps.env_vars]
+CODER_NAMESPACE = "coder"
+OBS_NAMESPACE   = "coder-observability"
