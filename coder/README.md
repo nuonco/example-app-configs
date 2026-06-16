@@ -107,6 +107,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Platform health</p>
+  <code style="font-size:0.85em; color:#6b7280;">full-healthcheck</code>
   {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -132,7 +133,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder control plane health</p>
-  <code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>
+  <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -170,7 +171,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
-  <code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code>
   {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -213,7 +213,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
-  <code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -238,7 +237,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
-  <code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -266,7 +264,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
-  <code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code>
   {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -311,7 +308,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
-  <code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code>
   {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
