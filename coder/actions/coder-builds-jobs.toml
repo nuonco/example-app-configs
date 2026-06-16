@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "coder-builds-jobs"
 inline_contents = '''
@@ -31,7 +35,7 @@ SELECT json_build_object(
     SELECT
       w.name AS workspace_name,
       wb.transition,
-      wb.created_at::text AS created_at,
+      to_char(wb.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS created_at,
       pj.job_status,
       COALESCE(pj.completed_at::text, '') AS completed_at,
       COALESCE(pj.error, '')             AS error

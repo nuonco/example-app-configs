@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "coder-deployment-health"
 inline_contents = '''

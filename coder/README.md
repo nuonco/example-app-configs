@@ -96,7 +96,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <div style="display:flex; flex-direction:column;">
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Install healthcheck</p>
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Platform health</p>
   {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -104,11 +104,24 @@ Coder's cloud development environment platform — for developers and agents. Th
   {{ if $hcAllGreen }}<nuon-status status="active" variant="badge"></nuon-status>
   {{ else if $hcAnyRed }}<nuon-status status="error" variant="badge"></nuon-status>
   {{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}
-  <span>Rolled-up status from the six <strong>full-healthcheck</strong> steps.</span>
+  <span>Rolled-up status across cluster, RDS, ALB, Grafana, and Prometheus.</span>
 </nuon-group>
 
+<table>
+  <thead><tr><th>Subsystem</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>Database</td><td>{{ if eq $dbInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $dbInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
+  </tbody>
+</table>
+
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Deployment health</p>
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder control plane health</p>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -175,7 +188,7 @@ Coder's cloud development environment platform — for developers and agents. Th
     <tr>
       <td><code>{{ dig "name" "—" $w }}</code></td>
       <td><code>{{ dig "status" "—" $w }}</code></td>
-      <td>{{ with dig "last_used_at" "" $w }}<nuon-time time="{{ printf "%sZ" (substr 0 19 .) }}" format="relative"></nuon-time>{{ else }}—{{ end }}</td>
+      <td>{{ with dig "last_used_at" "" $w }}<nuon-time time="{{ . }}" format="relative"></nuon-time>{{ else }}—{{ end }}</td>
     </tr>
 {{ end }}
   </tbody>
@@ -187,7 +200,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 {{ end }}
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Users & templates</p>
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -206,14 +219,20 @@ Coder's cloud development environment platform — for developers and agents. Th
     </tr>
   </tbody>
 </table>
+{{ else }}
+<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code> action. Run it from the Operations tab to populate.</nuon-banner>
+{{ end }}
 
+<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
+  {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+</div>
+
+{{ if $utReady }}
 {{ $templates := dig "templates" (list) $utOut }}
 {{ if eq (len $templates) 0 }}
 <nuon-banner theme="info">No templates configured yet.</nuon-banner>
 {{ else }}
-
-<p style="font-weight:600; margin-top:0.75rem; margin-bottom:0.5rem;">Templates</p>
-
 <table>
   <thead><tr><th>Template</th><th>Display name</th><th>Workspaces</th></tr></thead>
   <tbody>
@@ -265,7 +284,7 @@ Coder's cloud development environment platform — for developers and agents. Th
       <td><code>{{ dig "workspace_name" "—" $b }}</code></td>
       <td><code>{{ dig "transition" "—" $b }}</code></td>
       <td><code>{{ dig "job_status" "—" $b }}</code></td>
-      <td>{{ with dig "created_at" "" $b }}<nuon-time time="{{ printf "%sZ" (substr 0 19 .) }}" format="relative"></nuon-time>{{ else }}—{{ end }}</td>
+      <td>{{ with dig "created_at" "" $b }}<nuon-time time="{{ . }}" format="relative"></nuon-time>{{ else }}—{{ end }}</td>
     </tr>
 {{ end }}
   </tbody>
@@ -308,12 +327,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 </div>
 
-### About this install
-
-Coder is a Cloud Development Environment (CDE) platform that lets your team create and manage cloud-hosted development environments from a central dashboard.
-
-This install is fully provisioned in your AWS account — EKS, RDS Postgres, ALB, ACM, DNS, and observability are all running in your VPC. Navigate to the Coder URL above and sign in with the admin credentials provided during setup.
-
 ### What's deployed
 
 <nuon-group gap="8">
@@ -326,7 +339,9 @@ This install is fully provisioned in your AWS account — EKS, RDS Postgres, ALB
   <nuon-component-card name="observability"></nuon-component-card>
 </nuon-group>
 
-[Coder documentation](https://coder.com/docs) · [Workspace templates](https://coder.com/docs/templates) · [User management](https://coder.com/docs/admin/users)
+- [Coder documentation](https://coder.com/docs)
+- [Workspace templates](https://coder.com/docs/templates)
+- [User management](https://coder.com/docs/admin/users)
 
 </nuon-tab>
 
@@ -398,10 +413,6 @@ This install is fully provisioned in your AWS account — EKS, RDS Postgres, ALB
 
 </nuon-panel>
 
-### Where it runs
-
-Coder runs entirely inside your AWS VPC — both its control plane (the Coder server, web UI, and AI gateway) and its data plane (the developer workspaces themselves). Nuon's SaaS control plane only ever sees workflow state and component metadata — never your developers' code, secrets, or workspace contents.
-
 ### Components
 
 <nuon-group gap="8">
@@ -414,36 +425,40 @@ Coder runs entirely inside your AWS VPC — both its control plane (the Coder se
   <nuon-component-card name="observability"></nuon-component-card>
 </nuon-group>
 
+### Where it runs
+
+Coder runs entirely inside your AWS VPC — both its control plane (the Coder server, web UI, and AI gateway) and its data plane (the RDS database cluster and the developer workspaces themselves). Grafana is also deployed in the VPC. 
+
 </nuon-tab>
 
 <nuon-tab name="configuration">
 
 <br/>
 
-Inputs split into two groups by who owns the change. Customer-controlled inputs are exposed in **Manage → Edit Inputs** and safe to tune any time. Vendor-controlled inputs are managed by the vendor through app config updates and not visible to the install operator.
+Inputs split into two groups by who owns the change. Customer-controlled inputs are exposed in **Current Inputs** and safe to tune any time. Vendor-controlled inputs are managed by the vendor through app config updates and not visible to the install operator.
 
 ### Customer-controlled
 
-Tune these from **Manage → Edit Inputs**. Changes trigger a redeploy of affected components — the workflow shows a diff and pauses for approval before applying.
+Tune these from **Current Inputs → Edit Inputs**. Changes trigger a redeploy of affected components — the workflow shows a diff and pauses for approval before applying.
 
-| Input | Default | Description |
+| Input | Current value | Description |
 |---|---|---|
-| `telemetry` | `true` | Send usage telemetry to Coder |
-| `max_token_lifetime` | `8760h0m0s` | Maximum lifetime for CLI and API tokens |
-| `session_duration` | `168h0m0s` | Session duration before re-authentication is required |
-| `block_direct` | `false` | Force all workspace connections through the Coder relay (disables peer-to-peer) |
+| `telemetry` | `{{ .nuon.install.inputs.telemetry }}` | Send usage telemetry to Coder |
+| `max_token_lifetime` | `{{ .nuon.install.inputs.max_token_lifetime }}` | Maximum lifetime for CLI and API tokens |
+| `session_duration` | `{{ .nuon.install.inputs.session_duration }}` | Session duration before re-authentication is required |
+| `block_direct` | `{{ .nuon.install.inputs.block_direct }}` | Force all workspace connections through the Coder relay (disables peer-to-peer) |
 
 ### Vendor-controlled
 
 The vendor pins these in the app config and updates them via release. The big one is `release` — the Coder version itself, which the vendor schedules into your install on their cadence.
 
-| Input | Default | Description |
+| Input | Current value | Description |
 |---|---|---|
-| `release` | `v2.31.1` | Coder release version — vendor schedules upgrades |
-| `replicas` | `1` | Coder control plane replica count |
-| `provisioners` | `3` | Terraform provisioners for workspace lifecycle |
-| `cluster_version` | `1.34` | EKS Kubernetes version |
-| `coder_db_instance_type` | `db.t4g.micro` | RDS instance type |
+| `release` | `{{ .nuon.install.inputs.release }}` | Coder release version — vendor schedules upgrades |
+| `replicas` | `{{ .nuon.install.inputs.replicas }}` | Coder control plane replica count |
+| `provisioners` | `{{ .nuon.install.inputs.provisioners }}` | Terraform provisioners for workspace lifecycle |
+| `cluster_version` | `{{ .nuon.install.inputs.cluster_version }}` | EKS Kubernetes version |
+| `coder_db_instance_type` | `{{ .nuon.install.inputs.coder_db_instance_type }}` | RDS instance type |
 
 > [!IMPORTANT]
 > Vendor-side changes to `cluster_version` or `coder_db_instance_type` trigger infrastructure changes that can take 15+ minutes to apply. The vendor stages these during an agreed maintenance window.
@@ -482,7 +497,7 @@ Update the parameter in the install stack and re-run the secret sync from the **
 
 </nuon-tab>
 
-<nuon-tab name="observability">
+<nuon-tab name="grafana">
 
 <br/>
 
@@ -508,95 +523,20 @@ The output shows the URL, username (`admin`), and the generated password.
 
 </nuon-tab>
 
-<nuon-tab name="operations">
+<nuon-tab name="upgrade">
 
 <br/>
 
-Day-2 actions you can run from here. Each one executes inside your install with the credentials Nuon already has.
+The Coder version is pinned by the `release` input on this install. Bumping it triggers a helm upgrade — you review the diff, then approve.
 
-<nuon-group gap="8">
-  <nuon-action-card name="grafana_password"></nuon-action-card>
-  <nuon-action-card name="troubleshoot"></nuon-action-card>
-  <nuon-action-card name="alb_healthcheck"></nuon-action-card>
-  <nuon-action-card name="grafana_setup"></nuon-action-card>
-  <nuon-action-card name="coder_rds_creds"></nuon-action-card>
-  <nuon-action-card name="coder_deployment_health"></nuon-action-card>
-  <nuon-action-card name="coder_agents_health"></nuon-action-card>
-  <nuon-action-card name="coder_template_freshness"></nuon-action-card>
-</nuon-group>
+### Steps
 
-{{ if and $tfReady (gt $tfCount 0.0) }}
-<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Stale templates (90+ days)</p>
-  {{ with $tfUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-</div>
-
-<table>
-  <thead><tr><th>Template</th><th>Display name</th><th>Stale</th><th>Workspaces</th></tr></thead>
-  <tbody>
-{{ range $t := dig "stale" (list) $tfOut }}
-    <tr>
-      <td><code>{{ dig "name" "—" $t }}</code></td>
-      <td>{{ dig "display_name" "—" $t }}</td>
-      <td>{{ dig "stale_days" 0 $t }}d</td>
-      <td>{{ dig "workspace_count" 0 $t }}</td>
-    </tr>
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-
-### Upgrading Coder
-
-Coder release version is vendor-managed (see the **Configuration** tab). The vendor publishes a new `release` value through an app config update; your install picks up the change on its next sync. You'll see a pending deploy in **Workflows** with a Helm diff — review and approve to apply.
+1. Click **Current Inputs → Edit Inputs**
+2. Set the new version. e.g., v2.34.2 Valid tags: [github.com/coder/coder/releases](https://github.com/coder/coder/releases).
+3. Save. A workflow appears in **Workflows** with a helm diff. Review and approve to apply.
 
 > [!WARNING]
-> Major Coder upgrades may include database migrations. Review the [Coder release notes](https://github.com/coder/coder/releases) before approving the workflow — migrations run as part of the helm upgrade and are not separately reversible.
-
-</nuon-tab>
-
-<nuon-tab name="troubleshooting">
-
-<br/>
-
-> [!TIP]
-> Most issues are visible from the component cards on the **Overview** tab. A red card → click in to see the failing workflow and logs.
-
-### ALB not provisioning
-
-Symptoms — the ALB component sits in `pending` or `error` for more than 10 minutes after deploy.
-
-<nuon-action-card name="alb_healthcheck"></nuon-action-card>
-
-If the healthcheck reports the ALB exists but targets are unhealthy, check that the Coder pods are running (`kubectl get pods -n coder` via the troubleshoot action below).
-
-### Grafana admin secret missing
-
-Symptoms — Grafana login rejects the password from `grafana_password`, or the action returns empty.
-
-<nuon-action-card name="grafana_setup"></nuon-action-card>
-
-Re-running `grafana_setup` creates (or refreshes) the admin secret. Then `grafana_password` will return it.
-
-### Helm release stuck in `pending-install`
-
-Symptoms — the `coder` component card shows the Helm release exists but Coder pods never come up.
-
-<nuon-action-card name="troubleshoot"></nuon-action-card>
-
-`troubleshoot` will gather pod, event, and helm history for diagnosis. The fix is typically to delete the stuck release and re-sync from the dashboard.
-
-### Database connectivity errors
-
-Symptoms — Coder logs show `dial tcp ...:5432` failures or migration errors on startup.
-
-<nuon-action-card name="coder_rds_creds"></nuon-action-card>
-
-Re-runs the secret copy from RDS into the Coder namespace. Then bounce the Coder deployment from the **Operations** tab.
-
-### When all else fails
-
-Use **Manage → Force Unlock** if a terraform workspace is stuck. The dashboard button uses session auth — CLI `terraform force-unlock` will not work against Nuon's backend.
+> Major Coder upgrades may include database migrations. Migrations run as part of the helm upgrade and are **not separately reversible**. Read the [release notes](https://github.com/coder/coder/releases) before approving.
 
 </nuon-tab>
 
