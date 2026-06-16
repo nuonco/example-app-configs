@@ -132,7 +132,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 </table>
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder control plane health</p>
+  <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder health</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
