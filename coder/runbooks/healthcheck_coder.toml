@@ -1,6 +1,6 @@
-name        = "refresh_coder_data"
+name        = "healthcheck_coder"
 description = "Refreshes the Coder data tables on the install README — deployment health, agents, template freshness, provisioners, workspaces, users, templates, builds, job queue — by querying the Coder database and public API directly."
-readme      = "./runbooks/refresh_coder_data.md"
+readme      = "./runbooks/healthcheck_coder.md"
 
 [labels]
 team = "platform"

@@ -75,11 +75,11 @@
     <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
     <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="full-healthcheck"></nuon-run-runbook>
+      <nuon-run-runbook name="healthcheck_platform"></nuon-run-runbook>
       {{ with $promUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="refresh_coder_data"></nuon-run-runbook>
+      <nuon-run-runbook name="healthcheck_coder"></nuon-run-runbook>
       {{ with $bjUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
   </div>
@@ -107,7 +107,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Platform health</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">full-healthcheck</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_platform</code>
   {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -133,7 +133,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder control plane health</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -172,7 +172,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code>
   {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -216,7 +216,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -242,7 +242,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -271,7 +271,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code>
   {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
@@ -317,7 +317,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
-  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">refresh_coder_data</code>
+  <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
   <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code>
   {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
