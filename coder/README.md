@@ -122,19 +122,19 @@ Coder's cloud development environment platform — for developers and agents. Th
   <thead><tr><th>Subsystem</th><th>Status</th><th>Action</th></tr></thead>
   <tbody>
     <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.k8s_status.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a></td></tr>
-    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><code style="font-size:0.85em; color:#6b7280;">coder_health</code></td></tr>
-    <tr><td>Database</td><td>{{ if eq $dbInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $dbInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><code style="font-size:0.85em; color:#6b7280;">db_ping</code></td></tr>
-    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></td></tr>
-    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></td></tr>
-    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></td></tr>
-    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></td></tr>
+    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a></td></tr>
+    <tr><td>Database</td><td>{{ if eq $dbInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $dbInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.db_ping.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">db_ping</code></a></td></tr>
+    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.alb_healthcheck.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
+    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.alb_healthcheck.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
+    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.grafana_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a></td></tr>
+    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.prom_targets.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a></td></tr>
   </tbody>
 </table>
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder health</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_deployment_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -173,7 +173,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_workspaces.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code></a>
   {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -217,7 +217,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -243,7 +243,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
   {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -272,7 +272,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_builds_jobs.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code></a>
   {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -318,7 +318,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
   <span style="font-size:0.85em; color:#6b7280;">runbook:</span> <code style="font-size:0.85em; color:#6b7280;">healthcheck_coder</code>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_provisioners.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code></a>
   {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
