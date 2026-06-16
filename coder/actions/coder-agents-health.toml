@@ -6,7 +6,7 @@ enable_kube_config = true
 
 [[triggers]]
 type          = "cron"
-cron_schedule = "0,15,30,45 * * * *"
+cron_schedule = "0,30 * * * *"
 
 [[triggers]]
 type = "manual"
