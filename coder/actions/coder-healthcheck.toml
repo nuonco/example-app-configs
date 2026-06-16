@@ -1,7 +1,7 @@
 # action
 
 name    = "alb_healthcheck"
-timeout = "30s"
+timeout = "5m"
 enable_kube_config = true
 
 [[triggers]]

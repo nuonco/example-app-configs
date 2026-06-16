@@ -1,7 +1,7 @@
 # action
 
 name    = "coder_builds_jobs"
-timeout = "2m"
+timeout = "5m"
 enable_kube_config = true
 
 [[triggers]]

@@ -1,7 +1,7 @@
 # action
 
 name    = "coder_template_freshness"
-timeout = "2m"
+timeout = "5m"
 enable_kube_config = true
 
 [[triggers]]

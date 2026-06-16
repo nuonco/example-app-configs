@@ -1,7 +1,7 @@
 # action
 
 name    = "k8s_status"
-timeout = "2m"
+timeout = "5m"
 enable_kube_config = true
 
 [[triggers]]
