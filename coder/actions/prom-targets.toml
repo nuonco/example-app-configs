@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "prom-targets"
 inline_contents = '''
@@ -50,11 +54,12 @@ fi
 
 output=$(jq --null-input -c \
   --arg indicator "$indicator" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
   --arg pod "$pod" \
   --argjson total "$total" \
   --argjson up "$up" \
   --argjson down "$down" \
-  '{indicator: $indicator, pod: $pod, total: $total, up: $up, down: $down}')
+  '{indicator: $indicator, updated_at: $updated_at, pod: $pod, total: $total, up: $up, down: $down}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"

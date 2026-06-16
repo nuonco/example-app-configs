@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "k8s-status"
 inline_contents = '''
@@ -81,6 +85,7 @@ fi
 
 output=$(jq --null-input -c \
   --arg indicator "$indicator" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
   --argjson nodes_total "$nodes_total" \
   --argjson nodes_ready "$nodes_ready" \
   --argjson coder_pods "$coder_pods" \
@@ -89,6 +94,7 @@ output=$(jq --null-input -c \
   --argjson obs_deploys "$obs_deploys" \
   '{
     indicator: $indicator,
+    updated_at: $updated_at,
     nodes: {total: $nodes_total, ready: $nodes_ready},
     pods: [$coder_pods, $obs_pods],
     deployments: [$coder_deploys, $obs_deploys]

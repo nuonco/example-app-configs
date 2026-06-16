@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "db-ping"
 inline_contents = '''
@@ -48,11 +52,12 @@ fi
 
 output=$(jq --null-input -c \
   --arg indicator "$indicator" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
   --arg secret    "$DB_SECRET_NAME" \
   --arg namespace "$CODER_NAMESPACE" \
   --argjson elapsed_s "$elapsed_s" \
   --arg raw "$result" \
-  '{indicator: $indicator, namespace: $namespace, secret: $secret, elapsed_s: $elapsed_s, raw: $raw}')
+  '{indicator: $indicator, updated_at: $updated_at, namespace: $namespace, secret: $secret, elapsed_s: $elapsed_s, raw: $raw}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"

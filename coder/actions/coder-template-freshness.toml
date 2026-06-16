@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "coder-template-freshness"
 inline_contents = '''
@@ -16,10 +20,12 @@ set -u
 
 echo "==> coder-template-freshness: templates not updated in 90+ days"
 
+updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
+
 url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
   -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
 if [ -z "$url" ]; then
-  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
   exit 1
 fi
 
@@ -54,9 +60,10 @@ if [ "$count" = "0" ]; then ind="🟢"; else ind="🟡"; fi
 
 output=$(jq --null-input -c \
   --arg ind "$ind" \
+  --arg updated_at "$updated_at" \
   --argjson count "$count" \
   --argjson stale "$data" \
-  '{indicator: $ind, count: $count, stale: $stale}')
+  '{indicator: $ind, updated_at: $updated_at, count: $count, stale: $stale}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"

@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "coder-provisioners"
 inline_contents = '''
@@ -16,10 +20,12 @@ set -u
 
 echo "==> coder-provisioners: SELECT from provisioner_daemons via $DB_SECRET_NAME"
 
+updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
+
 url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
   -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
 if [ -z "$url" ]; then
-  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
   exit 1
 fi
 
@@ -58,10 +64,11 @@ fi
 
 output=$(jq --null-input -c \
   --arg ind "$ind" \
+  --arg updated_at "$updated_at" \
   --argjson data "$data" \
   --argjson total "$total" \
   --argjson healthy "$healthy" \
-  '{indicator: $ind, total: $total, healthy: $healthy, daemons: $data}')
+  '{indicator: $ind, updated_at: $updated_at, total: $total, healthy: $healthy, daemons: $data}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"

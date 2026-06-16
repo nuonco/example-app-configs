@@ -7,6 +7,10 @@ enable_kube_config = true
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "0,30 * * * *"
+
 [[steps]]
 name = "coder-workspaces"
 inline_contents = '''
@@ -16,10 +20,12 @@ set -u
 
 echo "==> coder-workspaces: workspaces grouped by latest-build status"
 
+updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
+
 url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
   -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
 if [ -z "$url" ]; then
-  echo '{"indicator":"🔴","error":"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
   exit 1
 fi
 
@@ -60,7 +66,8 @@ joined AS (
 SELECT json_build_object(
   'counts',  COALESCE((SELECT json_object_agg(status, c) FROM (SELECT status, COUNT(*) AS c FROM joined GROUP BY status) s), '{}'::json),
   'recent', COALESCE((SELECT json_agg(row_to_json(r)) FROM (
-              SELECT name, status, last_used_at::text AS last_used_at
+              SELECT name, status,
+                     to_char(last_used_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS last_used_at
               FROM joined
               WHERE status != 'deleted'
               ORDER BY last_used_at DESC NULLS LAST
@@ -88,10 +95,11 @@ fi
 
 output=$(jq --null-input -c \
   --arg ind "$ind" \
+  --arg updated_at "$updated_at" \
   --argjson data "$data" \
   --argjson total "$total" \
   --argjson failed "$failed" \
-  '{indicator: $ind, total_active: $total, failed: $failed, counts: $data.counts, recent: $data.recent}')
+  '{indicator: $ind, updated_at: $updated_at, total_active: $total, failed: $failed, counts: $data.counts, recent: $data.recent}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
