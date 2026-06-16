@@ -149,7 +149,7 @@ Coder's cloud development environment platform — for developers and agents. Th
   </tbody>
 </table>
 {{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_deployment_health</code> action. Run it from the Operations tab to populate.</nuon-banner>
+<nuon-banner theme="warn">Waiting on <code>coder_deployment_health</code>.</nuon-banner>
 {{ end }}
 
 {{ if and $agReady (gt $agCount 0.0) }}
@@ -208,7 +208,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 {{ end }}
 {{ end }}
 {{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_workspaces</code> action. Run it from the Operations tab to populate.</nuon-banner>
+<nuon-banner theme="warn">Waiting on <code>coder_workspaces</code>.</nuon-banner>
 {{ end }}
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
@@ -233,7 +233,7 @@ Coder's cloud development environment platform — for developers and agents. Th
   </tbody>
 </table>
 {{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code> action. Run it from the Operations tab to populate.</nuon-banner>
+<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code>.</nuon-banner>
 {{ end }}
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
@@ -261,7 +261,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 </table>
 {{ end }}
 {{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code> action. Run it from the Operations tab to populate.</nuon-banner>
+<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code>.</nuon-banner>
 {{ end }}
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
@@ -306,7 +306,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 </table>
 {{ end }}
 {{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_builds_jobs</code> action. Run it from the Operations tab to populate.</nuon-banner>
+<nuon-banner theme="warn">Waiting on <code>coder_builds_jobs</code>.</nuon-banner>
 {{ end }}
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
@@ -338,7 +338,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 </table>
 {{ end }}
 {{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_provisioners</code> action. Run it from the Operations tab to populate.</nuon-banner>
+<nuon-banner theme="warn">Waiting on <code>coder_provisioners</code>.</nuon-banner>
 {{ end }}
 
 </div>
