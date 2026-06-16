@@ -5,11 +5,11 @@ timeout = "1m"
 enable_kube_config = false
 
 [[triggers]]
-type = "manual"
-
-[[triggers]]
 type          = "cron"
 cron_schedule = "0,30 * * * *"
+
+[[triggers]]
+type = "manual"
 
 [[steps]]
 name = "grafana-health"

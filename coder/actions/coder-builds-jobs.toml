@@ -5,11 +5,11 @@ timeout = "2m"
 enable_kube_config = true
 
 [[triggers]]
-type = "manual"
-
-[[triggers]]
 type          = "cron"
 cron_schedule = "0,30 * * * *"
+
+[[triggers]]
+type = "manual"
 
 [[steps]]
 name = "coder-builds-jobs"
