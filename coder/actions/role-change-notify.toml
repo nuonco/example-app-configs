@@ -1,0 +1,31 @@
+# action: notify on role enabled
+
+name    = "role_change_notify"
+timeout = "1m"
+enable_kube_config = false
+
+[[triggers]]
+type = "role-enabled"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "print-role-change"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+
+echo "========================================"
+echo "  Role Change Notification"
+echo "========================================"
+echo ""
+echo "  Change Type : ${CHANGE_TYPE}"
+echo "  Role Name   : ${ROLE_NAME}"
+echo "  Role Type   : ${ROLE_TYPE}"
+echo "  Role ARN    : ${ROLE_ARN:-n/a}"
+echo "  Role ID     : ${ROLE_ID:-n/a}"
+echo ""
+echo "========================================"
+'''

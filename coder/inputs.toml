@@ -6,12 +6,13 @@ description  = "Coder Configrations for the Coder Cloud Development Environment 
 display_name = "Coder Configurations"
 
 [[input]]
-name         = "release"
-description  = "The release of Coder to deploy."
-default      = "v2.34.2"
-display_name = "Release"
-internal     = true
-group        = "coder"
+name              = "release"
+description       = "The release of Coder to deploy."
+default           = "v2.34.2"
+display_name      = "Release"
+internal          = false
+user_configurable = true
+group             = "coder"
 
 [[input]]
 name         = "replicas"
