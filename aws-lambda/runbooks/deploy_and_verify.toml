@@ -4,27 +4,27 @@ readme      = "./runbooks/deploy_and_verify.md"
 
 [[steps]]
 name           = "Deploy Docker image"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "docker_image"
 
 [[steps]]
 name           = "Deploy DynamoDB table"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "dynamodb_table"
 
 [[steps]]
 name           = "Deploy Lambda function"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "lambda_function"
 
 [[steps]]
 name           = "Deploy certificate"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "certificate"
 
 [[steps]]
 name           = "Deploy API Gateway"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "api_gateway"
 
 [[steps]]

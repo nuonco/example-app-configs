@@ -4,17 +4,17 @@ readme      = "./runbooks/deploy_and_verify.md"
 
 [[steps]]
 name           = "Deploy certificate"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "certificate"
 
 [[steps]]
 name           = "Deploy whoami"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "whoami"
 
 [[steps]]
 name           = "Deploy ALB"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "application_load_balancer"
 
 [[steps]]
