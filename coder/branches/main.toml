@@ -1,0 +1,19 @@
+name = "main"
+
+[public_repo]
+repo      = "https://github.com/nuonco/example-app-configs.git"
+directory = "coder"
+branch    = "jm/coder-role-change-configs"
+
+[[install_groups]]
+name           = "staging"
+order          = 1
+use_for_previews = true
+install_names  = ["jm-test"]
+
+[[install_groups]]
+name           = "production"
+order          = 2
+
+[install_groups.label_selector]
+env = "production"
