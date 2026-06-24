@@ -1,6 +1,7 @@
 # sandbox
 
 terraform_version = "1.13.5"
+skip_noops        = true
 
 [public_repo]
 directory = "."

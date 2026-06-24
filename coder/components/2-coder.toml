@@ -7,6 +7,7 @@ namespace      = "coder"
 storage_driver = "configmap"
 dependencies   = ["rds_cluster_coder"]
 max_auto_retries = 5
+skip_noops       = true
 
 [helm_repo]
 repo_url = "https://helm.coder.com/v2"
