@@ -6,6 +6,7 @@ chart_name      = "application-load-balancer"
 storage_driver  = "configmap"
 dependencies    = ["coder", "certificate"]
 max_auto_retries = 5
+skip_noops       = true
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

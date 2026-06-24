@@ -5,6 +5,7 @@ namespace      = "coder"
 storage_driver = "configmap"
 dependencies   = ["coder", "application_load_balancer"]
 max_auto_retries = 5
+skip_noops       = true
 
 [helm_repo]
 repo_url = "https://helm.coder.com/logstream-kube"
