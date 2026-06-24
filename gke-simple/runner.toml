@@ -1,3 +1,4 @@
 # runner
 runner_type = "gcp"
 helm_driver = "configmap"
+init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/gcp-v0.1.4/scripts/gcp/init.sh"
