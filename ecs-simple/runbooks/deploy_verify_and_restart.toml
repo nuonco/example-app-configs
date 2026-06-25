@@ -4,27 +4,27 @@ readme      = "./runbooks/deploy_verify_and_restart.md"
 
 [[steps]]
 name           = "Deploy container image"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "img_whoami"
 
 [[steps]]
 name           = "Deploy ECS cluster"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "cluster"
 
 [[steps]]
 name           = "Deploy certificate"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "certificate"
 
 [[steps]]
 name           = "Deploy ECS service"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "whoami"
 
 [[steps]]
 name           = "Deploy ALB"
-type           = "deploy"
+type           = "component_deploy"
 component_name = "alb"
 
 [[steps]]
