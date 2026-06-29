@@ -5,6 +5,8 @@ type         = "helm_chart"
 chart_name   = "application-load-balancer"
 dependencies = ["whoami"]
 max_auto_retries = 5
+toggleable        = true
+default_enabled   = true
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
