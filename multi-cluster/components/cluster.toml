@@ -6,7 +6,7 @@ max_auto_retries  = 0
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "multi-cluster/src/components/cluster"
-branch    = "fd/multi-cluster"
+branch    = "main"
 
 [vars]
 nuon_id      = "{{ .nuon.install.id }}"

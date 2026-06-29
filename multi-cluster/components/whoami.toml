@@ -14,7 +14,7 @@ max_auto_retries = 0
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "multi-cluster/src/components/whoami"
-branch    = "fd/multi-cluster"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/whoami.yaml"

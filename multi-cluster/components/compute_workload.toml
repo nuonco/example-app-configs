@@ -14,7 +14,7 @@ kubernetes_context = "compute"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "multi-cluster/src/components/compute_workload"
-branch    = "fd/multi-cluster"
+branch    = "main"
 
 [[values_file]]
 contents = "./values/compute.yaml"
