@@ -1,0 +1,25 @@
+name              = "cluster"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+max_auto_retries  = 0
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "multi-cluster/src/components/cluster"
+branch    = "main"
+
+[vars]
+nuon_id      = "{{ .nuon.install.id }}"
+region       = "{{ .nuon.install_stack.outputs.region }}"
+vpc_id       = "{{ .nuon.install_stack.outputs.vpc_id }}"
+cluster_name = "c-{{ .nuon.install.id }}"
+
+cluster_version                = "1.35"
+cluster_endpoint_public_access = "{{ .nuon.inputs.inputs.cluster_endpoint_public_access }}"
+
+provision_iam_role_arn   = "{{ .nuon.install_stack.outputs.provision_iam_role_arn }}"
+maintenance_iam_role_arn = "{{ .nuon.install_stack.outputs.maintenance_iam_role_arn }}"
+deprovision_iam_role_arn = "{{ .nuon.install_stack.outputs.deprovision_iam_role_arn }}"
+
+[[var_file]]
+contents = "./values/cluster.tfvars"

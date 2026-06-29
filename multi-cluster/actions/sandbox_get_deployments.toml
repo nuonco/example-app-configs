@@ -1,0 +1,12 @@
+# action
+name    = "sandbox_get_deployments"
+timeout = "15s"
+
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "exec"
+inline_contents = "./src/kubectl/deployments.sh"

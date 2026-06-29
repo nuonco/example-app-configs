@@ -1,0 +1,20 @@
+# helm
+name           = "whoami"
+type           = "helm_chart"
+chart_name     = "whoami"
+namespace      = "whoami"
+storage_driver = "configmap"
+
+max_auto_retries = 0
+
+# Deploy onto the cluster created by the `cluster` peer component instead of
+# the sandbox EKS. See ../kubernetes_contexts.toml.
+# kubernetes_context = "default"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "multi-cluster/src/components/whoami"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/whoami.yaml"
