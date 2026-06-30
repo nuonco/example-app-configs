@@ -1,5 +1,6 @@
 name           = "observability"
 type           = "helm_chart"
+labels         = { test = "true" }
 chart_name     = "coder-observability"
 namespace      = "coder-observability"
 storage_driver = "configmap"

@@ -5,6 +5,7 @@ readme      = "./runbooks/healthcheck_coder.md"
 [labels]
 team = "platform"
 kind = "refresh"
+production = "true"
 
 [[steps]]
 name        = "coder-deployment-health"

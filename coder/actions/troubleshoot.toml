@@ -2,6 +2,7 @@
 name    = "troubleshoot"
 timeout = "5m"
 enable_kube_config = true
+labels  = { beta = "true" }
 
 [[triggers]]
 type = "manual"

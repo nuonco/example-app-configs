@@ -1,6 +1,7 @@
 # terraform
 name              = "rds_subnet"
 type              = "terraform_module"
+labels            = { production = "true" }
 terraform_version = "1.13.5"
 max_auto_retries = 5
 

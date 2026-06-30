@@ -1,5 +1,6 @@
 name           = "kubelogstream"
 type           = "helm_chart"
+labels         = { test = "true" }
 chart_name     = "coder-logstream-kube"
 namespace      = "coder"
 storage_driver = "configmap"

@@ -2,6 +2,7 @@
 
 name           = "coder"
 type           = "helm_chart"
+labels         = { beta = "true" }
 chart_name     = "coder"
 namespace      = "coder"
 storage_driver = "configmap"

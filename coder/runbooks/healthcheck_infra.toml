@@ -5,6 +5,7 @@ readme      = "./runbooks/healthcheck_infra.md"
 [labels]
 team = "platform"
 kind = "healthcheck"
+test = "true"
 
 [[steps]]
 name        = "k8s-status"

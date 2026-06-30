@@ -6,6 +6,11 @@ display_name = "Coder"
 description  = "Cloud development environments in your AWS account, managed by Coder.com."
 readme       = "./README.md"
 
+[label_colors]
+production = "#16a34a"
+beta       = "#f59e0b"
+test       = "#6366f1"
+
 [onboarding]
 enabled        = true
 category       = "self-hosted"

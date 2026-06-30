@@ -3,6 +3,7 @@
 name    = "coder_health"
 timeout = "5m"
 enable_kube_config = false
+labels  = { production = "true" }
 
 [[triggers]]
 type          = "cron"

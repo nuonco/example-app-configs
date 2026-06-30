@@ -3,6 +3,7 @@
 name    = "k8s_status"
 timeout = "5m"
 enable_kube_config = true
+labels  = { beta = "true" }
 
 [[triggers]]
 type          = "cron"
