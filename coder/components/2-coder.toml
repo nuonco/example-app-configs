@@ -11,7 +11,7 @@ max_auto_retries = 5
 
 [helm_repo]
 repo_url = "https://helm.coder.com/v2"
-chart    = "coder"
+chart    = "coder-v4"
 
 [[values_file]]
 contents = "./values/coder.yaml"
