@@ -66,14 +66,23 @@
 {{ $tfUpdated   := dig "updated_at" "" $tfOut }}
 {{ $agUpdated   := dig "updated_at" "" $agOut }}
 
+{{ $bgGrant  := default dict (index (default dict .nuon.actions.workflows) "break_glass_grant_eks_access") }}
+{{ $bgRevoke := default dict (index (default dict .nuon.actions.workflows) "break_glass_revoke_eks_access") }}
+{{ $bgClean  := default dict (index (default dict .nuon.actions.workflows) "k8s_clean_failed_pods") }}
+{{ $bgGrantUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgGrant)) }}
+{{ $bgRevokeUpdated := dig "updated_at" "" (default dict (dig "outputs" dict $bgRevoke)) }}
+{{ $bgCleanUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgClean)) }}
+
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
   <video autoplay loop muted playsinline width="480" height="270">
     <source src="https://coder.together.agency/videos/logo/sections/0/content/9/value/video.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
   <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
-    <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
-    <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
+      <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
+    </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="healthcheck_infra"></nuon-run-runbook>
       {{ with $promUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
@@ -81,6 +90,18 @@
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="healthcheck_coder"></nuon-run-runbook>
       {{ with $bjUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+      <nuon-run-runbook name="breakglass_grant"></nuon-run-runbook>
+      {{ with $bgGrantUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+      <nuon-run-runbook name="breakglass_revoke"></nuon-run-runbook>
+      {{ with $bgRevokeUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+      <nuon-run-runbook name="breakglass_remediate"></nuon-run-runbook>
+      {{ with $bgCleanUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
   </div>
 </div>

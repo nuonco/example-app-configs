@@ -1,0 +1,49 @@
+name    = "break_glass_revoke_eks_access"
+timeout = "1m"
+break_glass_role = "{{.nuon.install.id}}-coder-sandbox-break-glass"
+labels  = { service = "eks", type = "break-glass", destructive = "true" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "revoke-eks-access"
+inline_contents = '''
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+export AWS_PAGER=""
+export AWS_DEFAULT_REGION="$AWS_REGION"
+
+aws sts get-caller-identity | jq -c
+
+existed=false
+state="not_found"
+if aws eks describe-access-entry \
+  --cluster-name "$CLUSTER_NAME" \
+  --principal-arn "$PRINCIPAL_ARN" >/dev/null 2>&1; then
+  existed=true
+  echo "==> deleting access entry for $PRINCIPAL_ARN"
+  aws eks delete-access-entry \
+    --cluster-name "$CLUSTER_NAME" \
+    --principal-arn "$PRINCIPAL_ARN"
+  state="revoked"
+else
+  echo "==> no access entry found for $PRINCIPAL_ARN, nothing to revoke"
+fi
+
+jq --null-input -c \
+  --arg principal_arn "$PRINCIPAL_ARN" \
+  --arg cluster "$CLUSTER_NAME" \
+  --argjson existed "$existed" \
+  --arg state "$state" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
+  '{principal_arn: $principal_arn, cluster: $cluster, existed: $existed, state: $state, updated_at: $updated_at}' \
+  > "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+CLUSTER_NAME  = "{{ .nuon.install.sandbox.outputs.cluster.name }}"
+AWS_REGION    = "{{ .nuon.install.sandbox.outputs.account.region }}"
+PRINCIPAL_ARN = "{{ index (values .nuon.install_stack.outputs.break_glass_role_arns) 0 }}"
