@@ -96,4 +96,6 @@ echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
 
 [steps.env_vars]
 CODER_NAMESPACE = "coder"
+
+[steps.env_vars]
 DB_SECRET_NAME  = "coder-db-url"
