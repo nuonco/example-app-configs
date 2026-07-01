@@ -12,4 +12,5 @@ branch    = "main"
 [vars]
 bucket_name = "{{.nuon.components.gcs_bucket.outputs.bucket_name}}"
 project_id  = "{{.nuon.install_stack.outputs.project_id}}"
+install_id  = "{{.nuon.install.id}}"
 domain      = "{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.inputs.inputs.domain}}"
