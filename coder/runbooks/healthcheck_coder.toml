@@ -3,8 +3,8 @@ description = "Refreshes the Coder data tables on the install README — deploym
 readme      = "./runbooks/healthcheck_coder.md"
 
 [labels]
-team = "platform"
-kind = "refresh"
+service = "coder"
+type    = "report"
 
 [[steps]]
 name        = "coder-deployment-health"

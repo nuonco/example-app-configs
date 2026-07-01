@@ -2,6 +2,7 @@
 name    = "coder_rds_creds"
 timeout = "1m"
 enable_kube_config = true
+labels  = { service = "rds", type = "step" }
 
 [[triggers]]
 type           = "post-deploy-component"

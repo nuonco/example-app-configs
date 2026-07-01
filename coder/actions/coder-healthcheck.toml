@@ -3,6 +3,7 @@
 name    = "alb_healthcheck"
 timeout = "5m"
 enable_kube_config = true
+labels  = { service = "alb", type = "report" }
 
 [[triggers]]
 type          = "cron"

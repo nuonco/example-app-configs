@@ -3,6 +3,7 @@
 name    = "grafana_health"
 timeout = "5m"
 enable_kube_config = false
+labels  = { service = "grafana", type = "report" }
 
 [[triggers]]
 type          = "cron"

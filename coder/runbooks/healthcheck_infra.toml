@@ -3,8 +3,8 @@ description = "End-to-end healthcheck across Kubernetes, Coder, RDS, ALB, Grafan
 readme      = "./runbooks/healthcheck_infra.md"
 
 [labels]
-team = "platform"
-kind = "healthcheck"
+service = "infra"
+type    = "report"
 
 [[steps]]
 name        = "k8s-status"

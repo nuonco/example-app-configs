@@ -2,7 +2,7 @@
 name                 = "{{.nuon.install.id}}-coder-sandbox-break-glass"
 description          = "grants access to the sandbox for install {{.nuon.install.id}}."
 display_name         = "break glass role"
-permissions_boundary = ""
+permissions_boundary = "./breakglass_boundary.json"
 
 [[role.policies]]
 managed_policy_name = "AdministratorAccess"
