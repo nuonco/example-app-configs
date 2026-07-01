@@ -7,5 +7,5 @@ branch    = "main"
 
 [vars]
 enable_nuon_dns      = "true"
-public_root_domain   = "{{ .nuon.inputs.inputs.domain }}"
-internal_root_domain = "internal.{{ .nuon.inputs.inputs.domain }}"
+public_root_domain   = "{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.domain }}"
+internal_root_domain = "internal.{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.domain }}"
