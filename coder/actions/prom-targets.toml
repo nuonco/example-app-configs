@@ -3,6 +3,7 @@
 name    = "prom_targets"
 timeout = "5m"
 enable_kube_config = true
+labels  = { service = "prometheus", type = "report" }
 
 [[triggers]]
 type          = "cron"

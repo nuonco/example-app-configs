@@ -3,6 +3,7 @@
 name    = "coder_users_templates"
 timeout = "5m"
 enable_kube_config = true
+labels  = { service = "coder", type = "report" }
 
 [[triggers]]
 type          = "cron"

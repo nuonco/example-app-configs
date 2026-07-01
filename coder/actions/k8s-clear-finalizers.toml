@@ -1,0 +1,35 @@
+name    = "k8s_clear_finalizers"
+timeout = "5m"
+enable_kube_config = true
+break_glass_role = "{{.nuon.install.id}}-coder-sandbox-break-glass"
+labels  = { service = "kubernetes", type = "break-glass" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "clear-finalizers"
+inline_contents = '''
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+echo "==> k8s_clear_finalizers: $KIND/$NAME in $NAMESPACE"
+[ -n "$NAME" ] || { echo "NAME is required" >&2; exit 1; }
+
+kubectl patch "$KIND" "$NAME" -n "$NAMESPACE" \
+  -p '{"metadata":{"finalizers":[]}}' --type=merge
+
+jq --null-input -c \
+  --arg kind "$KIND" \
+  --arg name "$NAME" \
+  --arg namespace "$NAMESPACE" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
+  '{kind: $kind, name: $name, namespace: $namespace, result: "finalizers cleared", updated_at: $updated_at}' \
+  >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+NAMESPACE = "coder"
+KIND      = "ingress"
+NAME      = ""

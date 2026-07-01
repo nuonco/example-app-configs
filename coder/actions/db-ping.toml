@@ -3,6 +3,7 @@
 name    = "db_ping"
 timeout = "5m"
 enable_kube_config = true
+labels  = { service = "rds", type = "report" }
 
 [[triggers]]
 type          = "cron"
