@@ -6,6 +6,9 @@ labels  = { service = "eks", type = "break-glass" }
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type = "role-enabled"
+
 [[steps]]
 name = "grant-eks-access"
 inline_contents = '''
@@ -16,21 +19,30 @@ set -euo pipefail
 export AWS_PAGER=""
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
+# role-enabled fires for any role on the install; only grant for the break-glass role.
+# ROLE_NAME is unset on a manual run, so that path always proceeds.
+if [ -n "${ROLE_NAME:-}" ] && [ "$ROLE_NAME" != "$BREAK_GLASS_ROLE" ]; then
+  echo "==> role ${ROLE_NAME} is not the break-glass role, skipping"
+  exit 0
+fi
+
 aws sts get-caller-identity | jq -c
 
-created=false
-if aws eks describe-access-entry \
+ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+PRINCIPAL_ARN="arn:aws:iam::${ACCOUNT}:role/${BREAK_GLASS_ROLE}"
+
+# EKS access entries bind to the role's internal principal ID at creation time.
+# Toggling the break-glass role's stack Enable parameter recreates the IAM role
+# (same ARN, new principal ID), which orphans any existing entry and causes 401s.
+# Always delete then recreate so the entry rebinds to the current role incarnation.
+echo "==> (re)creating access entry for $PRINCIPAL_ARN"
+aws eks delete-access-entry \
   --cluster-name "$CLUSTER_NAME" \
-  --principal-arn "$PRINCIPAL_ARN" >/dev/null 2>&1; then
-  echo "==> access entry already exists for $PRINCIPAL_ARN"
-else
-  echo "==> creating access entry for $PRINCIPAL_ARN"
-  aws eks create-access-entry \
-    --cluster-name "$CLUSTER_NAME" \
-    --principal-arn "$PRINCIPAL_ARN" \
-    --type STANDARD
-  created=true
-fi
+  --principal-arn "$PRINCIPAL_ARN" 2>/dev/null || true
+aws eks create-access-entry \
+  --cluster-name "$CLUSTER_NAME" \
+  --principal-arn "$PRINCIPAL_ARN" \
+  --type STANDARD
 
 echo "==> associating $POLICY_ARN (cluster scope)"
 aws eks associate-access-policy \
@@ -43,14 +55,13 @@ jq --null-input -c \
   --arg principal_arn "$PRINCIPAL_ARN" \
   --arg cluster "$CLUSTER_NAME" \
   --arg policy_arn "$POLICY_ARN" \
-  --argjson created "$created" \
   --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
-  '{principal_arn: $principal_arn, cluster: $cluster, policy_arn: $policy_arn, created: $created, state: "granted", updated_at: $updated_at}' \
+  '{principal_arn: $principal_arn, cluster: $cluster, policy_arn: $policy_arn, state: "granted", updated_at: $updated_at}' \
   > "$NUON_ACTIONS_OUTPUT_FILEPATH"
 '''
 
 [steps.env_vars]
+BREAK_GLASS_ROLE = "{{.nuon.install.id}}-coder-sandbox-break-glass"
 CLUSTER_NAME  = "{{ .nuon.install.sandbox.outputs.cluster.name }}"
 AWS_REGION    = "{{ .nuon.install.sandbox.outputs.account.region }}"
-PRINCIPAL_ARN = "{{ index (values .nuon.install_stack.outputs.break_glass_role_arns) 0 }}"
 POLICY_ARN    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"

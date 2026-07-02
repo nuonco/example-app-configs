@@ -66,11 +66,7 @@
 {{ $tfUpdated   := dig "updated_at" "" $tfOut }}
 {{ $agUpdated   := dig "updated_at" "" $agOut }}
 
-{{ $bgGrant  := default dict (index (default dict .nuon.actions.workflows) "break_glass_grant_eks_access") }}
-{{ $bgRevoke := default dict (index (default dict .nuon.actions.workflows) "break_glass_revoke_eks_access") }}
 {{ $bgClean  := default dict (index (default dict .nuon.actions.workflows) "k8s_clean_failed_pods") }}
-{{ $bgGrantUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgGrant)) }}
-{{ $bgRevokeUpdated := dig "updated_at" "" (default dict (dig "outputs" dict $bgRevoke)) }}
 {{ $bgCleanUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgClean)) }}
 
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
@@ -92,15 +88,7 @@
       {{ with $bjUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="breakglass_grant"></nuon-run-runbook>
-      {{ with $bgGrantUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-    </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="breakglass_revoke"></nuon-run-runbook>
-      {{ with $bgRevokeUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-    </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="breakglass_remediate"></nuon-run-runbook>
+      <nuon-run-runbook name="breakglass_k8s_remediate"></nuon-run-runbook>
       {{ with $bgCleanUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
   </div>

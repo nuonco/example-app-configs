@@ -1,0 +1,22 @@
+name        = "breakglass_k8s_remediate"
+description = "Runs the Kubernetes break-glass remediations in sequence — delete failed pods, clear stuck finalizers, rolling-restart the deployment. Requires break-glass access: enable the break-glass role on the install stack first (access is granted automatically), and disable it when done."
+readme      = "./runbooks/breakglass_k8s_remediate.md"
+
+[labels]
+service = "kubernetes"
+type    = "break-glass"
+
+[[steps]]
+name        = "clean-failed-pods"
+type        = "action"
+action_name = "k8s_clean_failed_pods"
+
+[[steps]]
+name        = "clear-finalizers"
+type        = "action"
+action_name = "k8s_clear_finalizers"
+
+[[steps]]
+name        = "restart-deployment"
+type        = "action"
+action_name = "k8s_restart_deployment"
