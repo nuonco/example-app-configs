@@ -1,10 +1,13 @@
 name    = "break_glass_revoke_eks_access"
 timeout = "1m"
-break_glass_role = "{{.nuon.install.id}}-coder-sandbox-break-glass"
+role    = "{{.nuon.install.id}}-maintenance"
 labels  = { service = "eks", type = "break-glass", destructive = "true" }
 
 [[triggers]]
 type = "manual"
+
+[[triggers]]
+type = "role-disabled"
 
 [[steps]]
 name = "revoke-eks-access"
@@ -16,7 +19,21 @@ set -euo pipefail
 export AWS_PAGER=""
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
+# role-disabled fires for any role on the install; only revoke for the break-glass role.
+# ROLE_NAME is unset on a manual run, so that path always proceeds.
+if [ -n "${ROLE_NAME:-}" ] && [ "$ROLE_NAME" != "$BREAK_GLASS_ROLE" ]; then
+  echo "==> role ${ROLE_NAME} is not the break-glass role, skipping"
+  exit 0
+fi
+
 aws sts get-caller-identity | jq -c
+
+# Runs under the maintenance role: on role-disabled the break-glass role is being
+# torn down and can't be assumed, so the break-glass role can't revoke itself.
+# Construct the principal ARN from the account + role name (the break_glass_role_arns
+# stack output is empty once the role is disabled).
+ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+PRINCIPAL_ARN="arn:aws:iam::${ACCOUNT}:role/${BREAK_GLASS_ROLE}"
 
 existed=false
 state="not_found"
@@ -44,6 +61,6 @@ jq --null-input -c \
 '''
 
 [steps.env_vars]
+BREAK_GLASS_ROLE = "{{.nuon.install.id}}-coder-sandbox-break-glass"
 CLUSTER_NAME  = "{{ .nuon.install.sandbox.outputs.cluster.name }}"
 AWS_REGION    = "{{ .nuon.install.sandbox.outputs.account.region }}"
-PRINCIPAL_ARN = "{{ index (values .nuon.install_stack.outputs.break_glass_role_arns) 0 }}"
