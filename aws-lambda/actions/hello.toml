@@ -2,6 +2,7 @@
 name               = "hello"
 timeout            = "10s"
 enable_kube_config = false
+labels  = { service = "aws", type = "demo" }
 
 # TODO: should be a cron and a post-deploy
 [[triggers]]

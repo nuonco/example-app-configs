@@ -2,6 +2,7 @@
 name    = "lambda_status"
 timeout = "30s"
 enable_kube_config = false
+labels  = { service = "lambda", type = "report" }
 
 [[triggers]]
 type = "manual"
