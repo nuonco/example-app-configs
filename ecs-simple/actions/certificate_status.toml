@@ -2,6 +2,7 @@
 name    = "certificate_status"
 timeout = "30s"
 enable_kube_config = false
+labels  = { service = "acm", type = "report" }
 
 [[triggers]]
 type = "manual"

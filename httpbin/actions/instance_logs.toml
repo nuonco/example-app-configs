@@ -2,6 +2,7 @@
 name    = "instance_logs"
 timeout = "30s"
 enable_kube_config = false
+labels  = { service = "ec2", type = "report" }
 
 [[triggers]]
 type = "manual"

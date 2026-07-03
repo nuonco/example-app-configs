@@ -2,6 +2,10 @@ name        = "verify_status"
 description = "Runs verification checks for EC2 instance and httpbin endpoints."
 readme      = "./runbooks/verify_status.md"
 
+[labels]
+service = "ec2"
+type    = "report"
+
 [[steps]]
 name        = "Healthcheck"
 type        = "action"

@@ -2,6 +2,10 @@ name        = "verify_status"
 description = "Runs verification checks for ECS service, certificate, and endpoint."
 readme      = "./runbooks/verify_status.md"
 
+[labels]
+service = "ecs"
+type    = "report"
+
 [[steps]]
 name        = "Service status"
 type        = "action"

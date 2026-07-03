@@ -2,6 +2,7 @@
 name    = "invoke_lambda"
 timeout = "30s"
 enable_kube_config = false
+labels  = { service = "lambda", type = "tool" }
 
 [[triggers]]
 type = "manual"

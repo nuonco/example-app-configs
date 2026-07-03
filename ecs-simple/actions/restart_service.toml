@@ -2,6 +2,7 @@
 name    = "restart_service"
 timeout = "45s"
 enable_kube_config = false
+labels  = { service = "ecs", type = "operations" }
 
 [[triggers]]
 type = "manual"

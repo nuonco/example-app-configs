@@ -2,6 +2,10 @@ name        = "deploy_all"
 description = "Deploys all ECS components in order."
 readme      = "./runbooks/deploy_all.md"
 
+[labels]
+service = "ecs"
+type    = "deployment"
+
 [[steps]]
 name           = "Deploy container image"
 type           = "component_deploy"

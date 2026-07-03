@@ -2,6 +2,7 @@
 name    = "whoami"
 timeout = "5s"
 enable_kube_config = false
+labels  = { service = "whoami", type = "health-check" }
 
 # TODO: should be a cron and a post-deploy
 [[triggers]]

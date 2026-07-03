@@ -2,6 +2,7 @@
 name    = "deployments_status"
 timeout = "30s"
 enable_kube_config = true
+labels  = { service = "kubernetes", type = "report" }
 
 [[triggers]]
 type = "manual"

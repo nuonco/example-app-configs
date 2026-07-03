@@ -2,6 +2,10 @@ name        = "deploy_all"
 description = "Deploys all EKS components in order."
 readme      = "./runbooks/deploy_all.md"
 
+[labels]
+service = "eks"
+type    = "deployment"
+
 [[steps]]
 name           = "Deploy certificate"
 type           = "component_deploy"
