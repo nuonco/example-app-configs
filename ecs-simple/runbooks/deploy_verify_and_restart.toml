@@ -2,6 +2,10 @@ name        = "deploy_verify_and_restart"
 description = "Deploys all components, runs verification checks, then restarts the service."
 readme      = "./runbooks/deploy_verify_and_restart.md"
 
+[labels]
+service = "ecs"
+type    = "deployment"
+
 [[steps]]
 name           = "Deploy container image"
 type           = "component_deploy"
