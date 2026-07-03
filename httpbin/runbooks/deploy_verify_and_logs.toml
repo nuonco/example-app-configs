@@ -2,6 +2,10 @@ name        = "deploy_verify_and_logs"
 description = "Deploys the EC2 component, runs verification checks, then retrieves logs."
 readme      = "./runbooks/deploy_verify_and_logs.md"
 
+[labels]
+service = "ec2"
+type    = "deployment"
+
 [[steps]]
 name           = "Deploy EC2 instance"
 type           = "component_deploy"
