@@ -2,6 +2,7 @@
 name    = "deployment_restart"
 timeout = "45s"
 enable_kube_config = true
+labels  = { service = "kubernetes", type = "operations" }
 
 [[triggers]]
 type = "manual"

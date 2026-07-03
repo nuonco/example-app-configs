@@ -2,6 +2,7 @@
 name    = "alb"
 timeout = "1m"
 enable_kube_config = true
+labels  = { service = "alb", type = "report" }
 
 [[triggers]]
 type = "manual"

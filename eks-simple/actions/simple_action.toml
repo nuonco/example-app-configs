@@ -3,6 +3,7 @@
 name    = "simple_demonstration"
 timeout = "1m"
 enable_kube_config = true
+labels  = { service = "kubernetes", type = "setup" }
 
 [[triggers]]
 type = "post-provision"
