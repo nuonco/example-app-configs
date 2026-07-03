@@ -2,6 +2,7 @@
 name    = "healthcheck"
 timeout = "30s"
 enable_kube_config = false
+labels  = { service = "httpbin", type = "health-check" }
 
 [[triggers]]
 type = "manual"
