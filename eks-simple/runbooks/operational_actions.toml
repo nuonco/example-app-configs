@@ -2,6 +2,10 @@ name        = "operational_actions"
 description = "Runs operational actions that modify resources: creates secrets and restarts deployment."
 readme      = "./runbooks/operational_actions.md"
 
+[labels]
+service = "kubernetes"
+type    = "operations"
+
 [[steps]]
 name        = "Simple demonstration"
 type        = "action"

@@ -2,6 +2,10 @@ name        = "verify_status"
 description = "Runs verification and status checks for certificate, deployments, ALB, and endpoint."
 readme      = "./runbooks/verify_status.md"
 
+[labels]
+service = "infra"
+type    = "report"
+
 [[steps]]
 name        = "Certificate status"
 type        = "action"
