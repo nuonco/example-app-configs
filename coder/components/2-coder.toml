@@ -11,7 +11,7 @@ skip_noops       = true
 
 [helm_repo]
 repo_url = "https://helm.coder.com/v2"
-chart    = "coder-dne"
+chart    = "coder-dne1"
 
 [[values_file]]
 contents = "./values/coder.yaml"
