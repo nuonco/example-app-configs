@@ -36,11 +36,7 @@ vpc-000000 {{ end }}
 
           subgraph Serverless["Serverless"]
               APIGW["API Gateway (HTTP)"]
-              Lambda["Lambda Function (Go)"]
-          end
-
-          subgraph Storage["Storage"]
-              DynamoDB["DynamoDB Table"]
+              Lambda["Lambda Function (Python)"]
           end
 
           CWLogs["CloudWatch Logs"]
@@ -48,8 +44,7 @@ vpc-000000 {{ end }}
 
       NuonAPI -->|generates| Stack
       Stack -->|provisions| Runner
-      Runner -->|builds & pushes image| Lambda
-      Runner -->|provisions| DynamoDB
+      Runner -->|provisions| Lambda
       Runner -->|provisions| APIGW
       Runner -->|provisions| ACM
       Runner -->|provisions| R53
@@ -57,7 +52,6 @@ vpc-000000 {{ end }}
       R53 -->|resolves| APIGW
       ACM -->|TLS| APIGW
       APIGW -->|invokes| Lambda
-      Lambda -->|reads/writes| DynamoDB
       Lambda -->|logs| CWLogs
       APIGW -->|logs| CWLogs
       Browser -->|HTTPS| APIGW
@@ -65,23 +59,18 @@ vpc-000000 {{ end }}
 
 ```
 
-### Create a record
+### Increment a widget
 
-```bash
-curl -X POST https://{{.nuon.components.api_gateway.outputs.api_gateway.domain_name_id}}/widgets \
-     -H Content-Type:"application/json" \
-     -d '{"id":"7"}'
-```
-
-### Get a record
+Each call increments an in-memory counter for the given widget id and returns it. Counts persist across warm invocations of the same execution environment and reset on cold start.
 
 ```bash
 curl https://{{.nuon.components.api_gateway.outputs.api_gateway.domain_name_id}}/widgets/7
+# {"widget":"7","count":1}
 ```
 
 ### View Logs
 
-Go to CloudWatch Logs in the AWS Console and find the log group to see the logs for PUT and GET routes for the Lambda function.
+Go to CloudWatch Logs in the AWS Console and find the log group to see the logs for the Lambda function.
 
 ```txt
 {{.nuon.components.lambda_function.outputs.lambda_function.lambda_cloudwatch_log_group_arn}}

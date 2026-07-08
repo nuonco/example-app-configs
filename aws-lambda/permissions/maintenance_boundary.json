@@ -8,7 +8,6 @@
         "acm:*",
         "apigateway:*",
         "cloudwatch:*",
-        "dynamodb:*",
         "ec2:*",
         "ecr:*",
         "eks:*",

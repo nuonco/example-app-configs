@@ -129,12 +129,6 @@ A fully featured application deploying an RDS Cluster, ClickHouse, datadog,
 [temporal](https://github.com/temporalio/helm-charts), and a
 [temporal-ai-agent](https://github.com/temporal-community/temporal-ai-agent/).
 
-## aws-lambda
-
-Creates an AWS Lambda function based on a Go app image built from a Dockerfile. The app also includes a DynamoDB table,
-a certificate and an API Gateway. This app does not use Kubernetes, so is quicker to make installs. See the Nuon docs
-for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this app.
-
 # Resources
 
 [Nuon docs](https://docs.nuon.co)

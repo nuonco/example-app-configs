@@ -5,15 +5,12 @@ category:
 infra: lambda
 stack:
   - terraform
-  - docker
 features:
   - actions
   - policies
 tags:
   - lambda
   - serverless
-  - dynamodb
   - api-gateway
-  - go
 links:
   docs: https://docs.nuon.co/get-started/create-your-first-app

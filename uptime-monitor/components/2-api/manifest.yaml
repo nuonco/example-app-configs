@@ -7,7 +7,7 @@
 #   Service Account (IRSA):
 #     {{ .nuon.components.irsa.outputs.role_arn }}  <- IAM role for AWS access
 #
-#   Container Image (from docker_build component):
+#   Container Image (from container_image component):
 #     {{ .nuon.components.api_image.outputs.image.repository }}
 #     {{ .nuon.components.api_image.outputs.image.tag }}
 #
@@ -47,7 +47,7 @@ spec:
       serviceAccountName: api
       containers:
         - name: api
-          # Image built by Nuon docker_build component (0-api-image.toml)
+          # Image mirrored by Nuon container_image component (0-api-image.toml)
           image: "{{ .nuon.components.api_image.outputs.image.repository }}:{{ .nuon.components.api_image.outputs.image.tag }}"
           imagePullPolicy: Always
           ports:

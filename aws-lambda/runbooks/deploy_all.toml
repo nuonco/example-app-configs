@@ -7,16 +7,6 @@ service = "lambda"
 type    = "deployment"
 
 [[steps]]
-name           = "Deploy Docker image"
-type           = "component_deploy"
-component_name = "docker_image"
-
-[[steps]]
-name           = "Deploy DynamoDB table"
-type           = "component_deploy"
-component_name = "dynamodb_table"
-
-[[steps]]
 name           = "Deploy Lambda function"
 type           = "component_deploy"
 component_name = "lambda_function"

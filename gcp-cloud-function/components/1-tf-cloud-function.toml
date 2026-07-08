@@ -1,7 +1,7 @@
 name              = "cloud_function"
 type              = "terraform_module"
 terraform_version = "1.11.3"
-dependencies      = ["docker_image"]
+dependencies      = ["container_image"]
 max_auto_retries = 5
 
 [public_repo]
@@ -12,5 +12,5 @@ branch    = "main"
 [vars]
 project_id = "{{.nuon.install_stack.outputs.project_id}}"
 region     = "{{.nuon.install_stack.outputs.region}}"
-image_url  = "{{.nuon.components.docker_image.outputs.image.repository}}:{{.nuon.components.docker_image.outputs.image.tag}}"
+image_url  = "{{.nuon.components.container_image.outputs.image.repository}}:{{.nuon.components.container_image.outputs.image.tag}}"
 install_id = "{{.nuon.install.id}}"

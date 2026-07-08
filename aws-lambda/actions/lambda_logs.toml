@@ -49,5 +49,5 @@ echo "✓ Logs retrieved successfully"
 
 [steps.env_vars]
 INSTALL_ID = "{{.nuon.install.id}}"
-FUNCTION_NAME = "widgets-{{.nuon.install.id}}"
+FUNCTION_NAME = "hello-{{.nuon.install.id}}"
 REGION = "{{.nuon.install.sandbox.outputs.account.region}}"

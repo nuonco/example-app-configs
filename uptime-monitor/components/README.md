@@ -18,8 +18,8 @@ Components are the building blocks of your Nuon app. Each component represents a
 
 | Component          | Type           | Description                    |
 |--------------------|----------------|--------------------------------|
-| `0-api-image.toml` | docker_build   | Builds the API container image |
-| `0-ui-image.toml`  | docker_build   | Builds the UI container image  |
+| `0-api-image.toml` | container_image | References the pre-built API image |
+| `0-ui-image.toml`  | container_image | References the pre-built UI image  |
 
 ### Infrastructure (Prefix: 1-)
 

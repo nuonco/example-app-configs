@@ -26,5 +26,5 @@ echo "✓ Lambda status check complete"
 """
 
 [steps.env_vars]
-FUNCTION_NAME = "widgets-{{.nuon.install.id}}"
+FUNCTION_NAME = "hello-{{.nuon.install.id}}"
 REGION = "{{.nuon.install.sandbox.outputs.account.region}}"

@@ -1,0 +1,45 @@
+# action
+name    = "http_healthcheck"
+timeout = "30s"
+enable_kube_config = false
+labels  = { service = "lambda", type = "health-check" }
+
+[[triggers]]
+type = "manual"
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "api_gateway"
+
+[[steps]]
+name = "check"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+URL="${ENDPOINT}/widgets/${WIDGET_ID}"
+echo "GET ${URL}"
+
+CODE=$(curl -sS -m 20 -o /tmp/body.json -w '%{http_code}' "${URL}")
+echo "http_status=${CODE}"
+echo "body:"
+cat /tmp/body.json
+echo ""
+
+jq -c -n \
+  --arg url "${URL}" \
+  --argjson code "${CODE}" \
+  --slurpfile body /tmp/body.json \
+  '{endpoint: $url, http_status_code: $code, body: $body[0]}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH}"
+
+if [ "${CODE}" != "200" ]; then
+  echo "✗ healthcheck failed"
+  exit 1
+fi
+
+echo "✓ healthcheck passed"
+"""
+
+[steps.env_vars]
+ENDPOINT  = "https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+WIDGET_ID = "healthcheck"

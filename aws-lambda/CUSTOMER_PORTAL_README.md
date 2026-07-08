@@ -1,6 +1,6 @@
 ### What this app does?
 
-A serverless Go API deployed on AWS Lambda with API Gateway, DynamoDB, and Route53 DNS. Provides a simple CRUD interface for managing "widgets" stored in DynamoDB.
+A serverless API deployed on AWS Lambda with API Gateway and Route53 DNS. The function is packaged as a zip deployment on a managed Python runtime and increments an in-memory counter per widget id on each request.
 
 ### Prerequisites
 
@@ -10,13 +10,12 @@ A serverless Go API deployed on AWS Lambda with API Gateway, DynamoDB, and Route
 
 - Clicking install will generate a link for you to log into AWS and create a CloudFormation stack which creates the VPC, EC2 VM, and a runner, an agent that receives jobs to deploy the Lambda API in your VPC
 - If configured, you may be prompted to approve plan steps
-- Average installation time is 20 minutes due to creating the VPC, VM, Lambda function, DynamoDB table, API Gateway, and DNS records
+- Average installation time is 20 minutes due to creating the VPC, VM, Lambda function, API Gateway, and DNS records
 
 ### What gets deployed in your cloud account?
 
 - Dedicated VPC with public subnet
-- Lambda function running a Go API as a container image
-- DynamoDB table for widget storage
+- Lambda function on a managed Python runtime (zip deployment)
 - API Gateway (HTTP) with route-based Lambda integration
 - ACM wildcard certificate
 - Route53 DNS records
@@ -44,11 +43,7 @@ A serverless Go API deployed on AWS Lambda with API Gateway, DynamoDB, and Route
 
           subgraph Serverless["Serverless"]
               APIGW["API Gateway (HTTP)"]
-              Lambda["Lambda Function (Go)"]
-          end
-
-          subgraph Storage["Storage"]
-              DynamoDB["DynamoDB Table"]
+              Lambda["Lambda Function (Python)"]
           end
 
           CWLogs["CloudWatch Logs"]
@@ -56,8 +51,7 @@ A serverless Go API deployed on AWS Lambda with API Gateway, DynamoDB, and Route
 
       NuonAPI -->|generates| Stack
       Stack -->|provisions| Runner
-      Runner -->|builds & pushes image| Lambda
-      Runner -->|provisions| DynamoDB
+      Runner -->|provisions| Lambda
       Runner -->|provisions| APIGW
       Runner -->|provisions| ACM
       Runner -->|provisions| R53
@@ -65,7 +59,6 @@ A serverless Go API deployed on AWS Lambda with API Gateway, DynamoDB, and Route
       R53 -->|resolves| APIGW
       ACM -->|TLS| APIGW
       APIGW -->|invokes| Lambda
-      Lambda -->|reads/writes| DynamoDB
       Lambda -->|logs| CWLogs
       APIGW -->|logs| CWLogs
       Browser -->|HTTPS| APIGW
@@ -91,7 +84,7 @@ The following terminology is core to the Nuon BYOC platform.
 #### Connect Your App | App Config
 - App (collection of TOML config files that provision and manage the Lambda API in your cloud account)
 - Sandbox (the underlying infrastructure, in this case a minimal VPC with public subnet and Route53 DNS)
-- Component (Docker build for the Lambda image and Terraform to deploy DynamoDB, Lambda, ACM certificate, and API Gateway)
+- Component (Terraform to deploy the Lambda function, ACM certificate, and API Gateway)
 - Inputs (dynamic values specific to the install e.g., public domain, subdomain)
 - Secrets (sensitive values either auto-created or entered by the customer during Stack creation - stored in AWS Secrets Manager)
 

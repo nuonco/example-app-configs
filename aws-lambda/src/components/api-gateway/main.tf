@@ -29,14 +29,6 @@ module "api_gateway" {
         timeout_milliseconds   = 12000
       }
     }
-
-    "POST /widgets" = {
-      integration = {
-        uri                    = var.lambda_function_arn
-        payload_format_version = "2.0"
-        timeout_milliseconds   = 12000
-      }
-    }
   }
 
   cors_configuration = {

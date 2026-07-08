@@ -1,6 +1,6 @@
 version = "v2"
 
-description = "AWS Lambda app with API Gateway, and DynamoDB to demonstrate Nuon deploying with Kubernetes"
+description = "AWS Lambda app with API Gateway and Route53 DNS, packaged as a zip deployment with a managed Python runtime."
 display_name = "AWS Lambda app"
 readme       = "./README.md"
 
