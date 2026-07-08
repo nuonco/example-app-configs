@@ -47,7 +47,7 @@ curl {{.nuon.components.cloud_function.outputs.function_url}}
       end
 
       NuonAPI -->|provisions| Runner
-      Runner -->|builds + pushes image to| AR
+      Runner -->|syncs image to| AR
       Runner -->|provisions| SA
       Runner -->|provisions| CloudFn
       AR -->|pulls image| CloudFn
@@ -60,7 +60,7 @@ curl {{.nuon.components.cloud_function.outputs.function_url}}
 
 ## Components
 
-- **docker_image** — builds the Go API source under `src/components/api` and pushes it to Artifact Registry
+- **container_image** — syncs a pre-built public image (`gcr.io/google-samples/hello-app`) into Artifact Registry
 - **cloud_function** — Cloud Run v2 service backing the Gen2 function, dedicated service account, and public (`allUsers`) invoker binding (terraform module)
 
 ## Prerequisites

@@ -1,0 +1,8 @@
+name = "container_image"
+type = "container_image"
+
+max_auto_retries = 5
+
+[public]
+image_url = "gcr.io/google-samples/hello-app"
+tag       = "1.0"

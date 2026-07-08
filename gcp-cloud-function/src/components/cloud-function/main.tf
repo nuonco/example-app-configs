@@ -11,11 +11,6 @@ resource "google_cloud_run_v2_service" "function" {
     containers {
       image = var.image_url
 
-      env {
-        name  = "INSTALL_ID"
-        value = var.install_id
-      }
-
       resources {
         limits = {
           cpu    = "1"
