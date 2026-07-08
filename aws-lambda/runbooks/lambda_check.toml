@@ -1,0 +1,22 @@
+name        = "lambda_check"
+description = "Checks Lambda status, invokes the function, and retrieves logs."
+readme      = "./runbooks/lambda_check.md"
+
+[labels]
+service = "lambda"
+type    = "report"
+
+[[steps]]
+name        = "Lambda status"
+type        = "action"
+action_name = "lambda_status"
+
+[[steps]]
+name        = "Invoke Lambda"
+type        = "action"
+action_name = "invoke_lambda"
+
+[[steps]]
+name        = "Lambda logs"
+type        = "action"
+action_name = "lambda_logs"

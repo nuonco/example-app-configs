@@ -1,0 +1,43 @@
+# action
+name    = "invoke_lambda"
+timeout = "30s"
+enable_kube_config = false
+labels  = { service = "lambda", type = "tool" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "invoke"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Invoking Lambda function ${FUNCTION_NAME}..."
+
+META=$(aws lambda invoke \
+  --function-name "${FUNCTION_NAME}" \
+  --region "${REGION}" \
+  --payload '{}' \
+  --cli-binary-format raw-in-base64-out \
+  /tmp/response.json)
+
+echo "Invoke metadata: ${META}"
+echo "Function response:"
+cat /tmp/response.json
+echo ""
+
+AWS_STATUS=$(echo "${META}" | jq -r '.StatusCode')
+
+jq -c -n \
+  --arg fn "${FUNCTION_NAME}" \
+  --argjson aws_status "${AWS_STATUS}" \
+  --slurpfile resp /tmp/response.json \
+  '{function_name: $fn, aws_invoke_status: $aws_status, http_status_code: $resp[0].statusCode, body: ($resp[0].body | fromjson)}' >> "${NUON_ACTIONS_OUTPUT_FILEPATH}"
+
+echo "✓ Lambda invoked successfully"
+"""
+
+[steps.env_vars]
+FUNCTION_NAME = "hello-{{.nuon.install.id}}"
+REGION = "{{.nuon.install.sandbox.outputs.account.region}}"

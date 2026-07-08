@@ -1,0 +1,22 @@
+name        = "deploy_all"
+description = "Deploys all Lambda app components in order."
+readme      = "./runbooks/deploy_all.md"
+
+[labels]
+service = "lambda"
+type    = "deployment"
+
+[[steps]]
+name           = "Deploy Lambda function"
+type           = "component_deploy"
+component_name = "lambda_function"
+
+[[steps]]
+name           = "Deploy certificate"
+type           = "component_deploy"
+component_name = "certificate"
+
+[[steps]]
+name           = "Deploy API Gateway"
+type           = "component_deploy"
+component_name = "api_gateway"

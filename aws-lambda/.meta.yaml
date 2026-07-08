@@ -1,0 +1,16 @@
+cloud: aws
+category:
+  - serverless
+  - architecture
+infra: lambda
+stack:
+  - terraform
+features:
+  - actions
+  - policies
+tags:
+  - lambda
+  - serverless
+  - api-gateway
+links:
+  docs: https://docs.nuon.co/get-started/create-your-first-app

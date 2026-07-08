@@ -1,0 +1,48 @@
+# =============================================================================
+# NUON MAINTENANCE ROLE
+# =============================================================================
+#
+# IAM role used during day-to-day operations. This role is assumed by the Nuon
+# runner when deploying component updates, running actions, and performing
+# routine maintenance tasks.
+#
+# Schema: https://api.nuon.co/v1/general/config-schema?type=permissions
+#
+# =============================================================================
+
+
+type                 = "maintenance"
+name                 = "{{ .nuon.install.id }}-maintenance"
+description          = "{{ .nuon.install.id }} maintenance role for the Uptime Monitor install"
+display_name         = "{{ .nuon.install.id }}-maintenance"
+permissions_boundary = "./maintenance_boundary.json"
+
+
+# -----------------------------------------------------------------------------
+# POLICIES
+# -----------------------------------------------------------------------------
+
+# AWS managed policy (broad access for demo purposes)
+[[policies]]
+managed_policy_name = "AdministratorAccess"
+
+# Alternative: Scoped policy for production (read-heavy, limited write)
+# [[policies]]
+# name = "{{.nuon.install.id}}-maintenance-policy"
+# contents = """
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Effect": "Allow",
+#       "Action": ["eks:Describe*", "eks:List*", "eks:UpdateNodegroupConfig"],
+#       "Resource": "*"
+#     },
+#     {
+#       "Effect": "Allow",
+#       "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
+#       "Resource": "arn:aws:s3:::{{.nuon.install.id}}-*"
+#     }
+#   ]
+# }
+# """

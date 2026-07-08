@@ -1,0 +1,11 @@
+version = "v2"
+
+description = "AWS Lambda app with API Gateway and Route53 DNS, packaged as a zip deployment with a managed Python runtime."
+display_name = "AWS Lambda app"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

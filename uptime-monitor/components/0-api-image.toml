@@ -1,0 +1,8 @@
+name = "api_image"
+type = "container_image"
+
+max_auto_retries = 5
+
+[public]
+image_url = "public.ecr.aws/p7e3r5y0/uptime-monitor-api"
+tag       = "latest"

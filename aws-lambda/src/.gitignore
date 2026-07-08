@@ -1,15 +1,3 @@
-# Generated files
-docs/index.html
-docs/onboarding-apps.json
-
-# LLMs
-**/.claude/
-.clauderc
-CLAUDE.local.md
-
-# Terraform lock files
-**/.terraform.lock.hcl
-
 # Created by https://www.toptal.com/developers/gitignore/api/osx,vim,terraform
 # Edit at https://www.toptal.com/developers/gitignore?templates=osx,vim,terraform
 
@@ -61,13 +49,6 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 
-# Non-secret example tfvars committed so `nuon apps sync` can resolve them.
-!aca-simple/sandbox.tfvars
-!aws-lambda/sandbox.tfvars
-!eks-simple-kustomize/sandbox.tfvars
-!n8n/sandbox.tfvars
-!uptime-monitor/sandbox.tfvars
-
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
 override.tf
@@ -106,7 +87,4 @@ tags
 # Persistent undo
 [._]*.un~
 
-.idea
-# compiled pulumi go component binaries
-forgejo-gcp/src/components/*/pulumi-*
-!forgejo-gcp/src/components/*/*.go
+# End of https://www.toptal.com/developers/gitignore/api/osx,vim,terraform

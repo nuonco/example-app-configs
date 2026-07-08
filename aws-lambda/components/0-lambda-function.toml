@@ -1,0 +1,15 @@
+# terraform
+name              = "lambda_function"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aws-lambda/src/components/lambda-function"
+branch    = "main"
+
+[vars]
+install_id    = "{{.nuon.install.id}}"
+region        = "{{.nuon.install_stack.outputs.region}}"
+function_name = "hello-{{.nuon.install.id}}"
