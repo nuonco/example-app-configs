@@ -1,0 +1,163 @@
+name: Sync All Nuon Apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to sync against (config comes from its NUON_CONFIG secret)"
+        required: false
+        type: choice
+        options:
+          - stage
+          - prod
+        default: prod
+      ref:
+        description: "Branch, tag, or SHA of example-app-configs to sync (default: this ref)"
+        required: false
+        type: string
+        default: ""
+      apps:
+        description: "Optional comma-separated subset of apps (default: all)"
+        required: false
+        type: string
+        default: ""
+
+  schedule:
+    - cron: "0 6 * * *"
+
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: false
+        default: prod
+      ref:
+        type: string
+        required: false
+        default: ""
+      apps:
+        type: string
+        required: false
+        default: ""
+    secrets:
+      NUON_CONFIG:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-all-apps
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_apps: ${{ steps.set-matrix.outputs.has_apps }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Discover apps
+        id: set-matrix
+        env:
+          APPS_FILTER: ${{ inputs.apps }}
+        run: |
+          set -euo pipefail
+
+          # An "app" dir is any top-level directory containing a metadata.toml.
+          mapfile -t ALL < <(find . -mindepth 2 -maxdepth 2 -name 'metadata.toml' -printf '%h\n' \
+            | sed 's|^\./||' \
+            | sort -u)
+
+          if [ -n "${APPS_FILTER}" ]; then
+            IFS=',' read -ra REQUESTED <<< "${APPS_FILTER}"
+            SELECTED=()
+            for want in "${REQUESTED[@]}"; do
+              want_trimmed="$(echo "$want" | xargs)"
+              [ -z "$want_trimmed" ] && continue
+              found=false
+              for app in "${ALL[@]}"; do
+                if [ "$app" = "$want_trimmed" ]; then
+                  SELECTED+=("$app")
+                  found=true
+                  break
+                fi
+              done
+              if [ "$found" = false ]; then
+                echo "::warning::requested app '$want_trimmed' not found in repo; skipping"
+              fi
+            done
+          else
+            SELECTED=("${ALL[@]}")
+          fi
+
+          if [ "${#SELECTED[@]}" -eq 0 ]; then
+            echo "No apps to sync"
+            echo "has_apps=false" >> "$GITHUB_OUTPUT"
+            echo "matrix={\"app\":[]}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          JSON_ARRAY=$(printf '%s\n' "${SELECTED[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "Apps to sync: $JSON_ARRAY"
+          echo "has_apps=true" >> "$GITHUB_OUTPUT"
+          echo "matrix={\"app\":$JSON_ARRAY}" >> "$GITHUB_OUTPUT"
+
+  sync:
+    needs: discover
+    if: needs.discover.outputs.has_apps == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'prod' }}
+    strategy:
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+      fail-fast: false
+      max-parallel: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Install Nuon CLI
+        run: |
+          curl -fsSL https://nuon-artifacts.s3.us-west-2.amazonaws.com/cli/install.sh -o "$RUNNER_TEMP/nuon-install.sh"
+          bash "$RUNNER_TEMP/nuon-install.sh" --no-input
+
+      - name: Write Nuon config
+        env:
+          NUON_CONFIG: ${{ secrets.NUON_CONFIG }}
+        run: |
+          printf '%s\n' "$NUON_CONFIG" > "$HOME/.nuon"
+          chmod 600 "$HOME/.nuon"
+
+      - name: Sync ${{ matrix.app }}
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          nuon apps sync "$APP" --create
+
+  summary:
+    needs: [discover, sync]
+    if: always() && needs.discover.outputs.has_apps == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write summary
+        env:
+          MATRIX: ${{ needs.discover.outputs.matrix }}
+          SYNC_RESULT: ${{ needs.sync.result }}
+          ENVIRONMENT: ${{ inputs.environment || 'prod' }}
+          REF: ${{ inputs.ref || github.ref }}
+        run: |
+          {
+            echo "## Sync All Nuon Apps"
+            echo ""
+            echo "- **Environment:** \`$ENVIRONMENT\`"
+            echo "- **Ref:** \`$REF\`"
+            echo "- **Sync job result:** \`$SYNC_RESULT\`"
+            echo ""
+            echo "### Apps"
+            echo "$MATRIX" | jq -r '.app[] | "- `" + . + "`"'
+          } >> "$GITHUB_STEP_SUMMARY"
