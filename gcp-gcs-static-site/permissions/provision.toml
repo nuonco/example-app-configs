@@ -5,5 +5,95 @@ display_name   = "provision role"
 cloud_platform = "gcp"
 
 [[policies]]
-name                = "owner"
-gcp_predefined_role = "roles/owner"
+name            = "{{ .nuon.install.id }}-provision-project"
+gcp_permissions = [
+  "resourcemanager.projects.get",
+  "serviceusage.services.enable",
+  "serviceusage.services.get",
+  "serviceusage.services.list",
+]
+
+[[policies]]
+name            = "{{ .nuon.install.id }}-provision-compute"
+gcp_permissions = [
+  "compute.backendBuckets.create",
+  "compute.backendBuckets.delete",
+  "compute.backendBuckets.get",
+  "compute.backendBuckets.list",
+  "compute.backendBuckets.update",
+  "compute.backendBuckets.use",
+  "compute.globalAddresses.create",
+  "compute.globalAddresses.delete",
+  "compute.globalAddresses.get",
+  "compute.globalAddresses.list",
+  "compute.globalAddresses.use",
+  "compute.globalForwardingRules.create",
+  "compute.globalForwardingRules.delete",
+  "compute.globalForwardingRules.get",
+  "compute.globalForwardingRules.list",
+  "compute.globalForwardingRules.setTarget",
+  "compute.globalOperations.get",
+  "compute.networks.create",
+  "compute.networks.delete",
+  "compute.networks.update",
+  "compute.networks.get",
+  "compute.networks.list",
+  "compute.targetHttpProxies.create",
+  "compute.targetHttpProxies.delete",
+  "compute.targetHttpProxies.get",
+  "compute.targetHttpProxies.list",
+  "compute.targetHttpProxies.setUrlMap",
+  "compute.targetHttpProxies.use",
+  "compute.urlMaps.create",
+  "compute.urlMaps.delete",
+  "compute.urlMaps.get",
+  "compute.urlMaps.list",
+  "compute.urlMaps.update",
+  "compute.urlMaps.use",
+  "compute.zones.list",
+]
+
+[[policies]]
+name            = "{{ .nuon.install.id }}-provision-dns"
+gcp_permissions = [
+  "dns.changes.create",
+  "dns.changes.get",
+  "dns.changes.list",
+  "dns.managedZones.create",
+  "dns.managedZones.delete",
+  "dns.managedZones.get",
+  "dns.managedZones.list",
+  "dns.managedZones.update",
+  "dns.resourceRecordSets.create",
+  "dns.resourceRecordSets.delete",
+  "dns.resourceRecordSets.get",
+  "dns.resourceRecordSets.list",
+  "dns.resourceRecordSets.update",
+]
+
+[[policies]]
+name            = "{{ .nuon.install.id }}-provision-artifactregistry"
+gcp_permissions = [
+  "artifactregistry.repositories.create",
+  "artifactregistry.repositories.delete",
+  "artifactregistry.repositories.get",
+  "artifactregistry.repositories.list",
+  "artifactregistry.repositories.update",
+]
+
+[[policies]]
+name            = "{{ .nuon.install.id }}-provision-storage"
+gcp_permissions = [
+  "storage.buckets.create",
+  "storage.buckets.delete",
+  "storage.buckets.get",
+  "storage.buckets.getIamPolicy",
+  "storage.buckets.list",
+  "storage.buckets.setIamPolicy",
+  "storage.buckets.update",
+  "storage.objects.create",
+  "storage.objects.delete",
+  "storage.objects.get",
+  "storage.objects.list",
+  "storage.objects.update",
+]
