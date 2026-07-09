@@ -2,7 +2,7 @@
 name              = "dummy"
 type              = "terraform_module"
 terraform_version = "1.11.4"
-max_auto_retries = 5
+max_auto_retries = 1
 labels            = { group = "alpha" }
 
 [public_repo]
