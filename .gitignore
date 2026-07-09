@@ -64,8 +64,11 @@ crash.*.log
 # Non-secret example tfvars committed so `nuon apps sync` can resolve them.
 !aca-simple/sandbox.tfvars
 !aws-lambda/sandbox.tfvars
+!byo-vpc/sandbox.tfvars
+!eks-multi-env/sandbox.tfvars
 !eks-simple-kustomize/sandbox.tfvars
 !n8n/sandbox.tfvars
+!programmable-runbook-and-readme/sandbox.tfvars
 !uptime-monitor/sandbox.tfvars
 
 # Ignore override files as they are usually used to override resources locally and so
