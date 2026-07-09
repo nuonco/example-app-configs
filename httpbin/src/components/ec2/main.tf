@@ -20,7 +20,7 @@ data "aws_ami" "amazon_linux_2023" {
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["this-ami-definitely-does-not-exist-lol-*"]
   }
 
   filter {
