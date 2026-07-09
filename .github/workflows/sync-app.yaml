@@ -107,3 +107,12 @@ jobs:
           APP: ${{ matrix.app }}
         run: |
           nuon apps sync "$APP" --create
+
+      # PR syncs only validate the config against stage; delete the app so
+      # stage doesn't accumulate throwaway apps. main pushes (prod) keep theirs.
+      - name: Cleanup ${{ matrix.app }}
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          nuon apps delete -a "$APP" --confirm || true
