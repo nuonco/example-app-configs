@@ -22,9 +22,6 @@ on:
         type: string
         default: ""
 
-  schedule:
-    - cron: "0 6 * * *"
-
   workflow_call:
     inputs:
       environment:
@@ -138,6 +135,15 @@ jobs:
           APP: ${{ matrix.app }}
         run: |
           nuon apps sync "$APP" --create
+
+      # sync-all-apps only validates that configs sync cleanly; always delete
+      # the app afterwards so no artifacts are left behind, in any environment.
+      - name: Cleanup ${{ matrix.app }}
+        if: ${{ always() }}
+        env:
+          APP: ${{ matrix.app }}
+        run: |
+          nuon apps delete -a "$APP" --confirm || true
 
   summary:
     needs: [discover, sync]
