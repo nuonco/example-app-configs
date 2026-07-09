@@ -1,43 +1,58 @@
-# End-to-end install test for the aws-lambda app.
+# End-to-end install test for example app configs.
 #
-# Creates a real install in the stage org, applies the Nuon CloudFormation
-# install stack into a test AWS account (assumed via GitHub OIDC), waits for the
-# runner + sandbox + components to go active, verifies the public endpoint via
-# the http_healthcheck action, then tears everything down.
+# For each selected app it creates a real install in the stage org, applies the
+# Nuon CloudFormation install stack into a test AWS account (assumed via GitHub
+# OIDC), waits for the runner + sandbox + components to go active, runs the
+# app's verify action, then tears the install down.
 #
-# Prerequisites (configured on the `stage` GitHub Environment):
-#   - secret NUON_CONFIG   : ~/.nuon contents (api_url, org_id, api_token) for stage
-#   - secret AWS_ROLE_ARN  : IAM role to assume via OIDC; must be able to create
-#                            the install stack (IAM, VPC/EC2, Lambda, CFN nested
-#                            stacks, Logs, custom resources) and delete it
+# The target control-plane environment is chosen at dispatch (`environment`
+# input: stage or prod); all secrets resolve from the matching GitHub Environment.
+#
+# Teardown only runs when the app's install succeeded. If any step fails the
+# install is left running so it can be inspected. A second matrix job, `cleanup`,
+# runs only on failure and is gated behind the `<environment>-cleanup` GitHub
+# Environment: it pauses for manual approval (inspect first), then tears down the
+# exact install this run created for the failed app. Installs are named
+# deterministically as <app>-ci-<run_id>-<run_attempt> so cleanup can find them
+# without any ids.
+#
+# Prerequisites (per environment, e.g. `stage` and `prod`):
+#   - `<env>` GitHub Environment (no required reviewers, so tests run un-gated):
+#       - secret NUON_CONFIG   : ~/.nuon contents (api_url, org_id, api_token)
+#       - secret AWS_ROLE_ARN  : IAM role to assume via OIDC; must be able to create
+#                                and delete the install stack (IAM, VPC/EC2, ECS/EKS,
+#                                Lambda, CFN nested stacks, Logs, custom resources)
+#   - `<env>-cleanup` GitHub Environment WITH required reviewer(s): gates the
+#     cleanup job so it waits for an approval before tearing a failed install
+#     down. Needs the same NUON_CONFIG / AWS_ROLE_ARN secrets as `<env>`.
 #
 # NOTE: the AWS_ROLE_ARN role is currently provisioned MANUALLY (not IaC) in the
-# sandbox-ht account (504178855485) as gha-example-app-configs-e2e:
-#   - trust: GitHub OIDC, sub=repo:nuonco/example-app-configs:environment:stage
+# demo account (949309607565) as gha-example-app-configs-e2e:
+#   - trust: GitHub OIDC, sub=repo:nuonco/example-app-configs:environment:{stage,prod,stage-cleanup,prod-cleanup}
 #   - policy: AdministratorAccess
-# TODO: move this to mono IaC (infra/aws/lib/accounts.ts) in the demo account.
+# TODO: move this to mono IaC (infra/aws/lib/accounts.ts).
 #
 # Components are pinned to branch=main, so this always tests released config.
 
-name: E2E Install Test (aws-lambda)
+name: E2E Install Test
+run-name: E2E Install Test
 
 on:
-  # TEMPORARY: remove before merging to main. Lets us test the workflow from the
-  # feature branch (workflow_dispatch only works once the file is on main).
-  push:
-    branches: [ht/install-test]
   workflow_dispatch:
     inputs:
-      install_name:
-        description: "Install name (default: aws-lambda-ci-<UTC yyyymmdd-HHMMSS>)"
+      environment:
+        description: "Nuon control-plane environment to test against"
+        type: choice
+        options:
+          - stage
+          - prod
+        default: stage
+      apps:
+        description: "Apps to test (space or comma separated)"
         type: string
-        default: ""
-      region:
-        description: AWS region to install into
-        type: string
-        default: us-east-1
+        default: "aws-lambda ecs-simple eks-simple"
       keep_alive:
-        description: Skip teardown (leave the install running for debugging)
+        description: Skip teardown even on success (leave installs running)
         type: boolean
         default: false
       NUON_DEBUG:
@@ -54,17 +69,55 @@ defaults:
     shell: bash
 
 jobs:
-  install-test:
-    name: Install, verify, teardown
+  setup:
+    name: Build test matrix
     runs-on: ubuntu-latest
-    environment: stage
-    timeout-minutes: 45
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - id: build
+        env:
+          APPS_INPUT: ${{ inputs.apps }}
+        run: |
+          set -euo pipefail
+          # Known apps -> per-app test config. Add new apps here.
+          known='{
+            "aws-lambda": {"app":"aws-lambda","region":"us-east-1","install_config":"aws-lambda/installs/aws-lambda-ci-stage.toml","verify_action":"http_healthcheck"},
+            "ecs-simple": {"app":"ecs-simple","region":"us-east-1","install_config":"ecs-simple/installs/ecs-simple-ci-stage.toml","verify_action":"curl_endpoint"},
+            "eks-simple": {"app":"eks-simple","region":"us-east-1","install_config":"eks-simple/installs/eks-simple-ci-stage.toml","verify_action":"alb_healthcheck"}
+          }'
+          include='[]'
+          for a in $(echo "$APPS_INPUT" | tr ',' ' '); do
+            entry=$(echo "$known" | jq -c --arg a "$a" '.[$a] // empty')
+            if [ -z "$entry" ]; then
+              echo "::error::unknown app '$a' (known: $(echo "$known" | jq -r 'keys | join(", ")'))"
+              exit 1
+            fi
+            include=$(echo "$include" | jq -c --argjson e "$entry" '. + [$e]')
+          done
+          if [ "$(echo "$include" | jq 'length')" = "0" ]; then
+            echo "::error::no apps selected"
+            exit 1
+          fi
+          echo "matrix={\"include\":$include}" >> "$GITHUB_OUTPUT"
+          echo "Testing apps: $(echo "$include" | jq -r '[.[].app] | join(", ")')"
+
+  install-test:
+    needs: setup
+    name: ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
     env:
       NUON_DEBUG: ${{ inputs.NUON_DEBUG }}
-      AWS_REGION: ${{ inputs.region || 'us-east-1' }}
-      APP: aws-lambda
-      INSTALL_NAME_PREFIX: aws-lambda-ci
-      INSTALL_CONFIG: aws-lambda/installs/aws-lambda-ci-stage.toml
+      NUON_PREVIEW: "true"
+      AWS_REGION: ${{ matrix.region }}
+      APP: ${{ matrix.app }}
+      INSTALL_CONFIG: ${{ matrix.install_config }}
+      VERIFY_ACTION: ${{ matrix.verify_action }}
       STACK_PREFIX: nuon-e2e
     steps:
       - name: Checkout
@@ -88,14 +141,11 @@ jobs:
         run: nuon apps sync "$APP" --create
 
       - name: Create install
-        env:
-          INPUT_NAME: ${{ inputs.install_name }}
         run: |
           set -euo pipefail
-          INSTALL_NAME="$INPUT_NAME"
-          if [ -z "$INSTALL_NAME" ]; then
-            INSTALL_NAME="${INSTALL_NAME_PREFIX}-$(date -u +%Y%m%d-%H%M%S)"
-          fi
+          # Deterministic per-run name so the cleanup job can recompute it and
+          # target this exact install without carrying any ids across jobs.
+          INSTALL_NAME="${APP}-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           echo "INSTALL_NAME=$INSTALL_NAME" >> "$GITHUB_ENV"
           echo "Using install name: $INSTALL_NAME"
 
@@ -105,7 +155,7 @@ jobs:
           sed -E "s|^name[[:space:]]*=.*|name = \"${INSTALL_NAME}\"|" "$INSTALL_CONFIG" > "$cfg"
           nuon installs sync -a "$APP" -d "$cfg" -y
 
-          INSTALL_ID=$(nuon installs list -a "$APP" --json \
+          INSTALL_ID=$(nuon installs list -a "$APP" --output json \
             | jq -r --arg n "$INSTALL_NAME" '.[] | select(.name==$n) | .id' | head -1)
           if [ -z "$INSTALL_ID" ] || [ "$INSTALL_ID" = "null" ]; then
             echo "::error::could not resolve install id for $INSTALL_NAME"
@@ -118,8 +168,23 @@ jobs:
       - name: Apply CloudFormation install stack
         run: |
           set -euo pipefail
-          TEMPLATE_URL=$(nuon installs stacks latest --install-id "$INSTALL_ID" --json \
-            | jq -r '.template_url')
+          # The install stack template is generated asynchronously after the
+          # install is created; until then, `stacks latest` prints a non-JSON
+          # "no stack versions found" message, so tolerate parse failures.
+          deadline=$(( $(date +%s) + 300 ))
+          while :; do
+            stack=$(nuon installs stacks latest --install-id "$INSTALL_ID" --output json 2>/dev/null || true)
+            TEMPLATE_URL=$(echo "$stack" | jq -r '.template_url // ""' 2>/dev/null || echo "")
+            if [ -n "$TEMPLATE_URL" ] && [ "$TEMPLATE_URL" != "null" ]; then
+              break
+            fi
+            echo "waiting for install stack template to generate..."
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::timed out waiting for install stack template to generate"
+              exit 1
+            fi
+            sleep 10
+          done
           echo "Applying stack $STACK_NAME from $TEMPLATE_URL"
           aws cloudformation create-stack \
             --stack-name "$STACK_NAME" \
@@ -133,9 +198,15 @@ jobs:
       - name: Wait for install to go active
         run: |
           set -euo pipefail
-          deadline=$(( $(date +%s) + 1800 ))
+          # The runner boots from an autoscaling group while the CloudFormation
+          # stack is still creating. Until the stack's PhoneHome lambda reports
+          # the install's AWS account id (at stack completion), the runner's IID
+          # auth returns 403 and the VM cycles, so runner_status is transiently
+          # "error" ("waiting for health check to mark healthy"). Treat those as
+          # transient and only fail on the overall deadline.
+          deadline=$(( $(date +%s) + 7200 ))
           while :; do
-            json=$(nuon installs get -i "$INSTALL_ID" --json)
+            json=$(nuon installs get -i "$INSTALL_ID" --output json)
             runner=$(echo "$json" | jq -r '.runner_status // "unknown"')
             sandbox=$(echo "$json" | jq -r '.sandbox_status // "unknown"')
             comp=$(echo "$json" | jq -r '.composite_component_status // "unknown"')
@@ -144,62 +215,78 @@ jobs:
               echo "install is active"
               break
             fi
-            case "$runner $sandbox $comp" in
-              *error*|*failed*)
-                echo "::error::install entered a failed state"
-                echo "$json" | jq '{runner_status,sandbox_status,composite_component_status,composite_component_status_description}'
-                exit 1
-                ;;
-            esac
             if [ "$(date +%s)" -ge "$deadline" ]; then
               echo "::error::timed out waiting for install to go active"
+              echo "$json" | jq '{runner_status,runner_status_description,sandbox_status,composite_component_status,composite_component_status_description}'
               exit 1
             fi
             sleep 20
           done
 
-      - name: Verify public endpoint (http_healthcheck)
+      - name: Verify install
         run: |
           set -euo pipefail
-          ACW=$(nuon installs actions list -i "$INSTALL_ID" --json \
-            | jq -r '.[] | select(.action_workflow.name=="http_healthcheck") | .action_workflow.id' | head -1)
+          ACW=$(nuon installs actions list -i "$INSTALL_ID" --output json \
+            | jq -r --arg n "$VERIFY_ACTION" '.[] | select(.action_workflow.name==$n) | .action_workflow.id' | head -1)
           if [ -z "$ACW" ] || [ "$ACW" = "null" ]; then
-            echo "::error::http_healthcheck action not found"
+            echo "::error::verify action '$VERIFY_ACTION' not found"
             exit 1
           fi
-          nuon actions create-run -w "$ACW" -i "$INSTALL_ID"
+          # Some verify actions also auto-trigger when the install goes active,
+          # and those early runs can fail transiently (e.g. TLS before the ACM
+          # cert/DNS is ready). Trigger our own run, only track runs created at
+          # or after our trigger (never recent-runs[0], which races with an auto
+          # run), and retry on a transient error until it succeeds. When the run
+          # exposes an http_status_code output, additionally require 200.
+          attempts=6
+          for attempt in $(seq 1 "$attempts"); do
+            start_ts=$(date +%s)
+            nuon actions create-run -w "$ACW" -i "$INSTALL_ID"
 
-          deadline=$(( $(date +%s) + 300 ))
-          while :; do
-            run=$(nuon actions recent-runs -w "$ACW" -i "$INSTALL_ID" --json | jq -r '.[0]')
-            rid=$(echo "$run" | jq -r '.id')
-            status=$(echo "$run" | jq -r '.status')
-            echo "run=$rid status=$status"
-            case "$status" in
-              finished) break ;;
-              error|failed)
-                echo "::error::http_healthcheck run failed"
-                exit 1
-                ;;
-            esac
-            if [ "$(date +%s)" -ge "$deadline" ]; then
-              echo "::error::timed out waiting for http_healthcheck"
-              exit 1
+            rid=""; status=""
+            deadline=$(( $(date +%s) + 180 ))
+            while :; do
+              run=$(nuon actions recent-runs -w "$ACW" -i "$INSTALL_ID" --output json \
+                | jq -r --argjson ts "$start_ts" \
+                    '[.[] | select((.created_at | sub("\\.[0-9]+Z$";"Z") | fromdateiso8601) >= $ts)] | .[0] // empty')
+              rid=$(echo "$run" | jq -r '.id // empty')
+              status=$(echo "$run" | jq -r '.status // empty')
+              echo "attempt=$attempt run=${rid:-none} status=${status:-none}"
+              case "$status" in
+                finished|error|failed) break ;;
+              esac
+              if [ "$(date +%s)" -ge "$deadline" ]; then
+                echo "run did not settle in time; retrying"
+                status="timeout"; break
+              fi
+              sleep 10
+            done
+
+            if [ "$status" = "finished" ]; then
+              code=$(nuon actions get-run --run-id "$rid" -i "$INSTALL_ID" --output json \
+                | jq -r '.outputs.http_status_code // .outputs.steps.check.http_status_code // empty')
+              if [ -n "$code" ]; then
+                echo "http_status_code=$code"
+                if [ "$code" = "200" ]; then
+                  echo "$VERIFY_ACTION healthy (200)"
+                  exit 0
+                fi
+                echo "endpoint returned $code; retrying"
+              else
+                echo "$VERIFY_ACTION finished successfully"
+                exit 0
+              fi
             fi
-            sleep 10
+            sleep 15
           done
-
-          code=$(nuon actions get-run --run-id "$rid" -i "$INSTALL_ID" --json \
-            | jq -r '.outputs.http_status_code // .outputs.steps.check.http_status_code')
-          echo "http_status_code=$code"
-          if [ "$code" != "200" ]; then
-            echo "::error::endpoint returned $code, expected 200"
-            exit 1
-          fi
-          echo "endpoint healthy (200)"
+          echo "::error::$VERIFY_ACTION did not succeed after $attempts attempts"
+          exit 1
 
       - name: Teardown
-        if: ${{ always() && inputs.keep_alive != true && env.INSTALL_ID != '' }}
+        # Only tear down when this app's install succeeded. On any failure the
+        # install is left running for inspection; the approval-gated `cleanup`
+        # job below tears it down once you approve.
+        if: ${{ success() && inputs.keep_alive != true && env.INSTALL_ID != '' }}
         run: |
           set -uo pipefail
           echo "Deprovisioning install $INSTALL_ID"
@@ -207,15 +294,17 @@ jobs:
 
           # sandbox_status reports "unknown" once torn down, so key off a
           # completed deprovision sandbox run plus all components inactive.
-          deadline=$(( $(date +%s) + 900 ))
+          deadline=$(( $(date +%s) + 1800 ))
           while :; do
-            comps=$(nuon installs get -i "$INSTALL_ID" --json 2>/dev/null \
+            runs=$(nuon installs sandbox-runs --install-id "$INSTALL_ID" --output json 2>/dev/null || echo '[]')
+            comps=$(nuon installs get -i "$INSTALL_ID" --output json 2>/dev/null \
               | jq -r '(.component_statuses // {}) | [.[]] as $s | ($s|length>0) and ($s|all(.=="inactive"))' 2>/dev/null || echo false)
-            deprov=$(nuon installs sandbox-runs --install-id "$INSTALL_ID" --json 2>/dev/null \
-              | jq -r 'any(.[]; .run_type=="deprovision" and .status=="deprovisioned")' 2>/dev/null || echo false)
-            echo "components_inactive=$comps deprovisioned=$deprov"
-            if [ "$comps" = "true" ] && [ "$deprov" = "true" ]; then
-              echo "deprovision complete"
+            deprov=$(echo "$runs" | jq -r 'any(.[]; .run_type=="deprovision" and .status=="deprovisioned")' 2>/dev/null || echo false)
+            # If the install never provisioned a sandbox there is nothing to wait on.
+            never_provisioned=$(echo "$runs" | jq -r 'length==0' 2>/dev/null || echo false)
+            echo "components_inactive=$comps deprovisioned=$deprov never_provisioned=$never_provisioned"
+            if { [ "$comps" = "true" ] && [ "$deprov" = "true" ]; } || [ "$never_provisioned" = "true" ]; then
+              echo "nothing left to deprovision"
               break
             fi
             [ "$(date +%s)" -ge "$deadline" ] && { echo "::warning::deprovision wait timed out, continuing to stack delete"; break; }
@@ -227,6 +316,84 @@ jobs:
             aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$AWS_REGION" || true
             aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$AWS_REGION" || true
           fi
+
+          echo "Deleting install $INSTALL_ID"
+          nuon installs delete -i "$INSTALL_ID" --confirm || true
+
+  cleanup:
+    needs: [setup, install-test]
+    # Runs only when a test leg failed (setup itself must have succeeded so we
+    # have a matrix). Gated behind the `e2e-cleanup` environment: the job waits
+    # for a reviewer to approve before touching anything, so failed installs can
+    # be inspected first. It fans out over the same apps; legs whose install
+    # already succeeded (and auto-torn-down) find nothing and no-op, so only the
+    # failed app's install is actually torn down.
+    if: ${{ failure() && needs.setup.result == 'success' }}
+    name: cleanup ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}-cleanup
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
+    env:
+      NUON_DEBUG: ${{ inputs.NUON_DEBUG }}
+      NUON_PREVIEW: "true"
+      AWS_REGION: ${{ matrix.region }}
+      APP: ${{ matrix.app }}
+      STACK_PREFIX: nuon-e2e
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install nuon CLI
+        run: ./scripts/install-cli.sh
+
+      - name: Configure nuon auth
+        env:
+          NUON_CONFIG: ${{ secrets.NUON_CONFIG }}
+        run: printf '%s' "$NUON_CONFIG" > "$HOME/.nuon"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Teardown failed install
+        run: |
+          set -uo pipefail
+          # Recompute the exact name this run used for this app.
+          INSTALL_NAME="${APP}-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          INSTALL_ID=$(nuon installs list -a "$APP" --output json \
+            | jq -r --arg n "$INSTALL_NAME" '.[] | select(.name==$n) | .id' | head -1)
+          if [ -z "$INSTALL_ID" ] || [ "$INSTALL_ID" = "null" ]; then
+            echo "no leftover install '$INSTALL_NAME' (already cleaned up); nothing to do"
+            exit 0
+          fi
+          STACK_NAME="${STACK_PREFIX}-${INSTALL_ID}"
+          echo "Cleaning up install $INSTALL_ID ($INSTALL_NAME)"
+
+          nuon installs deprovision -i "$INSTALL_ID" || true
+          deadline=$(( $(date +%s) + 1800 ))
+          while :; do
+            runs=$(nuon installs sandbox-runs --install-id "$INSTALL_ID" --output json 2>/dev/null || echo '[]')
+            comps=$(nuon installs get -i "$INSTALL_ID" --output json 2>/dev/null \
+              | jq -r '(.component_statuses // {}) | [.[]] as $s | ($s|length>0) and ($s|all(.=="inactive"))' 2>/dev/null || echo false)
+            deprov=$(echo "$runs" | jq -r 'any(.[]; .run_type=="deprovision" and .status=="deprovisioned")' 2>/dev/null || echo false)
+            never_provisioned=$(echo "$runs" | jq -r 'length==0' 2>/dev/null || echo false)
+            echo "components_inactive=$comps deprovisioned=$deprov never_provisioned=$never_provisioned"
+            if { [ "$comps" = "true" ] && [ "$deprov" = "true" ]; } || [ "$never_provisioned" = "true" ]; then
+              echo "nothing left to deprovision"
+              break
+            fi
+            [ "$(date +%s)" -ge "$deadline" ] && { echo "::warning::deprovision wait timed out, continuing to stack delete"; break; }
+            sleep 20
+          done
+
+          echo "Deleting stack $STACK_NAME"
+          aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$AWS_REGION" || true
+          aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$AWS_REGION" || true
 
           echo "Deleting install $INSTALL_ID"
           nuon installs delete -i "$INSTALL_ID" --confirm || true
