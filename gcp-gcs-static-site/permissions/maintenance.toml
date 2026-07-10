@@ -71,6 +71,14 @@ gcp_permissions = [
 name            = "{{ .nuon.install.id }}-maintenance-artifactregistry"
 gcp_permissions = [
   "artifactregistry.repositories.get",
+  "artifactregistry.repositories.downloadArtifacts",
+  "artifactregistry.repositories.uploadArtifacts",
+  "artifactregistry.packages.get",
+  "artifactregistry.packages.list",
+  "artifactregistry.tags.get",
+  "artifactregistry.tags.list",
+  "artifactregistry.versions.get",
+  "artifactregistry.versions.list",
   "artifactregistry.repositories.list",
   "artifactregistry.repositories.update",
 ]
