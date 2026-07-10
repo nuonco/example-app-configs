@@ -1,15 +1,14 @@
 # Sync workflows
 
-`sync-app.yaml` and `sync-all-apps.yaml` sync app configs to a Nuon API using a
-per-environment [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
+`sync-all-apps.yaml` syncs app configs to a Nuon API using a per-environment
+[GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
 secret named `NUON_CONFIG`.
 
-- `sync-app.yaml` runs on PRs (against the `stage` environment) and on pushes to
-  `main` (against the `prod` environment).
-- `sync-all-apps.yaml` is dispatched manually (or on schedule) and lets you pick
-  the environment, ref, and an optional subset of apps.
+- `sync-all-apps.yaml` is dispatched manually and lets you pick the environment,
+  ref, and an optional subset of apps. Syncing never happens automatically on
+  PRs or pushes.
 
-Each job selects a GitHub Environment and reads `secrets.NUON_CONFIG` from it,
+The job selects a GitHub Environment and reads `secrets.NUON_CONFIG` from it,
 writing the value to `$HOME/.nuon` before running `nuon apps sync`.
 
 ## Adding a new environment
@@ -72,8 +71,7 @@ The `NUON_CONFIG` secret is the full `~/.nuon` YAML config, and its `api_token`
    ```
 
 6. To make it selectable in `sync-all-apps.yaml`, add the environment name to the
-   `environment` input `options` list. To use it automatically in `sync-app.yaml`,
-   update the `environment:` expression on the `sync` job.
+   `environment` input `options` list.
 
 Because the secret carries `api_url`, `org_id`, and the admin `api_token`, each
 environment is fully scoped by its own `NUON_CONFIG` — no other workflow changes
