@@ -59,6 +59,7 @@ gcp_permissions = [
   "dns.changes.create",
   "dns.changes.get",
   "dns.changes.list",
+  "dns.networks.bindPrivateDNSZone",
   "dns.managedZones.create",
   "dns.managedZones.delete",
   "dns.managedZones.get",
