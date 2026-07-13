@@ -14,4 +14,4 @@ install_id              = "{{ .nuon.install.id }}"
 rds_subnet_name         = "rds-subnet-langfuse-{{ .nuon.install.id }}"
 rds_subnet_display_name = "Langfuse RDS Subnet {{ .nuon.install.id }}"
 region                  = "{{ .nuon.sandbox.outputs.account.region }}"
-private_subnet_ids      = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+private_subnet_ids      = '{{ .nuon.sandbox.outputs.vpc.private_subnet_ids | join "," }}'

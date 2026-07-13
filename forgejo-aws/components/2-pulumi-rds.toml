@@ -14,7 +14,7 @@ branch    = "main"
 [env_vars]
 INSTALL_ID         = "{{ .nuon.install.id }}"
 VPC_ID             = "{{ .nuon.install.sandbox.outputs.vpc.id }}"
-PRIVATE_SUBNET_IDS = "{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 0 }},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+PRIVATE_SUBNET_IDS = '{{ .nuon.install.sandbox.outputs.vpc.private_subnet_ids | join "," }}'
 NODE_SECURITY_GROUP_ID = "{{ .nuon.install.sandbox.outputs.cluster.node_security_group_id }}"
 DB_INSTANCE_CLASS  = "{{ .nuon.inputs.inputs.db_instance_class }}"
 DB_STORAGE_GB      = "{{ .nuon.inputs.inputs.db_storage_gb }}"

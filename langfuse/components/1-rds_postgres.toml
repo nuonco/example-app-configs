@@ -20,7 +20,7 @@ subnet_group_id = "{{ .nuon.components.rds_subnet.outputs.id }}"
 
 region     = "{{ .nuon.install_stack.outputs.region }}"
 vpc_id     = "{{ .nuon.install_stack.outputs.vpc_id }}"
-subnet_ids = "{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+subnet_ids = '{{ .nuon.sandbox.outputs.vpc.private_subnet_ids | join "," }}'
 
 nuon_id = "{{ .nuon.install.id }}"
 

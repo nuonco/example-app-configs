@@ -83,5 +83,5 @@ branch    = "main"
 region                 = "{{ .nuon.install_stack.outputs.region }}"
 install_id             = "{{ .nuon.install.id }}"
 vpc_id                 = "{{ .nuon.install.sandbox.outputs.vpc.id }}"
-private_subnet_ids     = "{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 0}},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 1 }},{{ index .nuon.install.sandbox.outputs.vpc.private_subnet_ids 2 }}"
+private_subnet_ids     = '{{ .nuon.install.sandbox.outputs.vpc.private_subnet_ids | join "," }}'
 node_security_group_id = "{{ .nuon.install.sandbox.outputs.cluster.node_security_group_id }}"
