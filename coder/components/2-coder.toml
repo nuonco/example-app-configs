@@ -6,12 +6,12 @@ chart_name     = "coder"
 namespace      = "coder"
 storage_driver = "configmap"
 dependencies   = ["rds_cluster_coder"]
-max_auto_retries = 5
+max_auto_retries = 7
 skip_noops       = true
 
 [helm_repo]
 repo_url = "https://helm.coder.com/v2"
-chart    = "coder"
+chart    = "coder-dne1"
 
 [[values_file]]
 contents = "./values/coder.yaml"
