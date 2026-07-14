@@ -1,0 +1,14 @@
+# terraform
+name              = "dummy"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+max_auto_retries = 1
+labels            = { group = "alpha" }
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "httpbin/src/components/dummy"
+branch    = "ey/alpha"
+
+[vars]
+install_id = "{{.nuon.install.id}}"
