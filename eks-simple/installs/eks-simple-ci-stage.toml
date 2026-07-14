@@ -1,0 +1,11 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "eks-simple-ci-stage"
+approval_option = "approve-all"
+
+[aws_account]
+  region = "us-east-1"
+
+[[inputs]]
+domain = "stage.nuon.run"
+sub_domain = "whoami"
