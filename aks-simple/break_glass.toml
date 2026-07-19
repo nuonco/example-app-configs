@@ -1,14 +1,11 @@
 [[role]]
 name                 = "{{.nuon.install.id}}-aks-simple-sandbox-break-glass"
+cloud_platform       = "azure"
 description          = "grants access to the sandbox for install {{.nuon.install.id}}."
 display_name         = "break glass role"
 
-# Placeholder policy for Azure (actual permissions via RBAC)
+# Bound to a dedicated break-glass managed identity, assumed only when explicitly
+# selected. Owner grants full access to the install's resource group.
 [[role.policies]]
-name = "placeholder"
-contents = """
-{
-    "Version": "2012-10-17",
-    "Statement": []
-}
-"""
+name = "break-glass"
+azure_built_in_roles = ["Owner"]
