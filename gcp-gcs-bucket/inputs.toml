@@ -1,0 +1,12 @@
+[[group]]
+name         = "storage"
+description  = "Storage configuration"
+display_name = "Storage"
+
+[[input]]
+name         = "bucket_versioning"
+description  = "Enable object versioning on the customer-created bucket."
+default      = "false"
+display_name = "Bucket Versioning"
+group        = "storage"
+type         = "bool"
