@@ -1,0 +1,14 @@
+# Pass-through: reads the bucket the install stack created and emits outputs
+# for downstream components.
+name              = "bucket"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-gcs-bucket/src/components/bucket"
+branch    = "am/gcp-gcs-bucket"
+
+[vars]
+install_id = "{{.nuon.install.id}}"
+project_id = "{{.nuon.install_stack.outputs.project_id}}"

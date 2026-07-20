@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "GCP GCS Bucket (custom stacks)"
+description  = "Customer-created GCS bucket via a curated install-stack custom stack, read back by a pass-through component."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "gcp"
