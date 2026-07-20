@@ -1,0 +1,17 @@
+type = "custom"
+cloud_platform = "azure"
+name = "{{.nuon.install.id}}-dns-manager"
+description = "manage DNS zones and records for the install."
+display_name = "dns manager role"
+
+# A fine-grained custom role: azure_actions are rolled into an Azure custom role
+# definition bound to a dedicated managed identity (vs azure_built_in_roles, which
+# assign Azure-managed roles).
+[[policies]]
+name = "dns"
+azure_actions = [
+  "Microsoft.Network/dnsZones/read",
+  "Microsoft.Network/dnsZones/recordSets/read",
+  "Microsoft.Network/dnsZones/recordSets/write",
+  "Microsoft.Network/dnsZones/recordSets/delete",
+]
