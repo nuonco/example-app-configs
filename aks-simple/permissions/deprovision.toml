@@ -1,6 +1,9 @@
 type = "deprovision"
+cloud_platform = "azure"
 name = "{{.nuon.install.id}}-deprovision"
 description = "deprovision sandbox and components."
 display_name = "deprovision role"
 
 [[policies]]
+name = "deprovision"
+azure_built_in_roles = ["Contributor"]

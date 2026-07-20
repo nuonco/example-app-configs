@@ -1,6 +1,12 @@
 type = "maintenance"
+cloud_platform = "azure"
 name = "{{ .nuon.install.id }}-maintenance"
 description = "operate and remediate the app's components and use actions."
 display_name = "maintenance role"
 
 [[policies]]
+name = "maintenance"
+azure_built_in_roles = [
+  "Contributor",
+  "Azure Kubernetes Service RBAC Cluster Admin",
+]

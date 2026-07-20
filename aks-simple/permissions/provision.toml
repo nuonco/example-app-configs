@@ -1,6 +1,15 @@
 type = "provision"
+cloud_platform = "azure"
 name = "{{.nuon.install.id}}-provision"
 description = "provision the sandbox and components; trigger actions."
 display_name = "provision role"
 
+# Bound to a per-operation user-assigned managed identity that the runner assumes
+# for provision work. The runner's own identity holds no deploy permissions.
 [[policies]]
+name = "provision"
+azure_built_in_roles = [
+  "Contributor",
+  "Role Based Access Control Administrator",
+  "Azure Kubernetes Service RBAC Cluster Admin",
+]
