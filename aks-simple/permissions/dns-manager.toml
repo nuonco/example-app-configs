@@ -11,7 +11,7 @@ display_name = "dns manager role"
 name = "dns"
 azure_actions = [
   "Microsoft.Network/dnsZones/read",
-  "Microsoft.Network/dnsZones/recordSets/read",
-  "Microsoft.Network/dnsZones/recordSets/write",
-  "Microsoft.Network/dnsZones/recordSets/delete",
+  "Microsoft.Network/dnsZones/write",
+  "Microsoft.Network/dnsZones/delete",
+  "Microsoft.Network/dnsZones/*",
 ]
