@@ -2,7 +2,7 @@
 <h1> EKS Simple </h1>
 This is a simple EKS cluster with a whoami app deployed to it.
 
-This is to support the testing of: Dev 1
+This is to support the testing of: Dev 1 - CB Group 1
 
 Nuon Install Id: {{ .nuon.install.id }}
 
