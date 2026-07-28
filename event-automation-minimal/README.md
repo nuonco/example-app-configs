@@ -77,10 +77,10 @@ full_tag=$(./scripts/2-push-gar-image.sh)
 echo "$full_tag"
 ```
 
-Artifact Registry notifications are asynchronous. Watch the Nuon Events page or CLI until the `INSERT` event starts the runbook:
+Artifact Registry notifications are asynchronous. Open the `gar-tag-proof-pubsub-v2` Trigger's Events tab until the `INSERT` event starts the runbook. You can also confirm that the Trigger has received an event from the CLI:
 
 ```bash
-nuon events tail --trigger gar-tag-proof-pubsub-v2
+nuon triggers list
 ```
 
 Open the runbook in Nuon and confirm it is paused at `wait-for-release-approval`. Send the matching approval event:
