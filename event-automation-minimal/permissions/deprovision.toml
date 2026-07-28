@@ -1,0 +1,20 @@
+type           = "deprovision"
+cloud_platform = "aws"
+name           = "{{.nuon.install.id}}-deprovision"
+description    = "deprovision sandbox and components. you must still delete the cf stack to delete the runner, ec2 vm, and vpc."
+display_name   = "deprovision role"
+permissions_boundary = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "*",
+      "Resource": "*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

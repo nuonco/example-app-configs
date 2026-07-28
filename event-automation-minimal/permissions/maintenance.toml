@@ -1,0 +1,114 @@
+type           = "maintenance"
+cloud_platform = "aws"
+name           = "{{ .nuon.install.id }}-maintenance"
+description    = "operate and remediate the app's components and use actions."
+display_name   = "maintenance role"
+permissions_boundary = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCommonActions",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:*",
+        "ec2:*",
+        "eks:*",
+        "iam:*",
+        "rds:*",
+        "s3:*",
+        "secretsmanager:*",
+        "sqs:*",
+        "ecr:*",
+        "acm:*",
+        "Route53:*",
+        "kms:*",
+        "organizations:DescribeOrganization",
+        "elasticloadbalancing:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyS3ObjectActions",
+      "Effect": "Deny",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion",
+        "s3:GetObjectVersion",
+        "s3:GetObjectAcl",
+        "s3:PutObjectAcl",
+        "s3:RestoreObject"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+"""
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"
+
+[[policies]]
+name = "{{ .nuon.install.id }}-limited-secrets-manage-rds"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowSecretsManagerReadScoped",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:CreateSecret",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:TagResource",
+                "secretsmanager:UpdateSecret",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:GetResourcePolicy",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:ListSecretVersionIds"
+            ],
+            "Resource": "arn:aws:secretsmanager:{{ .nuon.cloud_account.aws.region }}::secret:rds!*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:ResourceTag/install.nuon.co/id": "{{ .nuon.install.id }}"
+                }
+            }
+        }
+    ]
+}
+"""
+
+[[policies]]
+name = "{{ .nuon.install.id }}-allow-secret-list"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowListSecrets",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:ListSecrets"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"""
+
+[[policies]]
+name = "bucket-put-policy-scoped"
+contents = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:PutBucketPolicy",
+            "Resource": "*"
+        }
+    ]
+}
+"""

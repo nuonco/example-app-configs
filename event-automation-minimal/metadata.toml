@@ -1,0 +1,5 @@
+#:schema http://localhost:8081/v1/general/config-schema/metadata
+
+version = "v2"
+display_name = "Event Automations E2E"
+description = "Minimal sandbox app for event automation acceptance testing"

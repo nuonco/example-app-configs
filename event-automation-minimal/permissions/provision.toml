@@ -1,0 +1,20 @@
+type           = "provision"
+cloud_platform = "aws"
+name           = "{{.nuon.install.id}}-provision"
+description    = "provision the sandbox and components; trigger actions."
+display_name   = "provision role"
+permissions_boundary = """
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "*",
+        "Resource": "*"
+      }
+    ]
+  }
+  """
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"

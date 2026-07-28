@@ -1,0 +1,41 @@
+#:schema http://localhost:8081/v1/general/config-schema/runbook
+
+name = "gar-release-approval-deploy"
+description = "Validate a GAR image tag, wait for an HTTP release approval, and record the approved image in Kubernetes."
+
+[[input]]
+name = "image_tag"
+display_name = "Image tag"
+description = "Full GAR image tag that triggered this runbook"
+required = true
+type = "string"
+
+[[steps]]
+name = "validate-trigger-tag"
+type = "action"
+timeout = "5m"
+inline_contents = "./src/1-validate-trigger-tag.sh"
+
+[[steps]]
+name = "wait-for-release-approval"
+type = "wait_for_event"
+trigger = "release-approval-http"
+event_types = ["release.approved"]
+
+[[steps.filters]]
+from = "payload"
+path = "$.tag"
+op = "eq"
+value = "{{.runbook_inputs.image_tag}}"
+
+[[steps]]
+name = "validate-release-approval"
+type = "action"
+timeout = "5m"
+inline_contents = "./src/2-validate-release-approval.sh"
+
+[[steps]]
+name = "record-approved-image-tag"
+type = "action"
+timeout = "5m"
+inline_contents = "./src/3-record-approved-image-tag.sh"

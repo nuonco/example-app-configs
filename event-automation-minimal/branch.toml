@@ -1,0 +1,8 @@
+#:schema http://localhost:8081/v1/general/config-schema/app-branch
+
+name = "main"
+
+[public_repo]
+repo = "nuonco/nuon"
+directory = "."
+branch = "main"

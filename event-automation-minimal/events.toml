@@ -1,0 +1,20 @@
+#:schema http://localhost:8081/v1/general/config-schema/events
+
+[[rules]]
+name = "new-clickhouse-tag"
+trigger = "gar-tag-proof-pubsub-v2"
+event_types = ["INSERT"]
+
+[[rules.filters]]
+from = "payload"
+path = "$.tag"
+op = "prefix"
+value = "us-west1-docker.pkg.dev/nuon-gcp-support/nuon-event-proof/clickhouse-server:"
+
+[rules.target]
+type = "runbook"
+runbook = "gar-release-approval-deploy"
+install = "replace-with-your-install-name"
+
+[rules.target.inputs]
+image_tag = "$.tag"
