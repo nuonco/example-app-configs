@@ -74,6 +74,14 @@ X-Forwarded-Proto: https
 
 ```
 
+## Continuous delivery via app branches
+
+This app is connected to the `main` branch of
+[nuonco/example-app-configs](https://github.com/nuonco/example-app-configs) through its `branch.toml`, so a push to that
+branch starts a coordinated update instead of a per-install change. Installs roll out by deployment group in order —
+installs labelled `env=stage` first, then `env=prod` — and every group is planned and waits for an approval before
+anything is deployed, so you always see the diff first.
+
 ## Cost Estimate
 Running this app in your environment will cost around $8/day.
 
