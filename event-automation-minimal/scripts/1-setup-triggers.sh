@@ -12,6 +12,7 @@ GAR_REPOSITORY=${GAR_REPOSITORY:-nuon-event-proof}
 GAR_IMAGE=${GAR_IMAGE:-clickhouse-server}
 GAR_TRIGGER_NAME=${GAR_TRIGGER_NAME:-gar-tag-proof-pubsub-v2}
 APPROVAL_TRIGGER_NAME=${APPROVAL_TRIGGER_NAME:-release-approval-http}
+BRANCH_TRIGGER_NAME=${BRANCH_TRIGGER_NAME:-app-branch-run-http}
 PUBSUB_TOPIC=${PUBSUB_TOPIC:-gcr}
 PUBSUB_SUBSCRIPTION=${PUBSUB_SUBSCRIPTION:-nuon-gar-tag-proof}
 PUBSUB_PUSH_SERVICE_ACCOUNT=${PUBSUB_PUSH_SERVICE_ACCOUNT:-nuon-event-push@${GCP_PROJECT}.iam.gserviceaccount.com}
@@ -73,6 +74,16 @@ approval_trigger_id=$(jq -r '.trigger.id' <<<"$approval_trigger")
 approval_ingress_url=$(jq -r '.ingress_url' <<<"$approval_trigger")
 approval_secret=$(jq -r '.secret' <<<"$approval_trigger")
 
+branch_trigger=$(nuon triggers create "$BRANCH_TRIGGER_NAME" \
+  --auth-type api_key \
+  --type-header X-Nuon-Event-Type \
+  --id-header X-Nuon-Event-ID \
+  --output json)
+
+branch_trigger_id=$(jq -r '.trigger.id' <<<"$branch_trigger")
+branch_ingress_url=$(jq -r '.ingress_url' <<<"$branch_trigger")
+branch_secret=$(jq -r '.secret' <<<"$branch_trigger")
+
 env_file=$(cd "$(dirname "$0")/.." && pwd)/.demo.env
 {
   printf 'GCP_PROJECT=%q\n' "$GCP_PROJECT"
@@ -83,8 +94,11 @@ env_file=$(cd "$(dirname "$0")/.." && pwd)/.demo.env
   printf 'APPROVAL_TRIGGER_ID=%q\n' "$approval_trigger_id"
   printf 'APPROVAL_INGRESS_URL=%q\n' "$approval_ingress_url"
   printf 'APPROVAL_TRIGGER_SECRET=%q\n' "$approval_secret"
+  printf 'BRANCH_TRIGGER_ID=%q\n' "$branch_trigger_id"
+  printf 'BRANCH_INGRESS_URL=%q\n' "$branch_ingress_url"
+  printf 'BRANCH_TRIGGER_SECRET=%q\n' "$branch_secret"
 } > "$env_file"
 chmod 600 "$env_file"
 
-echo "Created both Triggers and the Pub/Sub push subscription."
+echo "Created all three Triggers and the Pub/Sub push subscription."
 echo "Saved test credentials to $env_file."

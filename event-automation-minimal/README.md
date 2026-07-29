@@ -1,6 +1,6 @@
 # Event automation: GAR release approval
 
-This example demonstrates a complete external-event runbook plus an event-driven app branch run:
+This example demonstrates a complete external-event runbook plus event-driven app branch runs:
 
 1. A Docker image is pushed to Google Artifact Registry (GAR).
 2. Artifact Registry publishes an `INSERT` notification to the `gcr` Pub/Sub topic.
@@ -8,6 +8,7 @@ This example demonstrates a complete external-event runbook plus an event-driven
 4. The runbook validates the image tag and pauses at a `wait_for_event` step.
 5. An authenticated HTTP Trigger receives a matching `release.approved` event.
 6. The runbook resumes, reads the approval payload, and records the approved image in the install's `default` Kubernetes namespace.
+7. A separate authenticated HTTP Trigger can start an app branch run directly.
 
 ## Prerequisites
 
@@ -56,6 +57,7 @@ The setup script creates:
 
 - `gar-tag-proof-pubsub-v2`: Google Pub/Sub with Google-signed OIDC authentication.
 - `release-approval-http`: generic HTTP with API-key authentication.
+- `app-branch-run-http`: generic HTTP with API-key authentication for starting the `main` app branch.
 - The GAR repository and `gcr` topic if they do not exist.
 - A push-auth service account and Pub/Sub push subscription.
 
@@ -66,9 +68,9 @@ export GCP_PROJECT=nuon-gcp-support
 ./scripts/1-setup-triggers.sh
 ```
 
-The script writes the HTTP Trigger URL and API key to `.demo.env`, which is ignored by Git and mode `0600`. Trigger secrets are only shown when created or explicitly revealed; do not share or commit this file.
+The script writes the HTTP Trigger URLs and API keys to `.demo.env`, which is ignored by Git and mode `0600`. Trigger secrets are only shown when created or explicitly revealed; do not share or commit this file.
 
-If either Trigger already exists, delete it first or set `GAR_TRIGGER_NAME` and `APPROVAL_TRIGGER_NAME` and update the matching names in `triggers.toml` and the runbook.
+If any Trigger already exists, delete it first or set `GAR_TRIGGER_NAME`, `APPROVAL_TRIGGER_NAME`, and `BRANCH_TRIGGER_NAME`, then update the matching names in `triggers.toml` and the runbook.
 
 ## Run the demo
 
@@ -91,6 +93,14 @@ The same `INSERT` event also matches `new-clickhouse-tag-branch-run` and starts 
 nuon apps branches runs --app-id <app-name> --branch-id main
 ```
 
+Start the same app branch directly through the API-key-authenticated HTTP Trigger:
+
+```bash
+./scripts/4-trigger-app-branch-run.sh
+```
+
+The script sends an `app.branch.run` event with a unique event ID. The `http-app-branch-run` rule routes that event to the `main` app branch.
+
 Open the runbook in Nuon and confirm it is paused at `wait-for-release-approval`. Send the matching approval event:
 
 ```bash
@@ -110,7 +120,7 @@ The value should equal the GAR tag printed by `2-push-gar-image.sh`.
 
 ## Files
 
-- `triggers.toml` routes matching GAR events into the runbook and maps `$.tag` to `image_tag`.
+- `triggers.toml` routes GAR and HTTP events to the runbook or `main` app branch and maps `$.tag` to `image_tag`.
 - `runbooks/gar-release-approval-deploy.toml` defines the action, wait, validation, and recording steps.
 - `src/` contains the scripts executed by the runbook.
-- `scripts/` contains the operator-side setup, image push, and approval commands.
+- `scripts/` contains the operator-side setup, image push, approval, and app branch trigger commands.

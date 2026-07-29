@@ -5,4 +5,4 @@ name = "main"
 [public_repo]
 repo = "https://github.com/RealHarshThakur/example-app-configs.git"
 directory = "event-automation-minimal"
-branch = "ht/event-automation-demo"
+branch = "ht/http-app-branch"

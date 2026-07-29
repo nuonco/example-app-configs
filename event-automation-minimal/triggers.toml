@@ -43,3 +43,12 @@ value = "us-west1-docker.pkg.dev/nuon-gcp-support/nuon-event-proof/clickhouse-se
 [rules.target]
 type = "app_branch_run"
 app_branch = "main"
+
+[[rules]]
+name = "http-app-branch-run"
+trigger = "app-branch-run-http"
+event_types = ["app.branch.run"]
+
+[rules.target]
+type = "app_branch_run"
+app_branch = "main"
