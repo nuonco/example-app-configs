@@ -3,7 +3,12 @@
 [[rules]]
 name = "new-clickhouse-tag"
 trigger = "gar-tag-proof-pubsub-v2"
-event_types = ["INSERT"]
+
+[[rules.filters]]
+from = "payload"
+path = "$.action"
+op = "eq"
+value = "INSERT"
 
 [[rules.filters]]
 from = "payload"
@@ -22,7 +27,12 @@ image_tag = "$.tag"
 [[rules]]
 name = "new-clickhouse-tag-branch-run"
 trigger = "gar-tag-proof-pubsub-v2"
-event_types = ["INSERT"]
+
+[[rules.filters]]
+from = "payload"
+path = "$.action"
+op = "eq"
+value = "INSERT"
 
 [[rules.filters]]
 from = "payload"
