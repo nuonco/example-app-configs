@@ -1,10 +1,10 @@
 # Event automation: GAR release approval
 
-This example demonstrates a complete external-event runbook:
+This example demonstrates a complete external-event runbook plus an event-driven app branch run:
 
 1. A Docker image is pushed to Google Artifact Registry (GAR).
 2. Artifact Registry publishes an `INSERT` notification to the `gcr` Pub/Sub topic.
-3. A Google Pub/Sub Trigger receives the event and starts `gar-release-approval-deploy`.
+3. A Google Pub/Sub Trigger receives the event and starts `gar-release-approval-deploy`, and a second rule on the same Trigger starts an app branch run on the `main` app branch.
 4. The runbook validates the image tag and pauses at a `wait_for_event` step.
 5. An authenticated HTTP Trigger receives a matching `release.approved` event.
 6. The runbook resumes, reads the approval payload, and records the approved image in the install's `default` Kubernetes namespace.
@@ -40,6 +40,8 @@ install = "your-install-name"
 ```
 
 The app and install must already exist before syncing the event rule because Nuon resolves the target install during app config sync. For a new app, sync and create the install first with `events.toml` temporarily omitted, then restore the file and sync again.
+
+The `new-clickhouse-tag-branch-run` rule targets the `main` app branch declared in `branch.toml`. An app branch run clones the tracked repo and branch, re-syncs the app config it finds there, and then runs the branch's build stage. This means the configuration committed to the tracked git branch must be fully resolvable on its own: the Triggers must already exist, and the committed `events.toml` must name your real install. Commit and push your working configuration (including this file's install name) to the tracked branch before pushing a GAR image, or the branch run's app config step will fail.
 
 From this directory, select the intended app and sync:
 
@@ -81,6 +83,12 @@ Artifact Registry notifications are asynchronous. Open the `gar-tag-proof-pubsub
 
 ```bash
 nuon triggers events tail --trigger gar-tag-proof-pubsub-v2
+```
+
+The same `INSERT` event also matches `new-clickhouse-tag-branch-run` and starts an app branch run on `main`. Confirm it completes:
+
+```bash
+nuon apps branches runs --app-id <app-name> --branch-id main
 ```
 
 Open the runbook in Nuon and confirm it is paused at `wait-for-release-approval`. Send the matching approval event:

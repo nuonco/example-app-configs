@@ -3,6 +3,6 @@
 name = "main"
 
 [public_repo]
-repo = "nuonco/nuon"
-directory = "."
-branch = "main"
+repo = "https://github.com/RealHarshThakur/example-app-configs.git"
+directory = "event-automation-minimal"
+branch = "ht/event-automation-demo"
