@@ -1,0 +1,8 @@
+name = "img_event_proof"
+type = "external_image"
+
+[gcp_gar]
+gcp_project_id = "nuon-gcp-support"
+region         = "us-west1"
+image_url      = "us-west1-docker.pkg.dev/nuon-gcp-support/nuon-event-proof/clickhouse-server"
+update_policy  = "^1.0.0"
