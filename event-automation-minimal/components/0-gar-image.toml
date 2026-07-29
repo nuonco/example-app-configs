@@ -1,5 +1,5 @@
 name = "img_event_proof"
-type = "external_image"
+type = "container_image"
 
 [gcp_gar]
 gcp_project_id = "nuon-gcp-support"
