@@ -36,7 +36,9 @@ installs.
 
 Creates an EKS cluster with a `whoami` application deployed on it, an Application Load Balancer and a Certificate. See
 the Nuon docs for [a step-by-step guide](https://docs.nuon.co/get-started/create-your-first-app) on how to deploy this
-app.
+app. Also the reference example for **app branches**: `branch.toml` connects the `main` branch of this repo to the app so
+a `git push` rolls the change out to installs, one deployment group at a time — first the installs labelled
+`env=stage`, then those labelled `env=prod`, with a plan and an approval gate before each group deploys.
 
 ## cde
 

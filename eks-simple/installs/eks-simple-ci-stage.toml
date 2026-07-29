@@ -3,6 +3,9 @@
 name = "eks-simple-ci-stage"
 approval_option = "approve-all"
 
+[labels]
+env = "stage"
+
 [aws_account]
   region = "us-east-1"
 
