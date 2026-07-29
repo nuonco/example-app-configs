@@ -26,11 +26,11 @@ repository: nuon-event-proof
 image:      clickhouse-server
 ```
 
-Set the variables accepted by `scripts/1-setup-triggers.sh` if you use a different project or repository. If the GAR image path changes, also update the prefix filter in `events.toml` and the allowlist in `src/1-validate-trigger-tag.sh`.
+Set the variables accepted by `scripts/1-setup-triggers.sh` if you use a different project or repository. If the GAR image path changes, also update the prefix filter in `triggers.toml` and the allowlist in `src/1-validate-trigger-tag.sh`.
 
 ## Configure the app
 
-Set the target install name in `events.toml`:
+Set the target install name in `triggers.toml`:
 
 ```toml
 [rules.target]
@@ -39,9 +39,9 @@ runbook = "gar-release-approval-deploy"
 install = "your-install-name"
 ```
 
-The app and install must already exist before syncing the event rule because Nuon resolves the target install during app config sync. For a new app, sync and create the install first with `events.toml` temporarily omitted, then restore the file and sync again.
+The app and install must already exist before syncing the event rule because Nuon resolves the target install during app config sync. For a new app, sync and create the install first with `triggers.toml` temporarily omitted, then restore the file and sync again.
 
-The `new-clickhouse-tag-branch-run` rule targets the `main` app branch declared in `branch.toml`. An app branch run clones the tracked repo and branch, re-syncs the app config it finds there, and then runs the branch's build stage. This means the configuration committed to the tracked git branch must be fully resolvable on its own: the Triggers must already exist, and the committed `events.toml` must name your real install. Commit and push your working configuration (including this file's install name) to the tracked branch before pushing a GAR image, or the branch run's app config step will fail.
+The `new-clickhouse-tag-branch-run` rule targets the `main` app branch declared in `branch.toml`. An app branch run clones the tracked repo and branch, re-syncs the app config it finds there, and then runs the branch's build stage. This means the configuration committed to the tracked git branch must be fully resolvable on its own: the Triggers must already exist, and the committed `triggers.toml` must name your real install. Commit and push your working configuration (including this file's install name) to the tracked branch before pushing a GAR image, or the branch run's app config step will fail.
 
 From this directory, select the intended app and sync:
 
@@ -68,7 +68,7 @@ export GCP_PROJECT=nuon-gcp-support
 
 The script writes the HTTP Trigger URL and API key to `.demo.env`, which is ignored by Git and mode `0600`. Trigger secrets are only shown when created or explicitly revealed; do not share or commit this file.
 
-If either Trigger already exists, delete it first or set `GAR_TRIGGER_NAME` and `APPROVAL_TRIGGER_NAME` and update the matching names in `events.toml` and the runbook.
+If either Trigger already exists, delete it first or set `GAR_TRIGGER_NAME` and `APPROVAL_TRIGGER_NAME` and update the matching names in `triggers.toml` and the runbook.
 
 ## Run the demo
 
@@ -110,7 +110,7 @@ The value should equal the GAR tag printed by `2-push-gar-image.sh`.
 
 ## Files
 
-- `events.toml` routes matching GAR events into the runbook and maps `$.tag` to `image_tag`.
+- `triggers.toml` routes matching GAR events into the runbook and maps `$.tag` to `image_tag`.
 - `runbooks/gar-release-approval-deploy.toml` defines the action, wait, validation, and recording steps.
 - `src/` contains the scripts executed by the runbook.
 - `scripts/` contains the operator-side setup, image push, and approval commands.

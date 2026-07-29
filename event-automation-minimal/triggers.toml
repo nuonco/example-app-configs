@@ -1,4 +1,4 @@
-#:schema http://localhost:8081/v1/general/config-schema/events
+#:schema http://localhost:8081/v1/general/config-schema/app
 
 [[rules]]
 name = "new-clickhouse-tag"
