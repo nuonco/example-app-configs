@@ -9,7 +9,7 @@ AWS | 000000000000 | xx-vvvv-00 | vpc-000000
 A simple service used to test and debug HTTP requests.
 This uses go version which can be found [here](https://github.com/mccutchen/go-httpbin).
 
-Click [here](http://{{.nuon.components.ec2.outputs.public_ip}}) to see your httpbin instance.
+Click [this](http://{{.nuon.components.ec2.outputs.public_ip}}) to see your httpbin instance.
 
 ## Usage
 
