@@ -11,6 +11,6 @@ manifest         = "./manifests/health_raw.yaml"
 max_auto_retries = 2
 
 [health]
-stabilization_window = "10m"
+stabilization_window = "1m"
 block_deploy         = true
 required_checks      = ["migrations-applied"]
