@@ -1,0 +1,30 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: health-raw-selfsigned
+  namespace: whoami
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: health-raw-cert
+  namespace: whoami
+spec:
+  secretName: health-raw-cert-tls
+  commonName: health-raw.whoami.svc
+  dnsNames:
+    - health-raw.whoami.svc
+  issuerRef:
+    name: health-raw-selfsigned
+    kind: Issuer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: health-raw-marker
+  namespace: whoami
+data:
+  source: kubernetes_manifest

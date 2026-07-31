@@ -1,0 +1,11 @@
+# kubernetes-manifest — exercises kind discovery for raw manifests.
+#
+# No terraform and no helm: the kinds here are only watchable if the
+# kubernetes_manifest deploy hands them to the health engine.
+
+name      = "health_raw_manifest"
+type      = "kubernetes_manifest"
+namespace = "whoami"
+
+manifest         = "./src/components/health-raw-manifest/manifests/health_raw.yaml"
+max_auto_retries = 2
