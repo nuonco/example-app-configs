@@ -1,0 +1,18 @@
+# terraform — exercises component-health kind discovery from terraform state.
+#
+# kubectl_manifest applies raw objects whose kinds are outside the core watch
+# set, so they only report if the engine reads the kinds out of state.
+
+name              = "health_tf_manifest"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+max_auto_retries  = 2
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/health-tf-manifest"
+branch    = "am/health-test-config"
+
+[vars]
+install_id = "{{ .nuon.install.id }}"
+namespace  = "whoami"
