@@ -1,0 +1,22 @@
+# helm — exercises component-health kind discovery.
+#
+# Nothing here is a core watched kind: Certificate is a CRD the health library
+# has no assessor for (it carries a Ready condition, so the conditions fallback
+# should report it healthy), and ConfigMap exposes no health signal at all (so it
+# should read not-applicable rather than unknown).
+
+name       = "health_kinds"
+type       = "helm_chart"
+chart_name = "health-kinds"
+max_auto_retries = 2
+toggleable      = true
+default_enabled = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-simple/src/components/health-kinds"
+branch    = "main"
+
+[values]
+namespace    = "whoami"
+install_name = "{{.nuon.install.id}}"

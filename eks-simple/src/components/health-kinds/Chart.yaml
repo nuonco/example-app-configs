@@ -1,0 +1,8 @@
+---
+apiVersion: v2
+name: health-kinds
+description: Resources whose kinds are outside the core watch set, to exercise component-health kind discovery.
+type: application
+version: v0.0.1
+appVersion: "0.0.1"
+dependencies: []
