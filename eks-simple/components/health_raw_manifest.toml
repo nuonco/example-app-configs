@@ -13,4 +13,4 @@ max_auto_retries = 2
 [health]
 stabilization_window = "1m"
 block_deploy         = true
-required_checks      = ["migrations-applied"]
+required_checks      = ["migrations-applied", "smoke-tests"]
