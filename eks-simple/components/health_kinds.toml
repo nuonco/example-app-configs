@@ -15,7 +15,7 @@ default_enabled = true
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "eks-simple/src/components/health-kinds"
-branch    = "main"
+branch    = "am/health-test-config"
 
 [values]
 namespace    = "whoami"
