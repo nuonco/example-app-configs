@@ -6,9 +6,8 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app.nuon.co/install: {{ .Values.install_name }}
-  annotations:
-    kubernetes.io/ingress.class: azure/application-gateway
 spec:
+  ingressClassName: nginx
   rules:
     - host: {{ .Values.domain }}
       http:
