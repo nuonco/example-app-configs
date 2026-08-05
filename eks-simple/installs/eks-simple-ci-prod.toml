@@ -1,7 +1,7 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
 name = "eks-simple-ci-prod"
-approval_option = "approve-all"
+approval_option = "prompt"
 
 [labels]
 env = "prod"
