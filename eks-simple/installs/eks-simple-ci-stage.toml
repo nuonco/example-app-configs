@@ -1,17 +1,21 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# Stage install: `env=stage` places it in the branch's first deployment group,
-# and deploys are approved automatically. Docs: https://docs.nuon.co/config-ref/install
+# install
+# Stage install for the app branches demo: `env=stage` places it in the branch's
+# first deployment group. Docs: https://docs.nuon.co/config-ref/install
 
 name = "eks-simple-ci-stage"
-approval_option = "approve-all"
 
 [labels]
 env = "stage"
 
-[aws_account]
-  region = "us-east-1"
+# Valid options: 'prompt' (default, requires manual approval) or 'approve-all' (automatic approval)
+approval_option = "approve-all"
 
+[aws_account]
+region = "us-east-1"
+
+# input.group: dns
 [[inputs]]
 domain = "nuon.run"
 sub_domain = "whoami"

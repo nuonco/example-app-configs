@@ -1,17 +1,21 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# Prod install: `env=prod` places it in the branch's second deployment group,
-# and every deploy waits for approval. Docs: https://docs.nuon.co/config-ref/install
+# install
+# Prod install for the app branches demo: `env=prod` places it in the branch's
+# second deployment group. Docs: https://docs.nuon.co/config-ref/install
 
 name = "eks-simple-ci-prod"
-approval_option = "prompt"
 
 [labels]
 env = "prod"
 
-[aws_account]
-  region = "us-east-1"
+# Valid options: 'prompt' (default, requires manual approval) or 'approve-all' (automatic approval)
+approval_option = "prompt"
 
+[aws_account]
+region = "us-east-1"
+
+# input.group: dns
 [[inputs]]
 domain = "nuon.run"
 sub_domain = "whoami"
