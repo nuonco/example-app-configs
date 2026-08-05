@@ -72,6 +72,4 @@ Check registration status with:
 az provider show --namespace Microsoft.App --query "registrationState"
 ```
 
-## Full State
 
-Click "Manage > State"
