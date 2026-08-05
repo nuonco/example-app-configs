@@ -82,6 +82,11 @@ branch starts a coordinated update instead of a per-install change. Installs rol
 installs labelled `env=stage` first, then `env=prod` — and every group is planned and waits for an approval before
 anything is deployed, so you always see the diff first.
 
+To demo the flow you need installs for the groups to deploy to: after `nuon apps sync`, create them from the config
+files in [`installs/`](./installs) by running `nuon installs sync -d installs/` — see the
+[CLI reference](https://docs.nuon.co/cli-commands) and the
+[app branches guide](https://docs.nuon.co/guides/app-branches).
+
 ## Cost Estimate
 Running this app in your environment will cost around $8/day.
 

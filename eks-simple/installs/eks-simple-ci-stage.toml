@@ -1,5 +1,8 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
+# Stage install: `env=stage` places it in the branch's first deployment group,
+# and deploys are approved automatically. Docs: https://docs.nuon.co/config-ref/install
+
 name = "eks-simple-ci-stage"
 approval_option = "approve-all"
 

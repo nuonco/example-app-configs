@@ -1,3 +1,6 @@
+# Connects this app to a git branch: a push to `main` rolls changes out across
+# installs, one deployment group at a time. Docs: https://docs.nuon.co/config-ref/branch
+
 name = "main"
 
 [public_repo]

@@ -1,5 +1,8 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
+# Prod install: `env=prod` places it in the branch's second deployment group,
+# and every deploy waits for approval. Docs: https://docs.nuon.co/config-ref/install
+
 name = "eks-simple-ci-prod"
 approval_option = "prompt"
 
