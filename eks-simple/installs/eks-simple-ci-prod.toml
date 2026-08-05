@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "eks-simple-ci-prod"
+approval_option = "approve-all"
+
+[labels]
+env = "prod"
+
+[aws_account]
+  region = "us-east-1"
+
+[[inputs]]
+domain = "nuon.run"
+sub_domain = "whoami"
