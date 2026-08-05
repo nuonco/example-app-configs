@@ -63,9 +63,4 @@ AWS Region: {{ .nuon.install_stack.outputs.region }}
 
 ```
 
-### Full State
 
-<details>
-<summary>Full Install State</summary>
-<pre>{{ toPrettyJson .nuon }}</pre>
-</details>

@@ -67,9 +67,7 @@ A simple ECS cluster with capacity for EC2 based services and Fargate services.
 
 The whoami service.
 
-## Full State
 
-Click "Manage > State"
 
 ## Cost Estimate
 Running this app in your environment will cost around $2/day.
