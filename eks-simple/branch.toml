@@ -1,0 +1,23 @@
+# Connects this app to a git branch: a push to `main` rolls changes out across
+# installs, one deployment group at a time. Docs: https://docs.nuon.co/config-ref/branch
+
+name = "main"
+
+[public_repo]
+directory = "eks-simple"
+repo      = "nuonco/example-app-configs"
+branch    = "main"
+
+[[install_groups]]
+name  = "stage"
+order = 1
+
+[install_groups.label_selector]
+env = "stage"
+
+[[install_groups]]
+name  = "production"
+order = 2
+
+[install_groups.label_selector]
+env = "prod"

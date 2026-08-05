@@ -1,16 +1,16 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
 # install
-# Stage install for the app branches demo: `env=stage` places it in the branch's
-# first deployment group. Docs: https://docs.nuon.co/config-ref/install
+# Prod install for the app branches demo: `env=prod` places it in the branch's
+# second deployment group. Docs: https://docs.nuon.co/config-ref/install
 
-name = "eks-simple-ci-stage"
+name = "eks-simple-ci-prod"
 
 [labels]
-env = "stage"
+env = "prod"
 
 # Valid options: 'prompt' (default, requires manual approval) or 'approve-all' (automatic approval)
-approval_option = "approve-all"
+approval_option = "prompt"
 
 [aws_account]
 region = "us-east-1"

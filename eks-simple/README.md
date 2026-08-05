@@ -74,6 +74,24 @@ X-Forwarded-Proto: https
 
 ```
 
+## Continuous delivery via app branches
+
+This app is connected to the `main` branch of
+[nuonco/example-app-configs](https://github.com/nuonco/example-app-configs) through its `branch.toml`, so a push to that
+branch starts a coordinated update instead of a per-install change. Installs roll out by deployment group in order —
+installs labelled `env=stage` first, then `env=prod` — and every group is planned and waits for an approval before
+anything is deployed, so you always see the diff first.
+
+To demo the flow you need installs for the groups to deploy to: after `nuon apps sync`, create them from the config
+files in [`installs/`](./installs) by running `nuon installs sync -d installs/` — see the
+[CLI reference](https://docs.nuon.co/cli-commands) and the
+[app branches guide](https://docs.nuon.co/guides/app-branches).
+
+The two installs approve differently on purpose: the stage install has `approval_option = "approve-all"`, so the
+first group deploys on its own, while the prod install has `approval_option = "prompt"`. A branch run will finish
+stage and then **wait at the production group until someone approves its plan** — if a run looks stalled after stage
+succeeds, it is waiting on you. Approve it from the run's deployment plan in the dashboard, or skip the group.
+
 ## Cost Estimate
 Running this app in your environment will cost around $8/day.
 
