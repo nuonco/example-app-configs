@@ -10,5 +10,5 @@ env = "stage"
   region = "us-east-1"
 
 [[inputs]]
-domain = "stage.nuon.run"
+domain = "nuon.run"
 sub_domain = "whoami"
