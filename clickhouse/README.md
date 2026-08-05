@@ -133,6 +133,4 @@ See also the "Components" Tab.
 <pre>{{ toPrettyJson .nuon.inputs }}</pre>
 </details>
 
-### Full State
 
-In the top right of this page, click "Manage" > "View State".
