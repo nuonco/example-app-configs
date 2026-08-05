@@ -87,6 +87,11 @@ files in [`installs/`](./installs) by running `nuon installs sync -d installs/` 
 [CLI reference](https://docs.nuon.co/cli-commands) and the
 [app branches guide](https://docs.nuon.co/guides/app-branches).
 
+The two installs approve differently on purpose: the stage install has `approval_option = "approve-all"`, so the
+first group deploys on its own, while the prod install has `approval_option = "prompt"`. A branch run will finish
+stage and then **wait at the production group until someone approves its plan** — if a run looks stalled after stage
+succeeds, it is waiting on you. Approve it from the run's deployment plan in the dashboard, or skip the group.
+
 ## Cost Estimate
 Running this app in your environment will cost around $8/day.
 
