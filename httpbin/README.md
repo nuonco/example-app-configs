@@ -11,11 +11,9 @@ A simple service used to test and debug HTTP requests. Built with the [go-httpbi
 
 <nuon-tabs>
 
-<nuon-tab name="Overview">
+<nuon-tab name="quickstart">
 
 <div style="padding-top:1rem;"></div>
-
-## Quick Start
 
 Once deployed, you can test your httpbin instance with any HTTP client:
 
@@ -37,18 +35,16 @@ curl http://{{ $publicIp }}/delay/3
 
 
 
-### About This App
+## About this App Config
 
-This is a sample Nuon app config demonstrating a simple `terraform_module` component that:
-- Creates an EC2 instance in your AWS account
-- Deploys and runs the httpbin web server
-- Exposes it via a public IP
+This is a sample App Config with a single `terraform_module` component that creates an EC2 instance
+and starts a basic web server. The full source code can be referenced [here](https://github.com/nuonco/example-app-configs/tree/main/httpbin).
 
-**Estimated cost:** ~$2.50/day
+On average, this app costs around ~$2.50 per day to run.
 
 </nuon-tab>
 
-<nuon-tab name="Components">
+<nuon-tab name="health">
 
 <div style="padding-top:1rem;"></div>
 
@@ -78,7 +74,7 @@ This is a sample Nuon app config demonstrating a simple `terraform_module` compo
 
 </nuon-tab>
 
-<nuon-tab name="Debug">
+<nuon-tab name="debug">
 
 <div style="padding-top:1rem;"></div>
 
@@ -96,7 +92,7 @@ This is a sample Nuon app config demonstrating a simple `terraform_module` compo
   </div>
 </div>
 
-### Recent Actions
+## Recent Actions
 
 {{ $workflows := dict }}
 {{ with .nuon.actions }}{{ $workflows = default dict .workflows }}{{ end }}
@@ -141,7 +137,7 @@ This is a sample Nuon app config demonstrating a simple `terraform_module` compo
 
 </nuon-tab>
 
-<nuon-tab name="Infrastructure">
+<nuon-tab name="infrastructure">
 
 <div style="padding-top:1rem;"></div>
 
