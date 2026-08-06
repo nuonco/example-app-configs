@@ -1,20 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: whoami
+  name: {{ .Values.name }}
   namespace: {{ .Values.namespace | default .Release.Namespace | quote }}
   labels:
-    app: whoami
+    app: {{ .Values.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: whoami
+      app: {{ .Values.name }}
   template:
     metadata:
       labels:
-        app: whoami
+        app: {{ .Values.name }}
     spec:
+      {{- with .Values.runtimeClassName }}
+      runtimeClassName: {{ . }}
+      {{- end }}
       nodeSelector:
         nuon.co/node-pool: cached
       tolerations:
@@ -28,15 +31,17 @@ spec:
         env:
         - name: "WHOAMI_PORT_NUMBER"
           value: "{{ .Values.deployment.containerPort }}"
+        - name: "WHOAMI_NAME"
+          value: "{{ .Values.name }}"
         ports:
         - containerPort: {{ .Values.deployment.containerPort }}
         resources:
           limits:
-            cpu: ".25"
-            memory: "128Mi"
+            cpu: {{ .Values.resources.limits.cpu | quote }}
+            memory: {{ .Values.resources.limits.memory | quote }}
           requests:
-            cpu: ".1"
-            memory: "64Mi"
+            cpu: {{ .Values.resources.requests.cpu | quote }}
+            memory: {{ .Values.resources.requests.memory | quote }}
         livenessProbe:
           httpGet:
             path: /health
@@ -49,3 +54,54 @@ spec:
             port: {{ .Values.deployment.containerPort }}
           initialDelaySeconds: 5
           periodSeconds: 5
+      {{- if .Values.kernelProbe.enabled }}
+      - name: kernel
+        image: {{ .Values.kernelProbe.image | quote }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: RUNTIME
+          value: {{ .Values.runtimeClassName | default "runc (default)" | quote }}
+        command: ["sh", "-c"]
+        args:
+          - |
+            mkdir -p /www/kernel
+            {
+              echo "<pre>"
+              echo "pod:      $POD_NAME"
+              echo "node:     $NODE_NAME"
+              echo "runtime:  $RUNTIME"
+              echo
+              echo "\$ uname -a"
+              uname -a
+              echo
+              echo "\$ cat /proc/version"
+              cat /proc/version
+              echo
+              echo "\$ dmesg | head -5"
+              if dmesg 2>/dev/null | head -5 | grep -q .; then
+                dmesg 2>/dev/null | head -5
+              else
+                echo "not readable here — reading the host kernel log needs CAP_SYSLOG."
+                echo "gVisor serves its own sandbox log instead, so this works under runsc."
+              fi
+              echo "</pre>"
+            } > /www/kernel/index.html
+            exec httpd -f -p {{ .Values.kernelProbe.port }} -h /www
+        ports:
+        - containerPort: {{ .Values.kernelProbe.port }}
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+      {{- end }}

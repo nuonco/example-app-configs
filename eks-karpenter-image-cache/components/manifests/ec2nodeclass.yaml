@@ -20,3 +20,11 @@ spec:
         volumeType: gp3
         encrypted: true
         deleteOnTermination: true
+  userData: |
+    apiVersion: node.eks.aws/v1alpha1
+    kind: NodeConfig
+    spec:
+      containerd:
+        config: |
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runsc]
+            runtime_type = "io.containerd.runsc.v1"

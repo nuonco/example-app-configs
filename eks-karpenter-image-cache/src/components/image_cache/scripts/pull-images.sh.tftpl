@@ -5,6 +5,10 @@ SOCK="/run/containerd/containerd.sock"
 
 log() { echo "[image-cache-builder] $(date '+%H:%M:%S') $*"; }
 
+# Always power down, even on an aborted run — the terraform wait loop
+# polls for the instance to stop and would otherwise spin forever.
+trap 'log "builder exiting (rc=$?)"; shutdown -h now' EXIT
+
 log "Starting image cache builder"
 
 # -------------------------------------------------------------------
@@ -80,8 +84,45 @@ log "Cached images:"
 ctr -n k8s.io -a "$SOCK" images ls -q 2>/dev/null || true
 
 # -------------------------------------------------------------------
-# 4. Stop containerd cleanly and shutdown
+# 4. Install gVisor (runsc + containerd shim)
+#
+# Only the binaries are baked in. containerd is NOT configured here:
+# nodeadm regenerates /etc/containerd/config.toml on every boot, so
+# the runsc runtime is registered via NodeConfig in EC2NodeClass
+# userData instead.
+# -------------------------------------------------------------------
+GVISOR_URL="https://storage.googleapis.com/gvisor/releases/release/${gvisor_version}/$(uname -m)"
+
+install_gvisor_binary() {
+  local name="$1"
+  log "Downloading $name (gVisor ${gvisor_version})"
+  curl -fsSL -o "/tmp/$name" "$GVISOR_URL/$name"
+  curl -fsSL -o "/tmp/$name.sha512" "$GVISOR_URL/$name.sha512"
+  ( cd /tmp && sha512sum -c "$name.sha512" )
+  install -m 0755 -o root -g root "/tmp/$name" "/usr/local/bin/$name"
+  rm -f "/tmp/$name" "/tmp/$name.sha512"
+}
+
+install_gvisor_binary runsc
+install_gvisor_binary containerd-shim-runsc-v1
+
+runsc --version
+log "gVisor installed"
+
+# -------------------------------------------------------------------
+# 5. Record what was baked in, for the verify action to read
+# -------------------------------------------------------------------
+cat >/etc/nuon-image-cache.json <<EOF
+{
+  "gvisor_version": "${gvisor_version}",
+  "runsc_version": "$(runsc --version | head -1)",
+  "images": [%{ for i, img in images ~}${i > 0 ? "," : ""}"${img}"%{ endfor ~}],
+  "images_failed": $FAIL
+}
+EOF
+
+# -------------------------------------------------------------------
+# 6. Stop containerd cleanly and shutdown
 # -------------------------------------------------------------------
 systemctl stop containerd
 log "containerd stopped. Shutting down for AMI creation."
-shutdown -h now

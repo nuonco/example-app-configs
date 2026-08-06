@@ -1,0 +1,19 @@
+# action
+name    = "verify_runtimes"
+timeout = "2m0s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Compare runc and gVisor sandboxes"
+command = "./verify.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-karpenter-image-cache/src/actions/verify_runtimes"
+branch    = "main"
+
+[steps.env_vars]
+NAMESPACE = "whoami"

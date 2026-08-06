@@ -16,4 +16,5 @@ subnet_id          = "{{.nuon.install.sandbox.outputs.vpc.runner_subnet_id}}"
 kubernetes_version = "{{.nuon.install.sandbox.outputs.cluster.version}}"
 volume_size_gb     = "50"
 instance_type      = "m5.xlarge"
-images             = '["traefik/whoami:v1.10.3", "nginx:1.27.4", "grafana/grafana:11.6.0", "redis:7.4.2"]'
+gvisor_version     = "20260727"
+images             = '["traefik/whoami:v1.10.3", "busybox:1.37", "nginx:1.27.4", "grafana/grafana:11.6.0", "redis:7.4.2"]'

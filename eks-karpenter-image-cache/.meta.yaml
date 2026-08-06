@@ -7,6 +7,7 @@ stack:
   - helm
   - manifest
 features:
+  - actions
   - policies
   - secrets
 tags:
@@ -15,4 +16,7 @@ tags:
   - karpenter
   - ebs
   - image-cache
+  - gvisor
+  - sandboxing
+  - security
 links: {}

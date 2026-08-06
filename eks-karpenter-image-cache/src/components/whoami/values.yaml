@@ -1,0 +1,32 @@
+---
+name: "whoami"
+namespace: "whoami"
+runtimeClassName: ""
+
+image:
+  repository: "traefik/whoami"
+  tag: "v1.10.3"
+
+deployment:
+  containerPort: 8000
+
+service:
+  port: 80
+
+kernelProbe:
+  enabled: true
+  image: "busybox:1.37"
+  port: 8080
+
+ingress:
+  className: "alb"
+  host: "whoami.example.com"
+  annotations: {}
+
+resources:
+  limits:
+    cpu: ".25"
+    memory: "128Mi"
+  requests:
+    cpu: ".1"
+    memory: "64Mi"

@@ -1,6 +1,7 @@
 ---
-name: "whoami"
+name: "whoami-gvisor"
 namespace: "whoami"
+runtimeClassName: "gvisor"
 
 image:
   tag: "v1.10.3"
@@ -14,10 +15,18 @@ service:
 
 ingress:
   className: "alb"
-  host: "whoami.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+  host: "whoami-gvisor.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
     alb.ingress.kubernetes.io/healthcheck-path: /health
-    external-dns.alpha.kubernetes.io/hostname: "whoami.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+    external-dns.alpha.kubernetes.io/hostname: "whoami-gvisor.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+
+resources:
+  limits:
+    cpu: ".5"
+    memory: "256Mi"
+  requests:
+    cpu: ".1"
+    memory: "128Mi"
