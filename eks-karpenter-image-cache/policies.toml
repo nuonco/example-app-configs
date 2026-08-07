@@ -5,3 +5,7 @@ contents = "./policies/disallow-ingress-nginx-custom-snippets.yml"
 [[policy]]
 type = "kubernetes_cluster"
 contents = "./policies/set-karpenter-non-cpu-limits.yaml"
+
+[[policy]]
+type = "kubernetes_cluster"
+contents = "./policies/restrict-gvisor-pod-privileges.yaml"

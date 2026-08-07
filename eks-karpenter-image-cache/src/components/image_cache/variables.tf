@@ -24,6 +24,12 @@ variable "kubernetes_version" {
   default     = "1.32"
 }
 
+variable "gvisor_version" {
+  description = "gVisor release to bake into the AMI, as a release date (e.g. 20260727). Must exist under https://storage.googleapis.com/gvisor/releases/release/."
+  type        = string
+  default     = "20260727"
+}
+
 variable "volume_size_gb" {
   description = "Size of the root EBS volume in GB. Must be large enough to hold the base AMI plus all specified container images."
   type        = number

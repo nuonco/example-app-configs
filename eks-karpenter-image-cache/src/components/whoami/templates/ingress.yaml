@@ -1,18 +1,31 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: whoami
-  namespace: whoami
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace | default .Release.Namespace | quote }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
-  - host: whoami.inlloc439c7nwaddbbc3oduuk0.stage.nuon.run
+  - host: {{ .Values.ingress.host | quote }}
     http:
       paths:
+      {{- if .Values.kernelProbe.enabled }}
+      - path: /kernel
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.name }}
+            port:
+              number: {{ .Values.kernelProbe.port }}
+      {{- end }}
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: whoami
+            name: {{ .Values.name }}
             port:
-              number: 80
-  ingressClassName: nginx
+              number: {{ .Values.service.port }}

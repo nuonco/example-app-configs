@@ -1,0 +1,45 @@
+# tldr: gVisor cannot honour privileged, hostNetwork, hostPID or hostPath.
+# Flag sandboxed pods that ask for them instead of letting them fail at runtime.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-gvisor-pod-privileges
+  annotations:
+    policies.kyverno.io/title: Restrict host access for gVisor sandboxed pods
+    policies.kyverno.io/subject: Pod, RuntimeClass
+    policies.kyverno.io/category: Sandboxing, EKS Best Practices
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      Pods scheduled onto the runsc runtime cannot use host namespaces, privileged
+      containers, or hostPath volumes — gVisor intercepts syscalls in userspace and
+      does not implement them. Such pods either fail to start or behave unexpectedly,
+      so surface them at admission rather than at runtime.
+spec:
+  validationFailureAction: audit
+  background: true
+  rules:
+    - name: no-host-access-under-gvisor
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      preconditions:
+        all:
+          - key: "{{ request.object.spec.runtimeClassName || '' }}"
+            operator: Equals
+            value: gvisor
+      validate:
+        message: >-
+          Pods using runtimeClassName gvisor must not request privileged mode,
+          host namespaces, or hostPath volumes.
+        pattern:
+          spec:
+            =(hostNetwork): "false"
+            =(hostPID): "false"
+            =(hostIPC): "false"
+            =(volumes):
+              - X(hostPath): "null"
+            containers:
+              - =(securityContext):
+                  =(privileged): "false"

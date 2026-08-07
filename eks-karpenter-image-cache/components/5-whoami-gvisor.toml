@@ -1,0 +1,16 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=helm
+name           = "whoami_gvisor"
+type           = "helm_chart"
+chart_name     = "whoami-gvisor"
+namespace      = "whoami"
+storage_driver = "configmap"
+dependencies   = ["runtime_class"]
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-karpenter-image-cache/src/components/whoami"
+branch    = "main"
+
+[[values_file]]
+contents = "./values/whoami-gvisor.yaml"

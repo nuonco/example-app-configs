@@ -1,5 +1,5 @@
 version = "v2"
 
-description = "EKS with Karpenter and pre-cached container images via EBS snapshots. Ideal for large images that would otherwise cause slow node scale-out."
-display_name = "EKS Karpenter Image Cache"
+description = "EKS with Karpenter nodes booting from a custom AMI carrying pre-cached container images and the gVisor runtime. Fast scale-out for large images, plus per-pod sandboxing via runtimeClassName."
+display_name = "EKS Karpenter Image Cache + gVisor"
 readme       = "./README.md"

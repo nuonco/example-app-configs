@@ -9,8 +9,8 @@ branch    = "main"
 cluster_name                   = "n-{{.nuon.install.id}}"
 enable_nuon_dns                = "true"
 cluster_endpoint_public_access = "true"
-public_root_domain   = "{{ .nuon.inputs.inputs.root_domain }}"
-internal_root_domain = "internal.{{ .nuon.inputs.inputs.root_domain }}"
+public_root_domain   = "{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.root_domain }}"
+internal_root_domain = "internal.{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.root_domain }}"
 
 [[var_file]]
 contents = "./sandbox.tfvars"

@@ -1,23 +1,25 @@
 # ---------------------------------------------------------------
 # karpenter-image-cache
 #
-# Creates a custom AMI with pre-pulled container images.
-# Karpenter EC2NodeClass references this AMI so nodes launch
-# with images already in containerd's content store — avoiding
-# multi-GB pulls on every scale-out.
+# Creates a custom AMI with pre-pulled container images and the
+# gVisor runtime. Karpenter EC2NodeClass references this AMI so
+# nodes launch with images already in containerd's content store —
+# avoiding multi-GB pulls on every scale-out — and with runsc
+# available for sandboxed pods.
 #
 # Flow:
 #   1. Launch a temporary EC2 builder instance using the EKS AL2023 AMI
 #   2. Pull all specified images into containerd on the root volume
-#   3. Instance shuts itself down after pulling
-#   4. Create an AMI from the stopped instance
-#   5. Output ami_id for use in EC2NodeClass amiSelectorTerms
+#   3. Install runsc + containerd-shim-runsc-v1
+#   4. Instance shuts itself down
+#   5. Create an AMI from the stopped instance
+#   6. Output ami_id for use in EC2NodeClass amiSelectorTerms
 # ---------------------------------------------------------------
 
 locals {
   images      = jsondecode(var.images)
   name_prefix = "image-cache"
-  images_hash = md5(join(",", sort(local.images)))
+  cache_hash  = md5(join(",", concat(sort(local.images), [var.gvisor_version])))
 }
 
 # ---------------------------------------------------------------
@@ -92,7 +94,8 @@ resource "aws_security_group" "builder" {
 #
 # Uses the EKS-optimized AL2023 AMI so the containerd layout
 # matches exactly what Karpenter nodes will use. Images are
-# pulled into the default containerd on the root volume.
+# pulled into the default containerd on the root volume and the
+# gVisor binaries are installed to /usr/local/bin.
 # The instance shuts down when done.
 # ---------------------------------------------------------------
 
@@ -104,7 +107,8 @@ resource "aws_instance" "builder" {
   vpc_security_group_ids = [aws_security_group.builder.id]
 
   user_data = templatefile("${path.module}/scripts/pull-images.sh.tftpl", {
-    images = local.images
+    images         = local.images
+    gvisor_version = var.gvisor_version
   })
 
   root_block_device {
@@ -114,18 +118,18 @@ resource "aws_instance" "builder" {
   }
 
   tags = merge(var.tags, {
-    Name        = "${local.name_prefix}-builder"
-    images_hash = local.images_hash
+    Name       = "${local.name_prefix}-builder"
+    cache_hash = local.cache_hash
   })
 
   lifecycle {
-    replace_triggered_by = [null_resource.images_trigger]
+    replace_triggered_by = [null_resource.cache_trigger]
   }
 }
 
-resource "null_resource" "images_trigger" {
+resource "null_resource" "cache_trigger" {
   triggers = {
-    images_hash = local.images_hash
+    cache_hash = local.cache_hash
   }
 }
 
@@ -138,7 +142,7 @@ resource "null_resource" "wait_for_completion" {
 
   triggers = {
     instance_id = aws_instance.builder.id
-    images_hash = local.images_hash
+    cache_hash  = local.cache_hash
   }
 
   provisioner "local-exec" {
@@ -172,13 +176,14 @@ resource "null_resource" "wait_for_completion" {
 # ---------------------------------------------------------------
 
 resource "aws_ami_from_instance" "cache" {
-  name               = "${local.name_prefix}-${local.images_hash}"
+  name               = "${local.name_prefix}-${local.cache_hash}"
   source_instance_id = aws_instance.builder.id
-  description        = "EKS AL2023 AMI with ${length(local.images)} pre-cached container images"
+  description        = "EKS AL2023 AMI with ${length(local.images)} pre-cached container images and gVisor ${var.gvisor_version}"
 
   tags = merge(var.tags, {
-    Name        = local.name_prefix
-    images_hash = local.images_hash
+    Name           = local.name_prefix
+    cache_hash     = local.cache_hash
+    gvisor_version = var.gvisor_version
   })
 
   depends_on = [null_resource.wait_for_completion]
