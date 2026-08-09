@@ -63,7 +63,7 @@ display_name = "Kubernetes Nodes"
 [[input]]
 name         = "kubernetes_version"
 description  = "EKS Kubernetes version"
-default      = "1.33"
+default      = "1.36"
 display_name = "Kubernetes Version"
 group        = "compute"
 
