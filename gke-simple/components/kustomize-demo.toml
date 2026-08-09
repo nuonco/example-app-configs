@@ -1,0 +1,14 @@
+name             = "kustomizedemo"
+type             = "kubernetes_manifest"
+namespace        = "kustomize-demo"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gke-simple/src/components/kustomize-demo"
+branch    = "ht/kustomize-state-demo"
+
+[kustomize]
+path        = "."
+patches     = []
+enable_helm = false
