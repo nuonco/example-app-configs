@@ -22,3 +22,16 @@ service_port       = "80"
 install_name       = "{{.nuon.install.id}}"
 namespace          = "whoami"
 healthcheck_path   = "/health"
+
+# component health: the ALB is the component that provides the public endpoint,
+# so the through-the-LB probe gates ALB deploys. Putting it on whoami would
+# deadlock a first install: whoami's gate could never pass before the ALB
+# (which depends on whoami) had deployed.
+[health]
+stabilization_window = "1m"
+block_deploy         = true
+
+[[health.probes]]
+type = "http"
+name = "public-endpoint"
+url  = "https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/health"

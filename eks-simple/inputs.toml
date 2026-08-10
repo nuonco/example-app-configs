@@ -7,7 +7,7 @@ display_name = "Configurations for the root domain for Route53"
 [[input]]
 name         = "domain"
 description  = "domain for the whoami endpoint e.g., nuon.run"
-default      = "nuon.run"
+default      = "stage.nuon.run"
 display_name = "Domain"
 group        = "dns"
 
