@@ -1,0 +1,19 @@
+# action
+name    = "demo_policy"
+timeout = "2m0s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Show L3/L4 and L7 policy enforcement"
+command = "./demo.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-cilium/src/actions/demo_policy"
+branch    = "feat/eks-cilium"
+
+[steps.env_vars]
+NAMESPACE = "cilium-demo"

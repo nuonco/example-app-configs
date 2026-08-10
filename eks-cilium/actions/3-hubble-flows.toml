@@ -1,0 +1,19 @@
+# action
+name    = "hubble_flows"
+timeout = "2m0s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Show hubble flow verdicts"
+command = "./flows.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-cilium/src/actions/hubble_flows"
+branch    = "feat/eks-cilium"
+
+[steps.env_vars]
+NAMESPACE = "cilium-demo"

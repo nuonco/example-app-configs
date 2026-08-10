@@ -1,0 +1,19 @@
+# action
+name    = "demo_fqdn"
+timeout = "2m0s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Show DNS-aware egress policy"
+command = "./demo.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-cilium/src/actions/demo_fqdn"
+branch    = "feat/eks-cilium"
+
+[steps.env_vars]
+NAMESPACE = "cilium-demo"
