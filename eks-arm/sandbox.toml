@@ -10,6 +10,9 @@ branch    = "ey/arm-ami-type"
 cluster_name    = "n-{{.nuon.install.id}}"
 cluster_version = "1.35"
 
+ami_type              = "AL2023_ARM_64_STANDARD"
+default_instance_type = "t4g.medium"
+
 enable_nuon_dns                = "true"
 public_root_domain             = "{{ .nuon.install.id }}.nuon.run"
 internal_root_domain           = "internal.{{ .nuon.install.id }}.nuon.run"

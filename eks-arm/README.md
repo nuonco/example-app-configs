@@ -14,15 +14,18 @@ Runs httpbin on EKS using an arm64 image on Graviton instances.
 
 ## The ARM bits
 
-`sandbox.tfvars` — both settings are required and must agree. Setting the
+`sandbox.toml` — both settings are required and must agree. Setting the
 instance type alone fails: the node group defaults to an x86 AMI, and AWS
 rejects a node group whose instance architecture doesn't match its AMI
 type.
 
-```hcl
+```toml
+[vars]
 ami_type              = "AL2023_ARM_64_STANDARD"
 default_instance_type = "t4g.medium"
 ```
+
+Node group sizing is left at the sandbox defaults on purpose.
 
 ## Image
 
