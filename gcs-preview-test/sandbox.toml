@@ -9,4 +9,4 @@ branch    = "am/preview-test"
 [vars]
 enable_nuon_dns      = "false"
 public_root_domain   = "{{ .nuon.install.id }}.nuon.run"
-internal_root_domain = "internal2.{{ .nuon.install.id }}.nuon.run"
+internal_root_domain = "internal3.{{ .nuon.install.id }}.nuon.run"

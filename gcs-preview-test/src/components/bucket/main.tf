@@ -9,3 +9,5 @@ resource "google_storage_bucket_object" "marker" {
   name    = "nuon/installed-by.txt"
   content = "install ${var.install_id}"
 }
+
+# PR preview test: touch to change the component checksum.
