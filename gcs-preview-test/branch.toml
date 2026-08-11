@@ -1,7 +1,7 @@
 # Test fixture for plan-only/preview app branch runs (nuon PR #2147).
 name = "main"
 
-[connected_repo]
+[public_repo]
 directory = "gcs-preview-test"
 repo      = "nuonco/example-app-configs"
 branch    = "am/preview-test"
