@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "EKS ARM"
+description  = "httpbin on an all-Graviton EKS node group"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

@@ -1,0 +1,15 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - terraform
+  - kubernetes
+features: []
+tags:
+  - eks
+  - kubernetes
+  - arm64
+  - graviton
+links:
+  docs: https://docs.nuon.co/get-started/create-your-first-app
