@@ -1,0 +1,4 @@
+name         = "httpbin"
+type         = "kubernetes_manifest"
+namespace    = "httpbin"
+manifest     = "./1-httpbin/manifest.yaml"

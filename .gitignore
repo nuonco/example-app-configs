@@ -65,6 +65,7 @@ crash.*.log
 !aca-simple/sandbox.tfvars
 !aws-lambda/sandbox.tfvars
 !byo-vpc/sandbox.tfvars
+!eks-arm/sandbox.tfvars
 !eks-multi-env/sandbox.tfvars
 !eks-simple-kustomize/sandbox.tfvars
 !n8n/sandbox.tfvars
