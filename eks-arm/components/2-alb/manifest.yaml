@@ -1,0 +1,26 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alb
+  namespace: httpbin
+  labels:
+    app.nuon.co/install: "{{ .nuon.install.id }}"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: "/status/200"
+    external-dns.alpha.kubernetes.io/hostname: "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: httpbin
+                port:
+                  name: http

@@ -57,22 +57,3 @@ spec:
   selector:
     app.kubernetes.io/name: httpbin
   type: ClusterIP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: httpbin
-  namespace: httpbin
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: httpbin.{{ .nuon.sandbox.outputs.nuon_dns.public_domain.name }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: httpbin
-                port:
-                  name: http

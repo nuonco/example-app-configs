@@ -1,0 +1,6 @@
+name             = "alb"
+type             = "kubernetes_manifest"
+namespace        = "httpbin"
+dependencies     = ["httpbin"]
+manifest         = "./2-alb/manifest.yaml"
+max_auto_retries = 5

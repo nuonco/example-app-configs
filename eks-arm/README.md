@@ -8,7 +8,7 @@ Runs httpbin on EKS using an arm64 image on Graviton instances.
 
 | Service | URL                                                                                                                                |
 | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| httpbin | [httpbin.{{ .nuon.sandbox.outputs.nuon_dns.public_domain.name }}](http://httpbin.{{ .nuon.sandbox.outputs.nuon_dns.public_domain.name }}) |
+| httpbin | [{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}](http://{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}) |
 
 {{ else }} Results will be visible after the sandbox is deployed. {{ end }}
 
