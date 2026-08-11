@@ -3,7 +3,7 @@ name = "main"
 
 [connected_repo]
 directory = "gcs-preview-test"
-repo      = "example-app-configs"
+repo      = "nuonco/example-app-configs"
 branch    = "am/preview-test"
 
 [[install_groups]]
