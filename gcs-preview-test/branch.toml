@@ -7,8 +7,6 @@ repo      = "nuonco/example-app-configs"
 branch    = "am/preview-test"
 
 [[install_groups]]
-name  = "test"
-order = 1
-
-[install_groups.label_selector]
-env = "test"
+name          = "test"
+order         = 1
+install_names = ["preview-test-1"]
