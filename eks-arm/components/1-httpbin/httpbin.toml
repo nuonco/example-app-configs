@@ -1,5 +1,4 @@
-name             = "httpbin"
-type             = "kubernetes_manifest"
-namespace        = "httpbin"
-manifest         = "./1-httpbin/manifest.yaml"
-max_auto_retries = 5
+name         = "httpbin"
+type         = "kubernetes_manifest"
+namespace    = "httpbin"
+manifest     = "./1-httpbin/manifest.yaml"

@@ -4,8 +4,6 @@ kind: Ingress
 metadata:
   name: alb
   namespace: httpbin
-  labels:
-    app.nuon.co/install: "{{ .nuon.install.id }}"
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
