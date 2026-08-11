@@ -1,0 +1,14 @@
+type        = "gcp-terraform"
+name        = "nuon-gcs-bucket-{{.nuon.install.id}}"
+description = "Install the Nuon runner and a customer-created GCS bucket."
+
+# Curated custom stack: the customer's install stack apply creates the bucket
+# (named <install-id>-storage) as admin, before any component runs. Outputs
+# surface under {{.nuon.install_stack.outputs.custom_nested_stacks.storage.*}}.
+[[custom_nested_stacks]]
+name         = "storage"
+template_url = "github.com/nuonco/install-stacks//gcp/modules/bucket"
+index        = 0
+
+[custom_nested_stacks.parameters]
+versioning = "{{.nuon.install.inputs.bucket_versioning}}"
