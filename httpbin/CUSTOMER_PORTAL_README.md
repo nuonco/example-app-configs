@@ -84,3 +84,9 @@ The following terminology is core to the Nuon BYOC platform.
 - Workflows (Orchestration of the deployment, update & teardown lifecycle of apps, components, and actions)
 - Actions (Bash scripts for health checks, migrations, debugging, and day-2 operations — includes a healthcheck action that verifies the httpbin endpoint)
 - Customer Portal (A customer-facing web dashboard to initiate and monitor an app's install in a customer's VPC)
+
+### Resources
+
+For more information on Nuon platform features, see the [documentation](https://docs.nuon.co/get-started/introduction).
+
+For questions or support with this app config, reach out to us in our [Slack community](https://join.slack.com/t/nuon-byoc/shared_invite/zt-46l24847a-4HNYaF7670x3CIrYEBamNQ).
