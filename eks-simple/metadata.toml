@@ -10,6 +10,6 @@ category = "architecture"
 difficulty = "simple"
 cloud_provider = "aws"
 
-[default_labels]
-vendor = "nuon"
-tier = "{{ .nuon.install.inputs.tier }}"
+# [default_labels]
+# vendor = "nuon"
+# tier = "{{ .nuon.install.inputs.tier }}"
