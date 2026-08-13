@@ -1,11 +1,15 @@
 version = "v2"
 
 display_name = "EKS Simple"
-description  = "A simple Whoami HTTP service on AWS EKS"
-readme       = "./README.md"
+description = "A simple Whoami HTTP service on AWS EKS"
+readme = "./README.md"
 
 [onboarding]
-enabled        = true
-category       = "architecture"
-difficulty     = "simple"
+enabled = true
+category = "architecture"
+difficulty = "simple"
 cloud_provider = "aws"
+
+[default_labels]
+vendor = "nuon"
+tier = "{{ .nuon.install.inputs.tier }}"

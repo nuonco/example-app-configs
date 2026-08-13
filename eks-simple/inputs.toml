@@ -1,19 +1,26 @@
 # inputs
 [[group]]
-name         = "dns"
-description  = "DNS Configrations"
+name = "dns"
+description = "DNS Configrations"
 display_name = "Configurations for the root domain for Route53"
 
 [[input]]
-name         = "domain"
-description  = "domain for the whoami endpoint e.g., nuon.run"
-default      = "nuon.run"
+name = "domain"
+description = "domain for the whoami endpoint e.g., nuon.run"
+default = "nuon.run"
 display_name = "Domain"
-group        = "dns"
+group = "dns"
 
 [[input]]
-name         = "sub_domain"
-description  = "The sub domain for the Whoami service"
-default      = "whoami"
+name = "sub_domain"
+description = "The sub domain for the Whoami service"
+default = "whoami"
 display_name = "Sub Domain"
-group        = "dns"
+group = "dns"
+
+[[input]]
+name = "tier"
+description = "What tier this customer is paying for"
+default = "tier"
+display_name = "Tier"
+group = "dns"
