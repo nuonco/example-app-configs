@@ -1,0 +1,19 @@
+# action
+name    = "verify_cilium"
+timeout = "2m0s"
+enable_kube_config = true
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Inspect the cilium datapath"
+command = "./verify.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "eks-cilium/src/actions/verify_cilium"
+branch    = "feat/eks-cilium"
+
+[steps.env_vars]
+NAMESPACE = "cilium-demo"
