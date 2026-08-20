@@ -1,0 +1,584 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "nuonInstallID": {
+      "type": "String",
+      "metadata": {
+        "description": "Injected by Nuon. The unique identifier for the installation. This is used to ensure that the Resource Group and Virtual Network names are unique across deployments."
+      }
+    },
+    "location": {
+      "type": "String",
+      "metadata": {
+        "description": "Injected by Nuon. The region where the virtual network will be deployed. Nuon binds this to the install's Azure location; the name must stay 'location' to receive it."
+      }
+    },
+    "commonTags": {
+      "type": "Object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Injected by Nuon: install_nuon_co_id, org_nuon_co_id, app_nuon_co_id."
+      }
+    },
+    "resourceGroupName": {
+      "defaultValue": "[concat('rg-lvbdev-net-', substring(uniqueString(parameters('nuonInstallID')), 0, 4), '-01')]",
+      "type": "String",
+      "metadata": {
+        "description": "Optional. The name of the resource group to be created. If not provided, a default name will be generated based."
+      }
+    },
+    "virtualNetworkName": {
+      "defaultValue": "[format('{0}-vnet', parameters('nuonInstallID'))]",
+      "type": "String",
+      "metadata": {
+        "description": "Optional. The name of the virtual network to be created. Defaults to <install id>-vnet, matching Nuon's built-in VNet naming."
+      }
+    },
+    "addressSpace": {
+      "defaultValue": "10.100.0.0/22",
+      "type": "String",
+      "metadata": {
+        "description": "Optional. The address space for the virtual network. A /22 or larger is REQUIRED to accommodate all subnets."
+      }
+    }
+  },
+  "variables": {
+    "subnetNames": {
+      "runner": "snet-nuon",
+      "agw": "snet-agw",
+      "systemNodepool": "snet-system-nodepool",
+      "sandboxNodepool": "snet-sandbox-nodepool",
+      "applicationPrivateEndpoints": "snet-application-private-endpoints"
+    }
+  },
+  "resources": {
+    "resourceGroup": {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2026-06-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": "[union(parameters('commonTags'), createObject('install-nuon-co-id', parameters('nuonInstallID')))]"
+    },
+    "virtualNetworkDeployment": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "virtual-network-deployment",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "dependsOn": ["resourceGroup"],
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "addressSpace": {
+            "value": "[parameters('addressSpace')]"
+          },
+          "commonTags": {
+            "value": "[parameters('commonTags')]"
+          },
+          "subnetNames": {
+            "value": "[variables('subnetNames')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "String"
+            },
+            "virtualNetworkName": {
+              "type": "String"
+            },
+            "addressSpace": {
+              "type": "String"
+            },
+            "commonTags": {
+              "type": "Object"
+            },
+            "subnetNames": {
+              "type": "Object"
+            }
+          },
+          "variables": {
+            "apiserverSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 27, 0)]",
+            "pgsqlSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 27, 1)]",
+            "platformPrivateEndpointsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 28, 4)]",
+            "applicationPrivateEndpointsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 2)]",
+            "nuonRunnerSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 29, 10)]",
+            "agwSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 24, 1)]",
+            "systemNodepoolSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 8)]",
+            "sandboxNodepoolsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 25, 5)]",
+            "publishingNodepoolsSubnetAddressPrefix1": "[cidrSubnet(parameters('addressSpace'), 27, 24)]",
+            "publishingNodepoolsSubnetAddressPrefix2": "[cidrSubnet(parameters('addressSpace'), 27, 25)]",
+            "publishingNodepoolsSubnetAddressPrefix3": "[cidrSubnet(parameters('addressSpace'), 27, 26)]",
+            "publishingNodepoolsSubnetAddressPrefix4": "[cidrSubnet(parameters('addressSpace'), 27, 27)]",
+            "azureFirewallSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 14)]",
+            "azureFirewallManagementSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 15)]"
+          },
+          "resources": {
+            "virtualNetwork": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2025-07-01",
+              "name": "[parameters('virtualNetworkName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": "[array(parameters('addressSpace'))]"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "dhcpOptions": {
+                  "dnsServers": []
+                },
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+              }
+            },
+            "snet_nuon": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').runner)]",
+              "dependsOn": ["virtualNetwork"],
+              "properties": {
+                "addressPrefixes": "[array(variables('nuonRunnerSubnetAddressPrefix'))]",
+                "serviceEndpoints": [
+                  {
+                    "service": "Microsoft.KeyVault"
+                  },
+                  {
+                    "service": "Microsoft.ContainerRegistry"
+                  }
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "snet_agw": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').agw)]",
+              "dependsOn": ["snet_nuon"],
+              "properties": {
+                "addressPrefixes": "[array(variables('agwSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "alb",
+                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').agw), '/delegations/alb')]",
+                    "properties": {
+                      "serviceName": "Microsoft.ServiceNetworking/trafficControllers"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                  }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "snet_apiserver": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-apiserver')]",
+              "dependsOn": ["snet_agw"],
+              "properties": {
+                "addressPrefixes": "[array(variables('apiserverSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "aks-delegation",
+                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-apiserver'), '/delegations/aks-delegation')]",
+                    "properties": {
+                      "serviceName": "Microsoft.ContainerService/managedClusters"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                  }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "snet_pgsql": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-pgsql')]",
+              "dependsOn": ["snet_apiserver"],
+              "properties": {
+                "addressPrefixes": "[array(variables('pgsqlSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "postgres-flexible-server",
+                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-pgsql'), '/delegations/postgres-flexible-server')]",
+                    "properties": {
+                      "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                  }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "snet_platform_private_endpoints": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-platform-private-endpoints')]",
+              "dependsOn": ["snet_pgsql"],
+              "properties": {
+                "addressPrefixes": "[array(variables('platformPrivateEndpointsSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "snet_application_private_endpoints": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').applicationPrivateEndpoints)]",
+              "dependsOn": ["snet_platform_private_endpoints"],
+              "properties": {
+                "addressPrefixes": "[array(variables('applicationPrivateEndpointsSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "snet_system_nodepool": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').systemNodepool)]",
+              "dependsOn": ["snet_application_private_endpoints"],
+              "properties": {
+                "addressPrefixes": "[array(variables('systemNodepoolSubnetAddressPrefix'))]",
+                "routeTable": null,
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "snet_sandbox_nodepools": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').sandboxNodepool)]",
+              "dependsOn": ["snet_system_nodepool"],
+              "properties": {
+                "addressPrefixes": "[array(variables('sandboxNodepoolsSubnetAddressPrefix'))]",
+                "routeTable": null,
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "snet_publishing_1": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-publishing-1')]",
+              "dependsOn": ["snet_sandbox_nodepools"],
+              "properties": {
+                "addressPrefixes": "[array(variables('publishingNodepoolsSubnetAddressPrefix1'))]",
+                "routeTable": null,
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "snet_publishing_2": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-publishing-2')]",
+              "dependsOn": ["snet_publishing_1"],
+              "properties": {
+                "addressPrefixes": "[array(variables('publishingNodepoolsSubnetAddressPrefix2'))]",
+                "routeTable": null,
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "snet_publishing_3": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-publishing-3')]",
+              "dependsOn": ["snet_publishing_2"],
+              "properties": {
+                "addressPrefixes": "[array(variables('publishingNodepoolsSubnetAddressPrefix3'))]",
+                "routeTable": null,
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "snet_publishing_4": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-publishing-4')]",
+              "dependsOn": ["snet_publishing_3"],
+              "properties": {
+                "addressPrefixes": "[array(variables('publishingNodepoolsSubnetAddressPrefix4'))]",
+                "routeTable": null,
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "azure_firewall_subnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/AzureFirewallSubnet')]",
+              "dependsOn": ["snet_publishing_4"],
+              "properties": {
+                "addressPrefixes": "[array(variables('azureFirewallSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "azure_firewall_management_subnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/AzureFirewallManagementSubnet')]",
+              "dependsOn": ["azure_firewall_subnet"],
+              "properties": {
+                "addressPrefixes": "[array(variables('azureFirewallManagementSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            }
+          },
+          "outputs": {
+            "virtualNetworkName": {
+              "type": "string",
+              "value": "[parameters('virtualNetworkName')]"
+            },
+            "virtualNetworkId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+            },
+            "nuonSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').runner)]"
+            },
+            "agwSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').agw)]"
+            },
+            "apiserverSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-apiserver')]"
+            },
+            "postgresSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-pgsql')]"
+            },
+            "platformPrivateEndpointsSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-platform-private-endpoints')]"
+            },
+            "applicationPrivateEndpointsSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').applicationPrivateEndpoints)]"
+            },
+            "systemNodepoolSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').systemNodepool)]"
+            },
+            "sandboxNodepoolSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').sandboxNodepool)]"
+            },
+            "azureFirewallSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'AzureFirewallSubnet')]"
+            },
+            "azureFirewallManagementSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'AzureFirewallManagementSubnet')]"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "vnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkId.value]"
+    },
+    "vnetName": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkName.value]"
+    },
+    "runnerSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.nuonSubnetId.value]"
+    },
+    "runnerSubnetName": {
+      "type": "string",
+      "value": "[variables('subnetNames').runner]"
+    },
+    "privateSubnet1Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.systemNodepoolSubnetId.value]"
+    },
+    "privateSubnet1Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').systemNodepool]"
+    },
+    "privateSubnet2Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.sandboxNodepoolSubnetId.value]"
+    },
+    "privateSubnet2Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').sandboxNodepool]"
+    },
+    "privateSubnet3Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsSubnetId.value]"
+    },
+    "privateSubnet3Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').applicationPrivateEndpoints]"
+    },
+    "privateSubnetIds": {
+      "type": "string",
+      "value": "[join(createArray(reference('virtualNetworkDeployment').outputs.systemNodepoolSubnetId.value, reference('virtualNetworkDeployment').outputs.sandboxNodepoolSubnetId.value, reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsSubnetId.value), ',')]"
+    },
+    "privateSubnetNames": {
+      "type": "string",
+      "value": "[join(createArray(variables('subnetNames').systemNodepool, variables('subnetNames').sandboxNodepool, variables('subnetNames').applicationPrivateEndpoints), ',')]"
+    },
+    "publicSubnet1Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwSubnetId.value]"
+    },
+    "publicSubnet1Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').agw]"
+    },
+    "publicSubnet2Id": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnet2Name": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnet3Id": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnet3Name": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnetIds": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwSubnetId.value]"
+    },
+    "publicSubnetNames": {
+      "type": "string",
+      "value": "[variables('subnetNames').agw]"
+    },
+    "location": {
+      "type": "string",
+      "value": "[parameters('location')]"
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "value": "[parameters('resourceGroupName')]"
+    },
+    "installUniqueString": {
+      "type": "string",
+      "value": "[substring(uniqueString(parameters('nuonInstallID')), 0, 4)]"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkName.value]"
+    },
+    "virtualNetworkId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkId.value]"
+    },
+    "nuonSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.nuonSubnetId.value]"
+    },
+    "agwSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwSubnetId.value]"
+    },
+    "apiserverSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.apiserverSubnetId.value]"
+    },
+    "postgresSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.postgresSubnetId.value]"
+    },
+    "platformPrivateEndpointsSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.platformPrivateEndpointsSubnetId.value]"
+    },
+    "applicationPrivateEndpointsSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsSubnetId.value]"
+    },
+    "systemNodepoolSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.systemNodepoolSubnetId.value]"
+    },
+    "sandboxNodepoolSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.sandboxNodepoolSubnetId.value]"
+    },
+    "azureFirewallSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.azureFirewallSubnetId.value]"
+    },
+    "azureFirewallManagementSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.azureFirewallManagementSubnetId.value]"
+    }
+  }
+}
