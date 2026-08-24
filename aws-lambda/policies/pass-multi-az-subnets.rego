@@ -22,3 +22,23 @@ pass contains msg if {
         [count(azs)],
     )
 }
+
+warn contains msg if {
+    subnet_resources := [resource |
+        resource := input.plan.resource_changes[_]
+        resource.type == "aws_subnet"
+        resource.change.actions[_] in ["create", "update"]
+    ]
+    count(subnet_resources) > 0
+
+    azs := {az |
+        subnet := subnet_resources[_]
+        az := subnet.change.after.availability_zone
+    }
+    count(azs) < 2
+
+    msg := sprintf(
+        "Sandbox subnet changes span only %d availability zone; use at least two for high availability",
+        [count(azs)],
+    )
+}
