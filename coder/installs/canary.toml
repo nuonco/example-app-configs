@@ -1,14 +1,14 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
 # install
-# Prod channel: opts into changes after canary validates them
-# (install_groups order 2). Docs: https://docs.nuon.co/config-ref/install
+# Canary lane: validates changes before prod (install_groups order 1).
+# Docs: https://docs.nuon.co/config-ref/install
 
-name = "customer-1"
+name = "canary"
 approval_option = "approve-all"
 
 [labels]
-prod = "true"
+canary = "true"
 
 [aws_account]
 region = "us-east-1"

@@ -1,6 +1,5 @@
-# App branch: watches `main` and rolls changes through two independent
-# release-channel lanes, each with its own canary gating its promotion:
-# canary-mainline -> mainline, and canary-stable -> stable.
+# App branch: watches `main` and rolls changes through a single
+# release-channel lane, gated by a canary: canary -> prod.
 # Docs: https://docs.nuon.co/guides/app-branches
 
 name = "main"
@@ -8,34 +7,19 @@ name = "main"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder"
-branch    = "mm/coder-app-branch-inputs"
+branch    = "main"
 
 [[install_groups]]
-name             = "canary-mainline"
+name             = "canary"
 order            = 1
 use_for_previews = true
 
 [install_groups.label_selector]
-canary-mainline = "true"
+canary = "true"
 
 [[install_groups]]
-name             = "canary-stable"
-order            = 2
-use_for_previews = true
+name  = "prod"
+order = 2
 
 [install_groups.label_selector]
-canary-stable = "true"
-
-[[install_groups]]
-name  = "mainline"
-order = 3
-
-[install_groups.label_selector]
-mainline = "true"
-
-[[install_groups]]
-name  = "stable"
-order = 4
-
-[install_groups.label_selector]
-stable = "true"
+prod = "true"
