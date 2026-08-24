@@ -1,0 +1,7 @@
+# container image
+name = "runbook_tools"
+type = "container_image"
+
+[public]
+image_url = "curlimages/curl"
+tag       = "8.11.1"

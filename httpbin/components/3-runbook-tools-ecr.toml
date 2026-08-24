@@ -1,0 +1,9 @@
+# container image
+name = "runbook_tools_ecr"
+type = "container_image"
+
+[aws_ecr]
+image_url    = "145023109787.dkr.ecr.us-east-1.amazonaws.com/rb-httpbin-runbook-tools"
+tag          = "v1"
+region       = "us-east-1"
+iam_role_arn = "arn:aws:iam::145023109787:role/nuon-container-image-access"
