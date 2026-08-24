@@ -21,14 +21,14 @@ set -e
 set -o pipefail
 set -u
 
-echo "==> db-ping: SELECT 1 via $DB_SECRET_NAME in $CODER_NAMESPACE"
+echo "==> db-ping: SELECT 1 via IAM auth as $DB_USER in $CODER_NAMESPACE"
 
-url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
-  -o jsonpath='{.data.url}' | base64 -d)
-if [ -z "$url" ]; then
-  echo "secret $CODER_NAMESPACE/$DB_SECRET_NAME has empty .data.url" >&2
+token=$(aws rds generate-db-auth-token --hostname "$DB_HOST" --port "$DB_PORT" --username "$DB_USER" --region "$REGION")
+if [ -z "$token" ]; then
+  echo "failed to generate RDS IAM auth token for $DB_USER@$DB_HOST" >&2
   exit 1
 fi
+url="postgres://${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
 
 pod="db-ping-$(date +%s)-$$"
 
@@ -37,6 +37,7 @@ result=$(kubectl run "$pod" \
   --namespace "$CODER_NAMESPACE" \
   --rm -i --restart=Never --quiet \
   --image=postgres:16-alpine \
+  --env="PGPASSWORD=$token" \
   --command -- psql "$url" -tAc 'SELECT 1;' 2>&1 || true)
 end=$(date +%s)
 
@@ -54,11 +55,11 @@ fi
 output=$(jq --null-input -c \
   --arg indicator "$indicator" \
   --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
-  --arg secret    "$DB_SECRET_NAME" \
+  --arg db_user   "$DB_USER" \
   --arg namespace "$CODER_NAMESPACE" \
   --argjson elapsed_s "$elapsed_s" \
   --arg raw "$result" \
-  '{indicator: $indicator, updated_at: $updated_at, namespace: $namespace, secret: $secret, elapsed_s: $elapsed_s, raw: $raw}')
+  '{indicator: $indicator, updated_at: $updated_at, namespace: $namespace, db_user: $db_user, elapsed_s: $elapsed_s, raw: $raw}')
 
 echo "$output" | jq .
 echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
@@ -68,4 +69,8 @@ exit $rc
 
 [steps.env_vars]
 CODER_NAMESPACE = "coder"
-DB_SECRET_NAME  = "coder-db-url"
+DB_HOST         = "{{ .nuon.components.rds_cluster_coder.outputs.address }}"
+DB_PORT         = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_port }}"
+DB_NAME         = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_name }}"
+DB_USER         = "coder"
+REGION          = "{{ .nuon.install_stack.outputs.region }}"

@@ -11,7 +11,12 @@ global:
     hostname: "{{.nuon.components.rds_cluster_coder.outputs.address}}"
     port: "{{.nuon.components.rds_cluster_coder.outputs.db_instance_port}}"
     database: coder
-    username: coder
+    # Low-privilege user, separate from the Coder server's master user:
+    # granting rds_iam to master disables its password auth, and
+    # postgres_exporter has no IAM token support, so it needs its own
+    # password-auth account (created by actions/coder_db_init.toml).
+    username: coder_exporter
+    sslmode: require
     mountSecret: coder-db-password
     exporter:
       enabled: true

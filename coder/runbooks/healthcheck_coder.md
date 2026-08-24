@@ -1,4 +1,4 @@
-Refreshes every Coder data table on the install README in one shot — deployment health matrix, agent connectivity, template freshness, provisioner status, workspaces, users, templates, builds, and the job queue. Mix of `psql` queries against the Coder Postgres database via the `coder-db-url` secret and unauthenticated calls to public Coder endpoints (`/api/v2/buildinfo`, `/derp/latency-check`). No Coder API token required.
+Refreshes every Coder data table on the install README in one shot — deployment health matrix, agent connectivity, template freshness, provisioner status, workspaces, users, templates, builds, and the job queue. Mix of `psql` queries against the Coder Postgres database, authenticated with a runner-generated RDS IAM token (no stored password), and unauthenticated calls to public Coder endpoints (`/api/v2/buildinfo`, `/derp/latency-check`). No Coder API token required.
 
 Use this after creating new workspaces, deploying templates, registering provisioner daemons, or whenever the install dashboard tables look stale.
 

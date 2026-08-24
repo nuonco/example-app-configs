@@ -357,6 +357,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <nuon-group gap="8">
   <nuon-component-card name="rds_subnet"></nuon-component-card>
   <nuon-component-card name="rds_cluster_coder"></nuon-component-card>
+  <nuon-component-card name="coder_pod_identity"></nuon-component-card>
   <nuon-component-card name="coder"></nuon-component-card>
   <nuon-component-card name="certificate"></nuon-component-card>
   <nuon-component-card name="application_load_balancer"></nuon-component-card>
@@ -393,7 +394,8 @@ Coder's cloud development environment platform — for developers and agents. Th
 
       subgraph VPC["Customer Cloud VPC (AWS)"]
           Runner["Nuon Runner"]
-          RDS[("PostgreSQL RDS")]
+          RDS[("PostgreSQL RDS<br/>(IAM auth required)")]
+          PodIdentity["EKS Pod Identity<br/>(coder IAM role: rds-db:connect)"]
           ACM["ACM Certificate"]
           ALB["Application Load Balancer"]
           Stack["CloudFormation Stack<br/>(anthropic_api_key parameter)"]
@@ -401,9 +403,10 @@ Coder's cloud development environment platform — for developers and agents. Th
 
           subgraph EKS["EKS Cluster"]
               K8sSecret[("Kubernetes Secret<br/>coder-anthropic-key")]
+              ExporterSecret[("Kubernetes Secret<br/>coder-db-password")]
               Coder["Coder<br/>(AI Gateway)"]
               Logstream["Kubelogstream"]
-              Observability["Grafana & Prometheus Observability"]
+              Observability["Grafana & Prometheus Observability<br/>(coder_exporter user)"]
               DevEnv["Development Environment"]
           end
       end
@@ -414,6 +417,7 @@ Coder's cloud development environment platform — for developers and agents. Th
       Stack -->|CloudFormation writes key to| SM
       Runner -->|provisions| EKS
       Runner -->|provisions| RDS
+      Runner -->|provisions| PodIdentity
       Runner -->|provisions| ACM
       Runner -->|provisions| ALB
       Runner -->|provisions| Coder
@@ -421,11 +425,16 @@ Coder's cloud development environment platform — for developers and agents. Th
       Runner -->|provisions| Observability
       Runner -->|reads anthropic_api_key| SM
       Runner -->|syncs to| K8sSecret
+      Runner -->|coder_db_init: creates coder_exporter,<br/>grants rds_iam, syncs password to| ExporterSecret
       K8sSecret -->|CODER_AI_GATEWAY_ANTHROPIC_KEY| Coder
+      ExporterSecret -->|PGPASSWORD| Observability
 
       ACM -->|TLS| ALB
       ALB --> Coder
-      RDS -->|DB| Coder
+      Coder -->|assumes| PodIdentity
+      PodIdentity -.->|rds-db:connect<br/>short-lived token| RDS
+      RDS -->|DB via IAM token| Coder
+      RDS -->|DB via password| Observability
       Coder --> Observability
       ALB --> Observability
       Dashboard -->|HTTPS| ALB
@@ -443,6 +452,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <nuon-group gap="8">
   <nuon-component-card name="rds_subnet"></nuon-component-card>
   <nuon-component-card name="rds_cluster_coder"></nuon-component-card>
+  <nuon-component-card name="coder_pod_identity"></nuon-component-card>
   <nuon-component-card name="coder"></nuon-component-card>
   <nuon-component-card name="certificate"></nuon-component-card>
   <nuon-component-card name="application_load_balancer"></nuon-component-card>
@@ -562,6 +572,49 @@ The Coder version is pinned by the `release` input on this install. Bumping it t
 
 > [!WARNING]
 > Major Coder upgrades may include database migrations. Migrations run as part of the helm upgrade and are **not separately reversible**. Read the [release notes](https://github.com/coder/coder/releases) before approving.
+
+</nuon-tab>
+
+<nuon-tab name="operations">
+
+<br/>
+
+This app's installs are managed as code: each has a corresponding TOML file under [`installs/`](./installs) holding its labels, approval behavior, and any per-install overrides. Docs: [Install Configs guide](https://docs.nuon.co/guides/install-configs), [Install config reference](https://docs.nuon.co/config-ref/install).
+
+### Bootstrap an install from a config file
+
+1. Generate a config from an existing install (or copy an example from [`installs/`](./installs)):
+   ```sh
+   nuon installs generate-config -i <install-name> > installs/<install-name>.toml
+   ```
+2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed.
+3. Apply it. `-d` accepts either a single file or a directory:
+
+   Sync just one install (e.g. while testing a change against `canary` only, without touching the other three):
+   ```sh
+   nuon installs sync -a coder -d installs/canary.toml
+   ```
+
+   Sync every install config in the directory at once:
+   ```sh
+   nuon installs sync -a coder -d installs/
+   ```
+
+### Release channels
+
+Installs are labeled into three channels that a connected app branch (`branches/main.toml`) rolls changes through in order, each gated behind an approval:
+
+| Channel | Label | Installs | Approval | Gets changes |
+|---|---|---|---|---|
+| Canary | `canary=true` | `canary` | auto | first |
+| Mainline | `mainline=true` | `customer-1` | prompt | second |
+| Stable | `stable=true` | `customer-2`, `customer-3` | prompt | last |
+
+A push to `main` builds the change, deploys to `canary` immediately (its `approval_option = "approve-all"`), then pauses for approval before `mainline`, then pauses again before `stable`. Opening a PR against `main` instead produces a plan-only diff scoped to the `canary` group, so reviewers see the smallest-blast-radius preview before anything merges. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
+
+### Opting an install out
+
+`nuon installs toggle-sync --disable -i <install-name>` removes an install from config-file management entirely (dashboard-only from then on); `--enable` reverses it.
 
 </nuon-tab>
 

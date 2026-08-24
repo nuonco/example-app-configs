@@ -9,6 +9,7 @@
           "eks:*",
           "iam:*",
           "rds:*",
+          "rds-db:connect",
           "s3:*",
           "secretsmanager:*",
           "sqs:*",

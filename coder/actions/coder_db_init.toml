@@ -1,0 +1,34 @@
+# action
+name    = "coder_db_init"
+timeout = "3m"
+enable_kube_config = true
+labels  = { service = "rds", type = "step" }
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_cluster_coder"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Bootstrap Coder DB users and grant IAM auth"
+command = "./init.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder/src/actions/coder_db_init"
+branch    = "main"
+
+[steps.env_vars]
+REGION               = "{{ .nuon.install_stack.outputs.region }}"
+DB_ADDRESS           = "{{ .nuon.components.rds_cluster_coder.outputs.address }}"
+DB_PORT              = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_port }}"
+DB_NAME              = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_name }}"
+MASTER_USERNAME      = "coder"
+MASTER_SECRET_ARN    = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_master_user_secret_arn }}"
+EXPORTER_USERNAME    = "coder_exporter"
+TARGET_NAMESPACE     = "coder"
+EXPORTER_NAMESPACE   = "coder-observability"
+EXPORTER_SECRET_NAME = "coder-db-password"
+INSTALL_ID           = "{{ .nuon.install.id }}"

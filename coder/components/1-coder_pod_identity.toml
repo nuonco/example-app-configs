@@ -1,0 +1,17 @@
+# terraform
+name              = "coder_pod_identity"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+dependencies      = ["rds_cluster_coder"]
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder/src/components/coder_pod_identity"
+branch    = "main"
+
+[vars]
+install_id              = "{{ .nuon.install.id }}"
+region                  = "{{ .nuon.install_stack.outputs.region }}"
+cluster_name            = "{{ .nuon.install.sandbox.outputs.cluster.name }}"
+db_instance_resource_id = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_resource_id }}"

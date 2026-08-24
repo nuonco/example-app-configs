@@ -23,12 +23,12 @@ echo "==> coder-deployment-health: 6-subsystem health matrix"
 
 updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
 
-url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
-  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
-if [ -z "$url" ]; then
-  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+token=$(aws rds generate-db-auth-token --hostname "$DB_HOST" --port "$DB_PORT" --username "$DB_USER" --region "$REGION" 2>/dev/null || true)
+if [ -z "$token" ]; then
+  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"iam-token-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
   exit 1
 fi
+url="postgres://${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
 
 access_http=$(curl --silent --max-time 15 -o /dev/null -w '%{http_code}' "$CODER_URL/api/v2/buildinfo" || echo 000)
 if [ "$access_http" = "200" ]; then access="🟢"; else access="🔴"; fi
@@ -57,7 +57,7 @@ if [ "$access" = "🟢" ]; then proxy="🟢"; else proxy="🔴"; fi
 pod="psql-dh-$(date +%s)-$$"
 raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
   --rm -i --restart=Never --quiet \
-  --image=postgres:16-alpine --command -- \
+  --image=postgres:16-alpine --env="PGPASSWORD=$token" --command -- \
   psql "$url" -tA --set=ON_ERROR_STOP=off \
     -c "SELECT 'db_ok:1';" \
     -c "SELECT 'prov_count:' || COUNT(*) FROM provisioner_daemons WHERE last_seen_at > NOW() - INTERVAL '60 seconds';" \
@@ -106,5 +106,9 @@ echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
 
 [steps.env_vars]
 CODER_NAMESPACE = "coder"
-DB_SECRET_NAME  = "coder-db-url"
+DB_HOST         = "{{ .nuon.components.rds_cluster_coder.outputs.address }}"
+DB_PORT         = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_port }}"
+DB_NAME         = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_name }}"
+DB_USER         = "coder"
+REGION          = "{{ .nuon.install_stack.outputs.region }}"
 CODER_URL       = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
