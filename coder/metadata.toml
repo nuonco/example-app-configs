@@ -11,3 +11,10 @@ enabled        = true
 category       = "self-hosted"
 difficulty     = "medium"
 cloud_provider = "aws"
+
+# Colors apply per label key everywhere it appears in the dashboard (apps,
+# installs, components) — one color per key, not per value.
+[label_colors]
+canary   = "#F59E0B"
+mainline = "#3B82F6"
+stable   = "#10B981"

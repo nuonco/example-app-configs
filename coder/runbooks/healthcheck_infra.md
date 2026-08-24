@@ -94,9 +94,9 @@ If a step is red, expand the latest run under the **Run history** tab and look a
 
 - **k8s-status** — `pods[*].not_ready` and `deployments[*].under_replicated` name the broken pod or deployment. Hit it with `kubectl describe` from the `troubleshoot` action.
 - **coder-health** — non-200 from `/api/v2/buildinfo`. Almost always the ALB or a crashed coder pod.
-- **db-ping** — the `raw` field has psql's stderr. Common: the `coder-db-url` secret is missing (re-run `coder_rds_creds` from Operations), RDS is down, or the security group is blocking the throwaway pod.
+- **db-ping** — the `raw` field has psql's stderr. Common: `rds-db:connect` is missing from the maintenance role, the `coder` user hasn't been granted `rds_iam` yet (re-run `coder_db_init` from Operations), a region mismatch generating the IAM token, RDS is down, or the security group is blocking the throwaway pod.
 - **alb-status** — `loadBalancer.ingress[]` is empty. Check the ALB controller deployment in `kube-system`; the ingress's events usually point at a cert or subnet issue.
-- **grafana-health** — `database != ok` means the Grafana → RDS path is broken. Usually the `coder-db-password` secret in `coder-observability`.
+- **grafana-health** — `database != ok` means the Grafana → RDS path is broken. Grafana/postgres-exporter connect as `coder_exporter` (password auth, not IAM). Usually the `coder-db-password` secret in `coder-observability` is missing or stale — re-run `coder_db_init` from Operations.
 - **prom-targets** — the `down[]` array lists each target with `job`, `instance`, and `lastError`. Usually a NetworkPolicy, a crashed scrape target, or a wrong port.
 
 For per-subsystem Coder detail (`database`, `derp`, `websocket`, `workspace_proxy`, `provisioner_daemons`), the Coder owner can open <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/health">the Coder health page</a> in a browser — gated by their own session login, no API token to mint.

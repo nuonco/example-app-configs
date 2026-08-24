@@ -41,7 +41,7 @@ module "db" {
     {
       apply_method = "immediate"
       name         = "rds.force_ssl"
-      value        = "0"
+      value        = "1"
     },
     {
       apply_method = "pending-reboot"

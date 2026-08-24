@@ -23,12 +23,12 @@ echo "==> coder-agents-health: running workspaces with disconnected agents"
 
 updated_at="$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)"
 
-url=$(kubectl get secret "$DB_SECRET_NAME" -n "$CODER_NAMESPACE" \
-  -o jsonpath='{.data.url}' 2>/dev/null | base64 -d 2>/dev/null || true)
-if [ -z "$url" ]; then
-  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"secret-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+token=$(aws rds generate-db-auth-token --hostname "$DB_HOST" --port "$DB_PORT" --username "$DB_USER" --region "$REGION" 2>/dev/null || true)
+if [ -z "$token" ]; then
+  jq -nc --arg updated_at "$updated_at" '{indicator:"🔴", updated_at:$updated_at, error:"iam-token-empty"}' >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
   exit 1
 fi
+url="postgres://${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
 
 read -r -d '' SQL <<'EOF' || true
 WITH latest AS (
@@ -74,7 +74,7 @@ EOF
 pod="psql-ag-$(date +%s)-$$"
 raw=$(kubectl run "$pod" -n "$CODER_NAMESPACE" \
   --rm -i --restart=Never --quiet \
-  --image=postgres:16-alpine --command -- \
+  --image=postgres:16-alpine --env="PGPASSWORD=$token" --command -- \
   psql "$url" -tAc "$SQL" 2>&1 || true)
 
 data=$(printf '%s\n' "$raw" | grep -E '^\{' | head -1 || true)
@@ -97,4 +97,8 @@ echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
 
 [steps.env_vars]
 CODER_NAMESPACE = "coder"
-DB_SECRET_NAME  = "coder-db-url"
+DB_HOST         = "{{ .nuon.components.rds_cluster_coder.outputs.address }}"
+DB_PORT         = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_port }}"
+DB_NAME         = "{{ .nuon.components.rds_cluster_coder.outputs.db_instance_name }}"
+DB_USER         = "coder"
+REGION          = "{{ .nuon.install_stack.outputs.region }}"

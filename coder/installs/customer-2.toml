@@ -1,0 +1,16 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+# install
+# Stable channel: gets the most vetted changes, after canary and mainline
+# (install_groups order 3). Docs: https://docs.nuon.co/config-ref/install
+
+name = "customer-2"
+
+[labels]
+stable = "true"
+
+# Valid options: 'prompt' (default, requires manual approval) or 'approve-all' (automatic approval)
+approval_option = "prompt"
+
+[aws_account]
+region = "us-east-1"

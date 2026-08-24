@@ -9,7 +9,7 @@ skip_noops        = true
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/components/rds_cluster_coder"
-branch    = "main"
+branch    = "mm/rds-db-connect"
 
 [vars]
 identifier      = "coder-{{ .nuon.install.id }}"

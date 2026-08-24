@@ -1,0 +1,32 @@
+# App branch: watches `main` and rolls changes through three ordered
+# release channels — canary, then mainline, then stable — each gated
+# behind an approval. Docs: https://docs.nuon.co/guides/app-branches
+
+name = "mm/rds-db-connect"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder"
+branch    = "mm/rds-db-connect"
+
+[[install_groups]]
+name             = "canary"
+order            = 1
+use_for_previews = true
+
+[install_groups.label_selector]
+canary = "true"
+
+[[install_groups]]
+name  = "mainline"
+order = 2
+
+[install_groups.label_selector]
+mainline = "true"
+
+[[install_groups]]
+name  = "stable"
+order = 3
+
+[install_groups.label_selector]
+stable = "true"

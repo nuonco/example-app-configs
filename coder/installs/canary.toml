@@ -1,0 +1,16 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+# install
+# Canary channel: gets app-branch changes first (install_groups order 1).
+# Docs: https://docs.nuon.co/config-ref/install
+
+name = "canary"
+
+[labels]
+canary = "true"
+
+# Valid options: 'prompt' (default, requires manual approval) or 'approve-all' (automatic approval)
+approval_option = "approve-all"
+
+[aws_account]
+region = "us-east-1"
