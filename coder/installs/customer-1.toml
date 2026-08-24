@@ -18,3 +18,4 @@ region = "us-east-1"
 [[inputs]]
 cluster_version         = "1.34"
 coder_db_instance_type  = "db.t4g.micro"
+release                 = "v2.33.11"

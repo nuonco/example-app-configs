@@ -602,15 +602,16 @@ This app's installs are managed as code: each has a corresponding TOML file unde
 
 ### Release channels
 
-Installs are labeled into three channels that a connected app branch (`branches/main.toml`) rolls changes through in order, each gated behind an approval:
+Installs are labeled into two independent tracks, mirroring Coder's own real release channels (mainline: latest, cut monthly; stable: N-1 of mainline, promoted a month later). Each track has its own canary gating its promotion. A connected app branch (`branches/main.toml`) rolls changes through both in order, each gated behind an approval:
 
 | Channel | Label | Installs | Approval | Gets changes |
 |---|---|---|---|---|
-| Canary | `canary=true` | `canary` | auto | first |
+| Canary (mainline track) | `canary-mainline=true` | `canary-mainline` | auto | first |
 | Mainline | `mainline=true` | `customer-1` | prompt | second |
-| Stable | `stable=true` | `customer-2`, `customer-3` | prompt | last |
+| Canary (stable track) | `canary-stable=true` | `canary-stable` | auto | first |
+| Stable | `stable=true` | `customer-2`, `customer-3` | prompt | second |
 
-A push to `main` builds the change, deploys to `canary` immediately (its `approval_option = "approve-all"`), then pauses for approval before `mainline`, then pauses again before `stable`. Opening a PR against `main` instead produces a plan-only diff scoped to the `canary` group, so reviewers see the smallest-blast-radius preview before anything merges. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
+A push to `main` builds the change and deploys to both canaries immediately (`approval_option = "approve-all"`), then pauses for approval before `mainline` and separately before `stable`. Opening a PR against `main` instead produces a plan-only diff scoped to both canary groups, so reviewers see the smallest-blast-radius preview before anything merges. See [`installs/README.md`](./installs/README.md) for the exact sync commands and current release pins, and the [app branches guide](https://docs.nuon.co/guides/app-branches).
 
 ### Opting an install out
 

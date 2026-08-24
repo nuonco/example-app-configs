@@ -13,8 +13,10 @@ difficulty     = "medium"
 cloud_provider = "aws"
 
 # Colors apply per label key everywhere it appears in the dashboard (apps,
-# installs, components) — one color per key, not per value.
+# installs, components) — one color per key, not per value. Each canary
+# lane is a pale tint of the track it feeds, pairing them visually.
 [label_colors]
-canary   = "#F59E0B"
-mainline = "#3B82F6"
-stable   = "#10B981"
+canary-mainline = "#93C5FD"
+mainline        = "#3B82F6"
+canary-stable   = "#6EE7B7"
+stable          = "#10B981"
