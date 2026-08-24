@@ -18,7 +18,7 @@ command = "./init.sh"
 [steps.public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder/src/actions/coder_db_init"
-branch    = "mm/rds-db-connect"
+branch    = "main"
 
 [steps.env_vars]
 REGION               = "{{ .nuon.install_stack.outputs.region }}"
