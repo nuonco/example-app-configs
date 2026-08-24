@@ -5,12 +5,16 @@
 # (install_groups order 2). Docs: https://docs.nuon.co/config-ref/install
 
 name = "customer-1"
+approval_option = "prompt"
 
 [labels]
 mainline = "true"
 
-# Valid options: 'prompt' (default, requires manual approval) or 'approve-all' (automatic approval)
-approval_option = "prompt"
-
 [aws_account]
 region = "us-east-1"
+
+# required = true in inputs.toml — Nuon demands an explicit value even
+# though a default exists; values below match those defaults.
+[[inputs]]
+cluster_version         = "1.34"
+coder_db_instance_type  = "db.t4g.micro"
