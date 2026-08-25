@@ -590,7 +590,7 @@ This app's installs are managed as code: each has a corresponding TOML file unde
 2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed.
 3. Apply it. `-d` accepts either a single file or a directory:
 
-   Sync just one install (e.g. while testing a change against `canary` only, without touching the other three):
+   Sync just one install (e.g. while testing a change against `canary` only, without touching the three customer installs):
    ```sh
    nuon installs sync -a coder -d installs/canary.toml
    ```
@@ -602,15 +602,14 @@ This app's installs are managed as code: each has a corresponding TOML file unde
 
 ### Release channels
 
-Installs are labeled into three channels that a connected app branch (`branches/main.toml`) rolls changes through in order, each gated behind an approval:
+Installs are labeled into a single lane: a canary gating its promotion to prod. A connected app branch (`branches/main.toml`) rolls changes through the lane in order:
 
 | Channel | Label | Installs | Approval | Gets changes |
 |---|---|---|---|---|
 | Canary | `canary=true` | `canary` | auto | first |
-| Mainline | `mainline=true` | `customer-1` | prompt | second |
-| Stable | `stable=true` | `customer-2`, `customer-3` | prompt | last |
+| Prod | `prod=true` | `customer-1`, `customer-2`, `customer-3` | auto | second |
 
-A push to `main` builds the change, deploys to `canary` immediately (its `approval_option = "approve-all"`), then pauses for approval before `mainline`, then pauses again before `stable`. Opening a PR against `main` instead produces a plan-only diff scoped to the `canary` group, so reviewers see the smallest-blast-radius preview before anything merges. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
+A push to `main` builds the change and deploys to `canary` immediately, then to `prod` once canary succeeds — all installs use `approval_option = "approve-all"`, so no manual approval gates the rollout. Opening a PR against `main` instead produces a plan-only diff scoped to the canary group, so reviewers see the smallest-blast-radius preview before anything merges. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
 
 ### Opting an install out
 
