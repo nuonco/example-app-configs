@@ -1,8 +1,9 @@
 # action
-name    = "healthcheck"
+name = "healthcheck_container"
+image = "curlimages/curl:latest"
 timeout = "30s"
 enable_kube_config = false
-labels  = { service = "httpbin", type = "health-check" }
+labels = { service = "httpbin", type = "health-check" }
 
 [[triggers]]
 type = "manual"
