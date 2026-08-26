@@ -1,5 +1,5 @@
 # action
-name = "healthcheck_container"
+name = "healthcheck"
 image = "curlimages/curl:latest"
 timeout = "30s"
 enable_kube_config = false
