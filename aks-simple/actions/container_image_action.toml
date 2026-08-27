@@ -1,0 +1,33 @@
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "container_image_action"
+image   = "alpine/httpie:3.2.4"
+timeout = "2m"
+enable_kube_config = false
+labels  = { type = "health-check" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_endpoint"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "httpie: $(http --version)"
+echo "checking ${ENDPOINT}"
+
+# --ignore-stdin keeps httpie from blocking on the step's non-interactive stdin
+STATUS=$(http --ignore-stdin --timeout=10 --print=h GET "${ENDPOINT}" | head -1 | awk '{print $2}')
+nuon_output status "$STATUS"
+
+if [ "$STATUS" = "200" ]; then
+  echo "health check passed with status $STATUS"
+else
+  echo "health check failed with status $STATUS"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+ENDPOINT = "https://httpbingo.org/status/200"
