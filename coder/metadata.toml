@@ -16,5 +16,6 @@ cloud_provider = "aws"
 # installs, components) — one color per key, not per value. The canary
 # lane is a pale tint of the track it feeds, pairing them visually.
 [label_colors]
-canary = "#93C5FD"
-prod   = "#3B82F6"
+canary  = "#93C5FD"
+prod    = "#3B82F6"
+channel = "#A78BFA"

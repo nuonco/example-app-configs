@@ -8,13 +8,8 @@ name = "customer-2"
 approval_option = "approve-all"
 
 [labels]
-prod = "true"
+prod    = "true"
+channel = "stable"
 
 [aws_account]
 region = "us-east-1"
-
-# required = true in inputs.toml — Nuon demands an explicit value even
-# though a default exists.
-[[inputs]]
-cluster_version         = "1.34"
-coder_db_instance_type  = "db.t4g.micro"
