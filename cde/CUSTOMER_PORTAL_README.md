@@ -28,14 +28,14 @@ A cloud development environment running in your AWS account — a single EC2 VM 
 
 **Vendor-configured** (pre-set by your vendor, not editable by you):
 - Operating system (Ubuntu 24.04 LTS or Amazon Linux 2023)
-- Instance type (t3a.medium through m7i.xlarge; default t3a.large)
+- Instance type (t3a.medium through m7i.xlarge; default t3a.medium)
 - Install Docker (true/false; default true)
 - Install VS Code Web (true/false; default true)
 - Install Claude Code (true/false; default true)
 - Inactive auto-stop (hours of no connections before shutdown; default 2, blank to disable)
 - Force auto-stop (hours of uptime before shutdown; default 4, blank to disable)
 
-The default `t3a.large` (2vCPU/8GB) is a modest starting size for trying out Nuon. Drop to `t3a.medium` for cheaper evaluation or step up for heavier development and engineering work — see [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/).
+The default `t3a.medium` (2vCPU/4GB) is the fleet starting size. Step up to `t3a.large` or larger for heavier development work — see [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/).
 
 **Customer-configured** (you enter these, and can update them at any time):
 - SSH public key (required — your public key for SSH access)

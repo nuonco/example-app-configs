@@ -147,13 +147,13 @@ graph TD
 
 ## Cost estimate
 
-Instance cost depends on the type selected at install time. At default (`t3a.large`):
+Instance cost depends on the type selected at install time. At default (`t3a.medium`):
 
-- EC2 (t3a.large, running): ~$1.80/day
+- EC2 (t3a.medium, running): ~$0.90/day
 - Elastic IP (unattached): $0.005/hr
 - ALB (VS Code Web enabled by default): ~$0.60/day
 
-`t3a.large` (2vCPU/8GB) is chosen as a modest starting size for trying out Nuon. Drop to `t3a.medium` for cheaper evaluation or step up for heavier development and engineering workloads — see [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/) for options.
+`t3a.medium` (2vCPU/4GB) is the default. Step up to `t3a.large` or larger for heavier development workloads — see [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/) for options.
 
 Stop the VM via the portal when not in use to pause EC2 billing. The Elastic IP and DNS record persist through stop/start cycles so your SSH hostname never changes.
 

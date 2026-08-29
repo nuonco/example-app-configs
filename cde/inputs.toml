@@ -21,7 +21,7 @@ group        = "developer"
 name         = "instance_type"
 display_name = "Instance Type"
 description  = "EC2 instance type. t3a.medium (2vCPU/4GB), t3a.large (2vCPU/8GB), t3a.xlarge (4vCPU/16GB), t3a.2xlarge (8vCPU/32GB), m7i.large (2vCPU/8GB consistent), m7i.xlarge (4vCPU/16GB consistent)"
-default      = "t3a.large"
+default      = "t3a.medium"
 group        = "developer"
 
 [[input]]
