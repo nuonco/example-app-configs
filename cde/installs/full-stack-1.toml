@@ -1,0 +1,13 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "full-stack-1"
+approval_option = "approve-all"
+
+[labels]
+tier = "full-stack"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+instance_type = "t3a.large"

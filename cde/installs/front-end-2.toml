@@ -1,0 +1,10 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "front-end-2"
+approval_option = "approve-all"
+
+[labels]
+tier = "front-end"
+
+[aws_account]
+region = "us-east-1"

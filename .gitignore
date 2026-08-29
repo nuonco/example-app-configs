@@ -6,6 +6,8 @@ docs/onboarding-apps.json
 **/.claude/
 .clauderc
 CLAUDE.local.md
+MEMORY.md
+memory/
 
 # Terraform lock files
 **/.terraform.lock.hcl

@@ -9,3 +9,7 @@ enabled        = true
 category       = "architecture"
 difficulty     = "simple"
 cloud_provider = "aws"
+
+[label_colors]
+canary = "#93C5FD"
+tier   = "#3B82F6"

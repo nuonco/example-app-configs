@@ -1,0 +1,28 @@
+name = "main"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "cde"
+branch    = "main"
+
+[[install_groups]]
+name             = "canary"
+order            = 1
+use_for_previews = true
+
+[install_groups.label_selector]
+canary = "true"
+
+[[install_groups]]
+name  = "front-end"
+order = 2
+
+[install_groups.label_selector]
+tier = "front-end"
+
+[[install_groups]]
+name  = "full-stack"
+order = 3
+
+[install_groups.label_selector]
+tier = "full-stack"
