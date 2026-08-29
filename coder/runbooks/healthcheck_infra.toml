@@ -17,11 +17,6 @@ type        = "action"
 action_name = "coder_health"
 
 [[steps]]
-name        = "db-ping"
-type        = "action"
-action_name = "db_ping"
-
-[[steps]]
 name        = "alb-status"
 type        = "action"
 action_name = "alb_healthcheck"
@@ -35,3 +30,8 @@ action_name = "grafana_health"
 name        = "prom-targets"
 type        = "action"
 action_name = "prom_targets"
+
+[[steps]]
+name        = "coder-deployment-health"
+type        = "action"
+action_name = "coder_deployment_health"

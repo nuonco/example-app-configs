@@ -1,20 +1,30 @@
-{{ $k8s     := default dict (index (default dict .nuon.actions.workflows) "k8s_status") }}
-{{ $coder   := default dict (index (default dict .nuon.actions.workflows) "coder_health") }}
-{{ $db      := default dict (index (default dict .nuon.actions.workflows) "db_ping") }}
-{{ $alb     := default dict (index (default dict .nuon.actions.workflows) "alb_healthcheck") }}
-{{ $grafana := default dict (index (default dict .nuon.actions.workflows) "grafana_health") }}
-{{ $prom    := default dict (index (default dict .nuon.actions.workflows) "prom_targets") }}
+{{ $nuonRoot := default dict .nuon }}
+{{ $install     := default dict (dig "install" dict $nuonRoot) }}
+{{ $installStack := default dict (dig "install_stack" dict $nuonRoot) }}
+{{ $actionsMap  := default dict (dig "actions" dict $nuonRoot) }}
+{{ $workflows   := default dict (dig "workflows" dict $actionsMap) }}
+{{ $installID   := dig "id" "" $install }}
+
+{{ $k8s     := default dict (dig "k8s_status" dict $workflows) }}
+{{ $coder   := default dict (dig "coder_health" dict $workflows) }}
+{{ $alb     := default dict (dig "alb_healthcheck" dict $workflows) }}
+{{ $grafana := default dict (dig "grafana_health" dict $workflows) }}
+{{ $prom    := default dict (dig "prom_targets" dict $workflows) }}
 
 {{ $k8sOut     := default dict (dig "outputs" dict $k8s) }}
 {{ $coderOut   := default dict (dig "outputs" dict $coder) }}
-{{ $dbOut      := default dict (dig "outputs" dict $db) }}
 {{ $albOut     := default dict (dig "outputs" dict $alb) }}
 {{ $grafanaOut := default dict (dig "outputs" dict $grafana) }}
 {{ $promOut    := default dict (dig "outputs" dict $prom) }}
 
+{{ $k8sID    := dig "id" "" $k8s }}
+{{ $coderID  := dig "id" "" $coder }}
+{{ $albID    := dig "id" "" $alb }}
+{{ $grafanaID := dig "id" "" $grafana }}
+{{ $promID   := dig "id" "" $prom }}
+
 {{ $k8sInd   := dig "indicator" "" $k8sOut }}
 {{ $coderInd := dig "indicator" "" $coderOut }}
-{{ $dbInd    := dig "indicator" "" $dbOut }}
 {{ $grafInd  := dig "indicator" "" $grafanaOut }}
 {{ $promInd  := dig "indicator" "" $promOut }}
 
@@ -23,51 +33,29 @@
 {{ $albCoder    := dig "indicator" "" $albCoderMap }}
 {{ $albGraf     := dig "indicator" "" $albGrafMap }}
 
-{{ $hcAllGreen := and (eq $k8sInd "🟢") (eq $coderInd "🟢") (eq $dbInd "🟢") (eq $albCoder "🟢") (eq $albGraf "🟢") (eq $grafInd "🟢") (eq $promInd "🟢") }}
-{{ $hcAnyRed   := or  (eq $k8sInd "🔴") (eq $coderInd "🔴") (eq $dbInd "🔴") (eq $albCoder "🔴") (eq $albGraf "🔴") (eq $grafInd "🔴") (eq $promInd "🔴") }}
+{{ $hcAllGreen := and (eq $k8sInd "🟢") (eq $coderInd "🟢") (eq $albCoder "🟢") (eq $albGraf "🟢") (eq $grafInd "🟢") (eq $promInd "🟢") }}
+{{ $hcAnyRed   := or  (eq $k8sInd "🔴") (eq $coderInd "🔴") (eq $albCoder "🔴") (eq $albGraf "🔴") (eq $grafInd "🔴") (eq $promInd "🔴") }}
 
-{{ $prov   := default dict (index (default dict .nuon.actions.workflows) "coder_provisioners") }}
-{{ $provOut    := default dict (dig "outputs" dict $prov) }}
-{{ $provReady  := and (dig "populated" false $prov) (eq (dig "status" "" $prov) "finished") }}
-
-{{ $ws     := default dict (index (default dict .nuon.actions.workflows) "coder_workspaces") }}
-{{ $wsOut      := default dict (dig "outputs" dict $ws) }}
-{{ $wsReady    := and (dig "populated" false $ws) (eq (dig "status" "" $ws) "finished") }}
-
-{{ $ut     := default dict (index (default dict .nuon.actions.workflows) "coder_users_templates") }}
-{{ $utOut      := default dict (dig "outputs" dict $ut) }}
-{{ $utReady    := and (dig "populated" false $ut) (eq (dig "status" "" $ut) "finished") }}
-
-{{ $bj     := default dict (index (default dict .nuon.actions.workflows) "coder_builds_jobs") }}
-{{ $bjOut      := default dict (dig "outputs" dict $bj) }}
-{{ $bjReady    := and (dig "populated" false $bj) (eq (dig "status" "" $bj) "finished") }}
-
-{{ $dh    := default dict (index (default dict .nuon.actions.workflows) "coder_deployment_health") }}
+{{ $dh    := default dict (dig "coder_deployment_health" dict $workflows) }}
 {{ $dhOut    := default dict (dig "outputs" dict $dh) }}
 {{ $dhSub    := default dict (dig "subsystems" dict $dhOut) }}
 {{ $dhReady  := and (dig "populated" false $dh) (eq (dig "status" "" $dh) "finished") }}
-
-{{ $ag    := default dict (index (default dict .nuon.actions.workflows) "coder_agents_health") }}
-{{ $agOut    := default dict (dig "outputs" dict $ag) }}
-{{ $agReady  := and (dig "populated" false $ag) (eq (dig "status" "" $ag) "finished") }}
-{{ $agCount  := dig "count" 0 $agOut }}
-
-{{ $tf    := default dict (index (default dict .nuon.actions.workflows) "coder_template_freshness") }}
-{{ $tfOut    := default dict (dig "outputs" dict $tf) }}
-{{ $tfReady  := and (dig "populated" false $tf) (eq (dig "status" "" $tf) "finished") }}
-{{ $tfCount  := dig "count" 0 $tfOut }}
+{{ $dhID     := dig "id" "" $dh }}
 
 {{ $promUpdated := dig "updated_at" "" $promOut }}
 {{ $dhUpdated   := dig "updated_at" "" $dhOut }}
-{{ $wsUpdated   := dig "updated_at" "" $wsOut }}
-{{ $utUpdated   := dig "updated_at" "" $utOut }}
-{{ $bjUpdated   := dig "updated_at" "" $bjOut }}
-{{ $provUpdated := dig "updated_at" "" $provOut }}
-{{ $tfUpdated   := dig "updated_at" "" $tfOut }}
-{{ $agUpdated   := dig "updated_at" "" $agOut }}
 
-{{ $bgClean  := default dict (index (default dict .nuon.actions.workflows) "k8s_clean_failed_pods") }}
+{{ $bgClean  := default dict (dig "k8s_clean_failed_pods" dict $workflows) }}
 {{ $bgCleanUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgClean)) }}
+
+{{ $sandbox  := default dict (dig "sandbox" dict $install) }}
+{{ $sbOut    := default dict (dig "outputs" dict $sandbox) }}
+{{ $nuonDNS  := default dict (dig "nuon_dns" dict $sbOut) }}
+{{ $pubDomainMap := default dict (dig "public_domain" dict $nuonDNS) }}
+{{ $domain   := dig "name" "" $pubDomainMap }}
+
+{{ $stackOut := default dict (dig "outputs" dict $installStack) }}
+{{ $region   := dig "region" "" $stackOut }}
 
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
   <video autoplay loop muted playsinline width="480" height="270">
@@ -76,16 +64,12 @@
   </video>
   <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
     <div style="display:flex; gap:10px; align-items:center;">
-      <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
-      <a href="https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
+      <a href="https://{{ $domain }}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
+      <a href="https://{{ $domain }}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="healthcheck_infra"></nuon-run-runbook>
       {{ with $promUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-    </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="healthcheck_coder"></nuon-run-runbook>
-      {{ with $bjUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="breakglass_k8s_remediate"></nuon-run-runbook>
@@ -101,8 +85,8 @@ Coder's cloud development environment platform — for developers and agents. Th
 <br/>
 
 <nuon-group gap="8" align="center">
-  <nuon-label-badge label="install:{{ .nuon.install.id }}"></nuon-label-badge>
-  <nuon-label-badge label="region:{{ .nuon.install_stack.outputs.region }}"></nuon-label-badge>
+  <nuon-label-badge label="install:{{ $installID }}"></nuon-label-badge>
+  <nuon-label-badge label="region:{{ $region }}"></nuon-label-badge>
   <nuon-label-badge label="sandbox:eks-auto"></nuon-label-badge>
 </nuon-group>
 
@@ -123,25 +107,24 @@ Coder's cloud development environment platform — for developers and agents. Th
   {{ if $hcAllGreen }}<nuon-status status="active" variant="badge"></nuon-status>
   {{ else if $hcAnyRed }}<nuon-status status="error" variant="badge"></nuon-status>
   {{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}
-  <span>Rolled-up status across cluster, RDS, ALB, Grafana, and Prometheus.</span>
+  <span>Rolled-up status across cluster, Coder, ALB, Grafana, and Prometheus.</span>
 </nuon-group>
 
 <table>
   <thead><tr><th>Subsystem</th><th>Status</th><th>Action</th></tr></thead>
   <tbody>
-    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.k8s_status.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a></td></tr>
-    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a></td></tr>
-    <tr><td>Database</td><td>{{ if eq $dbInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $dbInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.db_ping.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">db_ping</code></a></td></tr>
-    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.alb_healthcheck.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
-    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.alb_healthcheck.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
-    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.grafana_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a></td></tr>
-    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.prom_targets.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a></td></tr>
+    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a></td></tr>
+    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $coderID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a></td></tr>
+    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
+    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
+    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $grafanaID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a></td></tr>
+    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $promID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a></td></tr>
   </tbody>
 </table>
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder health</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_deployment_health.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ $installID }}/actions/{{ $dhID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -150,8 +133,6 @@ Coder's cloud development environment platform — for developers and agents. Th
   <thead><tr><th>Subsystem</th><th>Status</th></tr></thead>
   <tbody>
     <tr><td>Access URL</td><td>{{ $s := dig "access_url" "" $dhSub }}{{ if eq $s "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $s "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>Database</td><td>{{ $s := dig "database" "" $dhSub }}{{ if eq $s "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $s "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
-    <tr><td>Provisioner daemons</td><td>{{ $s := dig "provisioner_daemons" "" $dhSub }}{{ if eq $s "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $s "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
     <tr><td>DERP</td><td>{{ $s := dig "derp" "" $dhSub }}{{ if eq $s "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $s "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
     <tr><td>Websocket</td><td>{{ $s := dig "websocket" "" $dhSub }}{{ if eq $s "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $s "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
     <tr><td>Workspace proxy</td><td>{{ $s := dig "workspace_proxy" "" $dhSub }}{{ if eq $s "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $s "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td></tr>
@@ -159,195 +140,6 @@ Coder's cloud development environment platform — for developers and agents. Th
 </table>
 {{ else }}
 <nuon-banner theme="warn">Waiting on <code>coder_deployment_health</code>.</nuon-banner>
-{{ end }}
-
-{{ if and $agReady (gt $agCount 0.0) }}
-<nuon-banner theme="warn">{{ $agCount }} workspace(s) marked running but the agent is disconnected.</nuon-banner>
-<table>
-  <thead><tr><th>Workspace</th><th>Agent</th><th>Disconnected</th></tr></thead>
-  <tbody>
-{{ range $d := dig "disconnected" (list) $agOut }}
-    <tr>
-      <td><code>{{ dig "workspace" "—" $d }}</code></td>
-      <td><code>{{ dig "agent" "—" $d }}</code></td>
-      <td>{{ dig "disconnected_sec" "—" $d }}s</td>
-    </tr>
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-
-<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Workspaces</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_workspaces.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_workspaces</code></a>
-  {{ with $wsUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-</div>
-
-{{ if $wsReady }}
-{{ $counts := dig "counts" (dict) $wsOut }}
-{{ if eq (len $counts) 0 }}
-<nuon-banner theme="info">No workspaces yet.</nuon-banner>
-{{ else }}
-<table>
-  <thead><tr><th>Status</th><th>Count</th></tr></thead>
-  <tbody>
-{{ range $status, $count := $counts }}
-    <tr><td><code>{{ $status }}</code></td><td>{{ $count }}</td></tr>
-{{ end }}
-  </tbody>
-</table>
-
-{{ $recent := dig "recent" (list) $wsOut }}
-{{ if gt (len $recent) 0 }}
-
-<p style="font-weight:600; margin-top:0.75rem; margin-bottom:0.5rem;">Recently active</p>
-
-<table>
-  <thead><tr><th>Workspace</th><th>Status</th><th>Last used</th></tr></thead>
-  <tbody>
-{{ range $w := $recent }}
-    <tr>
-      <td><code>{{ dig "name" "—" $w }}</code></td>
-      <td><code>{{ dig "status" "—" $w }}</code></td>
-      <td>{{ with dig "last_used_at" "" $w }}<nuon-time time="{{ . }}" format="relative"></nuon-time>{{ else }}—{{ end }}</td>
-    </tr>
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-{{ end }}
-{{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_workspaces</code>.</nuon-banner>
-{{ end }}
-
-<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Users</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
-  {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-</div>
-
-{{ if $utReady }}
-{{ $u := dig "users" (dict) $utOut }}
-
-<table>
-  <thead><tr><th>Total users</th><th>Active</th><th>Active 24h</th><th>Dormant</th><th>Suspended</th></tr></thead>
-  <tbody>
-    <tr>
-      <td>{{ dig "total" 0 $u }}</td>
-      <td>{{ dig "active" 0 $u }}</td>
-      <td>{{ dig "active_24h" 0 $u }}</td>
-      <td>{{ dig "dormant" 0 $u }}</td>
-      <td>{{ dig "suspended" 0 $u }}</td>
-    </tr>
-  </tbody>
-</table>
-{{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code>.</nuon-banner>
-{{ end }}
-
-<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Templates</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_users_templates.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_users_templates</code></a>
-  {{ with $utUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-</div>
-
-{{ if $utReady }}
-{{ $templates := dig "templates" (list) $utOut }}
-{{ if eq (len $templates) 0 }}
-<nuon-banner theme="info">No templates configured yet.</nuon-banner>
-{{ else }}
-<table>
-  <thead><tr><th>Template</th><th>Display name</th><th>Workspaces</th></tr></thead>
-  <tbody>
-{{ range $t := $templates }}
-    <tr>
-      <td><code>{{ dig "name" "—" $t }}</code></td>
-      <td>{{ dig "display_name" "—" $t }}</td>
-      <td>{{ dig "workspace_count" 0 $t }}</td>
-    </tr>
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-{{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_users_templates</code>.</nuon-banner>
-{{ end }}
-
-<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Recent builds & job queue</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_builds_jobs.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_builds_jobs</code></a>
-  {{ with $bjUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-</div>
-
-{{ if $bjReady }}
-{{ $queue := dig "queue" (dict) $bjOut }}
-{{ if gt (len $queue) 0 }}
-
-<p style="font-weight:600; margin-top:0.75rem; margin-bottom:0.5rem;">Job queue (last hour)</p>
-
-<table>
-  <thead><tr><th>Status</th><th>Count</th></tr></thead>
-  <tbody>
-{{ range $status, $count := $queue }}
-    <tr><td><code>{{ $status }}</code></td><td>{{ $count }}</td></tr>
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-
-{{ $builds := dig "recent_builds" (list) $bjOut }}
-{{ if gt (len $builds) 0 }}
-
-<p style="font-weight:600; margin-top:0.75rem; margin-bottom:0.5rem;">Last 10 builds</p>
-
-<table>
-  <thead><tr><th>Workspace</th><th>Transition</th><th>Job status</th><th>Started</th></tr></thead>
-  <tbody>
-{{ range $b := $builds }}
-    <tr>
-      <td><code>{{ dig "workspace_name" "—" $b }}</code></td>
-      <td><code>{{ dig "transition" "—" $b }}</code></td>
-      <td><code>{{ dig "job_status" "—" $b }}</code></td>
-      <td>{{ with dig "created_at" "" $b }}<nuon-time time="{{ . }}" format="relative"></nuon-time>{{ else }}—{{ end }}</td>
-    </tr>
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-{{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_builds_jobs</code>.</nuon-banner>
-{{ end }}
-
-<div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
-  <p style="font-size:1.05rem; font-weight:700; margin:0;">Provisioners</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ .nuon.install.id }}/actions/{{ .nuon.actions.workflows.coder_provisioners.id }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_provisioners</code></a>
-  {{ with $provUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-</div>
-
-{{ if $provReady }}
-{{ $daemons := dig "daemons" (list) $provOut }}
-{{ if eq (len $daemons) 0 }}
-<nuon-banner theme="info">No provisioner daemons registered yet.</nuon-banner>
-{{ else }}
-<table>
-  <thead><tr><th>Name</th><th>Status</th><th>Last seen</th><th>Version</th></tr></thead>
-  <tbody>
-{{ range $d := $daemons }}
-{{ $age := dig "age_sec" 9999 $d }}
-{{ if lt $age 300.0 }}
-    <tr>
-      <td><code>{{ dig "name" "—" $d }}</code></td>
-      <td>{{ if lt $age 60.0 }}<nuon-status status="active" variant="badge"></nuon-status>{{ else }}<nuon-status status="error" variant="badge"></nuon-status>{{ end }}</td>
-      <td>{{ $age }}s ago</td>
-      <td><code>{{ dig "version" "—" $d }}</code></td>
-    </tr>
-{{ end }}
-{{ end }}
-  </tbody>
-</table>
-{{ end }}
-{{ else }}
-<nuon-banner theme="warn">Waiting on <code>coder_provisioners</code>.</nuon-banner>
 {{ end }}
 
 </div>
@@ -470,6 +262,8 @@ Coder runs entirely inside your AWS VPC — both its control plane (the Coder se
 
 <br/>
 
+{{ $in := default dict (dig "inputs" dict $install) }}
+
 Inputs split into two groups by who owns the change. Customer-controlled inputs are exposed in **Current Inputs** and safe to tune any time. Vendor-controlled inputs are managed by the vendor through app config updates and not visible to the install operator.
 
 ### Customer-controlled
@@ -478,10 +272,10 @@ Tune these from **Current Inputs → Edit Inputs**. Changes trigger a redeploy o
 
 | Input | Current value | Description |
 |---|---|---|
-| `telemetry` | `{{ .nuon.install.inputs.telemetry }}` | Send usage telemetry to Coder |
-| `max_token_lifetime` | `{{ .nuon.install.inputs.max_token_lifetime }}` | Maximum lifetime for CLI and API tokens |
-| `session_duration` | `{{ .nuon.install.inputs.session_duration }}` | Session duration before re-authentication is required |
-| `block_direct` | `{{ .nuon.install.inputs.block_direct }}` | Force all workspace connections through the Coder relay (disables peer-to-peer) |
+| `telemetry` | `{{ dig "telemetry" "—" $in }}` | Send usage telemetry to Coder |
+| `max_token_lifetime` | `{{ dig "max_token_lifetime" "—" $in }}` | Maximum lifetime for CLI and API tokens |
+| `session_duration` | `{{ dig "session_duration" "—" $in }}` | Session duration before re-authentication is required |
+| `block_direct` | `{{ dig "block_direct" "—" $in }}` | Force all workspace connections through the Coder relay (disables peer-to-peer) |
 
 ### Vendor-controlled
 
@@ -489,11 +283,11 @@ The vendor pins these in the app config and updates them via release. The big on
 
 | Input | Current value | Description |
 |---|---|---|
-| `release` | `{{ .nuon.install.inputs.release }}` | Coder release version — vendor schedules upgrades |
-| `replicas` | `{{ .nuon.install.inputs.replicas }}` | Coder control plane replica count |
-| `provisioners` | `{{ .nuon.install.inputs.provisioners }}` | Terraform provisioners for workspace lifecycle |
-| `cluster_version` | `{{ .nuon.install.inputs.cluster_version }}` | EKS Kubernetes version |
-| `coder_db_instance_type` | `{{ .nuon.install.inputs.coder_db_instance_type }}` | RDS instance type |
+| `release` | `{{ dig "release" "—" $in }}` | Coder release version — vendor schedules upgrades |
+| `replicas` | `{{ dig "replicas" "—" $in }}` | Coder control plane replica count |
+| `provisioners` | `{{ dig "provisioners" "—" $in }}` | Terraform provisioners for workspace lifecycle |
+| `cluster_version` | `{{ dig "cluster_version" "—" $in }}` | EKS Kubernetes version |
+| `coder_db_instance_type` | `{{ dig "coder_db_instance_type" "—" $in }}` | RDS instance type |
 
 > [!IMPORTANT]
 > Vendor-side changes to `cluster_version` or `coder_db_instance_type` trigger infrastructure changes that can take 15+ minutes to apply. The vendor stages these during an agreed maintenance window.
@@ -536,7 +330,7 @@ Update the parameter in the install stack and re-run the secret sync from the **
 
 <br/>
 
-Grafana is served from the same load balancer as Coder, at <nuon-badge theme="default" variant="code">https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}/grafana</nuon-badge>.
+Grafana is served from the same load balancer as Coder, at <nuon-badge theme="default" variant="code">https://{{ $domain }}/grafana</nuon-badge>.
 
 ### Get the admin password
 
