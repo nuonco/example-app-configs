@@ -361,7 +361,10 @@ The Coder version is pinned by the `release` input on this install. Bumping it t
 ### Steps
 
 1. Click **Current Inputs → Edit Inputs**
-2. Set the new version. e.g., v2.34.2 Valid tags: [github.com/coder/coder/releases](https://github.com/coder/coder/releases).
+2. Set the new version to an exact tag (e.g. `v2.34.6`). Do not use the words `stable` or `mainline` — those are Coder's release-notes labels only. The Helm image tag is `{{.nuon.inputs.inputs.release}}` and must match a GitHub release: [coder/coder/releases](https://github.com/coder/coder/releases). List recent tags:
+   ```sh
+   gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
+   ```
 3. Save. A workflow appears in **Workflows** with a helm diff. Review and approve to apply.
 
 > [!WARNING]
@@ -396,12 +399,21 @@ This app's installs are managed as code: each has a corresponding TOML file unde
 
 ### Release channels
 
+`release` in `inputs.toml` is the fleet **stable** tag (currently `v2.33.11`, oldest stable in the recent list so you can walk upgrades). Installs that omit it inherit that default; an app branch bump of the default rolls them. Mainline is `customer-1`, which pins `release = "v2.35.1"` (oldest mainline in that list) and is updated with `nuon installs sync`. The other installs carry `channel = "stable"` as documentation only — they set no `release`, so they follow the default. `channel` is not a branch selector; `canary`/`prod` still drive rollout order. Do not put `stable` or `mainline` in the input — Coder only publishes version tags.
+
+List recent GitHub releases and which notes mark them mainline vs stable:
+```sh
+gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
+```
+
 Installs are labeled into a single lane: a canary gating its promotion to prod. A connected app branch (`branches/main.toml`) rolls changes through the lane in order:
 
 | Channel | Label | Installs | Approval | Gets changes |
 |---|---|---|---|---|
-| Canary | `canary=true` | `canary` | auto | first |
+| Canary | `canary=true` | `canary` | auto | first (inherits stable) |
 | Prod | `prod=true` | `customer-1`, `customer-2`, `customer-3` | auto | second |
+| Stable | `channel=stable` | `canary`, `customer-2`, `customer-3` | — | inherit the `release` default, so a bump in `inputs.toml` rolls them |
+| Mainline pin | `channel=mainline` | `customer-1` only | — | still in prod group; `release` does not follow the stable default |
 
 A push to `main` builds the change and deploys to `canary` immediately, then to `prod` once canary succeeds — all installs use `approval_option = "approve-all"`, so no manual approval gates the rollout. Opening a PR against `main` instead produces a plan-only diff scoped to the canary group, so reviewers see the smallest-blast-radius preview before anything merges. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
 
