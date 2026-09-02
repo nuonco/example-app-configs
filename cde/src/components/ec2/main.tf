@@ -79,23 +79,32 @@ resource "aws_iam_instance_profile" "dev_env" {
   role = aws_iam_role.dev_env.name
 }
 
+# Rules live in aws_security_group_rule resources below rather than in inline
+# blocks: inline ingress/egress is authoritative, so mixing the two styles on one
+# group makes every apply revoke whatever the rule resources added.
 resource "aws_security_group" "dev_env" {
   name   = "cde-${var.install_id}"
   vpc_id = var.vpc_id
+}
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.dev_env.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# AWS attaches an allow-all egress rule to a new group and the provider strips
+# it, so it has to be declared explicitly.
+resource "aws_security_group_rule" "dev_env_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.dev_env.id
 }
 
 resource "aws_security_group" "alb" {
@@ -224,6 +233,9 @@ resource "aws_lb_target_group" "vscode" {
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 30
+    # code-server answers / with a 302 to /login until the session cookie is
+    # set, so the default 200-only matcher marks every target unhealthy.
+    matcher = "200-399"
   }
 }
 
