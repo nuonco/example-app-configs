@@ -1,0 +1,6 @@
+type        = "aws-cloudformation"
+name        = "terraform-timeout-test-{{.nuon.install.id}}"
+description = "Install stack for Terraform deploy timeout validation"
+
+vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.4.0/vpc/eks/default/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.4.0/runner/asg/stack.yaml"

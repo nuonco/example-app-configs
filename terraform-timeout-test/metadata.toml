@@ -1,0 +1,5 @@
+version = "v1"
+
+display_name = "Terraform Timeout Test"
+description  = "Validates that Terraform component deploy timeouts exceed 15 minutes."
+readme       = "./README.md"

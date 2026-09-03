@@ -1,0 +1,9 @@
+name              = "wait"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+deploy_timeout    = "20m"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+branch    = "test/terraform-deploy-timeout"
+directory = "terraform-timeout-test/src/components/wait"
