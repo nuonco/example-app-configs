@@ -1,7 +1,7 @@
-name              = "wait"
+name              = "wait_custom_timeout"
 type              = "terraform_module"
 terraform_version = "1.11.4"
-deploy_timeout    = "20m"
+deploy_timeout    = "5m"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

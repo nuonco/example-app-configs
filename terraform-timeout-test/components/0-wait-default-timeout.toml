@@ -1,0 +1,8 @@
+name              = "wait_default_timeout"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+branch    = "test/terraform-deploy-timeout"
+directory = "terraform-timeout-test/src/components/wait"

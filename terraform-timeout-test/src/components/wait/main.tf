@@ -1,5 +1,5 @@
 resource "time_sleep" "wait" {
-  create_duration = "15m"
+  create_duration = "30m"
 }
 
 output "completed_at" {
