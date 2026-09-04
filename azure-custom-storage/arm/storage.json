@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.46.1.21595",
+      "templateHash": "11582507820766632989"
+    }
+  },
+  "parameters": {
+    "nuonInstallID": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "versioning": {
+      "type": "string",
+      "defaultValue": "false"
+    }
+  },
+  "variables": {
+    "accountName": "[format('st{0}', uniqueString(resourceGroup().id, parameters('nuonInstallID')))]",
+    "tags": {
+      "install.nuon.co-id": "[parameters('nuonInstallID')]",
+      "nuon.co-stack": "storage"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('accountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "accessTier": "Hot",
+        "allowBlobPublicAccess": false,
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', variables('accountName'), 'default')]",
+      "properties": {
+        "isVersioningEnabled": "[equals(parameters('versioning'), 'true')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('accountName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "name": {
+      "type": "string",
+      "value": "[variables('accountName')]"
+    },
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('accountName'))]"
+    },
+    "blobEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('accountName')), '2023-05-01').primaryEndpoints.blob]"
+    }
+  }
+}

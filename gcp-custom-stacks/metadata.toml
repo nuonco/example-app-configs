@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "GCP Custom Stacks"
+description  = "Launch-test app for all curated GCP install-stack modules."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = false
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "gcp"

@@ -1,0 +1,14 @@
+type        = "azure-bicep"
+name        = "nuon-azure-storage-{{.nuon.install.id}}"
+description = "Install the Nuon runner and a customer-created Azure storage account."
+
+vpc_nested_template_url    = "https://raw.githubusercontent.com/nuonco/install-stacks/main/azure/vnet.json"
+runner_nested_template_url = "https://raw.githubusercontent.com/nuonco/install-stacks/main/azure/runner.json"
+
+[[custom_nested_stacks]]
+name         = "storage"
+template_url = "./arm/storage.json"
+index        = 0
+
+[custom_nested_stacks.parameters]
+versioning = "{{.nuon.install.inputs.blob_versioning}}"

@@ -1,0 +1,11 @@
+[[group]]
+name         = "infrastructure"
+description  = "Install-stack settings"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "location"
+description  = "GCP location for the launch-test resources."
+default      = "us-central1"
+display_name = "Location"
+group        = "infrastructure"

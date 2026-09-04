@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "Azure Storage (custom stacks)"
+description  = "Customer-created Azure storage account via a compiled ARM custom stack, read back by a pass-through component."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "azure"

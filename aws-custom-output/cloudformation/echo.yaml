@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Echo an install input with one disposable test resource.
+
+Parameters:
+  EchoValue:
+    Type: String
+
+Resources:
+  Handle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+Outputs:
+  EchoValue:
+    Value: !Ref EchoValue

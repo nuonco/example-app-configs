@@ -1,0 +1,7 @@
+type         = "maintenance"
+name         = "{{.nuon.install.id}}-maintenance"
+description  = "Maintain the launch-test sandbox."
+display_name = "Maintenance role"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"
