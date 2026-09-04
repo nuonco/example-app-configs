@@ -5,6 +5,30 @@ locals {
   sshd_service        = local.is_ubuntu ? "ssh" : "sshd"
   ami_id              = local.is_ubuntu ? data.aws_ami.ubuntu.id : data.aws_ami.al2023.id
   ssh_public_key      = replace(replace(replace(var.ssh_public_key, "&#43;", "+"), "&#47;", "/"), "&#61;", "=")
+
+  # An instance type is not offered in every AZ of a region, so the subnet the
+  # instance lands in has to be chosen against the type rather than fixed. The
+  # candidate order is kept so an install that already works stays where it is.
+  candidate_subnet_ids = [var.subnet_id_0, var.subnet_id_1]
+  usable_subnet_ids = [
+    for id in local.candidate_subnet_ids : id
+    if contains(data.aws_ec2_instance_type_offerings.dev_env.locations, data.aws_subnet.candidates[id].availability_zone)
+  ]
+  dev_env_subnet_id = try(local.usable_subnet_ids[0], null)
+}
+
+data "aws_subnet" "candidates" {
+  for_each = toset(local.candidate_subnet_ids)
+  id       = each.value
+}
+
+data "aws_ec2_instance_type_offerings" "dev_env" {
+  location_type = "availability-zone"
+
+  filter {
+    name   = "instance-type"
+    values = [var.instance_type]
+  }
 }
 
 data "aws_ami" "ubuntu" {
@@ -131,9 +155,16 @@ resource "aws_security_group_rule" "vscode_from_alb" {
 resource "aws_instance" "dev_env" {
   ami                    = local.ami_id
   instance_type          = var.instance_type
-  subnet_id              = var.subnet_id_0
+  subnet_id              = local.dev_env_subnet_id
   iam_instance_profile   = aws_iam_instance_profile.dev_env.name
   vpc_security_group_ids = [aws_security_group.dev_env.id]
+
+  lifecycle {
+    precondition {
+      condition     = local.dev_env_subnet_id != null
+      error_message = "Instance type ${var.instance_type} is not offered in either availability zone available to this install (${join(", ", [for id in local.candidate_subnet_ids : data.aws_subnet.candidates[id].availability_zone])}). It is offered in: ${join(", ", data.aws_ec2_instance_type_offerings.dev_env.locations)}. Pick a different instance type."
+    }
+  }
 
   user_data = <<-EOF
     #!/bin/bash
