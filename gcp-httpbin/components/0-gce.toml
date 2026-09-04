@@ -1,0 +1,16 @@
+name              = "gce"
+type              = "terraform_module"
+terraform_version = "1.16.1"
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-httpbin/src/components/gce"
+branch    = "main"
+
+[vars]
+install_id = "{{.nuon.install.id}}"
+project_id = "{{.nuon.install_stack.outputs.project_id}}"
+region     = "{{.nuon.install_stack.outputs.region}}"
+network    = "{{.nuon.install_stack.outputs.network_name}}"
+subnetwork = "{{.nuon.install_stack.outputs.public_subnet_name}}"
