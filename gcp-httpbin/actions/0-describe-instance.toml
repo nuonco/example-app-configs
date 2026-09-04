@@ -1,0 +1,28 @@
+name               = "describe_instance"
+image              = "gcr.io/google.com/cloudsdktool/google-cloud-cli:stable"
+timeout            = "5m"
+enable_kube_config = false
+labels             = { service = "httpbin", type = "report" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "describe"
+inline_contents = """
+#!/usr/bin/env sh
+set -eu
+
+echo "gcloud: $(gcloud version --format='value(Google Cloud SDK)' 2>/dev/null || gcloud version | head -1)"
+echo "describing ${INSTANCE_NAME} in ${ZONE}"
+
+gcloud compute instances describe "${INSTANCE_NAME}" \
+  --project="${PROJECT_ID}" \
+  --zone="${ZONE}" \
+  --format="yaml(name,status,machineType,zone,networkInterfaces[0].networkIP,networkInterfaces[0].accessConfigs[0].natIP)"
+"""
+
+[steps.env_vars]
+INSTANCE_NAME = "{{.nuon.components.gce.outputs.instance_name}}"
+ZONE          = "{{.nuon.components.gce.outputs.zone}}"
+PROJECT_ID    = "{{.nuon.install_stack.outputs.project_id}}"
