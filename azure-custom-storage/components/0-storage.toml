@@ -1,0 +1,13 @@
+name              = "storage"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "azure-custom-storage/src/components/storage"
+branch    = "main"
+
+[vars]
+install_id           = "{{.nuon.install.id}}"
+resource_group_name  = "{{.nuon.install_stack.outputs.resource_group_name}}"
+storage_account_name = "{{.nuon.install_stack.outputs.custom_nested_stacks.storage.outputs.name}}"

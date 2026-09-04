@@ -27,9 +27,3 @@ component reads it back and emits outputs for downstream use.
    the bucket by its conventional name and re-emits `name`, `url`, and
    `self_link` as component outputs — reference them from any other component
    as `{{.nuon.components.bucket.outputs.name}}`.
-
-## Requirements
-
-Curated GCP custom stacks need nuon#1943 + nuon#1944 (renderer) and
-install-stacks#24 (the `bucket` module). Until those land, this config
-validates but the bucket is not created.

@@ -1,0 +1,42 @@
+type        = "gcp-terraform"
+name        = "gcp-custom-stacks-{{.nuon.install.id}}"
+description = "Launch-test install stack for curated GCP modules."
+
+[[custom_nested_stacks]]
+name         = "identity"
+template_url = "github.com/nuonco/install-stacks//gcp/modules/service_account"
+index        = 0
+
+[custom_nested_stacks.parameters]
+display_name = "Example service account"
+description  = "Neutral launch-test service account."
+
+[[custom_nested_stacks]]
+name         = "encryption"
+template_url = "github.com/nuonco/install-stacks//gcp/modules/kms"
+index        = 1
+
+[custom_nested_stacks.parameters]
+location        = "{{.nuon.install.inputs.location}}"
+rotation_period = "7776000s"
+
+[[custom_nested_stacks]]
+name         = "publicdns"
+template_url = "github.com/nuonco/install-stacks//gcp/modules/dns"
+index        = 2
+
+[custom_nested_stacks.parameters]
+dns_name      = "{{.nuon.install.id}}.example.com."
+visibility    = "public"
+description   = "Neutral public launch-test zone."
+force_destroy = "false"
+
+[[custom_nested_stacks]]
+name         = "storage"
+template_url = "github.com/nuonco/install-stacks//gcp/modules/bucket"
+index        = 3
+
+[custom_nested_stacks.parameters]
+location      = "{{.nuon.install.inputs.location}}"
+versioning    = "false"
+force_destroy = "false"

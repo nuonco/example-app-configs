@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "AWS Custom Output"
+description  = "Launch-test app for local CloudFormation templates and custom-stack outputs."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = false
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "aws"

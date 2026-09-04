@@ -65,6 +65,7 @@ crash.*.log
 
 # Non-secret example tfvars committed so `nuon apps sync` can resolve them.
 !aca-simple/sandbox.tfvars
+!azure-custom-storage/sandbox.tfvars
 !aws-lambda/sandbox.tfvars
 !byo-vpc/sandbox.tfvars
 !eks-arm/sandbox.tfvars

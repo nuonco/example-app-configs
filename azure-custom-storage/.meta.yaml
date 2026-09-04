@@ -1,0 +1,14 @@
+cloud: azure
+category:
+  - architecture
+infra: storage
+stack:
+  - terraform
+  - arm
+features:
+  - policies
+tags:
+  - azure
+  - storage
+  - custom-stacks
+links: {}

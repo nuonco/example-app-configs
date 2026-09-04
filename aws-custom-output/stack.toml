@@ -1,0 +1,14 @@
+type        = "aws-cloudformation"
+name        = "aws-custom-output-{{.nuon.install.id}}"
+description = "Launch-test install stack for a local CloudFormation template."
+
+vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.4.0/byo-vpc/default/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.4.0/runner/asg/stack.yaml"
+
+[[custom_nested_stacks]]
+name         = "echo"
+template_url = "./cloudformation/echo.yaml"
+index        = 0
+
+[custom_nested_stacks.parameters]
+EchoValue = "{{.nuon.install.inputs.echo_value}}"

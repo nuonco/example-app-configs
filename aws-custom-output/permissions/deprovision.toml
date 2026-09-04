@@ -1,0 +1,7 @@
+type         = "deprovision"
+name         = "{{.nuon.install.id}}-deprovision"
+description  = "Deprovision the launch-test sandbox."
+display_name = "Deprovision role"
+
+[[policies]]
+managed_policy_name = "AdministratorAccess"
