@@ -1,0 +1,14 @@
+name = "main"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-httpbin"
+branch    = "main"
+
+[[install_groups]]
+name             = "prod"
+order            = 1
+use_for_previews = true
+
+[install_groups.label_selector]
+prod = "true"
