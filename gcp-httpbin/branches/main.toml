@@ -1,0 +1,12 @@
+name = "default"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "gcp-httpbin"
+branch    = "main"
+
+[[install_groups]]
+name             = "default"
+order            = 1
+use_for_previews = true
+
