@@ -1,0 +1,9 @@
+type           = "maintenance"
+name           = "{{.nuon.install.id}}-maintenance"
+description    = "Operate and remediate the HTTPBin component."
+display_name   = "maintenance role"
+cloud_platform = "gcp"
+
+[[policies]]
+name                = "owner"
+gcp_predefined_role = "roles/owner"

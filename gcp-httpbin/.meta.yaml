@@ -1,0 +1,16 @@
+cloud: gcp
+category:
+  - architecture
+infra: compute-engine
+stack:
+  - terraform
+  - docker
+features:
+  - actions
+tags:
+  - gcp
+  - gce
+  - docker
+  - debugging
+links:
+  upstream: https://github.com/mccutchen/go-httpbin

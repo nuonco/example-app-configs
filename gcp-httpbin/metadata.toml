@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "GCP HTTPBin"
+description  = "HTTPBin on a Google Compute Engine VM using the minimal GCP sandbox"
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "architecture"
+difficulty     = "simple"
+cloud_provider = "gcp"

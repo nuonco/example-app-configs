@@ -1,0 +1,9 @@
+type           = "provision"
+name           = "{{.nuon.install.id}}-provision"
+description    = "Provision the sandbox and HTTPBin component."
+display_name   = "provision role"
+cloud_platform = "gcp"
+
+[[policies]]
+name                = "owner"
+gcp_predefined_role = "roles/owner"
