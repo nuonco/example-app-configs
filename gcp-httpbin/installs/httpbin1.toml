@@ -1,0 +1,10 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "httpbin1"
+approval_option = "approve-all"
+
+[aws_account]
+region = "us-west-2"
+
+[labels]
+prod = "true"
