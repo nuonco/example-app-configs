@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+# install
+# Stable-train canary (install_groups order 1 on app branch stable).
+# Docs: https://docs.nuon.co/config-ref/install
+
+name = "canary-stable"
+approval_option = "approve-all"
+
+[labels]
+canary  = "true"
+cadence = "stable"
+
+[aws_account]
+region = "us-east-1"

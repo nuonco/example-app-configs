@@ -6,14 +6,6 @@ description  = "Coder Configrations for the Coder Cloud Development Environment 
 display_name = "Coder Configurations"
 
 [[input]]
-name         = "release"
-description  = "The release of Coder to deploy."
-default      = "v2.33.11"
-display_name = "Release"
-internal     = true
-group        = "coder"
-
-[[input]]
 name         = "replicas"
 description  = "The number of replicas of the Coder control plane pods to deploy"
 default      = "1"

@@ -279,11 +279,10 @@ Tune these from **Current Inputs → Edit Inputs**. Changes trigger a redeploy o
 
 ### Vendor-controlled
 
-The vendor pins these in the app config and updates them via release. The big one is `release` — the Coder version itself, which the vendor schedules into your install on their cadence.
+The vendor pins these in the app config and updates them via app branch. The Coder version is pinned in `components/values/coder.yaml` by train: stable defaults to `v2.34.6`, mainline to `v2.35.1`, selected at deploy time from the install `cadence` label.
 
 | Input | Current value | Description |
 |---|---|---|
-| `release` | `{{ dig "release" "—" $in }}` | Coder release version — vendor schedules upgrades |
 | `replicas` | `{{ dig "replicas" "—" $in }}` | Coder control plane replica count |
 | `provisioners` | `{{ dig "provisioners" "—" $in }}` | Terraform provisioners for workspace lifecycle |
 | `cluster_version` | `{{ dig "cluster_version" "—" $in }}` | EKS Kubernetes version |
@@ -356,16 +355,25 @@ The output shows the URL, username (`admin`), and the generated password.
 
 <br/>
 
-The Coder version is pinned by the `release` input on this install. Bumping it triggers a helm upgrade — you review the diff, then approve.
+The Coder version is pinned in `components/values/coder.yaml` on `coder.image.tag`. The tag is chosen at deploy time from the install's `cadence` label:
+
+```yaml
+tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.34.6{{ end }}'
+```
+
+- `cadence=stable` (or missing) → stable pin (`v2.34.6`)
+- `cadence=mainline` → mainline pin (`v2.35.1`)
+
+Bump only the side you mean to change, then merge to git `main`. Each train has its own app branch (`stable` / `mainline`) that rolls canary first, then the customer install.
 
 ### Steps
 
-1. Click **Current Inputs → Edit Inputs**
-2. Set the new version to an exact tag (e.g. `v2.34.6`). Do not use the words `stable` or `mainline` — those are Coder's release-notes labels only. The Helm image tag is `{{.nuon.inputs.inputs.release}}` and must match a GitHub release: [coder/coder/releases](https://github.com/coder/coder/releases). List recent tags:
+1. Pick an exact GitHub release tag. Do not put the words `stable` or `mainline` in the image tag — those are Coder's release-notes labels only. List recent tags:
    ```sh
    gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
    ```
-3. Save. A workflow appears in **Workflows** with a helm diff. Review and approve to apply.
+2. Edit the matching side of `coder.image.tag` in [`components/values/coder.yaml`](./components/values/coder.yaml).
+3. Open a PR against `main` (plan-only preview on that train's canary) or merge to `main` to deploy: canary first, then the customer install on that train.
 
 > [!WARNING]
 > Major Coder upgrades may include database migrations. Migrations run as part of the helm upgrade and are **not separately reversible**. Read the [release notes](https://github.com/coder/coder/releases) before approving.
@@ -387,9 +395,9 @@ This app's installs are managed as code: each has a corresponding TOML file unde
 2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed.
 3. Apply it. `-d` accepts either a single file or a directory:
 
-   Sync just one install (e.g. while testing a change against `canary` only, without touching the three customer installs):
+   Sync just one install (e.g. while testing against `canary-stable` only):
    ```sh
-   nuon installs sync -a coder -d installs/canary.toml
+   nuon installs sync -a coder -d installs/canary-stable.toml
    ```
 
    Sync every install config in the directory at once:
@@ -397,25 +405,28 @@ This app's installs are managed as code: each has a corresponding TOML file unde
    nuon installs sync -a coder -d installs/
    ```
 
-### Release channels
+### Release pins and rollout
 
-`release` in `inputs.toml` is the fleet **stable** tag (currently `v2.33.11`, oldest stable in the recent list so you can walk upgrades). Installs that omit it inherit that default; an app branch bump of the default rolls them. Mainline is `customer-1`, which pins `release = "v2.35.1"` (oldest mainline in that list) and is updated with `nuon installs sync`. The other installs carry `channel = "stable"` as documentation only — they set no `release`, so they follow the default. `channel` is not a branch selector; `canary`/`prod` still drive rollout order. Do not put `stable` or `mainline` in the input — Coder only publishes version tags.
+Two Coder trains share one app directory and one git `main`. The image tag is selected from the install `cadence` label in [`components/values/coder.yaml`](./components/values/coder.yaml). It is not an install input.
 
-List recent GitHub releases and which notes mark them mainline vs stable:
+| Train | Pin (in values template) | App branch | Installs |
+|---|---|---|---|
+| Stable | `v2.34.6` (`else` branch) | `branches/stable.toml` | `canary-stable`, `customer-stable` |
+| Mainline | `v2.35.1` (`mainline` branch) | `branches/mainline.toml` | `canary-mainline`, `customer-mainline` |
+
+List recent GitHub releases and which notes mark them mainline vs stable (reference when picking the next pin):
 ```sh
 gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
 ```
 
-Installs are labeled into a single lane: a canary gating its promotion to prod. A connected app branch (`branches/main.toml`) rolls changes through the lane in order:
+Each app branch rolls canary → customer for its train:
 
-| Channel | Label | Installs | Approval | Gets changes |
+| Group | Labels | Stable train | Mainline train | Gets changes |
 |---|---|---|---|---|
-| Canary | `canary=true` | `canary` | auto | first (inherits stable) |
-| Prod | `prod=true` | `customer-1`, `customer-2`, `customer-3` | auto | second |
-| Stable | `channel=stable` | `canary`, `customer-2`, `customer-3` | — | inherit the `release` default, so a bump in `inputs.toml` rolls them |
-| Mainline pin | `channel=mainline` | `customer-1` only | — | still in prod group; `release` does not follow the stable default |
+| Canary | `canary=true` + `cadence=…` | `canary-stable` | `canary-mainline` | first |
+| Stable | `stable=true` + `cadence=…` | `customer-stable` | `customer-mainline` | second |
 
-A push to `main` builds the change and deploys to `canary` immediately, then to `prod` once canary succeeds — all installs use `approval_option = "approve-all"`, so no manual approval gates the rollout. Opening a PR against `main` instead produces a plan-only diff scoped to the canary group, so reviewers see the smallest-blast-radius preview before anything merges. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
+A push to git `main` can wake both app branches (same tracked ref). Bumping only the stable pin upgrades `cadence=stable` installs; mainline installs keep rendering their pin (no-op when unchanged). All example installs use `approval_option = "approve-all"`. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
 
 ### Opting an install out
 
