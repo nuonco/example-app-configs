@@ -19,9 +19,9 @@ canary  = "true"
 cadence = "mainline"
 
 [[install_groups]]
-name  = "stable"
+name  = "prod"
 order = 2
 
 [install_groups.label_selector]
-stable  = "true"
+prod    = "true"
 cadence = "mainline"
