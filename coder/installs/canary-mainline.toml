@@ -1,15 +1,15 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
 # install
-# Canary lane: validates changes before prod (install_groups order 1).
+# Mainline-train canary (install_groups order 1 on app branch mainline).
 # Docs: https://docs.nuon.co/config-ref/install
 
-name = "canary"
+name = "canary-mainline"
 approval_option = "approve-all"
 
 [labels]
 canary  = "true"
-channel = "stable"
+cadence = "mainline"
 
 [aws_account]
 region = "us-east-1"

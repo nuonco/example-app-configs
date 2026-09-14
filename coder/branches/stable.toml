@@ -1,0 +1,27 @@
+# App branch: Coder stable train. Same git main / coder directory as
+# mainline; install cadence label selects the image tag at deploy time.
+# Docs: https://docs.nuon.co/guides/app-branches
+
+name = "stable"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder"
+branch    = "main"
+
+[[install_groups]]
+name             = "canary"
+order            = 1
+use_for_previews = true
+
+[install_groups.label_selector]
+canary  = "true"
+cadence = "stable"
+
+[[install_groups]]
+name  = "stable"
+order = 2
+
+[install_groups.label_selector]
+stable  = "true"
+cadence = "stable"

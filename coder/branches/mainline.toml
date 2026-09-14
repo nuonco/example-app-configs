@@ -1,8 +1,8 @@
-# App branch: watches `main` and rolls changes through a single
-# release-channel lane, gated by a canary: canary -> prod.
+# App branch: Coder mainline train. Same git main / coder directory as
+# stable; install cadence label selects the image tag at deploy time.
 # Docs: https://docs.nuon.co/guides/app-branches
 
-name = "main"
+name = "mainline"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
@@ -15,11 +15,13 @@ order            = 1
 use_for_previews = true
 
 [install_groups.label_selector]
-canary = "true"
+canary  = "true"
+cadence = "mainline"
 
 [[install_groups]]
-name  = "prod"
+name  = "stable"
 order = 2
 
 [install_groups.label_selector]
-prod = "true"
+stable  = "true"
+cadence = "mainline"
