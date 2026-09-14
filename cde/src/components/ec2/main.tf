@@ -1,10 +1,30 @@
 locals {
-  install_vscode_web  = var.install_vscode_web == "true"
-  is_ubuntu           = var.os == "ubuntu-24.04"
-  ssh_user            = local.is_ubuntu ? "ubuntu" : "ec2-user"
-  sshd_service        = local.is_ubuntu ? "ssh" : "sshd"
-  ami_id              = local.is_ubuntu ? data.aws_ami.ubuntu.id : data.aws_ami.al2023.id
-  ssh_public_key      = replace(replace(replace(var.ssh_public_key, "&#43;", "+"), "&#47;", "/"), "&#61;", "=")
+  install_vscode_web   = var.install_vscode_web == "true"
+  is_ubuntu            = var.os == "ubuntu-24.04"
+  ssh_user             = local.is_ubuntu ? "ubuntu" : "ec2-user"
+  sshd_service         = local.is_ubuntu ? "ssh" : "sshd"
+  ami_id               = local.is_ubuntu ? data.aws_ami.ubuntu.id : data.aws_ami.al2023.id
+  ssh_public_key       = replace(replace(replace(var.ssh_public_key, "&#43;", "+"), "&#47;", "/"), "&#61;", "=")
+  candidate_subnet_ids = [var.subnet_id_0, var.subnet_id_1]
+  usable_subnet_ids = [
+    for id in local.candidate_subnet_ids : id
+    if contains(data.aws_ec2_instance_type_offerings.dev_env.locations, data.aws_subnet.candidates[id].availability_zone)
+  ]
+  dev_env_subnet_id = try(local.usable_subnet_ids[0], null)
+}
+
+data "aws_subnet" "candidates" {
+  for_each = toset(local.candidate_subnet_ids)
+  id       = each.value
+}
+
+data "aws_ec2_instance_type_offerings" "dev_env" {
+  location_type = "availability-zone"
+
+  filter {
+    name   = "instance-type"
+    values = [var.instance_type]
+  }
 }
 
 data "aws_ami" "ubuntu" {
@@ -82,20 +102,24 @@ resource "aws_iam_instance_profile" "dev_env" {
 resource "aws_security_group" "dev_env" {
   name   = "cde-${var.install_id}"
   vpc_id = var.vpc_id
+}
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.dev_env.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "dev_env_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.dev_env.id
 }
 
 resource "aws_security_group" "alb" {
@@ -131,9 +155,16 @@ resource "aws_security_group_rule" "vscode_from_alb" {
 resource "aws_instance" "dev_env" {
   ami                    = local.ami_id
   instance_type          = var.instance_type
-  subnet_id              = var.subnet_id_0
+  subnet_id              = local.dev_env_subnet_id
   iam_instance_profile   = aws_iam_instance_profile.dev_env.name
   vpc_security_group_ids = [aws_security_group.dev_env.id]
+
+  lifecycle {
+    precondition {
+      condition     = local.dev_env_subnet_id != null
+      error_message = "Instance type ${var.instance_type} is not offered in either availability zone available to this install (${join(", ", [for id in local.candidate_subnet_ids : data.aws_subnet.candidates[id].availability_zone])}). It is offered in: ${join(", ", data.aws_ec2_instance_type_offerings.dev_env.locations)}. Pick a different instance type."
+    }
+  }
 
   user_data = <<-EOF
     #!/bin/bash
@@ -224,6 +255,7 @@ resource "aws_lb_target_group" "vscode" {
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 30
+    matcher             = "200-399"
   }
 }
 
