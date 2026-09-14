@@ -364,7 +364,7 @@ tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.3
 - `cadence=stable` (or missing) → stable pin (`v2.34.6`)
 - `cadence=mainline` → mainline pin (`v2.35.1`)
 
-Bump only the side you mean to change, then merge to git `main`. Each train has its own app branch (`stable` / `mainline`) that rolls canary first, then the customer install.
+Bump only the side you mean to change, then merge to git `main`. Each train has its own app branch (`stable` / `mainline`) that rolls canary first, then prod.
 
 ### Steps
 
@@ -373,7 +373,7 @@ Bump only the side you mean to change, then merge to git `main`. Each train has 
    gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
    ```
 2. Edit the matching side of `coder.image.tag` in [`components/values/coder.yaml`](./components/values/coder.yaml).
-3. Open a PR against `main` (plan-only preview on that train's canary) or merge to `main` to deploy: canary first, then the customer install on that train.
+3. Open a PR against `main` (plan-only preview on that train's canary) or merge to `main` to deploy: canary first, then prod on that train.
 
 > [!WARNING]
 > Major Coder upgrades may include database migrations. Migrations run as part of the helm upgrade and are **not separately reversible**. Read the [release notes](https://github.com/coder/coder/releases) before approving.
@@ -419,12 +419,12 @@ List recent GitHub releases and which notes mark them mainline vs stable (refere
 gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
 ```
 
-Each app branch rolls canary → customer for its train:
+Each app branch rolls canary → prod for its train:
 
 | Group | Labels | Stable train | Mainline train | Gets changes |
 |---|---|---|---|---|
 | Canary | `canary=true` + `cadence=…` | `canary-stable` | `canary-mainline` | first |
-| Stable | `stable=true` + `cadence=…` | `customer-stable` | `customer-mainline` | second |
+| Prod | `prod=true` + `cadence=…` | `customer-stable` | `customer-mainline` | second |
 
 A push to git `main` can wake both app branches (same tracked ref). Bumping only the stable pin upgrades `cadence=stable` installs; mainline installs keep rendering their pin (no-op when unchanged). All example installs use `approval_option = "approve-all"`. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
 

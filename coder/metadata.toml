@@ -17,5 +17,5 @@ cloud_provider = "aws"
 # lane is a pale tint of the track it feeds, pairing them visually.
 [label_colors]
 canary  = "#93C5FD"
-stable  = "#3B82F6"
+prod    = "#3B82F6"
 cadence = "#A78BFA"
