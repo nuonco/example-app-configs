@@ -4,7 +4,7 @@
 # Stable-train canary (install_groups order 1 on app branch stable).
 # Docs: https://docs.nuon.co/config-ref/install
 
-name = "canary-stable"
+name = "canary"
 approval_option = "approve-all"
 
 [labels]
