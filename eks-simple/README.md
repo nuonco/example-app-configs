@@ -76,33 +76,20 @@ X-Forwarded-Proto: https
 
 ## Optional telemetry demo
 
-`telemetry_collector` is toggleable and disabled by default. Enable it explicitly to collect container stdout/stderr
-logs across namespaces on Linux worker nodes, including tainted nodes. It excludes its own collector logs and adds
-Kubernetes pod, namespace, and container metadata. It does not collect metrics, traces, application log files outside
-the Kubernetes container log directory, or managed AWS service logs. Review log contents before enabling export;
-the collector does not redact secrets or personal data.
+`telemetry_collector` is toggleable and disabled by default. It collects container stdout/stderr across namespaces
+on Linux worker nodes, excludes its own logs, and adds Kubernetes metadata. Metrics, traces, and managed AWS service
+logs are not collected. Review log contents before enabling export; secrets and personal data are not redacted.
 
-The path is container logs → collector DaemonSet → private runner collector → BYOC telemetry relay → LGTM.
-Backend credentials stay on the relay; the DaemonSet uses the install's private `telemetry_endpoint` stack output
-without a Grafana password or runner token.
+Logs flow through the install's private `telemetry_endpoint` → runner collector → BYOC telemetry relay → LGTM.
+Backend credentials stay on the relay; no Grafana password or runner token is needed in this app config.
 
-1. Sync this app config to your BYOC control plane. When testing from a feature branch, select that branch as the
-   config source; `branch.toml` remains pointed at `main` for normal releases.
-2. Update the install's CloudFormation stack with the pinned VPC `v0.5.0` and runner `v0.6.0` templates and
-   `EnableTelemetryIngress=true`. Confirm the `telemetry_endpoint` stack output is nonempty. Existing install-level
-   template URL overrides must be updated too; changing app config does not override them.
-3. Enable telemetry forwarding for this install in its BYOC control plane and configure that control plane's relay
-   to forward to LGTM. A telemetry-capable runner must be running; the stack version alone does not enable forwarding.
-4. Enable and deploy `telemetry_collector` using the install's component controls. Rendering fails with a prerequisite
-   error if the endpoint is missing or empty. Do not append `/v1/logs` to the endpoint.
-5. Check the collector DaemonSet and its logs in namespace `whoami`. After it is ready, emit a fresh, recognizable
-   stdout log line from a test pod and find it in LGTM with Kubernetes metadata and verified `nuon.*` identity fields.
-   An HTTP response from whoami is not itself a container log; use an actual stdout/stderr log line for the demo.
+1. Sync this app config, enable telemetry forwarding for the install, and configure the BYOC relay to forward to LGTM.
+2. Enable and deploy `telemetry_collector` using the install's component controls.
+3. Check the collector DaemonSet in namespace `whoami`, then emit a fresh stdout/stderr log line from a test pod.
+   Find it in LGTM with Kubernetes metadata and verified `nuon.*` identity fields.
 
-Collection starts at the end of existing log files. Checkpoints survive collector restarts on the same node, but
-the batch processor and export queue are in memory: pending logs can be lost on restart. This is a demo collector,
-not a lossless delivery guarantee. Disable the component to stop collection; disabling only runner forwarding
-leaves it retrying an unavailable endpoint.
+Collection starts with new logs. Checkpoints survive restarts on the same node, but queued logs are held in memory
+and can be lost on restart. Disable the component to stop collection.
 
 ## Continuous delivery via app branches
 
