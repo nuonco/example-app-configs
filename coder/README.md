@@ -98,7 +98,7 @@ Coder's cloud development environment platform — for developers and agents. Th
   <nuon-label-badge label="region:{{ $region }}"></nuon-label-badge>
   <nuon-label-badge label="sandbox:eks-auto"></nuon-label-badge>
 </nuon-group>
-<p style="margin:0.5rem 0 0; font-size:0.9em; color:#6b7280;">{{ if eq $cadence "mainline" }}Mainline{{ else }}Stable{{ end }} train · Coder {{ if eq $cadence "mainline" }}v2.35.1{{ else }}v2.34.6{{ end }}</p>
+<p style="margin:0.5rem 0 0; font-size:0.9em; color:#6b7280;">{{ if eq $cadence "mainline" }}Mainline{{ else }}Stable{{ end }} train · Coder {{ if eq $cadence "mainline" }}v2.35.1{{ else }}v2.36.5{{ end }}</p>
 
 <nuon-tabs>
 
@@ -289,7 +289,7 @@ Tune these from **Current Inputs → Edit Inputs**. Changes trigger a redeploy o
 
 ### Vendor-controlled
 
-The vendor pins these in the app config and updates them via app branch. The Coder version is pinned in `components/values/coder.yaml` by train: stable defaults to `v2.34.6`, mainline to `v2.35.1`, selected at deploy time from the install `cadence` label.
+The vendor pins these in the app config and updates them via app branch. The Coder version is pinned in `components/values/coder.yaml` by train: stable defaults to `v2.36.5`, mainline to `v2.35.1`, selected at deploy time from the install `cadence` label.
 
 | Input | Current value | Description |
 |---|---|---|
@@ -368,10 +368,10 @@ The output shows the URL, username (`admin`), and the generated password.
 The Coder version is pinned in `components/values/coder.yaml` on `coder.image.tag`. The tag is chosen at deploy time from the install's `cadence` label:
 
 ```yaml
-tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.34.6{{ end }}'
+tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.36.5{{ end }}'
 ```
 
-- `cadence=stable` (or missing) → stable pin (`v2.34.6`)
+- `cadence=stable` (or missing) → stable pin (`v2.36.5`)
 - `cadence=mainline` → mainline pin (`v2.35.1`)
 
 Bump only the side you mean to change, then merge to git `main`. Each train has its own app branch (`stable` / `mainline`) that rolls canary first, then prod.
@@ -421,7 +421,7 @@ Two Coder trains share one app directory and one git `main`. The image tag is se
 
 | Train | Pin (in values template) | App branch | Installs |
 |---|---|---|---|
-| Stable | `v2.34.6` (`else` branch) | `branches/stable.toml` | `canary-stable`, `customer-stable` |
+| Stable | `v2.36.5` (`else` branch) | `branches/stable.toml` | `canary-stable`, `customer-stable` |
 | Mainline | `v2.35.1` (`mainline` branch) | `branches/mainline.toml` | `canary-mainline`, `customer-mainline` |
 
 List recent GitHub releases and which notes mark them mainline vs stable (reference when picking the next pin):

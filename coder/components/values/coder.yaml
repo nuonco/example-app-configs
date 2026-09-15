@@ -8,7 +8,7 @@ coder:
   image:
     # coder.image.repo -- The repository of the image.
     repo: "ghcr.io/coder/coder"
-    tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.34.6{{ end }}'
+    tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.36.5{{ end }}'
 
   replicaCount: "{{.nuon.inputs.inputs.replicas}}"
 
