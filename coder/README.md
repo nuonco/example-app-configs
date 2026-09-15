@@ -65,7 +65,7 @@
 
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
   <video autoplay loop muted playsinline width="480" height="270">
-    <source src="https://coder.together.agency/videos/logo/sections/0/content/9/value/video.mp4" type="video/mp4">
+    <source src="https://coder.com/brand/videos/logo/sections/0/content/9/value/video.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
   <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
