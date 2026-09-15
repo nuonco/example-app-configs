@@ -1,0 +1,17 @@
+name             = "telemetry_collector"
+type             = "helm_chart"
+chart_name       = "telemetry-collector"
+namespace        = "whoami"
+storage_driver   = "configmap"
+dependencies     = ["whoami"]
+max_auto_retries = 5
+toggleable       = true
+default_enabled  = false
+
+[helm_repo]
+repo_url = "https://open-telemetry.github.io/opentelemetry-helm-charts"
+chart    = "opentelemetry-collector"
+version  = "0.172.0"
+
+[[values_file]]
+contents = "./values/telemetry-collector.yaml"

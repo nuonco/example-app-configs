@@ -1,0 +1,74 @@
+{{- $endpoint := dig "telemetry_endpoint" "" .nuon.install_stack.outputs -}}
+{{- if not $endpoint -}}
+{{- fail "telemetry_collector requires install_stack.outputs.telemetry_endpoint; update the install stack with EnableTelemetryIngress=true first" -}}
+{{- end }}
+mode: daemonset
+
+image:
+  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  tag: "0.159.0"
+
+command:
+  name: otelcol-k8s
+
+presets:
+  logsCollection:
+    enabled: true
+    includeCollectorLogs: false
+    storeCheckpoints: true
+  kubernetesAttributes:
+    enabled: true
+
+config:
+  exporters:
+    debug: null
+    otlp_http:
+      endpoint: "{{ $endpoint }}"
+      retry_on_failure:
+        enabled: true
+        max_elapsed_time: 0s
+      sending_queue:
+        enabled: true
+        num_consumers: 4
+        queue_size: 2048
+  receivers:
+    jaeger: null
+    otlp: null
+    prometheus: null
+    zipkin: null
+  service:
+    pipelines:
+      logs:
+        exporters: [otlp_http]
+        processors: [memory_limiter, batch]
+        receivers: []
+      metrics: null
+      traces: null
+
+ports:
+  otlp:
+    enabled: false
+  otlp-http:
+    enabled: false
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+
+nodeSelector:
+  kubernetes.io/os: linux
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

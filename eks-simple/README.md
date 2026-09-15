@@ -74,6 +74,23 @@ X-Forwarded-Proto: https
 
 ```
 
+## Optional telemetry demo
+
+`telemetry_collector` is toggleable and disabled by default. It collects container stdout/stderr across namespaces
+on Linux worker nodes, excludes its own logs, and adds Kubernetes metadata. Metrics, traces, and managed AWS service
+logs are not collected. Review log contents before enabling export; secrets and personal data are not redacted.
+
+Logs flow through the install's private `telemetry_endpoint` → runner collector → BYOC telemetry relay → LGTM.
+Backend credentials stay on the relay; no Grafana password or runner token is needed in this app config.
+
+1. Sync this app config, enable telemetry forwarding for the install, and configure the BYOC relay to forward to LGTM.
+2. Enable and deploy `telemetry_collector` using the install's component controls.
+3. Check the collector DaemonSet in namespace `whoami`, then emit a fresh stdout/stderr log line from a test pod.
+   Find it in LGTM with Kubernetes metadata and verified `nuon.*` identity fields.
+
+Collection starts with new logs. Checkpoints survive restarts on the same node, but queued logs are held in memory
+and can be lost on restart. Disable the component to stop collection.
+
 ## Continuous delivery via app branches
 
 This app is connected to the `main` branch of
@@ -94,4 +111,3 @@ succeeds, it is waiting on you. Approve it from the run's deployment plan in the
 
 ## Cost Estimate
 Running this app in your environment will cost around $8/day.
-
