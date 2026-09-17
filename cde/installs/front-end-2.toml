@@ -4,6 +4,7 @@ name = "front-end-2"
 approval_option = "approve-all"
 
 [labels]
+prod = "true"
 tier = "front-end"
 
 [aws_account]

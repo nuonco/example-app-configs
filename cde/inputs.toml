@@ -1,7 +1,7 @@
 [[group]]
 name         = "developer"
 display_name = "Developer Configuration"
-description  = "SSH access and instance sizing for your development environment"
+description  = "SSH access and OS for your development environment"
 
 [[input]]
 name              = "ssh_public_key"
@@ -15,13 +15,6 @@ name         = "os"
 display_name = "Operating System"
 description  = "VM operating system. ubuntu-24.04 (Ubuntu 24.04 LTS, recommended for development, uses apt) or al2023 (Amazon Linux 2023, uses dnf)"
 default      = "ubuntu-24.04"
-group        = "developer"
-
-[[input]]
-name         = "instance_type"
-display_name = "Instance Type"
-description  = "EC2 instance type. t3a.medium (2vCPU/4GB), t3a.large (2vCPU/8GB), t3a.xlarge (4vCPU/16GB), t3a.2xlarge (8vCPU/32GB), m7i.large (2vCPU/8GB consistent), m7i.xlarge (4vCPU/16GB consistent)"
-default      = "t3a.medium"
 group        = "developer"
 
 [[input]]
@@ -43,7 +36,7 @@ group             = "developer"
 [[group]]
 name         = "optional_tools"
 display_name = "Optional Tools"
-description  = "Tools installed via the post-provision action. Each can be re-run or updated independently."
+description  = "Tools installed via the post-provision action. Each can be re-run or updated independently. Docker is included automatically on full-stack installs."
 
 [[input]]
 name              = "dotfiles_repo"
@@ -52,13 +45,6 @@ description       = "HTTPS URL of your dotfiles git repository (e.g. https://git
 default           = ""
 user_configurable = true
 group             = "optional_tools"
-
-[[input]]
-name         = "install_docker"
-display_name = "Install Docker"
-description  = "Install Docker and enable it as a system service (true/false)"
-default      = "true"
-group        = "optional_tools"
 
 [[input]]
 name         = "install_vscode_web"

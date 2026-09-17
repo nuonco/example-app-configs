@@ -12,4 +12,5 @@ cloud_provider = "aws"
 
 [label_colors]
 canary = "#93C5FD"
-tier   = "#3B82F6"
+prod   = "#3B82F6"
+tier   = "#A78BFA"

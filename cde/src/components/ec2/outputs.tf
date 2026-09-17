@@ -2,6 +2,10 @@ output "instance_id" {
   value = aws_instance.dev_env.id
 }
 
+output "instance_type" {
+  value = aws_instance.dev_env.instance_type
+}
+
 output "elastic_ip" {
   value = aws_eip.dev_env.public_ip
 }
