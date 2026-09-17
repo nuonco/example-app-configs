@@ -42,7 +42,7 @@ a `git push` rolls the change out to installs, one deployment group at a time â€
 
 ## cde
 
-A personal cloud development environment running entirely in your AWS account. Provisions a single EC2 VM with SSH key authentication, optional VS Code Web (ALB + ACM certificate), Docker, and Claude Code CLI. Connect via SSH, Zed remote SSH, or VS Code Remote-SSH. Dotfiles are bootstrapped automatically on first provision. Start and stop the VM from the vendor dashboard to save costs when not in use.
+A personal cloud development environment running entirely in your AWS account. Provisions a single EC2 VM with SSH key authentication, optional VS Code Web (ALB + ACM certificate), and Claude Code CLI. Docker and VM size are pinned by install tier (`front-end` = small / no Docker, `full-stack` = xlarge / Docker). Connect via SSH, Zed remote SSH, or VS Code Remote-SSH. Dotfiles are bootstrapped automatically on first provision. Start and stop the VM from the vendor dashboard to save costs when not in use.
 
 ## eks-simple-auto
 

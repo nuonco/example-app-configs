@@ -1,49 +1,74 @@
+{{ $nuonRoot := default dict .nuon }}
+{{ $components := default dict (dig "components" dict $nuonRoot) }}
+{{ $ec2 := default dict (dig "ec2" dict $components) }}
+{{ $ec2Out := default dict (dig "outputs" dict $ec2) }}
+{{ $sshUser := dig "ssh_user" "" $ec2Out }}
+{{ $sshHost := dig "ssh_hostname" "" $ec2Out }}
+{{ $vscodeURL := dig "vscode_url" "" $ec2Out }}
+{{ $labels := default dict (dig "labels" dict $nuonRoot) }}
+{{ $tier := dig "tier" "front-end" $labels }}
+{{ $pinnedType := ternary "t3a.xlarge" "t3a.medium" (eq $tier "full-stack") }}
+{{ $instanceType := dig "instance_type" $pinnedType $ec2Out }}
+{{ if eq $instanceType "" }}{{ $instanceType = $pinnedType }}{{ end }}
+{{ $actionsMap := default dict (dig "actions" dict $nuonRoot) }}
+{{ $workflows := default dict (dig "workflows" dict $actionsMap) }}
+{{ $install := default dict (dig "install" dict $nuonRoot) }}
+{{ $inputs := default dict (dig "inputs" dict $install) }}
+{{ $vsCodeEnabled := dig "install_vscode_web" "" $inputs }}
+{{ $actionsPopulated := dig "populated" false $actionsMap }}
+{{ $ec2HC := default dict (dig "healthcheck_ec2" dict $workflows) }}
+{{ $vmStopped := eq (dig "status" "" $ec2HC) "error" }}
+
 # Cloud Dev Environment
 
-**SSH:** `ssh {{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
+{{ if and $sshUser $sshHost -}}
+**SSH:** `ssh {{ $sshUser }}@{{ $sshHost }}`
 
-**Zed:** `zed ssh://{{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
+**Zed:** `zed ssh://{{ $sshUser }}@{{ $sshHost }}`
 
-**VS Code:** open the [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) extension, then `Cmd+Shift+P` → `Remote-SSH: Connect to Host` → `{{ .nuon.components.ec2.outputs.ssh_user }}@{{ .nuon.components.ec2.outputs.ssh_hostname }}`
+**VS Code:** open the [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) extension, then `Cmd+Shift+P` → `Remote-SSH: Connect to Host` → `{{ $sshUser }}@{{ $sshHost }}`
 
-{{ if .nuon.components.ec2.outputs.vscode_url -}}
-**VS Code Web:** [{{ .nuon.components.ec2.outputs.vscode_url }}]({{ .nuon.components.ec2.outputs.vscode_url }})
+{{ if $vscodeURL -}}
+**VS Code Web:** [{{ $vscodeURL }}]({{ $vscodeURL }})
+
+{{ end -}}
+{{ else -}}
+**Connect:** SSH host will appear here after the EC2 component finishes provisioning.
 
 {{ end -}}
 A personal cloud development environment running in your AWS account. Connect via SSH with your private key, open VS Code in the browser if enabled, and have your dotfiles installed automatically on first boot.
 
 ## Status
 
-{{ if .nuon.actions.populated -}}
-{{- $vsCodeEnabled := .nuon.install.inputs.install_vscode_web -}}
-{{- $ec2HC := .nuon.actions.workflows.healthcheck_ec2 -}}
-{{- $vmStopped := eq (dig "status" "" $ec2HC) "error" -}}
+{{ if $actionsPopulated -}}
 *Checks run every 5 minutes. Last results (🟡 means a check is currently running — refresh in a moment):*
 
-{{ with .nuon.actions.workflows.healthcheck_ec2 -}}
-**EC2 VM ({{ $.nuon.install.inputs.instance_type }}):** {{ if eq .status "finished" }}🟢 running{{ else if eq .status "error" }}🔴 stopped{{ else }}🟡 unknown{{ end }}
+{{ with index $workflows "healthcheck_ec2" -}}
+**EC2 VM ({{ $instanceType }}):** {{ if eq .status "finished" }}🟢 running{{ else if eq .status "error" }}🔴 stopped{{ else }}🟡 unknown{{ end }}
 
 {{ end -}}
-{{ with .nuon.actions.workflows.healthcheck_ssh -}}
+{{ with index $workflows "healthcheck_ssh" -}}
 **SSH Access:** {{ if $vmStopped }}🔴 inaccessible (VM stopped){{ else if eq .status "finished" }}🟢 reachable{{ else if eq .status "error" }}🔴 unreachable{{ else }}🟡 unknown{{ end }}
 
 {{ end -}}
 {{ if eq $vsCodeEnabled "true" -}}
-{{ with .nuon.actions.workflows.healthcheck_code_server -}}
+{{ with index $workflows "healthcheck_code_server" -}}
 **VS Code Web process:** {{ if $vmStopped }}🔴 not running (VM stopped){{ else if eq .status "finished" }}🟢 running{{ else if eq .status "error" }}🔴 not running{{ else }}🟡 unknown{{ end }}
 
 {{ end -}}
-{{ with .nuon.actions.workflows.healthcheck_alb -}}
-**ALB (for VS Code Web):** {{ if eq .status "finished" }}{{ if eq .outputs.http_status "503" }}🟡 503 — ALB up, no healthy targets (VM off){{ else }}🟢 reachable{{ end }}{{ else if eq .status "error" }}🔴 unreachable{{ else }}🟡 unknown{{ end }}
+{{ with index $workflows "healthcheck_alb" -}}
+{{- $albOut := default dict (dig "outputs" dict .) -}}
+**ALB (for VS Code Web):** {{ if eq .status "finished" }}{{ if eq (dig "http_status" "" $albOut) "503" }}🟡 503 — ALB up, no healthy targets (VM off){{ else }}🟢 reachable{{ end }}{{ else if eq .status "error" }}🔴 unreachable{{ else }}🟡 unknown{{ end }}
 
 {{ end -}}
 {{ end -}}
-{{ with .nuon.actions.workflows.connections_status -}}
-**Active SSH Sessions:** {{ if $vmStopped }}🔴 VM stopped{{ else if eq .status "finished" }}{{ .outputs.ssh_count }}{{ range .outputs.ssh_clients }}
+{{ with index $workflows "connections_status" -}}
+{{- $connOut := default dict (dig "outputs" dict .) -}}
+**Active SSH Sessions:** {{ if $vmStopped }}🔴 VM stopped{{ else if eq .status "finished" }}{{ dig "ssh_count" "0" $connOut }}{{ range dig "ssh_clients" list $connOut }}
 - {{ . }}{{ end }}{{ else if eq .status "error" }}🔴 VM unreachable{{ else }}🟡 unknown{{ end }}
 
 {{ if eq $vsCodeEnabled "true" }}
-**Active VS Code Web Sessions:** {{ if $vmStopped }}🔴 VM stopped{{ else if eq .status "finished" }}{{ .outputs.vscode_count }}{{ range .outputs.vscode_clients }}
+**Active VS Code Web Sessions:** {{ if $vmStopped }}🔴 VM stopped{{ else if eq .status "finished" }}{{ dig "vscode_count" "0" $connOut }}{{ range dig "vscode_clients" list $connOut }}
 - {{ . }}{{ end }}{{ else if eq .status "error" }}🔴 VM unreachable{{ else }}🟡 unknown{{ end }}
 
 {{ end }}{{ end -}}
@@ -53,7 +78,7 @@ A personal cloud development environment running in your AWS account. Connect vi
 
 ## Actions
 
-**post_provision_setup** (auto on provision, re-runnable) — installs Docker, VS Code Web, Claude Code, and configures git user name/email based on your install inputs.
+**post_provision_setup** (auto on provision, re-runnable) — installs VS Code Web, Claude Code, and configures git user name/email based on your install inputs. Docker is installed only on `tier=full-stack` installs.
 
 **install_dotfiles** (auto on provision, re-runnable) — clones your dotfiles repo to `~/.dotfiles` and runs `install.sh`. Re-run any time from the portal to pull updates.
 
@@ -101,7 +126,7 @@ graph TD
         subgraph EC2["EC2 Instance"]
             SSHD["sshd (key auth only)"]
             CodeServer["code-server :8080\n(password-protected, optional)"]
-            Docker["Docker (optional)"]
+            Docker["Docker (full-stack only)"]
             ClaudeCode["Claude Code CLI (optional)"]
             Dotfiles["~/.dotfiles (optional)"]
         end
@@ -146,15 +171,32 @@ graph TD
 
 **The Nuon runner never touches your secrets directly.** The runner operates using an IAM role with a permissions boundary scoped to only the AWS services this app requires (`ec2`, `iam`, `ssm`, `elasticloadbalancing`, `acm`, `route53`). It cannot access other resources in your account.
 
+## Tiers
+
+VM size and Docker are pinned by the install `tier` label (not customer inputs):
+
+| Tier | Instance | Docker | Example installs |
+|---|---|---|---|
+| `front-end` | `t3a.medium` (2 vCPU / 4 GiB) | off | `canary-front-end`, `front-end-1`, `front-end-2` |
+| `full-stack` | `t3a.xlarge` (4 vCPU / 16 GiB) | on | `canary-full-stack`, `full-stack-1`, `full-stack-2` |
+
+App branch `main` rolls canary → prod per tier: `canary-front-end` → `front-end` → `canary-full-stack` → `full-stack`. Previews use the front-end canary. Bumping a pin only changes installs on that tier; the other tier no-ops.
+
 ## Cost estimate
 
-Instance cost depends on the type selected at install time. At default (`t3a.medium`):
+Cost depends on tier:
 
-- EC2 (t3a.medium, running): ~$0.90/day
+**front-end** (`t3a.medium`):
+- EC2 (running): ~$0.90/day
 - Elastic IP (unattached): $0.005/hr
 - ALB (VS Code Web enabled by default): ~$0.60/day
 
-`t3a.medium` (2vCPU/4GB) is the default. Step up to `t3a.large` or larger for heavier development workloads — see [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/) for options.
+**full-stack** (`t3a.xlarge`):
+- EC2 (running): ~$3.60/day
+- Elastic IP (unattached): $0.005/hr
+- ALB (VS Code Web enabled by default): ~$0.60/day
+
+See [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types/t3/) for details.
 
 Stop the VM via the portal when not in use to pause EC2 billing. The Elastic IP and DNS record persist through stop/start cycles so your SSH hostname never changes.
 

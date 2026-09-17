@@ -1,11 +1,11 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-name = "full-stack-1"
+name = "canary-front-end"
 approval_option = "approve-all"
 
 [labels]
-prod = "true"
-tier = "full-stack"
+canary = "true"
+tier   = "front-end"
 
 [aws_account]
 region = "us-east-1"
