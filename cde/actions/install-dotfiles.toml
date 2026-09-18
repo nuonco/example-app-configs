@@ -11,6 +11,9 @@ type = "post-provision"
 type = "post-reprovision"
 
 [[triggers]]
+type = "post-reprovision-sandbox"
+
+[[triggers]]
 type = "manual"
 
 [[steps]]
