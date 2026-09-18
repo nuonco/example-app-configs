@@ -8,6 +8,9 @@ description        = "Install optional tools (VS Code Web, Claude Code; Docker o
 type = "post-provision"
 
 [[triggers]]
+type = "post-reprovision"
+
+[[triggers]]
 type = "manual"
 
 [[steps]]
@@ -43,34 +46,57 @@ set -eo pipefail
 export HOME=/root
 
 if [ "INSTALL_DOCKER_VAL" = "true" ]; then
-  echo "Installing Docker..."
-  if [ "OS_VAL" = "ubuntu-24.04" ]; then
-    curl -fsSL https://get.docker.com | sh
+  if command -v docker >/dev/null 2>&1; then
+    echo "Docker already installed, skipping install"
   else
-    dnf install -y docker
+    echo "Installing Docker..."
+    if [ "OS_VAL" = "ubuntu-24.04" ]; then
+      curl -fsSL https://get.docker.com | sh
+    else
+      dnf install -y docker
+    fi
   fi
   systemctl enable --now docker
   usermod -aG docker SSH_USER_VAL
 fi
 
 if [ "INSTALL_VSCODE_WEB_VAL" = "true" ]; then
-  echo "Installing code-server..."
-  curl -fsSL https://code-server.dev/install.sh | sh
+  if command -v code-server >/dev/null 2>&1; then
+    echo "code-server already installed, skipping install"
+  else
+    echo "Installing code-server..."
+    curl -fsSL https://code-server.dev/install.sh | sh
+  fi
   mkdir -p /home/SSH_USER_VAL/.config/code-server
-  printf 'bind-addr: 0.0.0.0:8080\nauth: password\npassword: VSCODE_PASSWORD_VAL\ncert: false\n' > /home/SSH_USER_VAL/.config/code-server/config.yaml
-  chown -R SSH_USER_VAL:SSH_USER_VAL /home/SSH_USER_VAL/.config
+  CONFIG=/home/SSH_USER_VAL/.config/code-server/config.yaml
+  DESIRED_PASSWORD="VSCODE_PASSWORD_VAL"
+  CURRENT_PASSWORD=""
+  if [ -f "$CONFIG" ]; then
+    CURRENT_PASSWORD=$(awk -F': ' '/^password:/ {print $2; exit}' "$CONFIG")
+  fi
+  if [ ! -f "$CONFIG" ] || [ "$CURRENT_PASSWORD" != "$DESIRED_PASSWORD" ]; then
+    echo "Updating code-server config"
+    printf 'bind-addr: 0.0.0.0:8080\nauth: password\npassword: %s\ncert: false\n' "$DESIRED_PASSWORD" > "$CONFIG"
+    chown -R SSH_USER_VAL:SSH_USER_VAL /home/SSH_USER_VAL/.config
+  else
+    echo "code-server config password unchanged, skipping rewrite"
+  fi
   systemctl enable --now code-server@SSH_USER_VAL
 fi
 
 if [ "INSTALL_CLAUDE_CODE_VAL" = "true" ]; then
-  echo "Installing Claude Code..."
-  if [ "OS_VAL" = "ubuntu-24.04" ]; then
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-    apt-get install -y nodejs
+  if command -v claude >/dev/null 2>&1; then
+    echo "Claude Code already installed, skipping install"
   else
-    dnf install -y nodejs npm
+    echo "Installing Claude Code..."
+    if [ "OS_VAL" = "ubuntu-24.04" ]; then
+      curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+      apt-get install -y nodejs
+    else
+      dnf install -y nodejs npm
+    fi
+    npm install -g @anthropic-ai/claude-code
   fi
-  npm install -g @anthropic-ai/claude-code
   if [ -n "ANTHROPIC_KEY_VAL" ] && ! grep -q ANTHROPIC_API_KEY /home/SSH_USER_VAL/.bashrc; then
     [ -s /home/SSH_USER_VAL/.bashrc ] && [ -n "$(tail -c1 /home/SSH_USER_VAL/.bashrc)" ] && echo "" >> /home/SSH_USER_VAL/.bashrc
     echo "export ANTHROPIC_API_KEY=ANTHROPIC_KEY_VAL" >> /home/SSH_USER_VAL/.bashrc

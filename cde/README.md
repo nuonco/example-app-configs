@@ -78,9 +78,9 @@ A personal cloud development environment running in your AWS account. Connect vi
 
 ## Actions
 
-**post_provision_setup** (auto on provision, re-runnable) — installs VS Code Web, Claude Code, and configures git user name/email based on your install inputs. Docker is installed only on `tier=full-stack` installs.
+**post_provision_setup** (auto on provision and reprovision, re-runnable) — installs VS Code Web, Claude Code, and configures git user name/email based on your install inputs. Docker is installed only on `tier=full-stack` installs. Re-runs skip packages already present and only rewrite the code-server password when the install input changes.
 
-**install_dotfiles** (auto on provision, re-runnable) — clones your dotfiles repo to `~/.dotfiles` and runs `install.sh`. Re-run any time from the portal to pull updates.
+**install_dotfiles** (auto on provision and reprovision, re-runnable) — clones your dotfiles repo to `~/.dotfiles` and runs `install.sh`. Re-run any time from the portal to pull updates.
 
 **add_ssh_key** (manual) — appends an additional SSH public key to `~/.ssh/authorized_keys`. Takes a key as input; prints fingerprints of all authorized keys after.
 

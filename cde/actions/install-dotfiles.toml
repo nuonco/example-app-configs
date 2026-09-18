@@ -8,6 +8,9 @@ description        = "Clone the dotfiles repo and run install.sh on the dev envi
 type = "post-provision"
 
 [[triggers]]
+type = "post-reprovision"
+
+[[triggers]]
 type = "manual"
 
 [[steps]]
