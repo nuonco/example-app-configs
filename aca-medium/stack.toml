@@ -1,0 +1,8 @@
+type = "azure-bicep"
+name = "aca-medium-{{.nuon.install.id}}"
+description = "Azure Container Apps medium application stack"
+
+deployment_scope = "subscription"
+
+vpc_nested_template_url    = "https://raw.githubusercontent.com/nuonco/example-app-configs/refs/heads/fd/sandbox-fd/aca-medium/arm/virtual_network/stack.json"
+runner_nested_template_url = "https://lovable-cf-template-library.s3.eu-west-1.amazonaws.com/arm/122-aba0504/runner/stack.json"
