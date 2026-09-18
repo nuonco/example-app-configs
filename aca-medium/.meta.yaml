@@ -1,0 +1,17 @@
+cloud: azure
+category:
+  - architecture
+infra: aca
+stack:
+  - terraform
+  - container-image
+features:
+  - policies
+  - actions
+  - dns
+tags:
+  - aca
+  - containers
+  - azure
+  - dns
+links: {}
