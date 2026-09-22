@@ -1,0 +1,18 @@
+# terraform
+name              = "whoami"
+type              = "terraform_module"
+terraform_version = "1.11.4"
+max_auto_retries  = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "httpbin/src/components/whoami"
+branch    = "ey/httpbin-whoami"
+
+[vars]
+install_id       = "{{.nuon.install.id}}"
+region           = "{{.nuon.sandbox.outputs.account.region}}"
+subnet_id        = "{{index .nuon.sandbox.outputs.vpc.public_subnet_ids 0}}"
+vpc_id           = "{{.nuon.sandbox.outputs.vpc.id}}"
+image_repository = "{{ .nuon.components.img_whoami.outputs.image.repository }}"
+image_tag        = "{{ .nuon.components.img_whoami.outputs.image.tag }}"

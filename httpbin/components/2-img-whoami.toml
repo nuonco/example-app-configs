@@ -1,0 +1,7 @@
+# container-image
+name   = "img_whoami"
+type   = "container_image"
+
+[public]
+image_url = "traefik/whoami"
+tag       = "v1.10.3"
