@@ -1,0 +1,34 @@
+# action
+name    = "healthcheck_custom_image"
+image   = "{{.nuon.components.runbook_tools.outputs.image.ref}}"
+timeout = "30s"
+enable_kube_config = false
+labels  = { service = "httpbin", type = "health-check" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_httpbin"
+inline_contents = """
+#!/usr/bin/env sh
+set -e
+
+echo "Checking health of httpbin at: ${ENDPOINT}"
+echo "Running in: $(curl --version | head -1)"
+
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${ENDPOINT}/status/200")
+
+nuon_output status "$STATUS"
+
+if [ "$STATUS" = "200" ]; then
+  echo "✓ Health check passed! Got status code: $STATUS"
+  exit 0
+else
+  echo "✗ Health check failed! Got status code: $STATUS"
+  exit 1
+fi
+"""
+
+[steps.env_vars]
+ENDPOINT = "{{.nuon.components.ec2.outputs.public_ip}}"
