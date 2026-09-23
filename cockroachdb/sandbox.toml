@@ -6,7 +6,7 @@ branch    = "main"
 directory = "."
 
 [vars]
-cluster_version = "1.34"
+cluster_version = "1.36"
 cluster_name    = "db-{{.nuon.install.id}}" # NOTE(fd): len limit is 29 chars on account of sandbox internals using this in the prefix
 
 enable_nuon_dns      = "true"
