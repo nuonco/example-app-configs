@@ -1,0 +1,32 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: smuggler-egress
+  namespace: cilium-demo
+spec:
+  description: >-
+    Restrict the smuggler to a single external destination by DNS name. Selecting
+    an endpoint for egress makes it default-deny, so DNS itself has to be allowed
+    explicitly — Cilium reads the DNS response to learn which IPs the name maps to.
+  endpointSelector:
+    matchLabels:
+      org: neutral
+      class: smuggler
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            "k8s:io.kubernetes.pod.namespace": kube-system
+            "k8s:k8s-app": kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: "cilium.io"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

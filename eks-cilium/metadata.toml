@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "EKS cluster running Cilium as the CNI in place of the VPC CNI and kube-proxy. Demonstrates identity-based L3/L4 policy, L7 HTTP policy, DNS-aware egress policy and Hubble flow observability."
+display_name = "EKS Cilium"
+readme       = "./README.md"

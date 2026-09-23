@@ -1,0 +1,17 @@
+terraform_version = "1.11.3"
+
+[public_repo]
+directory = "."
+repo      = "nuonco/aws-eks-karpenter-sandbox"
+branch    = "feat/cilium"
+
+[vars]
+cluster_name                   = "n-{{.nuon.install.id}}"
+enable_nuon_dns                = "true"
+cluster_endpoint_public_access = "true"
+enable_cilium                  = "true"
+public_root_domain   = "{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.root_domain }}"
+internal_root_domain = "internal.{{ .nuon.install.id }}.{{ .nuon.inputs.inputs.root_domain }}"
+
+[[var_file]]
+contents = "./sandbox.tfvars"

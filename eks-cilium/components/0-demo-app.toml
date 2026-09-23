@@ -1,0 +1,7 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes_manifest
+name      = "demo_app"
+namespace = "cilium-demo"
+type      = "kubernetes_manifest"
+
+manifest = "./manifests/demo-app.yaml"
+max_auto_retries = 5

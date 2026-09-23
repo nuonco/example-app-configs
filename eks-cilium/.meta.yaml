@@ -1,0 +1,20 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - terraform
+  - manifest
+features:
+  - actions
+tags:
+  - eks
+  - kubernetes
+  - karpenter
+  - cilium
+  - ebpf
+  - networking
+  - network-policy
+  - observability
+  - security
+links: {}
