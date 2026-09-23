@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kustomize-demo
+  labels:
+    nuon-install-id: "{{.nuon.install.id}}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kustomize-demo
+  template:
+    metadata:
+      labels:
+        app: kustomize-demo
+        nuon-install-id: "{{.nuon.install.id}}"
+    spec:
+      containers:
+        - name: hello
+          image: nginxdemos/hello:plain-text
+          ports:
+            - containerPort: 80
+          env:
+            - name: NUON_INSTALL_ID
+              value: "{{.nuon.install.id}}"
+            - name: NUON_INSTALL_NAME
+              value: "{{.nuon.install.name}}"
+            - name: NUON_APP_ID
+              value: "{{.nuon.app.id}}"

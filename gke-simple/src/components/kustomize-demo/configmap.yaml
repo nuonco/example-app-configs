@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: install-info
+  annotations:
+    nuon.co/rendered-install-id: "{{.nuon.install.id}}"
+data:
+  install_id: "{{.nuon.install.id}}"
+  install_name: "{{.nuon.install.name}}"
+  app_id: "{{.nuon.app.id}}"
+  project_id: "{{.nuon.install_stack.outputs.project_id}}"
