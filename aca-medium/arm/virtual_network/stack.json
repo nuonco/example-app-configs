@@ -39,8 +39,9 @@
     "addressSpace": {
       "defaultValue": "10.100.0.0/22",
       "type": "String",
+      "allowedValues": ["10.100.0.0/22", "10.200.0.0/22", "10.50.0.0/22"],
       "metadata": {
-        "description": "Optional. The address space for the virtual network. A /22 or larger is REQUIRED to accommodate all subnets."
+        "description": "Optional. The address space for the virtual network. A /22 is REQUIRED to accommodate all subnets."
       }
     }
   },
