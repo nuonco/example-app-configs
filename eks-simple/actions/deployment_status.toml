@@ -7,6 +7,10 @@ labels  = { service = "kubernetes", type = "report" }
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
 [[steps]]
 name    = "status"
 inline_contents = """

@@ -4,6 +4,7 @@ name              = "certificate"
 type              = "terraform_module"
 terraform_version = "1.11.3"
 max_auto_retries = 5
+drift_schedule = "*/10 * * * *" 
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

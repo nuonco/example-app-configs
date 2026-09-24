@@ -1,0 +1,4 @@
+name         = "sample-logs"
+display_name = "Sample CloudWatch Logs read"
+description  = "Unattached named policy used to test install-stack named_policy_arns output."
+contents     = "./sample-logs.json"

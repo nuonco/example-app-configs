@@ -7,6 +7,11 @@ labels  = { service = "kubernetes", type = "operations" }
 [[triggers]]
 type = "manual"
 
+
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
 [[steps]]
 name    = "restart"
 inline_contents = """

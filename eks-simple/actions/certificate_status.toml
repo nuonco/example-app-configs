@@ -8,6 +8,10 @@ labels  = { service = "acm", type = "report" }
 [[triggers]]
 type = "manual"
 
+[[triggers]]
+type          = "cron"
+cron_schedule = "*/5 * * * *"
+
 [[steps]]
 name    = "describe"
 inline_contents = """

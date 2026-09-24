@@ -7,6 +7,7 @@ dependencies = ["whoami"]
 max_auto_retries = 5
 toggleable        = true
 default_enabled   = true
+drift_schedule = "*/10 * * * *" 
 
 [public_repo]
 repo      = "nuonco/example-app-configs"

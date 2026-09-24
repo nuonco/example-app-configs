@@ -1,0 +1,6 @@
+name = "busybox_image"
+type = "container_image"
+
+[public]
+image_url = "docker.io/library/busybox"
+tag       = "1.36"
