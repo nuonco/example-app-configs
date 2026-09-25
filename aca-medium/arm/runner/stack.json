@@ -1,0 +1,244 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "nuonInstallID": {
+      "type": "string",
+      "metadata": {
+        "description": "Injected by Nuon. Prefixed to the VMSS and telemetry load balancer names."
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Injected by Nuon. The region the runner is deployed into."
+      }
+    },
+    "runnerSubnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "Injected by Nuon from the VNet stack's runnerSubnetId output."
+      }
+    },
+    "customData": {
+      "type": "string",
+      "metadata": {
+        "description": "Injected by Nuon. Cloud-init script that installs and starts the runner."
+      }
+    },
+    "commonTags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Injected by Nuon: install_nuon_co_id, org_nuon_co_id, app_nuon_co_id."
+      }
+    },
+    "userAssignedIdentities": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Injected by Nuon. Per-operation managed identities attached to the VMSS so the runner can reach them over IMDS."
+      }
+    },
+    "runnerVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v5",
+      "allowedValues": [
+        "Standard_D2s_v5",
+        "Standard_D4s_v5",
+        "Standard_D8s_v5",
+        "Standard_D2s_v3",
+        "Standard_D4s_v3",
+        "Standard_D8s_v3"
+      ],
+      "metadata": {
+        "description": "VM size for the Nuon runner."
+      }
+    },
+    "enableTelemetryIngress": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploy the internal load balancer that fronts the runner's OTLP endpoint."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2023-03-01",
+      "name": "[format('{0}-vmss', parameters('nuonInstallID'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('commonTags')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/loadBalancers', format('{0}-telemetry', parameters('nuonInstallID')))]"
+      ],
+      "sku": {
+        "name": "[parameters('runnerVmSize')]",
+        "tier": "Standard",
+        "capacity": 1
+      },
+      "identity": "[if(empty(parameters('userAssignedIdentities')), createObject('type', 'SystemAssigned'), createObject('type', 'SystemAssigned, UserAssigned', 'userAssignedIdentities', parameters('userAssignedIdentities')))]",
+      "properties": {
+        "overprovision": false,
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "automaticRepairsPolicy": {
+          "enabled": true,
+          "gracePeriod": "PT10M",
+          "repairAction": "Replace"
+        },
+        "virtualMachineProfile": {
+          "osProfile": {
+            "computerNamePrefix": "[parameters('nuonInstallID')]",
+            "adminUsername": "nuon",
+            "customData": "[base64(parameters('customData'))]",
+            "linuxConfiguration": {
+              "disablePasswordAuthentication": true,
+              "ssh": {
+                "publicKeys": [
+                  {
+                    "path": "/home/nuon/.ssh/authorized_keys",
+                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDmwMWT2029b4Oem5zSKRVDCBcjoVTfsUXlbGdfGeq8tzTPwqQLGqqVJDSkVb7kIjpbRv7fpB9tJERenhixW4SmYogfMlkvOy9sw+v46chmmgDmqy5Tv7MZB5SCwGVKYHv4EcwACM+GkA5jWO9poMwQM2FIEe4QAI/YaIchGf5HlfyjB/Yh7TZkuCdQ4GdTr3zwfa4DRjFThVDIobtKLjOri0u/Hcux1gduuh1gMYqTQ6oZvAGYAgWnQOiZ7rTrQvei8+SZRwFJohXPFmLjBaqmKMHs1+fu50PBA38Jp+Eey2ghvsab0HNG0eQ0icjhmHEkJZOEZ8R2/WufAON3NtapBVlOB+aCpeeRcO9wusf5kFEr3ytoRf/p8wf397efpCvYLfw9bMmxfnyzMEb1+SoFk8xLaYeyFbJDpvBvg0+m+vmwdKhquikJVII7/r0GCkaW4e3L43aBEiBip6UTFoYep/cpeN1qq8oTrUV8kMH1rPAIpZCls0LWrJJ2OqvcYJnQYWfHZ/uT/r7B6Fu8IOlyDSdwXzy3+NGaUROPj9UWT1wtWr0xyJFdE9N82noGzhmhRlhi1tYefNt/eszG2qlVg507vKIyvmfkR5VOxA51m9fw/Cgfck/KLy3XJWoXbri2eSraHomN9jEjOCerFFvtEKXViGsl4Xj0Z3B7y3ZA9Q== nuon-azure-vm-dummy@nuon.co"
+                  }
+                ]
+              }
+            }
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "0001-com-ubuntu-server-jammy",
+              "sku": "22_04-lts-gen2",
+              "version": "latest"
+            },
+            "osDisk": {
+              "createOption": "FromImage",
+              "managedDisk": {
+                "storageAccountType": "Standard_LRS"
+              },
+              "diskSizeGB": 30
+            }
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[format('{0}-nic', parameters('nuonInstallID'))]",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "[format('{0}-ipc', parameters('nuonInstallID'))]",
+                      "properties": {
+                        "subnet": {
+                          "id": "[parameters('runnerSubnetId')]"
+                        },
+                        "loadBalancerBackendAddressPools": "[if(parameters('enableTelemetryIngress'), createArray(createObject('id', resourceId('Microsoft.Network/loadBalancers/backendAddressPools', format('{0}-telemetry', parameters('nuonInstallID')), 'runner'))), createArray())]"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "ApplicationHealth",
+                "properties": {
+                  "publisher": "Microsoft.ManagedServices",
+                  "type": "ApplicationHealthLinux",
+                  "typeHandlerVersion": "1.0",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "protocol": "http",
+                    "port": 9999,
+                    "requestPath": "/livez",
+                    "numberOfProbes": 3
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "condition": "[parameters('enableTelemetryIngress')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}-telemetry', parameters('nuonInstallID'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('commonTags')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "telemetry",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('runnerSubnetId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "runner"
+          }
+        ],
+        "probes": [
+          {
+            "name": "otlp",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 4318,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "otlp",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', format('{0}-telemetry', parameters('nuonInstallID')), 'telemetry')]"
+              },
+              "backendAddressPool": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', format('{0}-telemetry', parameters('nuonInstallID')), 'runner')]"
+              },
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', format('{0}-telemetry', parameters('nuonInstallID')), 'otlp')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 4318,
+              "backendPort": 4318,
+              "disableOutboundSnat": true,
+              "enableFloatingIP": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "telemetryEndpoint": {
+      "type": "string",
+      "value": "[if(parameters('enableTelemetryIngress'), format('http://{0}:4318', first(reference(resourceId('Microsoft.Network/loadBalancers', format('{0}-telemetry', parameters('nuonInstallID'))), '2023-09-01').frontendIPConfigurations).properties.privateIPAddress), '')]"
+    },
+    "vmssName": {
+      "type": "string",
+      "value": "[format('{0}-vmss', parameters('nuonInstallID'))]"
+    },
+    "vmssPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets', format('{0}-vmss', parameters('nuonInstallID'))), '2023-03-01', 'full').identity.principalId]"
+    }
+  }
+}
