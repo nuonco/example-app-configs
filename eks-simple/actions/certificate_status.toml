@@ -14,7 +14,7 @@ inline_contents = """
 #!/usr/bin/env sh
 
 set -e
-set -o pipefail
+set -o 
 set -u
 
 export AWS_PAGER=""
