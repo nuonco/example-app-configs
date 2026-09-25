@@ -18,6 +18,7 @@ env = "stage"
 [[install_groups]]
 name  = "production"
 order = 2
+default = true
 
 [install_groups.label_selector]
 env = "prod"
