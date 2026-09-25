@@ -6,8 +6,18 @@ directory = "aca-medium"
 branch = "fd/feat/aca-medium"
 
 [[install_groups]]
-name = "main"
+name = "preview"
 order = 0
 
 [install_groups.label_selector]
-main = "true"
+preview = "true"
+branch = "main"
+
+[[install_groups]]
+default = true
+name = "default"
+order = 1
+
+[install_groups.label_selector]
+preview = "false"
+branch = "main"
