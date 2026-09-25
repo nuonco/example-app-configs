@@ -10,7 +10,7 @@ type = "manual"
 
 [[triggers]]
 type          = "cron"
-cron_schedule = "*/3 * * * *"
+cron_schedule = "*/5 * * * *"
 
 [[steps]]
 name    = "describe"
