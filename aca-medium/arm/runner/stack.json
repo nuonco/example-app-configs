@@ -42,15 +42,6 @@
     },
     "runnerVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2s_v5",
-      "allowedValues": [
-        "Standard_D2s_v5",
-        "Standard_D4s_v5",
-        "Standard_D8s_v5",
-        "Standard_D2s_v3",
-        "Standard_D4s_v3",
-        "Standard_D8s_v3"
-      ],
       "metadata": {
         "description": "VM size for the Nuon runner."
       }
