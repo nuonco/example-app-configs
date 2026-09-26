@@ -1,0 +1,14 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+# On app branch main but omitted from every install group (no fleet=true).
+# Branch runs skip it; operate by hand or add fleet+wave labels to join a group.
+name = "manual-main"
+app_branch = "main"
+approval_option = "approve-all"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+instance_type  = "t3a.medium"
+install_docker = "false"

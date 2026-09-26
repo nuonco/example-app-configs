@@ -1,6 +1,9 @@
-# Continuous train: installs on app_branch = "main".
-# manual_only keeps the public example repo quiet; trigger runs from the CLI/UI.
-name = "main"
+# Slower cadence train — deliberately far from main's continuous train.
+# On a connected private repo you would use:
+#   [run] mode = "on_github_label"
+#   github_label = "release-weekly"
+# Here we stay manual_only so the public example repo stays quiet.
+name = "weekly"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
@@ -9,14 +12,6 @@ branch    = "main"
 
 [run]
 mode = "manual_only"
-
-[preview]
-mode          = "plan-only"
-install_name  = "preview-main"
-set_statuses  = true
-comment       = true
-ignore_drafts = true
-react         = true
 
 [[install_groups]]
 name  = "preview"

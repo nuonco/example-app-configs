@@ -1,0 +1,13 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+# Pinned to Nuon app branch customer-acme (see branches/customer-acme.toml).
+name = "customer-acme"
+app_branch = "customer-acme"
+approval_option = "approve-all"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+instance_type  = "t3a.xlarge"
+install_docker = "true"

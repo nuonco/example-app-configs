@@ -1,0 +1,16 @@
+# Pinned fictional customer. Rollouts only hit this install by name.
+# Same git source as main/weekly; cadence is "when we choose to trigger".
+name = "customer-acme"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "cde"
+branch    = "main"
+
+[run]
+mode = "manual_only"
+
+[[install_groups]]
+name          = "acme"
+order         = 1
+install_names = ["customer-acme"]
