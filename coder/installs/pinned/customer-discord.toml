@@ -1,5 +1,7 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
+# On app branch main but omitted from install groups (no fleet=true).
+# Branch runs skip it; bump Coder via installs sync on this file/folder.
 name = "customer-discord"
 app_branch = "main"
 approval_option = "approve-all"
@@ -7,8 +9,6 @@ approval_option = "approve-all"
 [labels]
 channel = "pinned"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
-fleet   = "true"
-wave    = "default"
 
 [aws_account]
 region = "us-east-1"

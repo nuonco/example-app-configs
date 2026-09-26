@@ -436,12 +436,14 @@ Last ten **stable**:
 
 Sample pins are intentionally several releases back so you can demo an upgrade to a newer tag.
 
-| Cohort | Directory | Installs | `coder_image_tag` |
-|---|---|---|---|
-| Mainline | `installs/mainline/` | `customer-square`, `customer-dropbox` | `v2.36.3` |
-| Stable | `installs/stable/` | `customer-palantir`, `customer-mercedes-benz`, `customer-kkr` | `v2.33.10` |
-| Pinned | `installs/pinned/` | `customer-discord`, `customer-dod` | `v2.33.8` |
-| Lab | `installs/lab/` | `preview-main` | `v2.36.3` |
+| Cohort | Directory | Installs | `coder_image_tag` | On branch runs? |
+|---|---|---|---|---|
+| Mainline | `installs/mainline/` | `customer-square`, `customer-dropbox` | `v2.36.3` | Yes (`fleet`+`wave`) |
+| Stable | `installs/stable/` | `customer-palantir`, `customer-mercedes-benz`, `customer-kkr` | `v2.33.10` | Yes (`fleet`+`wave`) |
+| Pinned | `installs/pinned/` | `customer-discord`, `customer-dod` | `v2.33.8` | No (omit `fleet`/`wave`) |
+| Lab | `installs/lab/` | `preview-main` | `v2.36.3` | Yes (`fleet`+`wave=preview`) |
+
+Pinned installs stay on app branch `main` and keep config sync, but they are **not** in install groups — branch preview/trigger skips them. Bump their Coder tag with `installs sync` on that folder or file only.
 
 ### Steps (upgrade a cohort)
 
@@ -497,9 +499,10 @@ App config ships through config-managed app branches:
 
 | Concept | What it is | This sample |
 |---|---|---|
-| Nuon app branch `main` | Rolls shared app config (components, actions, …) | `branches/main.toml` — preview → default via `fleet`+`wave` |
+| Nuon app branch `main` | Rolls shared app config (components, actions, …) | `branches/main.toml` — preview → installs with `fleet`+`wave` |
 | Install folder `mainline/` / `stable/` / `pinned/` | Which Coder binary cohort / how you sync upgrades | Not Nuon app branches |
 | Labels `channel` + `release` | Dashboard metadata | `channel` static; `release` from `coder_image_tag` |
+| Labels `fleet` + `wave` | Opt into branch-run install groups | On mainline/stable/lab; **omitted** on pinned |
 
 ```sh
 nuon branches sync --file branches/ --confirm
@@ -507,11 +510,13 @@ nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
 nuon branches trigger --branch-id main
 ```
 
-All example installs use `approval_option = "approve-all"` and `app_branch = "main"`.
+All example installs use `approval_option = "approve-all"` and `app_branch = "main"`. Pinned customers omit `fleet`/`wave` so app-config branch runs skip them; Coder version bumps still use `nuon installs sync` on `installs/pinned/`.
 
 ### Opting an install out
 
-`nuon installs toggle-sync --disable -i <install-name>` removes an install from config-file management entirely (dashboard-only from then on); `--enable` reverses it.
+Two different knobs:
+- **Skip branch runs only** (still config-managed): omit `fleet`/`wave` labels — see `installs/pinned/`.
+- **Leave config management entirely**: `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
 
 </nuon-tab>
 
