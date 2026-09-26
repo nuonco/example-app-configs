@@ -42,7 +42,7 @@ a `git push` rolls the change out to installs, one deployment group at a time â€
 
 ## cde
 
-A personal cloud development environment running entirely in your AWS account. Provisions a single EC2 VM with SSH key authentication, optional VS Code Web (ALB + ACM certificate), and Claude Code CLI. Docker and VM size are pinned by install tier (`front-end` = small / no Docker, `full-stack` = xlarge / Docker). Connect via SSH, Zed remote SSH, or VS Code Remote-SSH. Dotfiles are bootstrapped automatically on first provision. Start and stop the VM from the vendor dashboard to save costs when not in use.
+A personal cloud development environment running entirely in your AWS account. Provisions a single EC2 VM with SSH key authentication, optional VS Code Web (ALB + ACM certificate), and Claude Code CLI. VM size and Docker are install inputs. Sample app branches teach cadence (`main`, `weekly`) and a pinned customer (`customer-acme`). Connect via SSH, Zed remote SSH, or VS Code Remote-SSH. Dotfiles are bootstrapped automatically on first provision. Start and stop the VM from the vendor dashboard to save costs when not in use.
 
 ## eks-simple-auto
 
@@ -86,8 +86,8 @@ and Mattermost access. Read this blog post about:
 
 ## coder
 
-[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform This app deploys a Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for
-cluster and Coder access. PostgreSQL is external to EKS as an AWS RDS cluster. Read this blog post about:
+[Coder](https://coder.com) is a self-hosted Cloud Development Environment (CDE) platform. This app deploys a Coder control plane container in an EKS cluster as well as an ALB and certificate in the VPC for
+cluster and Coder access. PostgreSQL is external to EKS as an AWS RDS cluster. Coder image version is an install input (`coder_image_tag`); install configs are grouped under `installs/{mainline,stable,pinned,lab}/` for channel-scoped upgrades. One Nuon app branch (`main`) rolls shared config. Read this blog post about:
 [installing Coder with Nuon](https://nuon.co/blog/installing-coder-with-nuon/).
 
 ## twenty

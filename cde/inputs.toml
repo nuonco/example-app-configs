@@ -34,9 +34,28 @@ user_configurable = true
 group             = "developer"
 
 [[group]]
+name         = "compute"
+display_name = "Compute"
+description  = "EC2 size and optional Docker. Per install — not driven by app-branch labels."
+
+[[input]]
+name         = "instance_type"
+display_name = "Instance Type"
+description  = "AWS EC2 instance type (e.g. t3a.medium, t3a.xlarge). See https://aws.amazon.com/ec2/instance-types/t3/"
+default      = "t3a.medium"
+group        = "compute"
+
+[[input]]
+name         = "install_docker"
+display_name = "Install Docker"
+description  = "Install Docker during post-provision setup (true/false)"
+default      = "false"
+group        = "compute"
+
+[[group]]
 name         = "optional_tools"
 display_name = "Optional Tools"
-description  = "Tools installed via the post-provision action. Each can be re-run or updated independently. Docker is included automatically on full-stack installs."
+description  = "Tools installed via the post-provision action. Each can be re-run or updated independently. Docker is controlled by the Install Docker input."
 
 [[input]]
 name              = "dotfiles_repo"

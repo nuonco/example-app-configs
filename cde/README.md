@@ -5,15 +5,13 @@
 {{ $sshUser := dig "ssh_user" "" $ec2Out }}
 {{ $sshHost := dig "ssh_hostname" "" $ec2Out }}
 {{ $vscodeURL := dig "vscode_url" "" $ec2Out }}
-{{ $labels := default dict (dig "labels" dict $nuonRoot) }}
-{{ $tier := dig "tier" "front-end" $labels }}
-{{ $pinnedType := ternary "t3a.xlarge" "t3a.medium" (eq $tier "full-stack") }}
-{{ $instanceType := dig "instance_type" $pinnedType $ec2Out }}
-{{ if eq $instanceType "" }}{{ $instanceType = $pinnedType }}{{ end }}
 {{ $actionsMap := default dict (dig "actions" dict $nuonRoot) }}
 {{ $workflows := default dict (dig "workflows" dict $actionsMap) }}
 {{ $install := default dict (dig "install" dict $nuonRoot) }}
 {{ $inputs := default dict (dig "inputs" dict $install) }}
+{{ $instanceType := dig "instance_type" "t3a.medium" $inputs }}
+{{ $ec2Type := dig "instance_type" "" $ec2Out }}
+{{ if ne $ec2Type "" }}{{ $instanceType = $ec2Type }}{{ end }}
 {{ $vsCodeEnabled := dig "install_vscode_web" "" $inputs }}
 {{ $actionsPopulated := dig "populated" false $actionsMap }}
 {{ $ec2HC := default dict (dig "healthcheck_ec2" dict $workflows) }}
@@ -37,6 +35,10 @@
 
 {{ end -}}
 A personal cloud development environment running in your AWS account. Connect via SSH with your private key, open VS Code in the browser if enabled, and have your dotfiles installed automatically on first boot.
+
+<nuon-tabs>
+
+<nuon-tab name="Overview">
 
 ## Status
 
@@ -78,7 +80,7 @@ A personal cloud development environment running in your AWS account. Connect vi
 
 ## Actions
 
-**post_provision_setup** (auto on provision, install reprovision, and sandbox reprovision; re-runnable) — installs VS Code Web, Claude Code, and configures git user name/email based on your install inputs. Docker is installed only on `tier=full-stack` installs. Re-runs skip packages already present and only rewrite the code-server password when the install input changes.
+**post_provision_setup** (auto on provision, install reprovision, and sandbox reprovision; re-runnable) — installs VS Code Web, Claude Code, and configures git user name/email based on your install inputs. Docker installs when `install_docker=true`. Re-runs skip packages already present and only rewrite the code-server password when the install input changes.
 
 **install_dotfiles** (auto on provision, install reprovision, and sandbox reprovision; re-runnable) — clones your dotfiles repo to `~/.dotfiles` and runs `install.sh`. Re-run any time from the portal to pull updates.
 
@@ -100,13 +102,134 @@ A personal cloud development environment running in your AWS account. Connect vi
 
 **stop_dev_env** (manual) — stops the VM to pause EC2 billing. Elastic IP and DNS record are preserved.
 
-## Cost Savings
+## Cost savings
 
 **Inactive auto-stop** — shuts down the VM after N hours of no active SSH or VS Code connections. Configured via the `auto_stop_inactive_hours` install input (default 2h, blank to disable). Installed as a cron job by `post_provision_setup`.
 
 **Force auto-stop** — shuts down the VM after N hours of uptime since last start, regardless of activity. Configured via the `auto_stop_max_hours` install input (default 4h, blank to disable). Installed as a cron job by `post_provision_setup`.
 
-## Architecture
+</nuon-tab>
+
+<nuon-tab name="Getting Started">
+
+This sample teaches [app branches](https://docs.nuon.co/concepts/app-branches) the way real products use them: **cadence** and **customer pins**, not machine size. Size is an install input (`instance_type`, `install_docker`).
+
+App config ships through config-managed app branches. From `cde/` after `nuon auth login` and selecting an org (prefer **disable-app-sync**), use only:
+
+- `nuon branches sync` — branch settings (`branches/*.toml`)
+- `nuon installs sync` — install configs
+- `nuon branches preview` — try a git ref on a safe install
+- `nuon branches trigger` — roll out a branch’s current config
+
+### 1. Create the app and sync configs
+
+```sh
+nuon apps create -n cde
+nuon branches sync --file branches/ --confirm
+nuon installs sync -d installs/ --confirm
+```
+
+`branches/` is a directory of standalone branch TOMLs (`main`, `weekly`, `customer-acme`). Directory mode loads every `*.toml` and can delete remote config-managed branches that are missing locally. A single file (e.g. `--file branches/main.toml`) reconciles only that branch.
+
+### 2. What the three Nuon app branches teach
+
+| Branch | File | Teaches | Installs |
+|---|---|---|---|
+| `main` | `branches/main.toml` | Continuous / ASAP train + PR preview | `preview-main`, `demo-1`, `demo-2`, `manual-main` |
+| `weekly` | `branches/weekly.toml` | Slow cadence (clear gap from main) | `preview-weekly`, `weekly-1` |
+| `customer-acme` | `branches/customer-acme.toml` | Pin one fictional customer by name | `customer-acme` |
+
+All three use `[public_repo]` pointing at this directory and `[run] mode = "manual_only"` so the public example repo stays quiet. On a connected private repo, `weekly` would typically use `on_github_label` + `release-weekly` instead.
+
+Install labels on `main` / `weekly`:
+
+| Label | Values | Meaning |
+|---|---|---|
+| `fleet` | `true` | Opt-in to branch install groups. Omit it → skipped by branch runs. |
+| `wave` | `preview` \| `default` | Early wave vs main fleet. |
+
+Rollout order: `preview` → `default`. `manual-main` has no `fleet` label, so branch runs skip it. `customer-acme` is selected by `install_names` on its branch.
+
+### 3. Engineer iterating on app config
+
+App config lives in git. An app branch points at that repo/dir and walks install groups. To iterate, change files, put them on a git ref Nuon can fetch, then preview — do not upload config outside a branch.
+
+1. Edit under `cde/` (`components/`, `inputs.toml`, actions, etc.).
+2. Commit and push (or otherwise publish) a git ref, e.g. `my-feature`.
+3. Preview against the continuous train’s safe install (`preview-main` via `main`’s `[preview]`):
+
+```sh
+nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+```
+
+4. Read the plan/logs, fix files, update the ref, preview again.
+5. When the change is on the git branch this app branch tracks (here git `main`), ship it:
+
+```sh
+nuon branches trigger --branch-id main
+```
+
+That walks `preview` → `default`. Installs without `fleet=true` (e.g. `manual-main`) stay out of the run.
+
+Notes:
+
+- A preview builds from the git ref you pass. It does **not** replace the branch’s normal (non-preview) app config until you `branches trigger` (or a push-mode run on a connected repo).
+- Use `manual-main` if you want a hand-operated install off the fleet.
+- A personal pin (same shape as `customer-acme`, e.g. `dev-you`) is optional when you want a named branch/trigger that never touches demo or weekly installs.
+- `branches sync` is only for changing branch settings (run mode, groups, preview install) — not for every component tweak.
+
+### 4. Preview command reference
+
+`main` has `[preview] mode = "plan-only"` and `install_name = "preview-main"`.
+
+```sh
+# Plan only (default from branches/main.toml) → preview-main
+nuon branches preview --branch-id main --git-ref my-feature
+
+# Same, explicit mode
+nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+
+# Build components only (no install plan/apply)
+nuon branches preview --branch-id main --git-ref my-feature --mode build-only
+
+# Plan + apply on the preview install
+nuon branches preview --branch-id main --git-ref my-feature --mode apply
+
+# Target a specific install (overrides the branch default)
+nuon branches preview --branch-id main --git-ref my-feature --mode plan-only --install-id <install-id>
+```
+
+You can also pass `--pr-number <n>` instead of `--git-ref` when the Nuon GitHub App is connected.
+
+### 5. Roll out each cadence / pin
+
+```sh
+# ASAP train: preview wave, then default (demo-1, demo-2). Skips manual-main.
+nuon branches trigger --branch-id main
+
+# Slow train: preview-weekly, then weekly-1
+nuon branches trigger --branch-id weekly
+
+# Pinned customer only
+nuon branches trigger --branch-id customer-acme
+```
+
+Add `--force` to rebuild all components. Add `--no-wait` to return after triggering without opening the workflow viewer.
+
+### 6. Size is per install (not a branch)
+
+| Input | Default | Notes |
+|---|---|---|
+| `instance_type` | `t3a.medium` | e.g. `demo-2` and `customer-acme` use `t3a.xlarge` |
+| `install_docker` | `false` | e.g. `demo-2` and `customer-acme` set `true` |
+
+Branch membership does not change size; changing an install's inputs does.
+
+Docs: [app branches concept](https://docs.nuon.co/concepts/app-branches), [configure app branches](https://docs.nuon.co/guides/app-branches).
+
+</nuon-tab>
+
+<nuon-tab name="Architecture">
 
 ```mermaid
 graph TD
@@ -126,7 +249,7 @@ graph TD
         subgraph EC2["EC2 Instance"]
             SSHD["sshd (key auth only)"]
             CodeServer["code-server :8080\n(password-protected, optional)"]
-            Docker["Docker (full-stack only)"]
+            Docker["Docker (optional)"]
             ClaudeCode["Claude Code CLI (optional)"]
             Dotfiles["~/.dotfiles (optional)"]
         end
@@ -157,7 +280,9 @@ graph TD
     Browser -->|HTTPS| HTTPS
 ```
 
-## Security
+</nuon-tab>
+
+<nuon-tab name="Security">
 
 **Your data stays in your AWS account.** The VM, its storage, and all code you work on run entirely within your VPC. Nuon's control plane never has network access to the instance.
 
@@ -171,27 +296,18 @@ graph TD
 
 **The Nuon runner never touches your secrets directly.** The runner operates using an IAM role with a permissions boundary scoped to only the AWS services this app requires (`ec2`, `iam`, `ssm`, `elasticloadbalancing`, `acm`, `route53`). It cannot access other resources in your account.
 
-## Tiers
+</nuon-tab>
 
-VM size and Docker are pinned by the install `tier` label (not customer inputs):
+<nuon-tab name="Cost">
 
-| Tier | Instance | Docker | Example installs |
-|---|---|---|---|
-| `front-end` | `t3a.medium` (2 vCPU / 4 GiB) | off | `canary-front-end`, `front-end-1`, `front-end-2` |
-| `full-stack` | `t3a.xlarge` (4 vCPU / 16 GiB) | on | `canary-full-stack`, `full-stack-1`, `full-stack-2` |
+Cost depends on the install's `instance_type` (and whether VS Code Web / ALB is enabled):
 
-App branch `main` rolls canary → prod per tier: `canary-front-end` → `front-end` → `canary-full-stack` → `full-stack`. Previews use the front-end canary. Bumping a pin only changes installs on that tier; the other tier no-ops.
-
-## Cost estimate
-
-Cost depends on tier:
-
-**front-end** (`t3a.medium`):
+**t3a.medium**:
 - EC2 (running): ~$0.90/day
 - Elastic IP (unattached): $0.005/hr
 - ALB (VS Code Web enabled by default): ~$0.60/day
 
-**full-stack** (`t3a.xlarge`):
+**t3a.xlarge**:
 - EC2 (running): ~$3.60/day
 - Elastic IP (unattached): $0.005/hr
 - ALB (VS Code Web enabled by default): ~$0.60/day
@@ -201,3 +317,7 @@ See [AWS T3a instance sizes and specs](https://aws.amazon.com/ec2/instance-types
 Stop the VM via the portal when not in use to pause EC2 billing. The Elastic IP and DNS record persist through stop/start cycles so your SSH hostname never changes.
 
 By default, the VM also shuts down automatically after 2 hours of inactivity (no SSH or VS Code connections) and after 4 hours of total uptime since last start. Both limits are vendor-configured inputs and can be changed or disabled at install time.
+
+</nuon-tab>
+
+</nuon-tabs>

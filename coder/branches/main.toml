@@ -1,10 +1,10 @@
-# Continuous train: installs on app_branch = "main".
-# manual_only keeps the public example repo quiet; trigger runs from the CLI/UI.
+# Continuous train for the Coder app config. Same git source as always.
+# Coder image version is an install input (coder_image_tag), not a Nuon app branch.
 name = "main"
 
 [public_repo]
 repo      = "nuonco/example-app-configs"
-directory = "cde"
+directory = "coder"
 branch    = "main"
 
 [run]

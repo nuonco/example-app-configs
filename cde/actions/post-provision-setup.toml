@@ -2,7 +2,7 @@
 name               = "post_provision_setup"
 timeout            = "20m"
 enable_kube_config = false
-description        = "Install optional tools (VS Code Web, Claude Code; Docker on full-stack) on the dev environment VM"
+description        = "Install optional tools (VS Code Web, Claude Code; Docker when install_docker=true) on the dev environment VM"
 
 [[triggers]]
 type = "post-provision"
@@ -259,7 +259,7 @@ INSTANCE_ID             = "{{.nuon.components.ec2.outputs.instance_id}}"
 REGION                  = "{{.nuon.sandbox.outputs.account.region}}"
 OS                      = "{{.nuon.install.inputs.os}}"
 SSH_USER                = "{{.nuon.components.ec2.outputs.ssh_user}}"
-INSTALL_DOCKER          = '{{ if eq (index .nuon.labels "tier") "full-stack" }}true{{ else }}false{{ end }}'
+INSTALL_DOCKER          = "{{.nuon.install.inputs.install_docker}}"
 INSTALL_VSCODE_WEB      = "{{.nuon.install.inputs.install_vscode_web}}"
 VSCODE_PASSWORD         = "{{.nuon.install.inputs.vscode_password}}"
 INSTALL_CLAUDE_CODE     = "{{.nuon.install.inputs.install_claude_code}}"

@@ -1,11 +1,16 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-name = "front-end-2"
+name = "demo-1"
+app_branch = "main"
 approval_option = "approve-all"
 
 [labels]
-prod = "true"
-tier = "front-end"
+fleet = "true"
+wave  = "default"
 
 [aws_account]
 region = "us-east-1"
+
+[[inputs]]
+instance_type  = "t3a.medium"
+install_docker = "false"
