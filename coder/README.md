@@ -445,6 +445,8 @@ Sample pins are intentionally several releases back so you can demo an upgrade t
 
 Pinned installs stay on app branch `main` and keep config sync, but they are **not** in install groups — branch preview/trigger skips them. Bump their Coder tag with `installs sync` on that folder or file only.
 
+**Use case:** a customer that must stay on an older Coder release (compliance freeze, slow change window) and should not ride every app-config branch run. They still share `main` for when you *do* want to roll infra/config — you opt them in by adding `fleet`/`wave`, or push a one-off change with `installs sync` on their file. Until then, mainline/stable take the branch-run blast radius; pinned does not.
+
 ### Steps (upgrade a cohort)
 
 1. Pick a newer exact tag from the list above (or refresh with `gh api`).
