@@ -6,6 +6,15 @@ description  = "Coder Configrations for the Coder Cloud Development Environment 
 display_name = "Coder Configurations"
 
 [[input]]
+name         = "coder_image_tag"
+description  = "Exact Coder container image tag (e.g. v2.33.10). Pick from https://github.com/coder/coder/releases — use the release notes' Stable vs Mainline labels only as guidance; do not put those words in the tag."
+default      = "v2.33.10"
+display_name = "Coder Image Tag"
+internal     = false
+user_configurable = true
+group        = "coder"
+
+[[input]]
 name         = "replicas"
 description  = "The number of replicas of the Coder control plane pods to deploy"
 default      = "1"

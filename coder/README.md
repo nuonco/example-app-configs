@@ -57,11 +57,16 @@
 {{ $stackOut := default dict (dig "outputs" dict $installStack) }}
 {{ $region   := dig "region" "" $stackOut }}
 
-{{ $labels      := default dict (dig "labels" dict $nuonRoot) }}
-{{ $cadence     := dig "cadence" "stable" $labels }}
-{{ $canary      := dig "canary" "" $labels }}
-{{ $prod        := dig "prod" "" $labels }}
+{{ $labels      := default dict (dig "labels" dict $install) }}
+{{ if eq (len $labels) 0 }}{{ $labels = default dict (dig "labels" dict $nuonRoot) }}{{ end }}
+{{ $fleet       := dig "fleet" "" $labels }}
+{{ $wave        := dig "wave" "" $labels }}
+{{ $channel     := dig "channel" "" $labels }}
 {{ $installName := dig "name" "" $install }}
+{{ $inEarly     := default dict (dig "inputs" dict $install) }}
+{{ $coderTag    := dig "coder_image_tag" "v2.33.10" $inEarly }}
+{{ $releaseLbl  := dig "release" "" $labels }}
+{{ if eq $releaseLbl "" }}{{ $releaseLbl = $coderTag }}{{ end }}
 
 <div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
   <video autoplay loop muted playsinline width="480" height="270">
@@ -70,8 +75,13 @@
   </video>
   <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
     <div style="display:flex; gap:10px; align-items:center;">
+      {{ if $domain -}}
       <a href="https://{{ $domain }}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
       <a href="https://{{ $domain }}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
+      {{ else -}}
+      <span style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; font-weight:600; font-size:15px; opacity:0.55;">Open Coder →</span>
+      <span style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; font-weight:600; font-size:15px; opacity:0.55;">Open Grafana →</span>
+      {{ end -}}
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="healthcheck_infra"></nuon-run-runbook>
@@ -84,21 +94,28 @@
   </div>
 </div>
 
+{{ if not $domain -}}
+<nuon-banner theme="warn">
+Provisioning in progress — Coder and Grafana URLs appear here when the sandbox DNS record is ready.
+</nuon-banner>
+{{ else -}}
 <nuon-banner theme="success">
 Coder's cloud development environment platform — for developers and agents. The links and status below are live for this install.
 </nuon-banner>
+{{ end -}}
 
 <br/>
 
 <nuon-group gap="8" align="center">
-  <nuon-label-badge label="cadence:{{ $cadence }}"></nuon-label-badge>
-  {{ if eq $canary "true" }}<nuon-label-badge label="canary:true"></nuon-label-badge>{{ end }}
-  {{ if eq $prod "true" }}<nuon-label-badge label="prod:true"></nuon-label-badge>{{ end }}
-  <nuon-label-badge label="install:{{ $installName }}"></nuon-label-badge>
-  <nuon-label-badge label="region:{{ $region }}"></nuon-label-badge>
+  {{ if $channel }}<nuon-label-badge label="channel:{{ $channel }}"></nuon-label-badge>{{ end }}
+  {{ if $releaseLbl }}<nuon-label-badge label="release:{{ $releaseLbl }}"></nuon-label-badge>{{ end }}
+  {{ if eq $fleet "true" }}<nuon-label-badge label="fleet:true"></nuon-label-badge>{{ end }}
+  {{ if $wave }}<nuon-label-badge label="wave:{{ $wave }}"></nuon-label-badge>{{ end }}
+  {{ if $installName }}<nuon-label-badge label="install:{{ $installName }}"></nuon-label-badge>{{ end }}
+  {{ if $region }}<nuon-label-badge label="region:{{ $region }}"></nuon-label-badge>{{ end }}
   <nuon-label-badge label="sandbox:eks-auto"></nuon-label-badge>
 </nuon-group>
-<p style="margin:0.5rem 0 0; font-size:0.9em; color:#6b7280;">{{ if eq $cadence "mainline" }}Mainline{{ else }}Stable{{ end }} train · Coder {{ if eq $cadence "mainline" }}v2.35.1{{ else }}v2.35.4{{ end }}</p>
+<p style="margin:0.5rem 0 0; font-size:0.9em; color:#6b7280;">Coder <code>{{ $coderTag }}</code> via install input <code>coder_image_tag</code> (drives the <code>release</code> label)</p>
 
 <nuon-tabs>
 
@@ -123,18 +140,18 @@ Coder's cloud development environment platform — for developers and agents. Th
 <table>
   <thead><tr><th>Subsystem</th><th>Status</th><th>Action</th></tr></thead>
   <tbody>
-    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a></td></tr>
-    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $coderID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a></td></tr>
-    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
-    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a></td></tr>
-    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $grafanaID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a></td></tr>
-    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td><a href="./{{ $installID }}/actions/{{ $promID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a></td></tr>
+    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $k8sID }}<a href="./{{ $installID }}/actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">k8s_status</code>{{ end }}</td></tr>
+    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $coderID }}<a href="./{{ $installID }}/actions/{{ $coderID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_health</code>{{ end }}</td></tr>
+    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $albID }}<a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
+    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $albID }}<a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
+    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $grafanaID }}<a href="./{{ $installID }}/actions/{{ $grafanaID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">grafana_health</code>{{ end }}</td></tr>
+    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $promID }}<a href="./{{ $installID }}/actions/{{ $promID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">prom_targets</code>{{ end }}</td></tr>
   </tbody>
 </table>
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder health</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> <a href="./{{ $installID }}/actions/{{ $dhID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> {{ if and $installID $dhID }}<a href="./{{ $installID }}/actions/{{ $dhID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>{{ end }}
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
@@ -286,10 +303,11 @@ Tune these from **Current Inputs → Edit Inputs**. Changes trigger a redeploy o
 | `max_token_lifetime` | `{{ dig "max_token_lifetime" "—" $in }}` | Maximum lifetime for CLI and API tokens |
 | `session_duration` | `{{ dig "session_duration" "—" $in }}` | Session duration before re-authentication is required |
 | `block_direct` | `{{ dig "block_direct" "—" $in }}` | Force all workspace connections through the Coder relay (disables peer-to-peer) |
+| `coder_image_tag` | `{{ dig "coder_image_tag" "—" $in }}` | Exact Coder container image tag (e.g. `v2.33.10`). Also drives the `release` label. |
 
 ### Vendor-controlled
 
-The vendor pins these in the app config and updates them via app branch. The Coder version is pinned in `components/values/coder.yaml` by train: stable defaults to `v2.35.4`, mainline to `v2.35.1`, selected at deploy time from the install `cadence` label.
+The vendor pins these in the app config and rolls them with app branches (`nuon branches preview` / `nuon branches trigger`).
 
 | Input | Current value | Description |
 |---|---|---|
@@ -365,25 +383,89 @@ The output shows the URL, username (`admin`), and the generated password.
 
 <br/>
 
-The Coder version is pinned in `components/values/coder.yaml` on `coder.image.tag`. The tag is chosen at deploy time from the install's `cadence` label:
+The Coder binary is selected per install via the `coder_image_tag` input (wired to `coder.image.tag` in [`components/values/coder.yaml`](./components/values/coder.yaml)):
 
 ```yaml
-tag: '{{ if eq (index .nuon.labels "cadence") "mainline" }}v2.35.1{{ else }}v2.35.4{{ end }}'
+tag: "{{.nuon.inputs.inputs.coder_image_tag}}"
 ```
 
-- `cadence=stable` (or missing) → stable pin (`v2.35.4`)
-- `cadence=mainline` → mainline pin (`v2.35.1`)
+Set the tag **once** in `[[inputs]]`. The `release` label is templated from it — do not hardcode the same string in both places:
 
-Bump only the side you mean to change, then merge to git `main`. Each train has its own app branch (`stable` / `mainline`) that rolls canary first, then prod.
+```toml
+[[inputs]]
+coder_image_tag = "v2.33.10"
 
-### Steps
+[labels]
+channel = "stable"
+release = "{{ .nuon.install.inputs.coder_image_tag }}"
+```
 
-1. Pick an exact GitHub release tag. Do not put the words `stable` or `mainline` in the image tag — those are Coder's release-notes labels only. List recent tags:
-   ```sh
-   gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
-   ```
-2. Edit the matching side of `coder.image.tag` in [`components/values/coder.yaml`](./components/values/coder.yaml).
-3. Open a PR against `main` (plan-only preview on that train's canary) or merge to `main` to deploy: canary first, then prod on that train.
+Coder’s **Stable** vs **Mainline** words in [release notes](https://github.com/coder/coder/releases) are guidance for picking a tag. They are **not** Nuon app branches. Folders under `installs/` (`mainline/`, `stable/`, `pinned/`) are training cohorts for which customers share a channel — still one Nuon app branch (`main`).
+
+### List recent releases
+
+```sh
+gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
+```
+
+Last ten **mainline** (newest first; `*` = used in this app’s install configs):
+
+- `v2.37.3`
+- `v2.37.2`
+- `v2.37.1`
+- `v2.37.0`
+- `v2.36.4`
+- `v2.36.3` *
+- `v2.36.1`
+- `v2.36.0`
+- `v2.35.2`
+- `v2.35.1`
+
+Last ten **stable**:
+
+- `v2.36.6`
+- `v2.36.5`
+- `v2.35.4`
+- `v2.34.6`
+- `v2.33.11`
+- `v2.33.10` *
+- `v2.33.9`
+- `v2.33.8` *
+- `v2.33.7`
+- `v2.32.5`
+
+Sample pins are intentionally several releases back so you can demo an upgrade to a newer tag.
+
+| Cohort | Directory | Installs | `coder_image_tag` |
+|---|---|---|---|
+| Mainline | `installs/mainline/` | `customer-square`, `customer-dropbox` | `v2.36.3` |
+| Stable | `installs/stable/` | `customer-palantir`, `customer-mercedes-benz`, `customer-kkr` | `v2.33.10` |
+| Pinned | `installs/pinned/` | `customer-discord`, `customer-dod` | `v2.33.8` |
+| Lab | `installs/lab/` | `preview-main` | `v2.36.3` |
+
+### Steps (upgrade a cohort)
+
+1. Pick a newer exact tag from the list above (or refresh with `gh api`).
+2. Change only `coder_image_tag` in the TOMLs under that channel directory (`release` follows on sync).
+3. Sync **that channel** (not the whole tree):
+
+```sh
+nuon installs sync -d installs/mainline/ --confirm
+nuon installs sync -d installs/stable/ --confirm
+nuon installs sync -d installs/pinned/ --confirm
+
+# One pinned customer only
+nuon installs sync -d installs/pinned/customer-discord.toml --confirm
+```
+
+Avoid `nuon installs sync -d installs/` for routine upgrades — it hits every channel plus `lab/` at once (mixed blast radius). Prefer a channel directory or a single file.
+
+App-config / infra changes still use the Nuon app branch:
+
+```sh
+nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+nuon branches trigger --branch-id main
+```
 
 > [!WARNING]
 > Major Coder upgrades may include database migrations. Migrations run as part of the helm upgrade and are **not separately reversible**. Read the [release notes](https://github.com/coder/coder/releases) before approving.
@@ -394,49 +476,38 @@ Bump only the side you mean to change, then merge to git `main`. Each train has 
 
 <br/>
 
-This app's installs are managed as code: each has a corresponding TOML file under [`installs/`](./installs) holding its labels, approval behavior, and any per-install overrides. Docs: [Install Configs guide](https://docs.nuon.co/guides/install-configs), [Install config reference](https://docs.nuon.co/config-ref/install).
+Installs are managed as code under [`installs/`](./installs), grouped by **channel folder** (mainline / stable / pinned / lab). Docs: [Install Configs](https://docs.nuon.co/guides/install-configs), [app branches](https://docs.nuon.co/concepts/app-branches), [dynamic labels](https://docs.nuon.co/guides/install-configs#dynamic-labels).
 
-### Bootstrap an install from a config file
+App config ships through config-managed app branches:
 
-1. Generate a config from an existing install (or copy an example from [`installs/`](./installs)):
+- `nuon branches sync --file branches/`
+- `nuon installs sync -d installs/<channel>/` (or a single file)
+- `nuon branches preview` / `nuon branches trigger`
+
+### Bootstrap / edit an install config
+
+1. Copy an example from [`installs/`](./installs) or generate from a live install:
    ```sh
-   nuon installs generate-config -i <install-name> > installs/<install-name>.toml
+   nuon installs generate-config -i <install-name> > installs/stable/<install-name>.toml
    ```
-2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed.
-3. Apply it. `-d` accepts either a single file or a directory:
+2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed. Keep `release` templated from `coder_image_tag`.
+3. Sync the channel directory or one file (see Upgrade tab).
 
-   Sync just one install (e.g. while testing against `canary-stable` only):
-   ```sh
-   nuon installs sync -a coder -d installs/canary-stable.toml
-   ```
+### Nuon app branch vs Coder channel
 
-   Sync every install config in the directory at once:
-   ```sh
-   nuon installs sync -a coder -d installs/
-   ```
+| Concept | What it is | This sample |
+|---|---|---|
+| Nuon app branch `main` | Rolls shared app config (components, actions, …) | `branches/main.toml` — preview → default via `fleet`+`wave` |
+| Install folder `mainline/` / `stable/` / `pinned/` | Which Coder binary cohort / how you sync upgrades | Not Nuon app branches |
+| Labels `channel` + `release` | Dashboard metadata | `channel` static; `release` from `coder_image_tag` |
 
-### Release pins and rollout
-
-Two Coder trains share one app directory and one git `main`. The image tag is selected from the install `cadence` label in [`components/values/coder.yaml`](./components/values/coder.yaml). It is not an install input.
-
-| Train | Pin (in values template) | App branch | Installs |
-|---|---|---|---|
-| Stable | `v2.35.4` (`else` branch) | `branches/stable.toml` | `canary-stable`, `customer-stable` |
-| Mainline | `v2.35.1` (`mainline` branch) | `branches/mainline.toml` | `canary-mainline`, `customer-mainline` |
-
-List recent GitHub releases and which notes mark them mainline vs stable (reference when picking the next pin):
 ```sh
-gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | reverse | .[] | [(.published_at[0:10]), .tag_name, (if (.body // "") | test("mainline Coder release") then "mainline" elif (.body // "") | test("Stable \\(since") then "stable" else "-" end)] | @tsv'
+nuon branches sync --file branches/ --confirm
+nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+nuon branches trigger --branch-id main
 ```
 
-Each app branch rolls canary → prod for its train:
-
-| Group | Labels | Stable train | Mainline train | Gets changes |
-|---|---|---|---|---|
-| Canary | `canary=true` + `cadence=…` | `canary-stable` | `canary-mainline` | first |
-| Prod | `prod=true` + `cadence=…` | `customer-stable` | `customer-mainline` | second |
-
-A push to git `main` can wake both app branches (same tracked ref). Bumping only the stable pin upgrades `cadence=stable` installs; mainline installs keep rendering their pin (no-op when unchanged). All example installs use `approval_option = "approve-all"`. See the [app branches guide](https://docs.nuon.co/guides/app-branches).
+All example installs use `approval_option = "approve-all"` and `app_branch = "main"`.
 
 ### Opting an install out
 

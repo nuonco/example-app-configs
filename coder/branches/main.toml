@@ -1,0 +1,35 @@
+# Continuous train for the Coder app config. Same git source as always.
+# Coder image version is an install input (coder_image_tag), not a Nuon app branch.
+name = "main"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "coder"
+branch    = "main"
+
+[run]
+mode = "manual_only"
+
+[preview]
+mode          = "plan-only"
+install_name  = "preview-main"
+set_statuses  = true
+comment       = true
+ignore_drafts = true
+react         = true
+
+[[install_groups]]
+name  = "preview"
+order = 1
+
+[install_groups.label_selector]
+fleet = "true"
+wave  = "preview"
+
+[[install_groups]]
+name  = "default"
+order = 2
+
+[install_groups.label_selector]
+fleet = "true"
+wave  = "default"

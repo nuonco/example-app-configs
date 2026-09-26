@@ -1,0 +1,17 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "customer-dod"
+app_branch = "main"
+approval_option = "approve-all"
+
+[labels]
+channel = "pinned"
+release = "{{ .nuon.install.inputs.coder_image_tag }}"
+fleet   = "true"
+wave    = "default"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+coder_image_tag = "v2.33.8"
