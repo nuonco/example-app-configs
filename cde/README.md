@@ -147,7 +147,7 @@ Do not conflate `[preview]` with the `validation` install group:
 
 | Piece | What it does |
 |---|---|
-| `[preview]` (on `main`) | PR / `nuon branches preview` only. `mode = "plan-only"` plans against `install_name = "preview-main"`. `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
+| `[preview]` (on `main`) | PR / `nuon branches preview` only. `mode = "plan-only"` plans against installs matching `fleet`+`wave=validation` (no `install_name`, so branch sync works before lab installs exist). `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
 | Install group `validation` | First wave on a real branch run (`wave = "validation"`). |
 | Install group `default` | Second wave (`wave = "default"`). Must set `default = true` (the name alone is not enough) — catch-all for installs on that branch that match no selector. |
 
@@ -168,7 +168,7 @@ App config lives in git. An app branch points at that repo/dir and walks install
 
 1. Edit under `cde/` (`components/`, `inputs.toml`, actions, etc.).
 2. Commit and push (or otherwise publish) a git ref, e.g. `my-feature`.
-3. Preview against the continuous train’s safe install (`preview-main` via `main`’s `[preview]`):
+3. Preview against the continuous train’s validation-wave install(s) (`main`’s `[preview].label_selector`):
 
 ```sh
 nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
@@ -191,10 +191,10 @@ Notes:
 
 ### 4. Preview command reference
 
-`main` has `[preview] mode = "plan-only"` and `install_name = "preview-main"` (plan target only; not the same as the `validation` install group).
+`main` has `[preview] mode = "plan-only"` and a `label_selector` on `fleet`+`wave=validation` (plan target only; not the same as the `validation` install group).
 
 ```sh
-# Plan only (default from branches/main.toml) → preview-main
+# Plan only (default from branches/main.toml) → validation-wave install(s)
 nuon branches preview --branch-id main --git-ref my-feature
 
 # Same, explicit mode
