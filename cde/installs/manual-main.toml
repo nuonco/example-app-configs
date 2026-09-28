@@ -1,7 +1,7 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# On app branch main but omitted from every install group (no fleet=true).
-# Branch runs skip it; operate by hand or add fleet+wave labels to join a group.
+# On app branch main without fleet/wave — catch-all default group on branch runs.
+# Add fleet+wave to join a selector wave, or use a dedicated app branch to leave main's train.
 name = "manual-main"
 app_branch = "main"
 approval_option = "approve-all"

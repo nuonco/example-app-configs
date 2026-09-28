@@ -6,7 +6,7 @@ approval_option = "approve-all"
 
 [labels]
 fleet = "true"
-wave  = "preview"
+wave  = "validation"
 
 [aws_account]
 region = "us-east-1"

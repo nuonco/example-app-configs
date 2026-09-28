@@ -14,16 +14,17 @@ branch    = "main"
 mode = "manual_only"
 
 [[install_groups]]
-name  = "preview"
+name  = "validation"
 order = 1
 
 [install_groups.label_selector]
 fleet = "true"
-wave  = "preview"
+wave  = "validation"
 
 [[install_groups]]
-name  = "default"
-order = 2
+name    = "default"
+order   = 2
+default = true
 
 [install_groups.label_selector]
 fleet = "true"
