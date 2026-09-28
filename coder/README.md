@@ -494,7 +494,7 @@ Three different “preview-ish” ideas; do not conflate them:
 
 | Piece | What it does |
 |---|---|
-| `[preview]` | PR / `nuon branches preview` only. `mode = "plan-only"` plans against `install_name = "preview-main"`. `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
+| `[preview]` | PR / `nuon branches preview` only. `mode = "plan-only"` plans against installs matching `fleet`+`wave=validation` (no `install_name`, so branch sync works before lab installs exist). `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
 | Install group `validation` | First wave on a real branch run (`wave = "validation"`). Lab install `preview-main` is in this group. |
 | Install group `default` | Second wave (`wave = "default"`). Must set `default = true` (the name alone is not enough) — catch-all for installs on this branch that match no selector. |
 

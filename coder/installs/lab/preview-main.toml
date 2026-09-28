@@ -1,6 +1,6 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# Lab install for app branch main [preview] → preview-main, and validation wave.
+# Lab install: [preview] label_selector and validation wave (fleet+wave=validation).
 name = "preview-main"
 app_branch = "main"
 approval_option = "approve-all"
