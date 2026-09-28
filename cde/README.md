@@ -141,14 +141,26 @@ nuon installs sync -d installs/ --confirm
 
 All three use `[public_repo]` pointing at this directory and `[run] mode = "manual_only"` so the public example repo stays quiet. On a connected private repo, `weekly` would typically use `on_github_label` + `release-weekly` instead.
 
+### App branch anatomy
+
+Do not conflate `[preview]` with the `validation` install group:
+
+| Piece | What it does |
+|---|---|
+| `[preview]` (on `main`) | PR / `nuon branches preview` only. `mode = "plan-only"` plans against `install_name = "preview-main"`. `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
+| Install group `validation` | First wave on a real branch run (`wave = "validation"`). |
+| Install group `default` | Second wave (`wave = "default"`). Must set `default = true` (the name alone is not enough) — catch-all for installs on that branch that match no selector. |
+
+`[run].mode` (`manual_only` here) is separate from `[preview].mode`: it controls what starts a normal branch run, not how far a PR preview goes.
+
 Install labels on `main` / `weekly`:
 
 | Label | Values | Meaning |
 |---|---|---|
-| `fleet` | `true` | Opt-in to branch install groups. Omit it → skipped by branch runs. |
-| `wave` | `preview` \| `default` | Early wave vs main fleet. |
+| `fleet` | `true` | Candidate for selector-based install groups. |
+| `wave` | `validation` \| `default` | Which selector group. |
 
-Rollout order: `preview` → `default`. `manual-main` has no `fleet` label, so branch runs skip it. `customer-acme` is selected by `install_names` on its branch.
+Rollout order: `validation` → `default`. Installs that omit `fleet`/`wave` (e.g. `manual-main`) still land in the catch-all `default` group on a branch run. `customer-acme` is selected by `install_names` on its own branch (true pin off the ASAP/weekly trains).
 
 ### 3. Engineer iterating on app config
 
@@ -169,18 +181,17 @@ nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
 nuon branches trigger --branch-id main
 ```
 
-That walks `preview` → `default`. Installs without `fleet=true` (e.g. `manual-main`) stay out of the run.
+That walks `validation` → `default`.
 
 Notes:
 
 - A preview builds from the git ref you pass. It does **not** replace the branch’s normal (non-preview) app config until you `branches trigger` (or a push-mode run on a connected repo).
-- Use `manual-main` if you want a hand-operated install off the fleet.
-- A personal pin (same shape as `customer-acme`, e.g. `dev-you`) is optional when you want a named branch/trigger that never touches demo or weekly installs.
+- Use a dedicated app branch (same shape as `customer-acme`, e.g. `dev-you`) when you want a named trigger that never touches demo or weekly installs. `manual-main` stays on `main` and is catch-all for unmatched labels.
 - `branches sync` is only for changing branch settings (run mode, groups, preview install) — not for every component tweak.
 
 ### 4. Preview command reference
 
-`main` has `[preview] mode = "plan-only"` and `install_name = "preview-main"`.
+`main` has `[preview] mode = "plan-only"` and `install_name = "preview-main"` (plan target only; not the same as the `validation` install group).
 
 ```sh
 # Plan only (default from branches/main.toml) → preview-main
@@ -204,10 +215,10 @@ You can also pass `--pr-number <n>` instead of `--git-ref` when the Nuon GitHub 
 ### 5. Roll out each cadence / pin
 
 ```sh
-# ASAP train: preview wave, then default (demo-1, demo-2). Skips manual-main.
+# ASAP train: validation wave, then default (demo-1, demo-2; manual-main via catch-all)
 nuon branches trigger --branch-id main
 
-# Slow train: preview-weekly, then weekly-1
+# Slow train: validation (preview-weekly), then weekly-1
 nuon branches trigger --branch-id weekly
 
 # Pinned customer only

@@ -13,22 +13,23 @@ mode = "manual_only"
 [preview]
 mode          = "plan-only"
 install_name  = "preview-main"
-set_statuses  = true
-comment       = true
+set_statuses  = false
+comment       = false
 ignore_drafts = true
-react         = true
+react         = false
 
 [[install_groups]]
-name  = "preview"
+name  = "validation"
 order = 1
 
 [install_groups.label_selector]
 fleet = "true"
-wave  = "preview"
+wave  = "validation"
 
 [[install_groups]]
-name  = "default"
-order = 2
+name    = "default"
+order   = 2
+default = true
 
 [install_groups.label_selector]
 fleet = "true"

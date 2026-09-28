@@ -1,6 +1,6 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# Lab preview install for app branch main [preview] → preview-main.
+# Lab install for app branch main [preview] → preview-main, and validation wave.
 name = "preview-main"
 app_branch = "main"
 approval_option = "approve-all"
@@ -9,7 +9,7 @@ approval_option = "approve-all"
 channel = "mainline"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
 fleet   = "true"
-wave    = "preview"
+wave    = "validation"
 
 [aws_account]
 region = "us-east-1"

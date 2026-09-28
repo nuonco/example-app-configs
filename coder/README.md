@@ -438,14 +438,14 @@ Sample pins are intentionally several releases back so you can demo an upgrade t
 
 | Cohort | Directory | Installs | `coder_image_tag` | On branch runs? |
 |---|---|---|---|---|
-| Mainline | `installs/mainline/` | `customer-square`, `customer-dropbox` | `v2.36.3` | Yes (`fleet`+`wave`) |
-| Stable | `installs/stable/` | `customer-palantir`, `customer-mercedes-benz`, `customer-kkr` | `v2.33.10` | Yes (`fleet`+`wave`) |
-| Pinned | `installs/pinned/` | `customer-discord`, `customer-dod` | `v2.33.8` | No (omit `fleet`/`wave`) |
-| Lab | `installs/lab/` | `preview-main` | `v2.36.3` | Yes (`fleet`+`wave=preview`) |
+| Mainline | `installs/mainline/` | `customer-square`, `customer-dropbox` | `v2.36.3` | Yes (`fleet`+`wave=default`) |
+| Stable | `installs/stable/` | `customer-palantir`, `customer-mercedes-benz`, `customer-kkr` | `v2.33.10` | Yes (`fleet`+`wave=default`) |
+| Pinned | `installs/pinned/` | `customer-discord`, `customer-dod` | `v2.33.8` | Catch-all (no `fleet`/`wave` → `default` group) |
+| Lab | `installs/lab/` | `preview-main` | `v2.36.3` | Yes (`fleet`+`wave=validation`) |
 
-Pinned installs stay on app branch `main` and keep config sync, but they are **not** in install groups — branch preview/trigger skips them. Bump their Coder tag with `installs sync` on that folder or file only.
+Pinned installs stay on app branch `main` and keep config sync. They omit `fleet`/`wave`, so they do not match a selector; with `default = true` on the default install group they still land in that catch-all on a branch run. Bump their Coder tag with `installs sync` on that folder or file only. To keep an install off this train entirely, put it on a dedicated app branch (see the cde `customer-acme` pattern) or skip the default group when triggering.
 
-**Use case:** a customer that must stay on an older Coder release (compliance freeze, slow change window) and should not ride every app-config branch run. They still share `main` for when you *do* want to roll infra/config — you opt them in by adding `fleet`/`wave`, or push a one-off change with `installs sync` on their file. Until then, mainline/stable take the branch-run blast radius; pinned does not.
+**Use case:** a customer that must stay on an older Coder release (compliance freeze, slow change window). Prefer `installs sync` for tag bumps; treat branch-run membership as catch-all unless you move them off `main`.
 
 ### Steps (upgrade a cohort)
 
@@ -488,6 +488,24 @@ App config ships through config-managed app branches:
 - `nuon installs sync -d installs/<channel>/` (or a single file)
 - `nuon branches preview` / `nuon branches trigger`
 
+### App branch anatomy (`branches/main.toml`)
+
+Three different “preview-ish” ideas; do not conflate them:
+
+| Piece | What it does |
+|---|---|
+| `[preview]` | PR / `nuon branches preview` only. `mode = "plan-only"` plans against `install_name = "preview-main"`. `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
+| Install group `validation` | First wave on a real branch run (`wave = "validation"`). Lab install `preview-main` is in this group. |
+| Install group `default` | Second wave (`wave = "default"`). Must set `default = true` (the name alone is not enough) — catch-all for installs on this branch that match no selector. |
+
+Labels:
+
+- `fleet = "true"` — candidate for install-group membership
+- `wave` — which selector group (`validation` or `default`)
+- Unmatched installs on the branch (no matching selector) still deploy with the catch-all default group
+
+`[run].mode` (`manual_only` here) is separate from `[preview].mode`: it controls what starts a normal branch run, not how far a PR preview goes.
+
 ### Bootstrap / edit an install config
 
 1. Copy an example from [`installs/`](./installs) or generate from a live install:
@@ -501,10 +519,10 @@ App config ships through config-managed app branches:
 
 | Concept | What it is | This sample |
 |---|---|---|
-| Nuon app branch `main` | Rolls shared app config (components, actions, …) | `branches/main.toml` — preview → installs with `fleet`+`wave` |
+| Nuon app branch `main` | Rolls shared app config (components, actions, …) | `branches/main.toml` — validation → default |
 | Install folder `mainline/` / `stable/` / `pinned/` | Which Coder binary cohort / how you sync upgrades | Not Nuon app branches |
 | Labels `channel` + `release` | Dashboard metadata | `channel` static; `release` from `coder_image_tag` |
-| Labels `fleet` + `wave` | Opt into branch-run install groups | On mainline/stable/lab; **omitted** on pinned |
+| Labels `fleet` + `wave` | Selector membership for install groups | mainline/stable/lab; pinned omit them and fall into catch-all |
 
 ```sh
 nuon branches sync --file branches/ --confirm
@@ -512,13 +530,12 @@ nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
 nuon branches trigger --branch-id main
 ```
 
-All example installs use `approval_option = "approve-all"` and `app_branch = "main"`. Pinned customers omit `fleet`/`wave` so app-config branch runs skip them; Coder version bumps still use `nuon installs sync` on `installs/pinned/`.
+All example installs use `approval_option = "approve-all"` and `app_branch = "main"`. Coder version bumps for a cohort still use `nuon installs sync` on that channel directory.
 
 ### Opting an install out
 
-Two different knobs:
-- **Skip branch runs only** (still config-managed): omit `fleet`/`wave` labels — see `installs/pinned/`.
-- **Leave config management entirely**: `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
+- **Stay on `main` but avoid selector waves:** omit `fleet`/`wave` — you still land in the catch-all `default` group on a branch run. Prefer `installs sync` for one-off tag bumps; skip the default group when triggering if you want them left alone for that run.
+- **Off this train entirely:** put the install on a dedicated app branch, or `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
 
 </nuon-tab>
 

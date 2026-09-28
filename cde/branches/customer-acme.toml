@@ -13,4 +13,5 @@ mode = "manual_only"
 [[install_groups]]
 name          = "acme"
 order         = 1
+default       = true
 install_names = ["customer-acme"]
