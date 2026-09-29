@@ -14,13 +14,12 @@ ebs_storage_class = {
 
 cluster_endpoint_public_access = true
 
-additional_namespaces = ["coder", "coder-observability"]
+additional_namespaces = ["coder"]
 
 enable_irsa          = true
 
 # adding additional permissions to maintenance role to run kubectl-based actions
-# against the cluster (e.g. coder_db_init, which grants rds_iam / creates the
-# coder_exporter user)
+# against the cluster (e.g. coder_db_init, which grants rds_iam)
 
 maintenance_role_eks_access_entry_policy_associations = {
   eks_admin = {

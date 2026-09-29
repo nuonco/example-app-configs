@@ -1,5 +1,5 @@
 name        = "healthcheck_infra"
-description = "End-to-end healthcheck across Kubernetes, Coder, RDS, ALB, Grafana, and Prometheus."
+description = "End-to-end healthcheck across Kubernetes, Coder, ALB, and Coder deployment paths."
 readme      = "./runbooks/healthcheck_infra.md"
 
 [labels]
@@ -20,16 +20,6 @@ action_name = "coder_health"
 name        = "alb-status"
 type        = "action"
 action_name = "alb_healthcheck"
-
-[[steps]]
-name        = "grafana-health"
-type        = "action"
-action_name = "grafana_health"
-
-[[steps]]
-name        = "prom-targets"
-type        = "action"
-action_name = "prom_targets"
 
 [[steps]]
 name        = "coder-deployment-health"

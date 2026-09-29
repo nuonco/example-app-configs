@@ -12,10 +12,6 @@ coder:
 
   replicaCount: "{{.nuon.inputs.inputs.replicas}}"
 
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "2112"
-
   # since tls is terminated at alb
   tls:
     secretNames: []
@@ -89,10 +85,6 @@ coder:
       value: "{{.nuon.inputs.inputs.block_direct}}"
     - name: CODER_TELEMETRY_ENABLE
       value: "{{.nuon.inputs.inputs.telemetry}}"
-    - name: CODER_PROMETHEUS_ENABLE
-      value: "true"
-    - name: CODER_PROMETHEUS_COLLECT_AGENT_STATS
-      value: "true"
     - name: CODER_LOGGING_HUMAN
       value: "/dev/stderr"
     - name: CODER_UPDATE_CHECK

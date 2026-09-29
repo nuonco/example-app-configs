@@ -3,7 +3,7 @@ type           = "helm_chart"
 chart_name     = "coder-logstream-kube"
 namespace      = "coder"
 storage_driver = "configmap"
-dependencies   = ["coder", "application_load_balancer"]
+dependencies   = ["coder"]
 max_auto_retries = 5
 skip_noops       = true
 
