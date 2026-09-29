@@ -32,4 +32,4 @@ jq --null-input -c \
 '''
 
 [steps.env_vars]
-NAMESPACES = "coder coder-observability"
+NAMESPACES = "coder"

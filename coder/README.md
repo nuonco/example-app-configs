@@ -5,36 +5,26 @@
 {{ $workflows   := default dict (dig "workflows" dict $actionsMap) }}
 {{ $installID   := dig "id" "" $install }}
 
-{{ $k8s     := default dict (dig "k8s_status" dict $workflows) }}
-{{ $coder   := default dict (dig "coder_health" dict $workflows) }}
-{{ $alb     := default dict (dig "alb_healthcheck" dict $workflows) }}
-{{ $grafana := default dict (dig "grafana_health" dict $workflows) }}
-{{ $prom    := default dict (dig "prom_targets" dict $workflows) }}
+{{ $k8s   := default dict (dig "k8s_status" dict $workflows) }}
+{{ $coder := default dict (dig "coder_health" dict $workflows) }}
+{{ $alb   := default dict (dig "alb_healthcheck" dict $workflows) }}
 
-{{ $k8sOut     := default dict (dig "outputs" dict $k8s) }}
-{{ $coderOut   := default dict (dig "outputs" dict $coder) }}
-{{ $albOut     := default dict (dig "outputs" dict $alb) }}
-{{ $grafanaOut := default dict (dig "outputs" dict $grafana) }}
-{{ $promOut    := default dict (dig "outputs" dict $prom) }}
+{{ $k8sOut   := default dict (dig "outputs" dict $k8s) }}
+{{ $coderOut := default dict (dig "outputs" dict $coder) }}
+{{ $albOut   := default dict (dig "outputs" dict $alb) }}
 
-{{ $k8sID    := dig "id" "" $k8s }}
-{{ $coderID  := dig "id" "" $coder }}
-{{ $albID    := dig "id" "" $alb }}
-{{ $grafanaID := dig "id" "" $grafana }}
-{{ $promID   := dig "id" "" $prom }}
+{{ $k8sID   := dig "id" "" $k8s }}
+{{ $coderID := dig "id" "" $coder }}
+{{ $albID   := dig "id" "" $alb }}
 
 {{ $k8sInd   := dig "indicator" "" $k8sOut }}
 {{ $coderInd := dig "indicator" "" $coderOut }}
-{{ $grafInd  := dig "indicator" "" $grafanaOut }}
-{{ $promInd  := dig "indicator" "" $promOut }}
 
 {{ $albCoderMap := default dict (dig "coder" dict $albOut) }}
-{{ $albGrafMap  := default dict (dig "grafana" dict $albOut) }}
 {{ $albCoder    := dig "indicator" "" $albCoderMap }}
-{{ $albGraf     := dig "indicator" "" $albGrafMap }}
 
-{{ $hcAllGreen := and (eq $k8sInd "🟢") (eq $coderInd "🟢") (eq $albCoder "🟢") (eq $albGraf "🟢") (eq $grafInd "🟢") (eq $promInd "🟢") }}
-{{ $hcAnyRed   := or  (eq $k8sInd "🔴") (eq $coderInd "🔴") (eq $albCoder "🔴") (eq $albGraf "🔴") (eq $grafInd "🔴") (eq $promInd "🔴") }}
+{{ $hcAllGreen := and (eq $k8sInd "🟢") (eq $coderInd "🟢") (eq $albCoder "🟢") }}
+{{ $hcAnyRed   := or  (eq $k8sInd "🔴") (eq $coderInd "🔴") (eq $albCoder "🔴") }}
 
 {{ $dh    := default dict (dig "coder_deployment_health" dict $workflows) }}
 {{ $dhOut    := default dict (dig "outputs" dict $dh) }}
@@ -42,8 +32,8 @@
 {{ $dhReady  := and (dig "populated" false $dh) (eq (dig "status" "" $dh) "finished") }}
 {{ $dhID     := dig "id" "" $dh }}
 
-{{ $promUpdated := dig "updated_at" "" $promOut }}
-{{ $dhUpdated   := dig "updated_at" "" $dhOut }}
+{{ $k8sUpdated := dig "updated_at" "" $k8sOut }}
+{{ $dhUpdated  := dig "updated_at" "" $dhOut }}
 
 {{ $bgClean  := default dict (dig "k8s_clean_failed_pods" dict $workflows) }}
 {{ $bgCleanUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgClean)) }}
@@ -77,15 +67,13 @@
     <div style="display:flex; gap:10px; align-items:center;">
       {{ if $domain -}}
       <a href="https://{{ $domain }}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Coder →</a>
-      <a href="https://{{ $domain }}/grafana" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open Grafana →</a>
       {{ else -}}
       <span style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#8b5cf6; color:white; border-radius:8px; font-weight:600; font-size:15px; opacity:0.55;">Open Coder →</span>
-      <span style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:transparent; color:#c4b5fd; border:1px solid rgba(139,92,246,0.6); border-radius:8px; font-weight:600; font-size:15px; opacity:0.55;">Open Grafana →</span>
       {{ end -}}
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="healthcheck_infra"></nuon-run-runbook>
-      {{ with $promUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+      {{ with $k8sUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
     </div>
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
       <nuon-run-runbook name="breakglass_k8s_remediate"></nuon-run-runbook>
@@ -96,7 +84,7 @@
 
 {{ if not $domain -}}
 <nuon-banner theme="warn">
-Provisioning in progress — Coder and Grafana URLs appear here when the sandbox DNS record is ready.
+Provisioning in progress — the Coder URL appears here when the sandbox DNS record is ready.
 </nuon-banner>
 {{ else -}}
 <nuon-banner theme="success">
@@ -127,14 +115,14 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Infra health</p>
-  {{ with $promUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
+  {{ with $k8sUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
 <nuon-group gap="8" align="center">
   {{ if $hcAllGreen }}<nuon-status status="active" variant="badge"></nuon-status>
   {{ else if $hcAnyRed }}<nuon-status status="error" variant="badge"></nuon-status>
   {{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}
-  <span>Rolled-up status across cluster, Coder, ALB, Grafana, and Prometheus.</span>
+  <span>Rolled-up status across cluster, Coder, and ALB.</span>
 </nuon-group>
 
 <table>
@@ -143,9 +131,6 @@ Coder's cloud development environment platform — for developers and agents. Th
     <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $k8sID }}<a href="./{{ $installID }}/actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">k8s_status</code>{{ end }}</td></tr>
     <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $coderID }}<a href="./{{ $installID }}/actions/{{ $coderID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_health</code>{{ end }}</td></tr>
     <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $albID }}<a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
-    <tr><td>ALB · Grafana ingress</td><td>{{ if eq $albGraf "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albGraf "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $albID }}<a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
-    <tr><td>Grafana</td><td>{{ if eq $grafInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $grafInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $grafanaID }}<a href="./{{ $installID }}/actions/{{ $grafanaID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">grafana_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">grafana_health</code>{{ end }}</td></tr>
-    <tr><td>Prometheus</td><td>{{ if eq $promInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $promInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $promID }}<a href="./{{ $installID }}/actions/{{ $promID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">prom_targets</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">prom_targets</code>{{ end }}</td></tr>
   </tbody>
 </table>
 
@@ -181,7 +166,6 @@ Coder's cloud development environment platform — for developers and agents. Th
   <nuon-component-card name="certificate"></nuon-component-card>
   <nuon-component-card name="application_load_balancer"></nuon-component-card>
   <nuon-component-card name="kubelogstream"></nuon-component-card>
-  <nuon-component-card name="observability"></nuon-component-card>
 </nuon-group>
 
 - [Coder documentation](https://coder.com/docs)
@@ -207,7 +191,7 @@ Coder's cloud development environment platform — for developers and agents. Th
       subgraph Clients["Clients"]
           Customer["Customer / Admin"]
           IDE["IDE with SSH"]
-          Dashboard["Coder & Grafana Dashboards & Web IDE"]
+          Dashboard["Coder Dashboard & Web IDE"]
           Customer ~~~ IDE ~~~ Dashboard
       end
 
@@ -222,10 +206,8 @@ Coder's cloud development environment platform — for developers and agents. Th
 
           subgraph EKS["EKS Cluster"]
               K8sSecret[("Kubernetes Secret<br/>coder-anthropic-key")]
-              ExporterSecret[("Kubernetes Secret<br/>coder-db-password")]
               Coder["Coder<br/>(AI Gateway)"]
               Logstream["Kubelogstream"]
-              Observability["Grafana & Prometheus Observability<br/>(coder_exporter user)"]
               DevEnv["Development Environment"]
           end
       end
@@ -241,21 +223,16 @@ Coder's cloud development environment platform — for developers and agents. Th
       Runner -->|provisions| ALB
       Runner -->|provisions| Coder
       Runner -->|provisions| Logstream
-      Runner -->|provisions| Observability
       Runner -->|reads anthropic_api_key| SM
       Runner -->|syncs to| K8sSecret
-      Runner -->|coder_db_init: creates coder_exporter,<br/>grants rds_iam, syncs password to| ExporterSecret
+      Runner -->|coder_db_init: grants rds_iam| RDS
       K8sSecret -->|CODER_AI_GATEWAY_ANTHROPIC_KEY| Coder
-      ExporterSecret -->|PGPASSWORD| Observability
 
       ACM -->|TLS| ALB
       ALB --> Coder
       Coder -->|assumes| PodIdentity
       PodIdentity -.->|rds-db:connect<br/>short-lived token| RDS
       RDS -->|DB via IAM token| Coder
-      RDS -->|DB via password| Observability
-      Coder --> Observability
-      ALB --> Observability
       Dashboard -->|HTTPS| ALB
       Coder --> DevEnv
       IDE -->|HTTPS| DevEnv
@@ -276,12 +253,11 @@ Coder's cloud development environment platform — for developers and agents. Th
   <nuon-component-card name="certificate"></nuon-component-card>
   <nuon-component-card name="application_load_balancer"></nuon-component-card>
   <nuon-component-card name="kubelogstream"></nuon-component-card>
-  <nuon-component-card name="observability"></nuon-component-card>
 </nuon-group>
 
 ### Where it runs
 
-Coder runs entirely inside your AWS VPC — both its control plane (the Coder server, web UI, and AI gateway) and its data plane (the RDS database cluster and the developer workspaces themselves). Grafana is also deployed in the VPC. 
+Coder runs entirely inside your AWS VPC — both its control plane (the Coder server, web UI, and AI gateway) and its data plane (the RDS database cluster and the developer workspaces themselves).
 
 </nuon-tab>
 
@@ -350,32 +326,6 @@ If you leave the CloudFormation parameter blank, Coder still boots normally — 
 ### Rotating the key
 
 Update the parameter in the install stack and re-run the secret sync from the **Operations** tab.
-
-</nuon-tab>
-
-<nuon-tab name="grafana">
-
-<br/>
-
-Grafana is served from the same load balancer as Coder, at <nuon-badge theme="default" variant="code">https://{{ $domain }}/grafana</nuon-badge>.
-
-### Get the admin password
-
-<nuon-action-card name="grafana_password"></nuon-action-card>
-
-The output shows the URL, username (`admin`), and the generated password.
-
-### Dashboards
-
-- **Coder Status** — overall health overview
-- **Coder Coderd** — control plane metrics
-- **Workspaces** — utilization and performance
-- **Workspace Detail** — per-workspace deep-dive
-- **Provisioner** — Terraform provisioner metrics
-- **Postgres Database** — RDS performance
-- **Infrastructure** — node-level metrics
-
-[Coder monitoring guide](https://coder.com/docs/admin/monitoring)
 
 </nuon-tab>
 

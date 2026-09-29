@@ -12,7 +12,7 @@ Access is driven entirely by the break-glass role's state on your install stack 
 
 This runbook runs three actions in one pass:
 
-- `k8s_clean_failed_pods` — deletes `Failed` pods in the `coder` and `coder-observability` namespaces
+- `k8s_clean_failed_pods` — deletes `Failed` pods in the `coder` namespace
 - `k8s_clear_finalizers` — scans the `coder` namespace for `ingress` resources stuck in `Terminating` and clears their finalizers (or a single resource if `NAME` is set); a safe no-op if nothing is stuck
 - `k8s_restart_deployment` — rolling-restarts the deployments in the `coder` namespace (or a single one if `NAME` is set) and waits for rollout
 

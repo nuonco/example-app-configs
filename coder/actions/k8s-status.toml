@@ -21,7 +21,7 @@ set -e
 set -o pipefail
 set -u
 
-echo "==> k8s-status: $CODER_NAMESPACE, $OBS_NAMESPACE"
+echo "==> k8s-status: $CODER_NAMESPACE"
 
 nodes_json=$(kubectl get nodes -o json)
 nodes_total=$(echo "$nodes_json" | jq '.items | length')
@@ -59,21 +59,15 @@ deploy_stats() {
 }
 
 coder_pods=$(pod_stats "$CODER_NAMESPACE")
-obs_pods=$(pod_stats "$OBS_NAMESPACE")
 coder_deploys=$(deploy_stats "$CODER_NAMESPACE")
-obs_deploys=$(deploy_stats "$OBS_NAMESPACE")
 
 fail=0
-for stats in "$coder_pods" "$obs_pods"; do
-  if [ "$(echo "$stats" | jq '.not_ready | length')" != "0" ]; then
-    fail=1
-  fi
-done
-for stats in "$coder_deploys" "$obs_deploys"; do
-  if [ "$(echo "$stats" | jq '.under_replicated | length')" != "0" ]; then
-    fail=1
-  fi
-done
+if [ "$(echo "$coder_pods" | jq '.not_ready | length')" != "0" ]; then
+  fail=1
+fi
+if [ "$(echo "$coder_deploys" | jq '.under_replicated | length')" != "0" ]; then
+  fail=1
+fi
 if [ "$nodes_ready" -lt "$nodes_total" ]; then
   fail=1
 fi
@@ -90,15 +84,13 @@ output=$(jq --null-input -c \
   --argjson nodes_total "$nodes_total" \
   --argjson nodes_ready "$nodes_ready" \
   --argjson coder_pods "$coder_pods" \
-  --argjson obs_pods "$obs_pods" \
   --argjson coder_deploys "$coder_deploys" \
-  --argjson obs_deploys "$obs_deploys" \
   '{
     indicator: $indicator,
     updated_at: $updated_at,
     nodes: {total: $nodes_total, ready: $nodes_ready},
-    pods: [$coder_pods, $obs_pods],
-    deployments: [$coder_deploys, $obs_deploys]
+    pods: [$coder_pods],
+    deployments: [$coder_deploys]
   }')
 
 echo "$output" | jq .
@@ -109,4 +101,3 @@ echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
 
 [steps.env_vars]
 CODER_NAMESPACE = "coder"
-OBS_NAMESPACE   = "coder-observability"
