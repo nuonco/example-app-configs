@@ -168,11 +168,11 @@ Common sandbox outputs (aws-eks-sandbox):
 ```
 {{.nuon.install.sandbox.outputs.vpc.id}}
 {{.nuon.install.sandbox.outputs.vpc.private_subnet_ids}}
-{{.nuon.install.sandbox.outputs.cluster.cluster_name}}
+{{.nuon.install.sandbox.outputs.cluster.name}}
 {{.nuon.install.sandbox.outputs.cluster.oidc_provider}}
 {{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
 {{.nuon.install.sandbox.outputs.nuon_dns.internal_domain.name}}
-{{.nuon.install.sandbox.outputs.account.aws_region}}
+{{.nuon.install.sandbox.outputs.account.region}}
 ```
 
 ### Install Stack (CloudFormation) Outputs
