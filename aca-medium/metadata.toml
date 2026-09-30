@@ -1,0 +1,5 @@
+version = "v2"
+
+display_name = "Azure ACA Medium"
+description  = "Azure Container Apps application with Nuon-managed DNS and a Whoami HTTP service."
+readme       = "./README.md"

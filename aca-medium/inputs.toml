@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=inputs
+
+[[group]]
+name         = "dns"
+description  = "DNS configuration"
+display_name = "DNS"
+
+[[input]]
+name         = "root_domain"
+description  = "Parent domain for the Nuon-delegated install domain."
+display_name = "Root Domain"
+default      = "nuon.co"
+required     = true
+group        = "dns"
+type         = "string"
