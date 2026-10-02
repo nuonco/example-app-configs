@@ -1,0 +1,19 @@
+# action
+name    = "healthcheck_private_image"
+image   = "{{.nuon.components.runbook_tools_ecr.outputs.image.ref}}"
+timeout = "30s"
+enable_kube_config = false
+labels  = { service = "httpbin", type = "health-check" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "check_httpbin"
+inline_contents = """
+#!/usr/bin/env sh
+exec httpbin-healthcheck
+"""
+
+[steps.env_vars]
+ENDPOINT = "{{.nuon.components.ec2.outputs.public_ip}}"
