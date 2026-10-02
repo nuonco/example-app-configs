@@ -13,3 +13,31 @@ branch    = "main"
 
 [[values_file]]
 contents = "./values/whoami.yaml"
+
+# Custom health
+# curl -X PUT ".../installs/$I/components/$C/health/checks/nightly-audit" \
+#  -H "Authorization: Bearer $TOK" -H "X-Nuon-Org-ID: $ORG" \
+#  -d '{"status":"healthy","stale_after":"30m","message":"audit clean"}'
+
+# component health
+[health]
+stabilization_window = "1m"
+block_deploy         = true
+
+[[health.probes]]
+type    = "exec"
+name    = "always-ok"
+command = ["true"]
+
+# a probe must not inherit the runner's credentials
+[[health.probes]]
+type    = "exec"
+name    = "no-runner-creds"
+command = ["sh", "-c", "test -z \"$NUON_API_TOKEN\" && test -z \"$AWS_ACCESS_KEY_ID\""]
+
+# a target that can never render — must report unknown with a reason, never be
+# silently dropped
+[[health.probes]]
+type = "http"
+name = "unresolvable-target"
+url  = "https://{{.nuon.install.sandbox.outputs.does_not_exist}}/health"
