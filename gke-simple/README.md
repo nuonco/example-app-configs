@@ -2,6 +2,12 @@
 
 Whoami deployment on GCP GKE Autopilot with managed SSL certificate and GKE Ingress. Equivalent to `eks-simple` for AWS.
 
+To test, either click the url [https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}](https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}) or open a terminal and run the following command:
+
+```bash
+curl https://{{.nuon.inputs.inputs.sub_domain}}.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}
+```
+
 ## Components
 
 - **whoami** — simple HTTP service (helm chart)
