@@ -1,0 +1,5 @@
+version = "v2"
+
+description = "Repro for app branch runs that add a component"
+display_name = "Install component repro"
+readme       = "./readme.md"
