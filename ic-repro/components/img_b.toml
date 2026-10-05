@@ -1,0 +1,6 @@
+name = "img_b"
+type = "container_image"
+
+[public]
+image_url = "kennethreitz/httpbin"
+tag       = "latest"
