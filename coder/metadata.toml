@@ -13,7 +13,6 @@ difficulty     = "medium"
 cloud_provider = "aws"
 
 [label_colors]
-fleet   = "#3B82F6"
-wave    = "#93C5FD"
 channel = "#A78BFA"
 release = "#C4B5FD"
+env     = "#3B82F6"

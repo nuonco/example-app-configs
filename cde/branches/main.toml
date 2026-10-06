@@ -11,29 +11,14 @@ branch    = "main"
 mode = "manual_only"
 
 [preview]
-mode          = "plan-only"
+mode          = "apply"
+install_name  = "preview"
 set_statuses  = false
 comment       = false
 ignore_drafts = true
 react         = false
 
-[preview.label_selector]
-fleet = "true"
-wave  = "validation"
-
-[[install_groups]]
-name  = "validation"
-order = 1
-
-[install_groups.label_selector]
-fleet = "true"
-wave  = "validation"
-
 [[install_groups]]
 name    = "default"
-order   = 2
+order   = 1
 default = true
-
-[install_groups.label_selector]
-fleet = "true"
-wave  = "default"

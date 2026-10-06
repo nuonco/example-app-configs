@@ -6,9 +6,8 @@ approval_option = "approve-all"
 
 [labels]
 channel = "stable"
+env     = "prod"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
-fleet   = "true"
-wave    = "default"
 
 [aws_account]
 region = "us-east-1"

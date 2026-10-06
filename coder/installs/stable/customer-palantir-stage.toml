@@ -1,16 +1,16 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-name = "demo-1"
+name = "customer-palantir-stage"
 app_branch = "main"
 approval_option = "approve-all"
 
 [labels]
-fleet = "true"
-wave  = "default"
+channel = "stable"
+env     = "stage"
+release = "{{ .nuon.install.inputs.coder_image_tag }}"
 
 [aws_account]
 region = "us-east-1"
 
 [[inputs]]
-instance_type  = "t3a.medium"
-install_docker = "false"
+coder_image_tag = "v2.33.10"

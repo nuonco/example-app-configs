@@ -9,7 +9,3 @@ enabled        = true
 category       = "architecture"
 difficulty     = "simple"
 cloud_provider = "aws"
-
-[label_colors]
-fleet = "#3B82F6"
-wave  = "#93C5FD"

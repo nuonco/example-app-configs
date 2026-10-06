@@ -1,16 +1,16 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-name = "customer-square"
+name = "customer-mercedes-benz-stage"
 app_branch = "main"
 approval_option = "approve-all"
 
 [labels]
-channel = "mainline"
-env     = "prod"
+channel = "stable"
+env     = "stage"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
 
 [aws_account]
 region = "us-east-1"
 
 [[inputs]]
-coder_image_tag = "v2.36.3"
+coder_image_tag = "v2.33.10"
