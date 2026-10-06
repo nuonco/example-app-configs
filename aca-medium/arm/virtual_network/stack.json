@@ -1,0 +1,91 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "nuonInstallID": {
+      "type": "string",
+      "metadata": {
+        "description": "Injected by Nuon."
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Wired from the install VNet deployment."
+      }
+    }
+  },
+  "variables": {
+    "acaSubnetName": "snet-aca",
+    "acaSubnetPrefix": "10.128.136.0/23",
+    "postgresSubnetName": "snet-pgsql",
+    "postgresSubnetPrefix": "10.128.138.0/27",
+    "natGatewayName": "[format('{0}-natgw', parameters('nuonInstallID'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', parameters('vnetName'), variables('acaSubnetName'))]",
+      "properties": {
+        "addressPrefixes": [
+          "[variables('acaSubnetPrefix')]"
+        ],
+        "natGateway": {
+          "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+        },
+        "delegations": [
+          {
+            "name": "aca",
+            "properties": {
+              "serviceName": "Microsoft.App/environments"
+            }
+          }
+        ],
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', parameters('vnetName'), variables('postgresSubnetName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('acaSubnetName'))]"
+      ],
+      "properties": {
+        "addressPrefixes": [
+          "[variables('postgresSubnetPrefix')]"
+        ],
+        "delegations": [
+          {
+            "name": "postgres-flexible-server",
+            "properties": {
+              "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+            }
+          }
+        ],
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      }
+    }
+  ],
+  "outputs": {
+    "acaSubnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('acaSubnetName'))]"
+    },
+    "acaSubnetName": {
+      "type": "string",
+      "value": "[variables('acaSubnetName')]"
+    },
+    "postgresSubnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('postgresSubnetName'))]"
+    },
+    "postgresSubnetName": {
+      "type": "string",
+      "value": "[variables('postgresSubnetName')]"
+    }
+  }
+}

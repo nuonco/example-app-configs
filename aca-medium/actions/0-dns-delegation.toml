@@ -1,0 +1,22 @@
+name = "dns_delegation"
+labels = { service = "dns", type = "check" }
+label = "azure"
+timeout = "5m"
+enable_kube_config = false
+
+image = "{{.nuon.components.dns-checks.outputs.image.ref}}"
+
+[[triggers]]
+type = "post-deploy-component"
+component_name = "whoami"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "check"
+inline_contents = "/dns-checks -checks delegation -domain $DOMAIN -nameservers $NAMESERVERS -output $NUON_ACTIONS_OUTPUT_FILEPATH"
+
+[steps.env_vars]
+DOMAIN = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+NAMESERVERS = "{{ join \",\" .nuon.install.sandbox.outputs.nuon_dns.public_domain.nameservers }}"

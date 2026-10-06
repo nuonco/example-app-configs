@@ -1,0 +1,16 @@
+# terraform
+name              = "aca_environment"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+max_auto_retries = 5
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "aca-medium/src/aca-environment"
+branch    = "main"
+
+[vars]
+nuon_id                  = "{{.nuon.install.id}}"
+location                 = "{{.nuon.cloud_account.azure.location}}"
+resource_group_name      = "{{.nuon.install_stack.outputs.resource_group_name}}"
+infrastructure_subnet_id = "{{.nuon.install_stack.outputs.custom_nested_stacks.virtual_network.outputs.acaSubnetId}}"

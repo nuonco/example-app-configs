@@ -1,0 +1,22 @@
+name = "dev"
+
+[connected_repo]
+repo = "nuonco/example-app-configs"
+directory = "aca-medium"
+branch = "fd/feat/aca-medium"
+
+[[install_groups]]
+name = "preview"
+order = 0
+
+[install_groups.label_selector]
+dev = "true"
+
+[[install_groups]]
+default = true
+name = "default"
+order = 1
+
+[install_groups.label_selector]
+preview = "false"
+dev = "true"
