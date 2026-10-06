@@ -5,6 +5,9 @@
 name = "preview"
 approval_option = "approve-all"
 
+[labels]
+preview = "true"
+
 [aws_account]
 region = "us-east-1"
 
