@@ -1,12 +1,9 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-name = "preview-weekly"
-app_branch = "weekly"
+# Preview install for nuon branches preview (apply). Omit app_branch so a
+# branches trigger on main does not also deploy here.
+name = "preview"
 approval_option = "approve-all"
-
-[labels]
-fleet = "true"
-wave  = "validation"
 
 [aws_account]
 region = "us-east-1"

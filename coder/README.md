@@ -49,9 +49,8 @@
 
 {{ $labels      := default dict (dig "labels" dict $install) }}
 {{ if eq (len $labels) 0 }}{{ $labels = default dict (dig "labels" dict $nuonRoot) }}{{ end }}
-{{ $fleet       := dig "fleet" "" $labels }}
-{{ $wave        := dig "wave" "" $labels }}
 {{ $channel     := dig "channel" "" $labels }}
+{{ $env         := dig "env" "" $labels }}
 {{ $installName := dig "name" "" $install }}
 {{ $inEarly     := default dict (dig "inputs" dict $install) }}
 {{ $coderTag    := dig "coder_image_tag" "v2.33.10" $inEarly }}
@@ -96,9 +95,8 @@ Coder's cloud development environment platform — for developers and agents. Th
 
 <nuon-group gap="8" align="center">
   {{ if $channel }}<nuon-label-badge label="channel:{{ $channel }}"></nuon-label-badge>{{ end }}
+  {{ if $env }}<nuon-label-badge label="env:{{ $env }}"></nuon-label-badge>{{ end }}
   {{ if $releaseLbl }}<nuon-label-badge label="release:{{ $releaseLbl }}"></nuon-label-badge>{{ end }}
-  {{ if eq $fleet "true" }}<nuon-label-badge label="fleet:true"></nuon-label-badge>{{ end }}
-  {{ if $wave }}<nuon-label-badge label="wave:{{ $wave }}"></nuon-label-badge>{{ end }}
   {{ if $installName }}<nuon-label-badge label="install:{{ $installName }}"></nuon-label-badge>{{ end }}
   {{ if $region }}<nuon-label-badge label="region:{{ $region }}"></nuon-label-badge>{{ end }}
   <nuon-label-badge label="sandbox:eks-auto"></nuon-label-badge>
@@ -388,19 +386,21 @@ Sample pins are intentionally several releases back so you can demo an upgrade t
 
 | Cohort | Directory | Installs | `coder_image_tag` | On branch runs? |
 |---|---|---|---|---|
-| Mainline | `installs/mainline/` | `customer-square`, `customer-dropbox` | `v2.36.3` | Yes (`fleet`+`wave=default`) |
-| Stable | `installs/stable/` | `customer-palantir`, `customer-mercedes-benz`, `customer-kkr` | `v2.33.10` | Yes (`fleet`+`wave=default`) |
-| Pinned | `installs/pinned/` | `customer-discord`, `customer-dod` | `v2.33.8` | Catch-all (no `fleet`/`wave` → `default` group) |
-| Lab | `installs/lab/` | `preview-main` | `v2.36.3` | Yes (`fleet`+`wave=validation`) |
+| Mainline | `installs/mainline/` | `customer-square(-stage)`, `customer-dropbox(-stage)` | `v2.36.3` | Yes — `env=stage` then `env=prod` |
+| Stable | `installs/stable/` | `customer-palantir(-stage)`, `customer-mercedes-benz(-stage)`, `customer-kkr(-stage)` | `v2.33.10` | Yes — `env=stage` then `env=prod` |
+| Pinned | `installs/pinned/` | `customer-discord(-stage)`, `customer-dod(-stage)` | `v2.33.8` | Yes — `env=stage` then `env=prod` |
+| Preview | `installs/preview.toml` | `preview` | `v2.36.3` | No (omit `app_branch`; used only by `branches preview`) |
 
-Pinned installs stay on app branch `main` and keep config sync. They omit `fleet`/`wave`, so they do not match a selector; with `default = true` on the default install group they still land in that catch-all on a branch run. Bump their Coder tag with `installs sync` on that folder or file only. To keep an install off this train entirely, put it on a dedicated app branch (see the cde `customer-acme` pattern) or skip the default group when triggering.
+Each fictional customer has a **stage** install and a **prod** install (same `coder_image_tag` / channel). A branch trigger deploys all stage installs first, then all prod. Channel folders only control which Coder binary cohort you sync when bumping tags.
 
-**Use case:** a customer that must stay on an older Coder release (compliance freeze, slow change window). Prefer `installs sync` for tag bumps; treat branch-run membership as catch-all unless you move them off `main`.
+Pinned installs stay on app branch `main` and keep config sync. Bump their Coder tag with `installs sync` on that folder or file only. To keep an install off this train entirely, omit `app_branch` (like `preview`) or `nuon installs toggle-sync --disable`.
+
+**Use case:** a customer that must stay on an older Coder release (compliance freeze, slow change window). Prefer `installs sync` for tag bumps.
 
 ### Steps (upgrade a cohort)
 
 1. Pick a newer exact tag from the list above (or refresh with `gh api`).
-2. Change only `coder_image_tag` in the TOMLs under that channel directory (`release` follows on sync).
+2. Change only `coder_image_tag` in the TOMLs under that channel directory (`release` follows on sync). Stage and prod for that customer share the same tag in this sample.
 3. Sync **that channel** (not the whole tree):
 
 ```sh
@@ -408,16 +408,19 @@ nuon installs sync -d installs/mainline/ --confirm
 nuon installs sync -d installs/stable/ --confirm
 nuon installs sync -d installs/pinned/ --confirm
 
-# One pinned customer only
+# One pinned customer only (stage + prod files)
 nuon installs sync -d installs/pinned/customer-discord.toml --confirm
+nuon installs sync -d installs/pinned/customer-discord-stage.toml --confirm
 ```
 
-Avoid `nuon installs sync -d installs/` for routine upgrades — it hits every channel plus `lab/` at once (mixed blast radius). Prefer a channel directory or a single file.
+Avoid `nuon installs sync -d installs/` for routine upgrades — it hits every channel plus `preview.toml` at once (mixed blast radius). Prefer a channel directory or a single file.
 
 App-config / infra changes still use the Nuon app branch:
 
 ```sh
-nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+nuon installs sync -d installs/preview.toml --confirm
+nuon branches sync --file branches/ --confirm
+nuon branches preview --branch-id main --git-ref my-feature
 nuon branches trigger --branch-id main
 ```
 
@@ -430,31 +433,29 @@ nuon branches trigger --branch-id main
 
 <br/>
 
-Installs are managed as code under [`installs/`](./installs), grouped by **channel folder** (mainline / stable / pinned / lab). Docs: [Install Configs](https://docs.nuon.co/guides/install-configs), [app branches](https://docs.nuon.co/concepts/app-branches), [dynamic labels](https://docs.nuon.co/guides/install-configs#dynamic-labels).
+Installs are managed as code under [`installs/`](./installs), grouped by **channel folder** (mainline / stable / pinned) plus `preview.toml`. Docs: [Install Configs](https://docs.nuon.co/guides/install-configs), [app branches](https://docs.nuon.co/concepts/app-branches), [dynamic labels](https://docs.nuon.co/guides/install-configs#dynamic-labels).
 
 App config ships through config-managed app branches:
 
-- `nuon branches sync --file branches/`
+- `nuon installs sync -d installs/preview.toml --confirm` (create the preview install first)
+- `nuon branches sync --file branches/ --confirm`
 - `nuon installs sync -d installs/<channel>/` (or a single file)
 - `nuon branches preview` / `nuon branches trigger`
 
 ### App branch anatomy (`branches/main.toml`)
 
-Three different “preview-ish” ideas; do not conflate them:
-
 | Piece | What it does |
 |---|---|
-| `[preview]` | PR / `nuon branches preview` only. `mode = "plan-only"` plans against installs matching `fleet`+`wave=validation` (no `install_name`, so branch sync works before lab installs exist). `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
-| Install group `validation` | First wave on a real branch run (`wave = "validation"`). Lab install `preview-main` is in this group. |
-| Install group `default` | Second wave (`wave = "default"`). Must set `default = true` (the name alone is not enough) — catch-all for installs on this branch that match no selector. |
+| `[preview]` | `nuon branches preview` / PR previews. `mode = "apply"` deploys the git ref to the install named `preview`. `ignore_drafts = true` skips draft PRs. GitHub chrome (`set_statuses` / `comment` / `react`) is off without a connected app. |
+| Install group `stage` | First wave on a real branch run (`env = "stage"`). |
+| Install group `production` | Second wave (`env = "prod"`). Must set `default = true` — catch-all for other installs on this branch that match no selector. |
+
+`[run].mode` (`manual_only` here) is separate from `[preview].mode`: it controls what starts a normal branch run, not how far a preview goes.
 
 Labels:
 
-- `fleet = "true"` — candidate for install-group membership
-- `wave` — which selector group (`validation` or `default`)
-- Unmatched installs on the branch (no matching selector) still deploy with the catch-all default group
-
-`[run].mode` (`manual_only` here) is separate from `[preview].mode`: it controls what starts a normal branch run, not how far a PR preview goes.
+- `channel` + `release` — Coder version cohort metadata (not install-group selectors)
+- `env` — `stage` or `prod`; selects which install group a customer install joins
 
 ### Bootstrap / edit an install config
 
@@ -462,30 +463,32 @@ Labels:
    ```sh
    nuon installs generate-config -i <install-name> > installs/stable/<install-name>.toml
    ```
-2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed. Keep `release` templated from `coder_image_tag`.
-3. Sync the channel directory or one file (see Upgrade tab).
+2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed. Keep `release` templated from `coder_image_tag`. Set `env` to `stage` or `prod`.
+3. Sync the channel directory or one file (see Upgrade tab). Sync `installs/preview.toml` before `branches sync` so `install_name = "preview"` resolves.
 
-### Nuon app branch vs Coder channel
+### Nuon app branch vs Coder channel vs env
 
 | Concept | What it is | This sample |
 |---|---|---|
-| Nuon app branch `main` | Rolls shared app config (components, actions, …) | `branches/main.toml` — validation → default |
+| Nuon app branch `main` | Rolls shared app config | `branches/main.toml` — stage then production |
 | Install folder `mainline/` / `stable/` / `pinned/` | Which Coder binary cohort / how you sync upgrades | Not Nuon app branches |
-| Labels `channel` + `release` | Dashboard metadata | `channel` static; `release` from `coder_image_tag` |
-| Labels `fleet` + `wave` | Selector membership for install groups | mainline/stable/lab; pinned omit them and fall into catch-all |
+| Labels `channel` + `release` | Dashboard metadata for the binary | `channel` static; `release` from `coder_image_tag` |
+| Label `env` | Stage vs prod install for a customer | Selects `stage` / `production` groups |
+| Install `preview` | Safe box for `branches preview --mode apply` | No `app_branch`; not in a trigger |
 
 ```sh
+nuon installs sync -d installs/preview.toml --confirm
 nuon branches sync --file branches/ --confirm
-nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+nuon branches preview --branch-id main --git-ref my-feature
 nuon branches trigger --branch-id main
 ```
 
-All example installs use `approval_option = "approve-all"` and `app_branch = "main"`. Coder version bumps for a cohort still use `nuon installs sync` on that channel directory.
+Customer installs use `approval_option = "approve-all"` and `app_branch = "main"`. A trigger plans/deploys all `env=stage` installs, then all `env=prod`. Coder version bumps for a cohort still use `nuon installs sync` on that channel directory.
 
 ### Opting an install out
 
-- **Stay on `main` but avoid selector waves:** omit `fleet`/`wave` — you still land in the catch-all `default` group on a branch run. Prefer `installs sync` for one-off tag bumps; skip the default group when triggering if you want them left alone for that run.
-- **Off this train entirely:** put the install on a dedicated app branch, or `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
+- **Off this train:** omit `app_branch` (like `preview`), or `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
+- **Skip one wave on a trigger:** skip the stage or production group when approving that run.
 
 </nuon-tab>
 

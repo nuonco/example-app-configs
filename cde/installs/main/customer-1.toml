@@ -1,12 +1,8 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-name = "weekly-1"
-app_branch = "weekly"
+name = "customer-1"
+app_branch = "main"
 approval_option = "approve-all"
-
-[labels]
-fleet = "true"
-wave  = "default"
 
 [aws_account]
 region = "us-east-1"

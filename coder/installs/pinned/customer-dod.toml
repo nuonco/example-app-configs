@@ -1,6 +1,5 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# On app branch main without fleet/wave — catch-all default group on branch runs.
 # Prefer installs sync on this file/folder for Coder tag bumps.
 name = "customer-dod"
 app_branch = "main"
@@ -8,6 +7,7 @@ approval_option = "approve-all"
 
 [labels]
 channel = "pinned"
+env     = "prod"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
 
 [aws_account]

@@ -1,15 +1,13 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# Lab install: [preview] label_selector and validation wave (fleet+wave=validation).
-name = "preview-main"
-app_branch = "main"
+# Preview install for nuon branches preview (apply). Omit app_branch so a
+# branches trigger on main does not also deploy here.
+name = "preview"
 approval_option = "approve-all"
 
 [labels]
 channel = "mainline"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
-fleet   = "true"
-wave    = "validation"
 
 [aws_account]
 region = "us-east-1"

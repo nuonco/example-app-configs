@@ -112,129 +112,85 @@ A personal cloud development environment running in your AWS account. Connect vi
 
 <nuon-tab name="Getting Started">
 
-This sample teaches [app branches](https://docs.nuon.co/concepts/app-branches) the way real products use them: **cadence** and **customer pins**, not machine size. Size is an install input (`instance_type`, `install_docker`).
+This sample teaches two things: **preview** (try a git ref on one install), then **one app branch** (`main`) that rolls customers.
 
-App config ships through config-managed app branches. From `cde/` after `nuon auth login` and selecting an org (prefer **disable-app-sync**), use only:
+Size is an install input (`instance_type`, `install_docker`), not a branch.
 
-- `nuon branches sync` — branch settings (`branches/*.toml`)
+From `cde/` after `nuon auth login` and selecting an org (prefer **disable-app-sync**):
+
 - `nuon installs sync` — install configs
-- `nuon branches preview` — try a git ref on a safe install
-- `nuon branches trigger` — roll out a branch’s current config
+- `nuon branches sync` — branch settings (`branches/main.toml`)
+- `nuon branches preview` — apply a git ref to the `preview` install
+- `nuon branches trigger` — roll out `main` to customers
 
 ### 1. Create the app and sync configs
 
 ```sh
 nuon apps create -n cde
+nuon installs sync -d installs/preview.toml --confirm
+nuon installs sync -d installs/main/ --confirm
 nuon branches sync --file branches/ --confirm
-nuon installs sync -d installs/ --confirm
 ```
 
-`branches/` is a directory of standalone branch TOMLs (`main`, `weekly`, `customer-acme`). Directory mode loads every `*.toml` and can delete remote config-managed branches that are missing locally. A single file (e.g. `--file branches/main.toml`) reconciles only that branch.
+Sync installs before branches so `install_name = "preview"` resolves.
 
-### 2. What the three Nuon app branches teach
+### 2. Layout
 
-| Branch | File | Teaches | Installs |
-|---|---|---|---|
-| `main` | `branches/main.toml` | Continuous / ASAP train + PR preview | `preview-main`, `demo-1`, `demo-2`, `manual-main` |
-| `weekly` | `branches/weekly.toml` | Slow cadence (clear gap from main) | `preview-weekly`, `weekly-1` |
-| `customer-acme` | `branches/customer-acme.toml` | Pin one fictional customer by name | `customer-acme` |
-
-All three use `[public_repo]` pointing at this directory and `[run] mode = "manual_only"` so the public example repo stays quiet. On a connected private repo, `weekly` would typically use `on_github_label` + `release-weekly` instead.
-
-### App branch anatomy
-
-Do not conflate `[preview]` with the `validation` install group:
-
-| Piece | What it does |
-|---|---|
-| `[preview]` (on `main`) | PR / `nuon branches preview` only. `mode = "plan-only"` plans against installs matching `fleet`+`wave=validation` (no `install_name`, so branch sync works before lab installs exist). `ignore_drafts = true` skips draft PRs. `set_statuses` / `comment` / `react` are `false` here so GitHub chrome stays off without a connected app. |
-| Install group `validation` | First wave on a real branch run (`wave = "validation"`). |
-| Install group `default` | Second wave (`wave = "default"`). Must set `default = true` (the name alone is not enough) — catch-all for installs on that branch that match no selector. |
-
-`[run].mode` (`manual_only` here) is separate from `[preview].mode`: it controls what starts a normal branch run, not how far a PR preview goes.
-
-Install labels on `main` / `weekly`:
-
-| Label | Values | Meaning |
+| Path | Install / branch | Role |
 |---|---|---|
-| `fleet` | `true` | Candidate for selector-based install groups. |
-| `wave` | `validation` \| `default` | Which selector group. |
+| `branches/main.toml` | app branch `main` | Preview defaults + one default install group |
+| `installs/preview.toml` | `preview` | Safe box for `branches preview` (no `app_branch`) |
+| `installs/main/customer-1.toml` | `customer-1` | On `main` trigger (`t3a.medium`) |
+| `installs/main/customer-2.toml` | `customer-2` | On `main` trigger (`t3a.xlarge`, docker on) |
 
-Rollout order: `validation` → `default`. Installs that omit `fleet`/`wave` (e.g. `manual-main`) still land in the catch-all `default` group on a branch run. `customer-acme` is selected by `install_names` on its own branch (true pin off the ASAP/weekly trains).
+`[preview]` uses `mode = "apply"` and `install_name = "preview"`. A real `branches trigger` only touches installs with `app_branch = "main"`.
 
 ### 3. Engineer iterating on app config
 
-App config lives in git. An app branch points at that repo/dir and walks install groups. To iterate, change files, put them on a git ref Nuon can fetch, then preview — do not upload config outside a branch.
-
 1. Edit under `cde/` (`components/`, `inputs.toml`, actions, etc.).
-2. Commit and push (or otherwise publish) a git ref, e.g. `my-feature`.
-3. Preview against the continuous train’s validation-wave install(s) (`main`’s `[preview].label_selector`):
+2. Commit and push a git ref, e.g. `my-feature`.
+3. Apply it to the preview install:
 
 ```sh
-nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
+nuon branches preview --branch-id main --git-ref my-feature
 ```
 
 4. Read the plan/logs, fix files, update the ref, preview again.
-5. When the change is on the git branch this app branch tracks (here git `main`), ship it:
+5. When the change is on the tracked git branch (here `main`), ship customers:
 
 ```sh
 nuon branches trigger --branch-id main
 ```
 
-That walks `validation` → `default`.
-
 Notes:
 
-- A preview builds from the git ref you pass. It does **not** replace the branch’s normal (non-preview) app config until you `branches trigger` (or a push-mode run on a connected repo).
-- Use a dedicated app branch (same shape as `customer-acme`, e.g. `dev-you`) when you want a named trigger that never touches demo or weekly installs. `manual-main` stays on `main` and is catch-all for unmatched labels.
+- Preview builds from the git ref you pass. It does **not** replace the branch’s normal app config until you `branches trigger` (or a push-mode run on a connected repo).
 - `branches sync` is only for changing branch settings (run mode, groups, preview install) — not for every component tweak.
 
 ### 4. Preview command reference
 
-`main` has `[preview] mode = "plan-only"` and a `label_selector` on `fleet`+`wave=validation` (plan target only; not the same as the `validation` install group).
-
 ```sh
-# Plan only (default from branches/main.toml) → validation-wave install(s)
+# Apply the git ref to install preview (default from branches/main.toml)
 nuon branches preview --branch-id main --git-ref my-feature
 
-# Same, explicit mode
+# Plan only (override)
 nuon branches preview --branch-id main --git-ref my-feature --mode plan-only
 
 # Build components only (no install plan/apply)
 nuon branches preview --branch-id main --git-ref my-feature --mode build-only
 
-# Plan + apply on the preview install
-nuon branches preview --branch-id main --git-ref my-feature --mode apply
-
-# Target a specific install (overrides the branch default)
-nuon branches preview --branch-id main --git-ref my-feature --mode plan-only --install-id <install-id>
+# Target a specific install
+nuon branches preview --branch-id main --git-ref my-feature --install-id <install-id>
 ```
 
 You can also pass `--pr-number <n>` instead of `--git-ref` when the Nuon GitHub App is connected.
 
-### 5. Roll out each cadence / pin
-
-```sh
-# ASAP train: validation wave, then default (demo-1, demo-2; manual-main via catch-all)
-nuon branches trigger --branch-id main
-
-# Slow train: validation (preview-weekly), then weekly-1
-nuon branches trigger --branch-id weekly
-
-# Pinned customer only
-nuon branches trigger --branch-id customer-acme
-```
-
-Add `--force` to rebuild all components. Add `--no-wait` to return after triggering without opening the workflow viewer.
-
-### 6. Size is per install (not a branch)
+### 5. Size is per install (not a branch)
 
 | Input | Default | Notes |
 |---|---|---|
-| `instance_type` | `t3a.medium` | e.g. `demo-2` and `customer-acme` use `t3a.xlarge` |
-| `install_docker` | `false` | e.g. `demo-2` and `customer-acme` set `true` |
-
-Branch membership does not change size; changing an install's inputs does.
+| `instance_type` | `t3a.medium` | `customer-2` uses `t3a.xlarge` |
+| `install_docker` | `false` | `customer-2` sets `true` |
 
 Docs: [app branches concept](https://docs.nuon.co/concepts/app-branches), [configure app branches](https://docs.nuon.co/guides/app-branches).
 
