@@ -1,0 +1,18 @@
+# terraform
+name              = "rds_subnet"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+max_auto_retries = 5
+skip_noops        = true
+
+[public_repo]
+repo      = "nuonco/components"
+directory = "aws/rds-subnet"
+branch    = "main"
+
+[vars]
+install_id              = "{{ .nuon.install.id }}"
+rds_subnet_name         = "rds-subnet-sonar-{{ .nuon.install.id }}"
+rds_subnet_display_name = "Sonar RDS Subnet {{ .nuon.install.id }}"
+region             = "{{ .nuon.sandbox.outputs.account.region }}"
+private_subnet_ids = '{{ .nuon.sandbox.outputs.vpc.private_subnet_ids | join "," }}'

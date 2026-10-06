@@ -1,0 +1,14 @@
+# install
+
+name = "preview"
+approval_option = "approve-all"
+
+[labels]
+preview = "true"
+release = "{{ .nuon.install.inputs.sonarqube_build_number }}"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+sonarqube_build_number = "26.9.0.129388"
