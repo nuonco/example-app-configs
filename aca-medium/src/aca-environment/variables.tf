@@ -13,4 +13,9 @@ variable "resource_group_name" {
   type        = string
 }
 
+variable "infrastructure_subnet_id" {
+  description = "Subnet delegated to Microsoft.App/environments"
+  type        = string
+}
+
 

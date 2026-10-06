@@ -22,10 +22,12 @@ resource "azurerm_log_analytics_workspace" "aca" {
 }
 
 resource "azurerm_container_app_environment" "aca" {
-  name                       = "${local.prefix}-aca-env"
-  resource_group_name        = data.azurerm_resource_group.rg.name
-  location                   = var.location
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.aca.id
+  name                           = "${local.prefix}-aca-env"
+  resource_group_name            = data.azurerm_resource_group.rg.name
+  location                       = var.location
+  log_analytics_workspace_id     = azurerm_log_analytics_workspace.aca.id
+  infrastructure_subnet_id       = var.infrastructure_subnet_id
+  internal_load_balancer_enabled = false
 
   tags = local.tags
 }
