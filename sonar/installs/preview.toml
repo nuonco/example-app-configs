@@ -1,8 +1,6 @@
 # install
 
-# app_branch required when org has disable-app-sync. No env label, so this
-# install matches neither stage nor production groups on a branches trigger
-# (production must not be default=true, or preview becomes the catch-all).
+# app_branch required when org has disable-app-sync.
 name = "preview"
 app_branch = "main"
 approval_option = "approve-all"
