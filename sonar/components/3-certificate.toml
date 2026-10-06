@@ -9,7 +9,7 @@ skip_noops        = true
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "sonar/src/components/certificate"
-branch    = "main"
+branch    = "mm/sonar"
 
 [vars]
 zone_id     = "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.zone_id}}"

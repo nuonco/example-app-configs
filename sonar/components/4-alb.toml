@@ -11,7 +11,7 @@ skip_noops       = true
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "sonar/src/components/alb"
-branch    = "main"
+branch    = "mm/sonar"
 
 [values]
 domain_certificate = "{{.nuon.components.certificate.outputs.public_domain_certificate_arn}}"

@@ -5,7 +5,7 @@ name = "main"
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "sonar"
-branch    = "main"
+branch    = "mm/sonar"
 
 [run]
 mode = "manual_only"

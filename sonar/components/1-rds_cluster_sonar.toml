@@ -9,7 +9,7 @@ skip_noops        = true
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "sonar/src/components/rds_cluster_sonar"
-branch    = "main"
+branch    = "mm/sonar"
 
 [vars]
 identifier      = "sonar-{{ .nuon.install.id }}"
