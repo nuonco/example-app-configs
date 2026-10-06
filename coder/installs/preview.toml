@@ -6,6 +6,7 @@ name = "preview"
 approval_option = "approve-all"
 
 [labels]
+preview = "true"
 channel = "mainline"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
 

@@ -9,3 +9,6 @@ enabled        = true
 category       = "architecture"
 difficulty     = "simple"
 cloud_provider = "aws"
+
+[label_colors]
+preview = "#F59E0B"

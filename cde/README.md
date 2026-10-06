@@ -127,23 +127,23 @@ From `cde/` after `nuon auth login` and selecting an org (prefer **disable-app-s
 
 ```sh
 nuon apps create -n cde
+nuon branches sync --file branches/ --confirm
 nuon installs sync -d installs/preview.toml --confirm
 nuon installs sync -d installs/main/ --confirm
-nuon branches sync --file branches/ --confirm
 ```
 
-Sync installs before branches so `install_name = "preview"` resolves.
+`branches sync` works with no installs (`[preview]` uses `label_selector`, not `install_name`). Sync `installs/preview.toml` before you run `branches preview`.
 
 ### 2. Layout
 
 | Path | Install / branch | Role |
 |---|---|---|
 | `branches/main.toml` | app branch `main` | Preview defaults + one default install group |
-| `installs/preview.toml` | `preview` | Safe box for `branches preview` (no `app_branch`) |
+| `installs/preview.toml` | `preview` | Safe box for `branches preview` (`preview = "true"`, no `app_branch`) |
 | `installs/main/customer-1.toml` | `customer-1` | On `main` trigger (`t3a.medium`) |
 | `installs/main/customer-2.toml` | `customer-2` | On `main` trigger (`t3a.xlarge`, docker on) |
 
-`[preview]` uses `mode = "apply"` and `install_name = "preview"`. A real `branches trigger` only touches installs with `app_branch = "main"`.
+`[preview]` uses `mode = "apply"` and `label_selector` `preview = "true"`. A real `branches trigger` only touches installs with `app_branch = "main"`.
 
 ### 3. Engineer iterating on app config
 

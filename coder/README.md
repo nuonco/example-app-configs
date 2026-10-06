@@ -51,6 +51,7 @@
 {{ if eq (len $labels) 0 }}{{ $labels = default dict (dig "labels" dict $nuonRoot) }}{{ end }}
 {{ $channel     := dig "channel" "" $labels }}
 {{ $env         := dig "env" "" $labels }}
+{{ $previewLbl  := dig "preview" "" $labels }}
 {{ $installName := dig "name" "" $install }}
 {{ $inEarly     := default dict (dig "inputs" dict $install) }}
 {{ $coderTag    := dig "coder_image_tag" "v2.33.10" $inEarly }}
@@ -96,6 +97,7 @@ Coder's cloud development environment platform — for developers and agents. Th
 <nuon-group gap="8" align="center">
   {{ if $channel }}<nuon-label-badge label="channel:{{ $channel }}"></nuon-label-badge>{{ end }}
   {{ if $env }}<nuon-label-badge label="env:{{ $env }}"></nuon-label-badge>{{ end }}
+  {{ if eq $previewLbl "true" }}<nuon-label-badge label="preview:true"></nuon-label-badge>{{ end }}
   {{ if $releaseLbl }}<nuon-label-badge label="release:{{ $releaseLbl }}"></nuon-label-badge>{{ end }}
   {{ if $installName }}<nuon-label-badge label="install:{{ $installName }}"></nuon-label-badge>{{ end }}
   {{ if $region }}<nuon-label-badge label="region:{{ $region }}"></nuon-label-badge>{{ end }}
@@ -418,8 +420,8 @@ Avoid `nuon installs sync -d installs/` for routine upgrades — it hits every c
 App-config / infra changes still use the Nuon app branch:
 
 ```sh
-nuon installs sync -d installs/preview.toml --confirm
 nuon branches sync --file branches/ --confirm
+nuon installs sync -d installs/preview.toml --confirm
 nuon branches preview --branch-id main --git-ref my-feature
 nuon branches trigger --branch-id main
 ```
@@ -437,8 +439,8 @@ Installs are managed as code under [`installs/`](./installs), grouped by **chann
 
 App config ships through config-managed app branches:
 
-- `nuon installs sync -d installs/preview.toml --confirm` (create the preview install first)
-- `nuon branches sync --file branches/ --confirm`
+- `nuon branches sync --file branches/ --confirm` (works with no installs; preview uses `label_selector`)
+- `nuon installs sync -d installs/preview.toml --confirm` (needed before `branches preview` apply)
 - `nuon installs sync -d installs/<channel>/` (or a single file)
 - `nuon branches preview` / `nuon branches trigger`
 
@@ -446,7 +448,7 @@ App config ships through config-managed app branches:
 
 | Piece | What it does |
 |---|---|
-| `[preview]` | `nuon branches preview` / PR previews. `mode = "apply"` deploys the git ref to the install named `preview`. `ignore_drafts = true` skips draft PRs. GitHub chrome (`set_statuses` / `comment` / `react`) is off without a connected app. |
+| `[preview]` | `nuon branches preview` / PR previews. `mode = "apply"` deploys the git ref to installs matching `preview = "true"`. `ignore_drafts = true` skips draft PRs. GitHub chrome (`set_statuses` / `comment` / `react`) is off without a connected app. |
 | Install group `stage` | First wave on a real branch run (`env = "stage"`). |
 | Install group `production` | Second wave (`env = "prod"`). Must set `default = true` — catch-all for other installs on this branch that match no selector. |
 
@@ -456,6 +458,7 @@ Labels:
 
 - `channel` + `release` — Coder version cohort metadata (not install-group selectors)
 - `env` — `stage` or `prod`; selects which install group a customer install joins
+- `preview = "true"` — candidate for `[preview].label_selector` (the `preview` install)
 
 ### Bootstrap / edit an install config
 
@@ -464,7 +467,7 @@ Labels:
    nuon installs generate-config -i <install-name> > installs/stable/<install-name>.toml
    ```
 2. Edit `[labels]`, `approval_option`, `[aws_account]`, or `[[inputs]]` as needed. Keep `release` templated from `coder_image_tag`. Set `env` to `stage` or `prod`.
-3. Sync the channel directory or one file (see Upgrade tab). Sync `installs/preview.toml` before `branches sync` so `install_name = "preview"` resolves.
+3. Sync the channel directory or one file (see Upgrade tab). `branches sync` does not need the preview install first; sync `installs/preview.toml` before you run `branches preview`.
 
 ### Nuon app branch vs Coder channel vs env
 
@@ -474,11 +477,11 @@ Labels:
 | Install folder `mainline/` / `stable/` / `pinned/` | Which Coder binary cohort / how you sync upgrades | Not Nuon app branches |
 | Labels `channel` + `release` | Dashboard metadata for the binary | `channel` static; `release` from `coder_image_tag` |
 | Label `env` | Stage vs prod install for a customer | Selects `stage` / `production` groups |
-| Install `preview` | Safe box for `branches preview --mode apply` | No `app_branch`; not in a trigger |
+| Install `preview` | Safe box for `branches preview --mode apply` | `preview = "true"`, no `app_branch`; not in a trigger |
 
 ```sh
-nuon installs sync -d installs/preview.toml --confirm
 nuon branches sync --file branches/ --confirm
+nuon installs sync -d installs/preview.toml --confirm
 nuon branches preview --branch-id main --git-ref my-feature
 nuon branches trigger --branch-id main
 ```
