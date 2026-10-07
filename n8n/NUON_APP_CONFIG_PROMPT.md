@@ -300,7 +300,7 @@ group        = "monitoring"
 #:schema https://api.nuon.co/v1/general/config-schema?source=runner
 runner_type     = "aws"
 helm_driver     = "configmap"
-init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/aws-v0.1.0/scripts/aws/init-mng.sh"
+init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/aws-v0.1.11/scripts/aws/init-mng.sh"
 
 [env_vars]
 # Environment variables available to all components
