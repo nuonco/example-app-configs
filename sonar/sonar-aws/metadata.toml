@@ -1,0 +1,18 @@
+# metadata
+
+version = "v2"
+
+display_name = "SonarQube Community Build (AWS)"
+description  = "SonarQube Community Build in your AWS account for code quality and security analysis."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "aws"
+
+[label_colors]
+release = "#C4B5FD"
+env     = "#3B82F6"
+preview = "#F59E0B"

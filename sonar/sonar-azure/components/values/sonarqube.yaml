@@ -1,0 +1,45 @@
+community:
+  enabled: true
+  buildNumber: "{{ .nuon.inputs.inputs.sonarqube_build_number }}"
+
+fullnameOverride: "sonarqube"
+
+ingress:
+  enabled: false
+
+postgresql:
+  enabled: false
+
+jdbcOverwrite:
+  enabled: true
+  jdbcUrl: "jdbc:postgresql://{{ .nuon.components.postgres_sonar.outputs.address }}:{{ .nuon.components.postgres_sonar.outputs.db_instance_port }}/{{ .nuon.components.postgres_sonar.outputs.database_name }}?sslmode=require"
+  jdbcUsername: "sonar"
+  jdbcSecretName: "sonar-jdbc"
+  jdbcSecretPasswordKey: "password"
+
+monitoringPasscodeSecretName: "sonar-monitoring-passcode"
+monitoringPasscodeSecretKey: "passcode"
+
+setAdminPassword:
+  passwordSecretName: "sonar-admin-password"
+
+persistence:
+  enabled: true
+  storageClass: "managed-csi"
+  accessMode: ReadWriteOnce
+  size: 20Gi
+
+service:
+  type: ClusterIP
+  externalPort: 9000
+  internalPort: 9000
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "4Gi"
+    ephemeral-storage: "1536M"
+  limits:
+    cpu: "2"
+    memory: "6Gi"
+    ephemeral-storage: "5120M"

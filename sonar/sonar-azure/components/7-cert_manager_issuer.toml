@@ -1,0 +1,15 @@
+name             = "cert_manager_issuer"
+type             = "helm_chart"
+chart_name       = "cert-manager-issuer"
+namespace        = "cert-manager"
+dependencies     = ["cert_manager"]
+max_auto_retries = 5
+skip_noops       = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/cert_manager_issuer"
+branch    = "mm/sonar"
+
+[values]
+email = "noreply@nuon.co"

@@ -1,0 +1,88 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.install_name }}-external
+  namespace: {{ .Values.namespace }}
+  annotations:
+    networking.gke.io/certmap: {{ .Values.cert_map | quote }}
+  labels:
+    app.nuon.co/install: {{ .Values.install_name }}
+spec:
+  gatewayClassName: gke-l7-global-external-managed
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.install_name }}-http-to-https
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: {{ .Values.install_name }}-external
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.install_name }}-sonarqube
+  namespace: {{ .Values.namespace }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: {{ .Values.install_name }}-external
+      sectionName: https
+  hostnames:
+    - {{ .Values.domain | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - kind: Service
+          name: {{ .Values.sonarqube_service }}
+          namespace: {{ .Values.sonarqube_namespace }}
+          port: {{ .Values.sonarqube_port | int }}
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: {{ .Values.install_name }}-sonarqube-hc
+  namespace: {{ .Values.sonarqube_namespace }}
+spec:
+  default:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 2
+    unhealthyThreshold: 3
+    config:
+      type: HTTP
+      httpHealthCheck:
+        requestPath: /api/system/status
+        portSpecification: USE_SERVING_PORT
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ .Values.sonarqube_service }}

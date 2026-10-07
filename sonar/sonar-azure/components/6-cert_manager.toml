@@ -1,0 +1,12 @@
+name             = "cert_manager"
+type             = "helm_chart"
+chart_name       = "cert-manager"
+namespace        = "cert-manager"
+dependencies     = ["dns_records"]
+max_auto_retries = 5
+skip_noops       = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/cert_manager"
+branch    = "mm/sonar"

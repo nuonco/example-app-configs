@@ -1,160 +1,76 @@
-{{ $nuonRoot := default dict .nuon }}
-{{ $install     := default dict (dig "install" dict $nuonRoot) }}
-{{ $installStack := default dict (dig "install_stack" dict $nuonRoot) }}
-{{ $actionsMap  := default dict (dig "actions" dict $nuonRoot) }}
-{{ $workflows   := default dict (dig "workflows" dict $actionsMap) }}
-{{ $installID   := dig "id" "" $install }}
+# SonarQube (multi-cloud)
 
-{{ $k8s   := default dict (dig "k8s_status" dict $workflows) }}
-{{ $sonar := default dict (dig "sonar_health" dict $workflows) }}
-{{ $alb   := default dict (dig "alb_healthcheck" dict $workflows) }}
+SonarQube Community Build is a code quality and security analysis platform. These Nuon app configs install it into the customer's cloud account (BYOC) so source and scan data stay in their VPC, while the vendor still operates the install through Nuon.
 
-{{ $k8sOut   := default dict (dig "outputs" dict $k8s) }}
-{{ $sonarOut := default dict (dig "outputs" dict $sonar) }}
-{{ $albOut   := default dict (dig "outputs" dict $alb) }}
+## Getting started
 
-{{ $k8sID   := dig "id" "" $k8s }}
-{{ $sonarID := dig "id" "" $sonar }}
-{{ $albID   := dig "id" "" $alb }}
+Install the Nuon CLI, then create **one app per cloud**. The leaf directory name is the Nuon app slug.
 
-{{ $k8sInd   := dig "indicator" "" $k8sOut }}
-{{ $sonarInd := dig "indicator" "" $sonarOut }}
+This repo uses a **branches-first** workflow. Nuon loads app config from **git** (the path in `branches/main.toml`). `nuon branches sync` only updates branch settings; it does not build or deploy. Day-to-day builds and deploys use `nuon branches preview` / `nuon branches trigger` after you push.
 
-{{ $albSonarMap := default dict (dig "sonarqube" dict $albOut) }}
-{{ $albSonar    := dig "indicator" "" $albSonarMap }}
-
-{{ $k8sUpdated := dig "updated_at" "" $k8sOut }}
-{{ $bgClean  := default dict (dig "k8s_clean_failed_pods" dict $workflows) }}
-{{ $bgCleanUpdated  := dig "updated_at" "" (default dict (dig "outputs" dict $bgClean)) }}
-
-{{ $sandbox  := default dict (dig "sandbox" dict $install) }}
-{{ $sbOut    := default dict (dig "outputs" dict $sandbox) }}
-{{ $nuonDNS  := default dict (dig "nuon_dns" dict $sbOut) }}
-{{ $pubDomainMap := default dict (dig "public_domain" dict $nuonDNS) }}
-{{ $domain   := dig "name" "" $pubDomainMap }}
-
-{{ $stackOut := default dict (dig "outputs" dict $installStack) }}
-{{ $region   := dig "region" "" $stackOut }}
-
-{{ $labels      := default dict (dig "labels" dict $install) }}
-{{ if eq (len $labels) 0 }}{{ $labels = default dict (dig "labels" dict $nuonRoot) }}{{ end }}
-{{ $env         := dig "env" "" $labels }}
-{{ $previewLbl  := dig "preview" "" $labels }}
-{{ $installName := dig "name" "" $install }}
-{{ $inEarly     := default dict (dig "inputs" dict $install) }}
-{{ $buildNum    := dig "sonarqube_build_number" "26.9.0.129388" $inEarly }}
-{{ $releaseLbl  := dig "release" "" $labels }}
-{{ if eq $releaseLbl "" }}{{ $releaseLbl = $buildNum }}{{ end }}
-
-<div style="display:flex; width:100%; align-items:center; justify-content:space-between; padding-bottom:1rem;">
-  <div>
-    <h1 style="margin:0;">SonarQube Community Build</h1>
-    <p style="margin:0.4rem 0 0; color:#6b7280;">Code quality and security analysis in your AWS account.</p>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
-    <div style="display:flex; gap:10px; align-items:center;">
-      {{ if $domain -}}
-      <a href="https://{{ $domain }}" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#4b6bfb; color:white; border-radius:8px; text-decoration:none; font-weight:600; font-size:15px;">Open SonarQube →</a>
-      {{ else -}}
-      <span style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 22px; background:#4b6bfb; color:white; border-radius:8px; font-weight:600; font-size:15px; opacity:0.55;">Open SonarQube →</span>
-      {{ end -}}
-    </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="healthcheck_infra"></nuon-run-runbook>
-      {{ with $k8sUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-    </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-      <nuon-run-runbook name="breakglass_k8s_remediate"></nuon-run-runbook>
-      {{ with $bgCleanUpdated }}<span style="font-size:0.75em; color:#6b7280;">Last run <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
-    </div>
-  </div>
-</div>
-
-{{ if not $domain -}}
-<nuon-banner theme="warn">
-Provisioning in progress — the SonarQube URL appears here when the sandbox DNS record is ready.
-</nuon-banner>
-{{ else -}}
-<nuon-banner theme="success">
-SonarQube Community Build for this install. Run <strong>healthcheck_infra</strong> to refresh status (no cron).
-</nuon-banner>
-{{ end -}}
-
-<br/>
-
-<nuon-group gap="8" align="center">
-  {{ if $env }}<nuon-label-badge label="env:{{ $env }}"></nuon-label-badge>{{ end }}
-  {{ if eq $previewLbl "true" }}<nuon-label-badge label="preview:true"></nuon-label-badge>{{ end }}
-  <nuon-label-badge label="release:{{ $releaseLbl }}"></nuon-label-badge>
-  <nuon-badge theme="neutral">sandbox:eks-auto</nuon-badge>
-  {{ if $region }}<nuon-badge theme="neutral">{{ $region }}</nuon-badge>{{ end }}
-  {{ if $installName }}<nuon-badge theme="neutral">{{ $installName }}</nuon-badge>{{ end }}
-</nuon-group>
-
-<br/>
-
-## Health
-
-Status comes from the last run of report actions. Use the healthcheck runbook above — nothing is scheduled on a cron.
-
-<table>
-  <thead><tr><th>Check</th><th>Status</th><th>Action</th></tr></thead>
-  <tbody>
-    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $k8sID }}<a href="./{{ $installID }}/actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">k8s_status</code>{{ end }}</td></tr>
-    <tr><td>SonarQube API</td><td>{{ if eq $sonarInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $sonarInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $sonarID }}<a href="./{{ $installID }}/actions/{{ $sonarID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">sonar_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">sonar_health</code>{{ end }}</td></tr>
-    <tr><td>ALB · Sonar ingress</td><td>{{ if eq $albSonar "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albSonar "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $albID }}<a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
-  </tbody>
-</table>
-
-<nuon-tabs>
-<nuon-tab name="Application">
-
-## Access
-
-- URL: {{ if $domain }}[https://{{ $domain }}](https://{{ $domain }}){{ else }}—{{ end }}
-- User: `admin`
-- Password: customer secret `admin_password` (Secrets Manager → synced to the cluster)
-- Build: `{{ $buildNum }}` → image `sonarqube:{{ $buildNum }}-community`
-
-## Architecture
-
-EKS Auto Mode sandbox, RDS PostgreSQL (password auth via Secrets Manager), official SonarSource Helm chart (`community.enabled`), ACM certificate, ALB ingress. Chart ingress disabled.
-
-<nuon-config-graph></nuon-config-graph>
-
-</nuon-tab>
-<nuon-tab name="Upgrade">
-
-## Version pins
-
-`sonarqube_build_number` is an **install input**, not a Nuon app branch.
-
-- Bump build number: sync the install file(s) under `installs/`.
-- Infra / app-config changes: trigger app branch `main` (stage install group, then production).
-
-Installs: `preview`, `customer-barclays` (+ `-stage`), `customer-ford` (+ `-stage`).
-
-Lookup Community Build tags:
+### First-time setup (per cloud)
 
 ```bash
-gh api 'repos/SonarSource/docker-sonarqube/releases?per_page=50' \
-  --jq '.[] | select(.name | test("Community Build")) | "\(.tag_name)\tsonarqube:\(.tag_name)-community"'
+brew install nuonco/tap/nuon
+nuon auth login
+
+# AWS — repeat for sonar-azure / sonar-gcp with matching names
+cd sonar/sonar-aws
+nuon apps create --name sonar-aws
+nuon branches sync --file branches/ --confirm
+nuon installs sync -d installs/preview.toml --confirm
 ```
 
-Install groups on branch `main`: `stage` (`env=stage`) then `production` (`env=prod`).
+Start with `preview` only so you do not create every customer install at once. Add more later with `nuon installs sync -d installs/<name>.toml --confirm`.
 
-</nuon-tab>
-<nuon-tab name="Operations">
+Push this repo’s git ref (see `branches/main.toml` → `public_repo.branch`, e.g. `mm/sonar`), then load config and build from git:
 
-## Day-2
+```bash
+# builds only (no install deploy)
+nuon branches preview -a sonar-aws -b main --git-ref mm/sonar --mode build-only --force
 
-- `healthcheck_infra` — k8s + Sonar API + ALB (manual / runbook only)
-- `sonar_rds_creds` — copies RDS master password into K8s secret `sonar-jdbc` (also post-deploy on RDS)
-- `sonar_admin_secret` — ensures admin secret has `password` + `currentPassword` keys for the Helm chart
-- `troubleshoot` — parameterized kubectl
-- `breakglass_k8s_remediate` — clean failed pods, clear ingress finalizers, restart deployments
+# or build + apply on the preview install (label preview=true)
+nuon branches preview -a sonar-aws -b main --git-ref mm/sonar --mode apply
+```
 
-Docs: [K8s install](https://docs.sonarsource.com/sonarqube-community-build/server-installation/on-kubernetes-or-openshift/) · [Helm chart](https://github.com/SonarSource/helm-chart-sonarqube)
+Open https://app.nuon.co, select the app, and provision the preview install if it is not up yet.
 
-</nuon-tab>
-</nuon-tabs>
+Do not sync from this parent `sonar/` directory. Azure/GCP: same commands with `-a sonar-azure` / `-a sonar-gcp` and `cd` into that leaf dir.
+
+### Day-to-day (developer loop)
+
+`[run].mode = "manual_only"` — pushes do **not** auto-roll customers.
+
+1. Edit under `sonar/sonar-<cloud>/`.
+2. Commit and push a git ref.
+3. Iterate on preview:
+   - `nuon branches preview -a sonar-<cloud> -b main --git-ref <your-ref> --mode build-only --force` — rebuild components
+   - `nuon branches preview -a sonar-<cloud> -b main --git-ref <your-ref> --mode apply` — deploy to the preview install only
+4. When ready for customers: `nuon branches trigger -a sonar-<cloud> -b main` (stage then prod install groups).
+
+`nuon branches sync` again only when you change `branches/*.toml` (groups, preview settings, git path). Unpushed local edits are invisible to Nuon without a git ref.
+
+## Layout
+
+Each cloud is a separate Nuon app.
+
+| Cloud | App directory (Nuon app slug) | Sandbox | Cluster / DB / ingress |
+| --- | --- | --- | --- |
+| AWS | [`sonar-aws/`](sonar-aws/) | [`nuonco/aws-eks-auto-sandbox`](https://github.com/nuonco/aws-eks-auto-sandbox) | EKS Auto Mode, RDS PostgreSQL, ACM + ALB |
+| Azure | [`sonar-azure/`](sonar-azure/) | [`nuonco/azure-aks-sandbox`](https://github.com/nuonco/azure-aks-sandbox) | AKS, Azure Database for PostgreSQL Flexible Server, Application Gateway (AGIC) + cert-manager TLS |
+| GCP | [`sonar-gcp/`](sonar-gcp/) | [`nuonco/gcp-gke-sandbox`](https://github.com/nuonco/gcp-gke-sandbox) | GKE, Cloud SQL PostgreSQL, Certificate Manager + Gateway API |
+
+Install configs are not shared across clouds. Each uses a cloud-specific account block (`[aws_account]`, `[azure_account]`, or `[gcp_account]`) and cloud-specific DB sizing inputs. Each cloud ships the same install set (`preview`, `customer-barclays`, `customer-barclays-stage`, `customer-ford`, `customer-ford-stage`) with that cloud’s account block.
+
+## What a Nuon sandbox is
+
+In Nuon, a **sandbox** is the Terraform (or equivalent) module that provisions the install's shared infrastructure: Kubernetes cluster, networking, DNS, and often a container registry. App components then deploy into that sandbox.
+
+This is not an AI coding sandbox, agent isolation environment, or local throwaway VM. It is the customer-cloud foundation Nuon creates before your Helm charts and Terraform components run.
+
+## Product links
+
+- [SonarQube Community Build docs (Kubernetes)](https://docs.sonarsource.com/sonarqube-community-build/server-installation/on-kubernetes-or-openshift/)
+- [Official Helm chart](https://github.com/SonarSource/helm-chart-sonarqube) (`https://SonarSource.github.io/helm-chart-sonarqube`)
+- [Community Build Docker releases](https://github.com/SonarSource/docker-sonarqube/releases)
+- [SonarSource Community Edition](https://www.sonarsource.com/products/sonarqube/community-edition/)

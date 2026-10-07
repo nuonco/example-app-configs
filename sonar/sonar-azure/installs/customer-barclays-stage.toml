@@ -1,0 +1,13 @@
+name = "customer-barclays-stage"
+app_branch = "main"
+approval_option = "approve-all"
+
+[labels]
+env     = "stage"
+release = "{{ .nuon.install.inputs.sonarqube_build_number }}"
+
+[azure_account]
+location = "eastus"
+
+[[inputs]]
+sonarqube_build_number = "26.9.0.129388"

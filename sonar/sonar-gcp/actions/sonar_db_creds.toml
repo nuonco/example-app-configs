@@ -1,0 +1,29 @@
+name               = "sonar_db_creds"
+timeout            = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "cloudsql_sonar"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy Cloud SQL secret for SonarQube"
+command = "./import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-gcp/src/actions/sonar_db_creds"
+branch    = "mm/sonar"
+
+[steps.env_vars]
+DB_USERNAME      = "{{ .nuon.components.cloudsql_sonar.outputs.db_instance_username }}"
+DB_PASSWORD      = "{{ .nuon.components.cloudsql_sonar.outputs.db_password }}"
+DB_ADDRESS       = "{{ .nuon.components.cloudsql_sonar.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.cloudsql_sonar.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.cloudsql_sonar.outputs.database_name }}"
+TARGET_NAME      = "sonar-jdbc"
+TARGET_NAMESPACE = "sonarqube"
+INSTALL_ID       = "{{ .nuon.install.id }}"

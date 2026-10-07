@@ -1,0 +1,19 @@
+name              = "app_gateway"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+max_auto_retries  = 5
+skip_noops        = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/app_gateway"
+branch    = "mm/sonar"
+
+[vars]
+subscription_id    = "{{ .nuon.install_stack.outputs.subscription_id }}"
+resource_group_name = "{{ .nuon.install_stack.outputs.resource_group_name }}"
+location           = "{{ .nuon.cloud_account.azure.location }}"
+vnet_name          = "{{ .nuon.install_stack.outputs.network_name }}"
+install_id         = "{{ .nuon.install.id }}"
+appgw_subnet_cidr  = "{{ .nuon.install.inputs.appgw_subnet_cidr }}"
+oidc_issuer_url    = "{{ .nuon.install.sandbox.outputs.cluster.oidc_issuer_url }}"

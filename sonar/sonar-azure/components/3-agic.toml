@@ -1,0 +1,21 @@
+name             = "agic"
+type             = "helm_chart"
+chart_name       = "agic"
+namespace        = "agic"
+storage_driver   = "configmap"
+dependencies     = ["app_gateway"]
+max_auto_retries = 5
+skip_noops       = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/agic"
+branch    = "mm/sonar"
+
+[values]
+subscriptionId         = "{{ .nuon.components.app_gateway.outputs.subscription_id }}"
+resourceGroup          = "{{ .nuon.components.app_gateway.outputs.resource_group_name }}"
+applicationGatewayName = "{{ .nuon.components.app_gateway.outputs.application_gateway_name }}"
+identityClientId       = "{{ .nuon.components.app_gateway.outputs.identity_client_id }}"
+identityResourceId     = "{{ .nuon.components.app_gateway.outputs.identity_id }}"
+namespace              = "agic"

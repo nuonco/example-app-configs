@@ -1,0 +1,21 @@
+name             = "ingress"
+type             = "helm_chart"
+chart_name       = "ingress"
+namespace        = "sonarqube"
+storage_driver   = "configmap"
+dependencies     = ["sonarqube", "agic", "cert_manager_issuer"]
+max_auto_retries = 5
+skip_noops       = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/ingress"
+branch    = "mm/sonar"
+
+[values]
+install_name     = "{{ .nuon.install.id }}"
+namespace        = "sonarqube"
+domain           = "{{ .nuon.install.sandbox.outputs.public_domain.name }}"
+service_name     = "sonarqube"
+service_port     = "9000"
+healthcheck_path = "/api/system/status"

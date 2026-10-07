@@ -1,0 +1,14 @@
+name              = "cloudsql_network"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-gcp/src/components/cloudsql_network"
+branch    = "mm/sonar"
+
+[vars]
+install_id = "{{ .nuon.install.id }}"
+project_id = "{{ .nuon.install_stack.outputs.project_id }}"
+region     = "{{ .nuon.install_stack.outputs.region }}"
+network_id = "{{ .nuon.sandbox.outputs.vpc.network }}"

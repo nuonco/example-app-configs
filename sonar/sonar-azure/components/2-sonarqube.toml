@@ -1,0 +1,15 @@
+name             = "sonarqube"
+type             = "helm_chart"
+chart_name       = "sonarqube"
+namespace        = "sonarqube"
+storage_driver   = "configmap"
+dependencies     = ["postgres_sonar"]
+max_auto_retries = 5
+skip_noops       = true
+
+[helm_repo]
+repo_url = "https://SonarSource.github.io/helm-chart-sonarqube"
+chart    = "sonarqube"
+
+[[values_file]]
+contents = "./values/sonarqube.yaml"

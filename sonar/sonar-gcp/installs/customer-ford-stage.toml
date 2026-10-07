@@ -1,0 +1,13 @@
+name = "customer-ford-stage"
+app_branch = "main"
+approval_option = "approve-all"
+
+[labels]
+env     = "stage"
+release = "{{ .nuon.install.inputs.sonarqube_build_number }}"
+
+[gcp_account]
+region = "us-central1"
+
+[[inputs]]
+sonarqube_build_number = "26.9.0.129388"
