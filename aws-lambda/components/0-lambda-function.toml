@@ -1,7 +1,7 @@
 # terraform
 name              = "lambda_function"
 type              = "terraform_module"
-terraform_version = "1.11.4"
+terraform_version = "1.11.3"
 max_auto_retries = 5
 
 [public_repo]
