@@ -1,6 +1,6 @@
-name             = "agic"
+name             = "agic_controller"
 type             = "helm_chart"
-chart_name       = "agic"
+chart_name       = "agic-controller"
 namespace        = "agic"
 storage_driver   = "configmap"
 dependencies     = ["app_gateway"]

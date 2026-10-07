@@ -3,7 +3,7 @@ type             = "helm_chart"
 chart_name       = "ingress"
 namespace        = "sonarqube"
 storage_driver   = "configmap"
-dependencies     = ["sonarqube", "agic", "cert_manager_issuer"]
+dependencies     = ["sonarqube", "agic_controller", "cert_manager_issuer"]
 max_auto_retries = 5
 skip_noops       = true
 
