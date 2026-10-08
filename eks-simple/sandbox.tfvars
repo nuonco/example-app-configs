@@ -1,26 +1,14 @@
 cluster_endpoint_public_access = true
 
-maintenance_role_eks_access_entry_policy_associations = {
-  eks_admin = {
-    policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
-    access_scope = {
-      type = "cluster"
-    }
-  }
-  eks_view = {
-    policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-    access_scope = {
-      type = "cluster"
-    }
-  }
-}
+maintenance_role_eks_access_entry_policy_associations = {}
 
 additional_namespaces = ["whoami"]
 
 maintenance_cluster_role_rules_override = [{
-  "apiGroups" = ["*"]
-  "resources" = ["*"]
-  "verbs"     = ["*"]
+  "apiGroups"     = [""]
+  "resources"     = ["namespaces"]
+  "verbs"         = ["get", "patch", "update"]
+  "resourceNames" = ["whoami"]
 }]
 
 min_size = 2
