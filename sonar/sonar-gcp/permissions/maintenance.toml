@@ -1,0 +1,9 @@
+type           = "maintenance"
+name           = "{{.nuon.install.id}}-maintenance"
+description    = "operate and remediate the app's components and use actions."
+display_name   = "maintenance role"
+cloud_platform = "gcp"
+
+[[policies]]
+name                = "owner"
+gcp_predefined_role = "roles/owner"

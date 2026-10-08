@@ -1,0 +1,26 @@
+name               = "sonar_db_creds"
+timeout            = "1m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "postgres_sonar"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy Flexible Server secret for SonarQube"
+command = "./import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/actions/sonar_db_creds"
+branch    = "mm/sonar"
+
+[steps.env_vars]
+DB_USERNAME      = "{{ .nuon.components.postgres_sonar.outputs.db_instance_username }}"
+DB_PASSWORD      = "{{ .nuon.components.postgres_sonar.outputs.db_password }}"
+TARGET_NAME      = "sonar-jdbc"
+TARGET_NAMESPACE = "sonarqube"
+INSTALL_ID       = "{{ .nuon.install.id }}"

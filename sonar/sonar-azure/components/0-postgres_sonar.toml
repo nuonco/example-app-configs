@@ -1,0 +1,21 @@
+name              = "postgres_sonar"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+max_auto_retries  = 5
+skip_noops        = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/postgres_sonar"
+branch    = "mm/sonar"
+
+[vars]
+subscription_id       = "{{ .nuon.install_stack.outputs.subscription_id }}"
+resource_group_name   = "{{ .nuon.install_stack.outputs.resource_group_name }}"
+location              = "{{ .nuon.cloud_account.azure.location }}"
+vnet_name             = "{{ .nuon.install_stack.outputs.network_name }}"
+install_id            = "{{ .nuon.install.id }}"
+postgres_subnet_cidr  = "{{ .nuon.install.inputs.postgres_subnet_cidr }}"
+sku_name              = "{{ .nuon.install.inputs.sonar_db_sku_name }}"
+db_name               = "sonar"
+db_user               = "sonar"

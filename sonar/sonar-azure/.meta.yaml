@@ -1,0 +1,21 @@
+cloud: azure
+category:
+  - self-hosted
+infra: aks
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+  - secrets
+tags:
+  - aks
+  - helm
+  - postgresql
+  - sonarqube
+  - code-quality
+  - application-gateway
+links:
+  upstream: https://www.sonarsource.com/products/sonarqube/community-edition/
+  docs: https://docs.sonarsource.com/sonarqube-community-build/server-installation/on-kubernetes-or-openshift/
+  helm: https://github.com/SonarSource/helm-chart-sonarqube

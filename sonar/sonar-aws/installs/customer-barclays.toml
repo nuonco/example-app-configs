@@ -1,0 +1,15 @@
+# install
+
+name = "customer-barclays"
+app_branch = "main"
+approval_option = "approve-all"
+
+[labels]
+env     = "prod"
+release = "{{ .nuon.install.inputs.sonarqube_build_number }}"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+sonarqube_build_number = "26.9.0.129388"

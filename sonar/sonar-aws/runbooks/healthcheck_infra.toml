@@ -1,0 +1,24 @@
+# runbook
+
+name        = "healthcheck_infra"
+description = "End-to-end healthcheck across Kubernetes, SonarQube, and ALB."
+readme      = "./runbooks/healthcheck_infra.md"
+
+[labels]
+service = "infra"
+type    = "report"
+
+[[steps]]
+name        = "k8s-status"
+type        = "action"
+action_name = "k8s_status"
+
+[[steps]]
+name        = "sonar-health"
+type        = "action"
+action_name = "sonar_health"
+
+[[steps]]
+name        = "alb-status"
+type        = "action"
+action_name = "alb_healthcheck"

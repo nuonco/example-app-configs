@@ -1,0 +1,30 @@
+# action
+name    = "sonar_rds_creds"
+timeout = "1m"
+enable_kube_config = true
+labels  = { service = "database", type = "lifecycle" }
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "rds_cluster_sonar"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Copy RDS Secret for SonarQube"
+command = "./rds_secrets/import.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-aws/src/actions"
+branch    = "mm/sonar"
+
+[steps.env_vars]
+SECRET_ARN       = "{{ .nuon.components.rds_cluster_sonar.outputs.db_instance_master_user_secret_arn }}"
+REGION           = "{{ .nuon.install_stack.outputs.region }}"
+TARGET_NAME      = "sonar-jdbc"
+TARGET_NAMESPACE = "sonarqube"
+DB_ADDRESS       = "{{ .nuon.components.rds_cluster_sonar.outputs.address }}"
+DB_PORT          = "{{ .nuon.components.rds_cluster_sonar.outputs.db_instance_port }}"
+DB_NAME          = "{{ .nuon.components.rds_cluster_sonar.outputs.db_instance_name }}"

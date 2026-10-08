@@ -1,0 +1,22 @@
+cloud: gcp
+category:
+  - self-hosted
+infra: gke
+stack:
+  - terraform
+  - helm
+features:
+  - actions
+  - policies
+  - secrets
+tags:
+  - gke
+  - helm
+  - cloudsql
+  - postgresql
+  - sonarqube
+  - code-quality
+links:
+  upstream: https://www.sonarsource.com/products/sonarqube/community-edition/
+  docs: https://docs.sonarsource.com/sonarqube-community-build/server-installation/on-kubernetes-or-openshift/
+  helm: https://github.com/SonarSource/helm-chart-sonarqube

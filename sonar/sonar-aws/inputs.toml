@@ -1,0 +1,41 @@
+# inputs
+
+[[group]]
+name         = "sonarqube"
+description  = "SonarQube Community Build — https://github.com/SonarSource/docker-sonarqube/releases"
+display_name = "SonarQube Configurations"
+
+[[input]]
+name         = "sonarqube_build_number"
+description  = "Exact SonarQube Community Build number (e.g. 26.9.0.129388). Pick from https://github.com/SonarSource/docker-sonarqube/releases Community Build tags. Image becomes sonarqube:<buildNumber>-community."
+default      = "26.9.0.129388"
+display_name = "SonarQube Build Number"
+internal     = false
+user_configurable = true
+group        = "sonarqube"
+
+[[group]]
+name         = "infrastructure"
+description  = "EKS https://docs.aws.amazon.com/eks/"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "cluster_version"
+description  = "Kubernetes version for the EKS cluster"
+default      = "1.34"
+display_name = "Kubernetes Version"
+internal     = true
+group        = "infrastructure"
+
+[[group]]
+name         = "database"
+description  = "RDS PostgreSQL database configuration - See https://aws.amazon.com/rds/instance-types/"
+display_name = "Database Configuration"
+
+[[input]]
+name         = "sonar_db_instance_type"
+description  = "RDS instance type for SonarQube database."
+default      = "db.t4g.medium"
+display_name = "Database Instance Type"
+internal     = true
+group        = "database"

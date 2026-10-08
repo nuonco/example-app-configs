@@ -1,0 +1,19 @@
+name              = "cloudsql_sonar"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["cloudsql_network"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-gcp/src/components/cloudsql_sonar"
+branch    = "mm/sonar"
+
+[vars]
+install_id          = "{{ .nuon.install.id }}"
+project_id          = "{{ .nuon.install_stack.outputs.project_id }}"
+region              = "{{ .nuon.install_stack.outputs.region }}"
+network_self_link   = "{{ .nuon.components.cloudsql_network.outputs.network_self_link }}"
+tier                = "{{ .nuon.install.inputs.sonar_db_instance_tier }}"
+db_name             = "sonar"
+db_user             = "sonar"
+deletion_protection = "false"

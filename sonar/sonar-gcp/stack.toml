@@ -1,0 +1,3 @@
+type        = "gcp-terraform"
+name        = "nuon-sonar-{{.nuon.install.id}}"
+description = "QuickLink to install runner for SonarQube GCP app config: Install {{.nuon.install.id}}"

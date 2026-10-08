@@ -1,0 +1,18 @@
+name              = "dns_records"
+type              = "terraform_module"
+terraform_version = "1.11.3"
+dependencies      = ["app_gateway"]
+max_auto_retries  = 5
+skip_noops        = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-azure/src/components/dns_records"
+branch    = "mm/sonar"
+
+[vars]
+subscription_id     = "{{ .nuon.install_stack.outputs.subscription_id }}"
+resource_group_name = "{{ .nuon.install_stack.outputs.resource_group_name }}"
+dns_zone_name       = "{{ .nuon.install.sandbox.outputs.public_domain.name }}"
+public_ip           = "{{ .nuon.components.app_gateway.outputs.public_ip }}"
+install_id          = "{{ .nuon.install.id }}"

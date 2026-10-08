@@ -1,0 +1,6 @@
+subscriptionId: ""
+resourceGroup: ""
+applicationGatewayName: ""
+identityClientId: ""
+identityResourceId: ""
+namespace: "agic"

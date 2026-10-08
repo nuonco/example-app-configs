@@ -1,0 +1,48 @@
+# action
+
+name    = "k8s_clear_finalizers"
+timeout = "5m"
+enable_kube_config = true
+break_glass_role = "{{.nuon.install.id}}-sonar-sandbox-break-glass"
+labels  = { service = "kubernetes", type = "break-glass" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "clear-finalizers"
+inline_contents = '''
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ -n "$NAME" ]; then
+  echo "==> k8s_clear_finalizers: $KIND/$NAME in $NAMESPACE"
+  targets="$NAME"
+else
+  echo "==> k8s_clear_finalizers: scanning $KIND in $NAMESPACE for resources stuck Terminating"
+  targets=$(kubectl get "$KIND" -n "$NAMESPACE" -o json \
+    | jq -r '.items[] | select(.metadata.deletionTimestamp != null) | .metadata.name')
+fi
+
+cleared='[]'
+for n in $targets; do
+  kubectl patch "$KIND" "$n" -n "$NAMESPACE" \
+    -p '{"metadata":{"finalizers":[]}}' --type=merge
+  echo "==> cleared finalizers on $KIND/$n"
+  cleared=$(echo "$cleared" | jq -c --arg n "$n" '. + [$n]')
+done
+
+jq --null-input -c \
+  --arg kind "$KIND" \
+  --argjson cleared "$cleared" \
+  --arg namespace "$NAMESPACE" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
+  '{kind: $kind, cleared: $cleared, namespace: $namespace, result: "finalizers cleared", updated_at: $updated_at}' \
+  >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+'''
+
+[steps.env_vars]
+NAMESPACE = "sonarqube"
+KIND      = "ingress"
+NAME      = ""

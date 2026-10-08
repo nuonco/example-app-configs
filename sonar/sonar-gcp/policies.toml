@@ -1,0 +1,4 @@
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/gke-node-pool-service-account.rego"

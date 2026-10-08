@@ -1,0 +1,34 @@
+name = "main"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-gcp"
+branch    = "mm/sonar"
+
+[run]
+mode = "manual_only"
+
+[preview]
+mode          = "apply"
+set_statuses  = false
+comment       = false
+ignore_drafts = true
+react         = false
+
+[preview.label_selector]
+preview = "true"
+
+[[install_groups]]
+name  = "stage"
+order = 1
+
+[install_groups.label_selector]
+env = "stage"
+
+[[install_groups]]
+name    = "production"
+order   = 2
+default = true
+
+[install_groups.label_selector]
+env = "prod"
