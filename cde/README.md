@@ -139,11 +139,11 @@ nuon installs sync -d installs/main/ --confirm
 | Path | Install / branch | Role |
 |---|---|---|
 | `branches/main.toml` | app branch `main` | Preview defaults + one default install group |
-| `installs/preview.toml` | `preview` | Safe box for `branches preview` (`preview = "true"`, no `app_branch`) |
+| `installs/preview.toml` | `preview` | Safe box for `branches preview` (`preview = "true"`, `app_branch = "main"`) |
 | `installs/main/customer-1.toml` | `customer-1` | On `main` trigger (`t3a.medium`) |
 | `installs/main/customer-2.toml` | `customer-2` | On `main` trigger (`t3a.xlarge`, docker on) |
 
-`[preview]` uses `mode = "apply"` and `label_selector` `preview = "true"`. A real `branches trigger` only touches installs with `app_branch = "main"`.
+`[preview]` uses `mode = "apply"` and `label_selector` `preview = "true"`. Preview is on `app_branch = "main"` so create/apply work; a `branches trigger` can also select it (skip that group/install if you want customers only).
 
 ### 3. Engineer iterating on app config
 

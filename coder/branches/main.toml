@@ -2,6 +2,9 @@
 # Coder image version is an install input (coder_image_tag), not a Nuon app branch.
 name = "main"
 
+ignore_changes_regex     = "^([^c]|c([^o]|o([^d]|d([^e]|e([^r]|r[^/]))))).*"
+send_statuses_on_ignore  = true
+
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "coder"
