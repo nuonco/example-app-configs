@@ -391,11 +391,11 @@ Sample pins are intentionally several releases back so you can demo an upgrade t
 | Mainline | `installs/mainline/` | `customer-square(-stage)`, `customer-dropbox(-stage)` | `v2.36.3` | Yes — `env=stage` then `env=prod` |
 | Stable | `installs/stable/` | `customer-palantir(-stage)`, `customer-mercedes-benz(-stage)`, `customer-kkr(-stage)` | `v2.33.10` | Yes — `env=stage` then `env=prod` |
 | Pinned | `installs/pinned/` | `customer-discord(-stage)`, `customer-dod(-stage)` | `v2.33.8` | Yes — `env=stage` then `env=prod` |
-| Preview | `installs/preview.toml` | `preview` | `v2.36.3` | No (omit `app_branch`; used only by `branches preview`) |
+| Preview | `installs/preview.toml` | `preview` | `v2.36.3` | Yes — on `main`; targeted by `branches preview` via `preview = "true"` |
 
 Each fictional customer has a **stage** install and a **prod** install (same `coder_image_tag` / channel). A branch trigger deploys all stage installs first, then all prod. Channel folders only control which Coder binary cohort you sync when bumping tags.
 
-Pinned installs stay on app branch `main` and keep config sync. Bump their Coder tag with `installs sync` on that folder or file only. To keep an install off this train entirely, omit `app_branch` (like `preview`) or `nuon installs toggle-sync --disable`.
+Pinned installs stay on app branch `main` and keep config sync. Bump their Coder tag with `installs sync` on that folder or file only. To keep an install off this train entirely, omit `app_branch` or `nuon installs toggle-sync --disable`.
 
 **Use case:** a customer that must stay on an older Coder release (compliance freeze, slow change window). Prefer `installs sync` for tag bumps.
 
@@ -477,7 +477,7 @@ Labels:
 | Install folder `mainline/` / `stable/` / `pinned/` | Which Coder binary cohort / how you sync upgrades | Not Nuon app branches |
 | Labels `channel` + `release` | Dashboard metadata for the binary | `channel` static; `release` from `coder_image_tag` |
 | Label `env` | Stage vs prod install for a customer | Selects `stage` / `production` groups |
-| Install `preview` | Safe box for `branches preview --mode apply` | `preview = "true"`, no `app_branch`; not in a trigger |
+| Install `preview` | Safe box for `branches preview --mode apply` | `preview = "true"`, `app_branch = "main"`; trigger may also select it |
 
 ```sh
 nuon branches sync --file branches/ --confirm
@@ -490,7 +490,7 @@ Customer installs use `approval_option = "approve-all"` and `app_branch = "main"
 
 ### Opting an install out
 
-- **Off this train:** omit `app_branch` (like `preview`), or `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
+- **Off this train:** omit `app_branch`, or `nuon installs toggle-sync --disable -i <install-name>` (dashboard-only from then on); `--enable` reverses it.
 - **Skip one wave on a trigger:** skip the stage or production group when approving that run.
 
 </nuon-tab>

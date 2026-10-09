@@ -2,6 +2,9 @@
 # manual_only keeps the public example repo quiet; trigger runs from the CLI/UI.
 name = "main"
 
+ignore_changes_regex     = "^([^c]|c([^d]|d([^e]|e[^/]))).*"
+send_statuses_on_ignore  = true
+
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "cde"
