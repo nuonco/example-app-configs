@@ -1,0 +1,42 @@
+name         = "materialize_instance"
+type         = "kubernetes_manifest"
+dependencies = ["materialize_operator", "materialize_cluster_issuer", "rds_materialize", "s3_persist"]
+namespace    = "materialize-environment"
+max_auto_retries = 10
+skip_noops       = true
+
+manifest = """
+apiVersion: materialize.cloud/v1
+kind: Materialize
+metadata:
+  name: main
+  namespace: materialize-environment
+spec:
+  environmentdImageRef: "materialize/environmentd:{{ .nuon.inputs.inputs.environmentd_image_tag }}"
+  backendSecretName: materialize-backend
+  authenticatorKind: Password
+  enableRbac: false
+  serviceAccountName: main
+  environmentdResourceRequirements:
+    limits:
+      memory: 4Gi
+    requests:
+      cpu: "1"
+      memory: 4095Mi
+  balancerdResourceRequirements:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  consoleResourceRequirements:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  internalCertificateSpec:
+    issuerRef:
+      name: materialize-selfsigned
+      kind: ClusterIssuer
+"""

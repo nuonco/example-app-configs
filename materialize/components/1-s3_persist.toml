@@ -1,0 +1,16 @@
+name              = "s3_persist"
+type              = "terraform_module"
+terraform_version = "1.13.5"
+max_auto_retries  = 5
+skip_noops        = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "materialize/src/components/s3_persist"
+branch    = "mm/materialize"
+
+[vars]
+install_id   = "{{ .nuon.install.id }}"
+install_name = "{{ .nuon.install.name }}"
+region       = "{{ .nuon.install_stack.outputs.region }}"
+cluster_name = "{{ .nuon.install.sandbox.outputs.cluster.name }}"

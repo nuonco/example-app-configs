@@ -1,0 +1,11 @@
+operator:
+  args:
+    installV1CRD: true
+    enableLicenseKeyChecks: true
+  replicas: 1
+  image:
+    tag: "{{ .nuon.inputs.inputs.environmentd_image_tag }}"
+
+observability:
+  podMetrics:
+    enabled: false

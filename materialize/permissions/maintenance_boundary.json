@@ -1,0 +1,26 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:*",
+          "ec2:*",
+          "eks:*",
+          "elasticache:*",
+          "iam:*",
+          "logs:*",
+          "rds:*",
+          "s3:*",
+          "secretsmanager:*",
+          "sqs:*",
+          "ecr:*",
+          "acm:*",
+          "Route53:*",
+          "kms:*",
+          "organizations:DescribeOrganization"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
