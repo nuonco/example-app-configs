@@ -1,0 +1,23 @@
+name         = "console_service"
+type         = "kubernetes_manifest"
+dependencies = ["materialize_instance"]
+namespace    = "materialize-environment"
+max_auto_retries = 10
+
+manifest = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: mz-console
+  namespace: materialize-environment
+spec:
+  type: ClusterIP
+  selector:
+    materialize.cloud/app: console
+    materialize.cloud/organization-name: main
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+"""

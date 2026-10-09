@@ -1,0 +1,6 @@
+type        = "aws-cloudformation"
+name        = "nuon-materialize-{{.nuon.install.id}}"
+description = "QuickLink to install runner for Materialize app config: Install {{.nuon.install.id}}"
+
+vpc_nested_template_url    = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.4.0/vpc/eks/default/stack.yaml"
+runner_nested_template_url = "https://nuon-artifacts.s3.us-west-2.amazonaws.com/aws-cloudformation-templates/v0.4.0/runner/asg/stack.yaml"

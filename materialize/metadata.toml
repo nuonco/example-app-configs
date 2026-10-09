@@ -1,0 +1,11 @@
+version = "v2"
+
+display_name = "Materialize"
+description  = "Self-Managed Materialize on AWS EKS — real-time data integration in your VPC."
+readme       = "./README.md"
+
+[onboarding]
+enabled        = true
+category       = "self-hosted"
+difficulty     = "medium"
+cloud_provider = "aws"

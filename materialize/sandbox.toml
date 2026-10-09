@@ -1,0 +1,15 @@
+terraform_version = "1.13.5"
+skip_noops        = true
+
+[public_repo]
+directory = "."
+repo      = "nuonco/aws-eks-auto-sandbox"
+branch    = "main"
+
+[vars]
+cluster_name    = "n-{{.nuon.install.id}}"
+cluster_version = "{{ .nuon.inputs.inputs.cluster_version }}"
+enable_nuon_dns = "true"
+
+[[var_file]]
+contents = "./sandbox.tfvars"

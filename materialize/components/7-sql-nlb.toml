@@ -1,0 +1,29 @@
+name         = "sql_nlb"
+type         = "kubernetes_manifest"
+dependencies = ["materialize_instance"]
+namespace    = "materialize-environment"
+max_auto_retries = 10
+
+manifest = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: mz-sql
+  namespace: materialize-environment
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    external-dns.alpha.kubernetes.io/hostname: "sql.{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    materialize.cloud/app: balancerd
+    materialize.cloud/organization-name: main
+  ports:
+    - name: pgwire
+      port: 6875
+      targetPort: 6875
+      protocol: TCP
+"""

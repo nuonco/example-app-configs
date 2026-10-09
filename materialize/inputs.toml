@@ -1,0 +1,48 @@
+[[group]]
+name         = "materialize"
+description  = "Materialize Self-Managed configuration https://materialize.com/docs/self-managed-deployments/"
+display_name = "Materialize"
+
+[[input]]
+name         = "environmentd_image_tag"
+description  = "Materialize environmentd image tag (e.g. v26.45.1). See https://materialize.com/docs/releases/"
+default      = "v26.45.1"
+display_name = "environmentd Image Tag"
+internal     = false
+user_configurable = true
+group        = "materialize"
+
+[[input]]
+name         = "operator_chart_version"
+description  = "Materialize operator Helm chart version (pin to match environmentd)"
+default      = "v26.45.1"
+display_name = "Operator Chart Version"
+internal     = false
+user_configurable = true
+group        = "materialize"
+
+[[group]]
+name         = "infrastructure"
+description  = "EKS https://docs.aws.amazon.com/eks/"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "cluster_version"
+description  = "Kubernetes version for the EKS cluster (Materialize requires 1.31+)"
+default      = "1.34"
+display_name = "Kubernetes Version"
+internal     = true
+group        = "infrastructure"
+
+[[group]]
+name         = "database"
+description  = "RDS PostgreSQL metadata store — See https://aws.amazon.com/rds/instance-types/"
+display_name = "Database Configuration"
+
+[[input]]
+name         = "db_instance_type"
+description  = "RDS instance type for Materialize metadata database"
+default      = "db.t4g.medium"
+display_name = "Database Instance Type"
+internal     = true
+group        = "database"

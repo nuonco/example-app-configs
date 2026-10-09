@@ -1,0 +1,16 @@
+name           = "materialize_operator"
+type           = "helm_chart"
+chart_name     = "materialize-operator"
+namespace      = "materialize"
+storage_driver = "configmap"
+dependencies   = ["rds_materialize", "s3_persist"]
+max_auto_retries = 5
+skip_noops       = true
+
+[helm_repo]
+repo_url = "https://materializeinc.github.io/materialize"
+chart    = "materialize-operator"
+version  = "{{ .nuon.inputs.inputs.operator_chart_version }}"
+
+[[values_file]]
+contents = "./values/materialize-operator.yaml"
