@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=install
+
+name = "preview"
+app_branch = "main"
+approval_option = "approve-all"
+
+[labels]
+preview = "true"
+
+[aws_account]
+region = "us-east-1"
+
+[[inputs]]
+environmentd_image_tag  = "v26.45.1"
+operator_chart_version  = "v26.45.1"

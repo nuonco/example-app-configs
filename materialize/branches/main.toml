@@ -1,0 +1,27 @@
+name = "main"
+
+ignore_changes_regex    = "^([^m]|m([^a]|a([^t]|t([^e]|e([^r]|r([^i]|i([^a]|a([^l]|l([^i]|i([^z]|z([^e]|e[^/]))))))))))).*"
+send_statuses_on_ignore = true
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "materialize"
+branch    = "main"
+
+[run]
+mode = "manual_only"
+
+[preview]
+mode          = "apply"
+set_statuses  = false
+comment       = false
+ignore_drafts = true
+react         = false
+
+[preview.label_selector]
+preview = "true"
+
+[[install_groups]]
+name    = "default"
+order   = 1
+default = true
