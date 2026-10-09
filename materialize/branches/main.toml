@@ -6,7 +6,7 @@ send_statuses_on_ignore = true
 [public_repo]
 repo      = "nuonco/example-app-configs"
 directory = "materialize"
-branch    = "main"
+branch    = "mm/materialize"
 
 [run]
 mode = "manual_only"
