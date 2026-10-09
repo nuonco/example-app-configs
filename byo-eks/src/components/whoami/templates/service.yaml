@@ -1,0 +1,20 @@
+{{- range $ns := .Values.namespaces }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami
+  namespace: {{ $ns | quote }}
+  labels:
+    app: whoami
+spec:
+  ports:
+  - name: http-whoami
+    port: {{ $.Values.service.port }}
+    protocol: TCP
+    targetPort: {{ $.Values.deployment.containerPort }}
+  selector:
+    app: whoami
+  sessionAffinity: None
+  type: ClusterIP
+{{- end }}

@@ -1,0 +1,7 @@
+installId: "{{.nuon.install.id}}"
+domain: "{{.nuon.inputs.inputs.domain}}"
+subDomain: "{{.nuon.inputs.inputs.sub_domain}}"
+namespaces:
+{{- range $ns := splitList "," .nuon.inputs.inputs.namespaces }}
+  - {{ trim $ns | quote }}
+{{- end }}

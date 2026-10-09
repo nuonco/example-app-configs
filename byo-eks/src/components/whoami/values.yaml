@@ -1,0 +1,22 @@
+namespaces:
+  - sourdough
+  - persimmon
+  - tartar
+
+installId: ""
+domain: nuon.run
+subDomain: api
+
+image:
+  tag: "latest"
+  repository: "traefik/whoami"
+
+deployment:
+  containerPort: 8000
+
+service:
+  port: 80
+
+ingress:
+  enabled: true
+  className: alb

@@ -1,0 +1,13 @@
+{{- range $ns := .Values.namespaces }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: whoami
+  namespace: {{ $ns | quote }}
+  labels:
+    app: whoami
+data:
+  NAMESPACE: {{ $ns | quote }}
+  NUON_INSTALL_ID: {{ $.Values.installId | quote }}
+{{- end }}
