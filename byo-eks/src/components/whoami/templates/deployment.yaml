@@ -1,0 +1,50 @@
+{{- range $ns := .Values.namespaces }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+  namespace: {{ $ns | quote }}
+  labels:
+    app: whoami
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+      - name: whoami
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        env:
+        - name: "WHOAMI_PORT_NUMBER"
+          value: "{{ $.Values.deployment.containerPort }}"
+        envFrom:
+        - configMapRef:
+            name: whoami
+        ports:
+        - containerPort: {{ $.Values.deployment.containerPort }}
+        resources:
+          limits:
+            cpu: ".25"
+            memory: "128Mi"
+          requests:
+            cpu: ".1"
+            memory: "64Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ $.Values.deployment.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ $.Values.deployment.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+{{- end }}
