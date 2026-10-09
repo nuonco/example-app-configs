@@ -12,15 +12,6 @@ internal     = false
 user_configurable = true
 group        = "materialize"
 
-[[input]]
-name         = "operator_chart_version"
-description  = "Materialize operator Helm chart version (pin to match environmentd)"
-default      = "v26.45.1"
-display_name = "Operator Chart Version"
-internal     = false
-user_configurable = true
-group        = "materialize"
-
 [[group]]
 name         = "infrastructure"
 description  = "EKS https://docs.aws.amazon.com/eks/"

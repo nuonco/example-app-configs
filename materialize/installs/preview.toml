@@ -11,5 +11,4 @@ preview = "true"
 region = "us-east-1"
 
 [[inputs]]
-environmentd_image_tag  = "v26.45.1"
-operator_chart_version  = "v26.45.1"
+environmentd_image_tag = "v26.45.1"
