@@ -1,12 +1,7 @@
----
-namespace: "whoami"
-
-image:
-  tag: "latest"
-  repository: "traefik/whoami"
-
-deployment:
-  containerPort: 8000
-
-service:
-  port: 80
+installId: "{{.nuon.install.id}}"
+domain: "{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
+subDomain: "{{.nuon.inputs.inputs.sub_domain}}"
+namespaces:
+  - whoami
+  - stage
+  - dev

@@ -1,8 +1,10 @@
+{{- range $ns := .Values.namespaces }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: whoami
-  namespace: {{ .Values.namespace | default .Release.Namespace | quote }}
+  namespace: {{ $ns | quote }}
   labels:
     app: whoami
 spec:
@@ -20,9 +22,12 @@ spec:
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
         env:
         - name: "WHOAMI_PORT_NUMBER"
-          value: "{{ .Values.deployment.containerPort }}"
+          value: "{{ $.Values.deployment.containerPort }}"
+        envFrom:
+        - configMapRef:
+            name: whoami
         ports:
-        - containerPort: {{ .Values.deployment.containerPort }}
+        - containerPort: {{ $.Values.deployment.containerPort }}
         resources:
           limits:
             cpu: ".25"
@@ -33,12 +38,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.deployment.containerPort }}
+            port: {{ $.Values.deployment.containerPort }}
           initialDelaySeconds: 5
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.deployment.containerPort }}
+            port: {{ $.Values.deployment.containerPort }}
           initialDelaySeconds: 5
           periodSeconds: 5
+{{- end }}
