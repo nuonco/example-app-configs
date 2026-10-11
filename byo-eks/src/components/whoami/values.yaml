@@ -1,7 +1,7 @@
 namespaces:
-  - sourdough
-  - persimmon
-  - tartar
+  - whoami
+  - stage
+  - dev
 
 installId: ""
 domain: nuon.run
