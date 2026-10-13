@@ -23,7 +23,7 @@
       }
     },
     "resourceGroupName": {
-      "defaultValue": "[format('rg-vnet-{0}-01', parameters('nuonInstallID'))]",
+      "defaultValue": "[format('rg-lvbdev-net-{0}-01', parameters('nuonInstallID'))]",
       "type": "String",
       "metadata": {
         "description": "Optional. The name of the resource group to be created. If not provided, a default name will be generated based."
@@ -50,12 +50,26 @@
         "description": "Optional. Availability zones used by the AKS cluster and its node pools. Only surfaced as the availabilityZones output; no resource in this template consumes it."
       }
     },
-    "networkProfile": {
-      "defaultValue": "PublicNoFirewall",
+    "clusterIngressEndpointType": {
+      "defaultValue": "public",
       "type": "String",
-      "allowedValues": ["PrivateWithFirewall", "PrivateNoFirewall", "PublicNoFirewall"],
+      "allowedValues": ["public", "private"],
       "metadata": {
-        "description": "Optional. Ingress and egress topology. PrivateWithFirewall: previews served from the internal istio gateway, all egress forced through an Azure Firewall. PrivateNoFirewall: internal gateway, egress straight to the internet. PublicNoFirewall: external gateway on a public IP, egress straight to the internet. Public ingress combined with a firewall default route is not offered -- it makes inbound return traffic asymmetric."
+        "description": "Optional. Ingress endpoint type. private: previews served from the internal istio gateway. public: external gateway on a public IP."
+      }
+    },
+    "enableAzureFirewall": {
+      "defaultValue": false,
+      "type": "Bool",
+      "metadata": {
+        "description": "Optional. Force all egress through an Azure Firewall. Honored only when clusterIngressEndpointType is private; public ingress combined with a firewall default route is not offered -- it makes inbound return traffic asymmetric."
+      }
+    },
+    "enableFrontDoor": {
+      "defaultValue": false,
+      "type": "Bool",
+      "metadata": {
+        "description": "Optional. Request Azure Front Door in front of the public ingress. Honored only when clusterIngressEndpointType is public. Only surfaced as the enableFrontDoor output; Front Door is created downstream."
       }
     }
   },
@@ -67,8 +81,10 @@
       "sandboxNodepool": "snet-sandbox-nodepool",
       "applicationPrivateEndpoints": "snet-application-private-endpoints"
     },
-    "enablePrivateAccess": "[not(equals(parameters('networkProfile'), 'PublicNoFirewall'))]",
-    "enableAzureFirewall": "[equals(parameters('networkProfile'), 'PrivateWithFirewall')]"
+    "networkProfile": "[if(equals(parameters('clusterIngressEndpointType'), 'public'), 'PublicNoFirewall', if(parameters('enableAzureFirewall'), 'PrivateWithFirewall', 'PrivateNoFirewall'))]",
+    "enablePrivateAccess": "[not(equals(variables('networkProfile'), 'PublicNoFirewall'))]",
+    "enableAzureFirewall": "[equals(variables('networkProfile'), 'PrivateWithFirewall')]",
+    "enableFrontDoor": "[and(equals(parameters('clusterIngressEndpointType'), 'public'), parameters('enableFrontDoor'))]"
   },
   "resources": {
     "resourceGroup": {
@@ -107,6 +123,9 @@
           },
           "enableAzureFirewall": {
             "value": "[variables('enableAzureFirewall')]"
+          },
+          "enableFrontDoor": {
+            "value": "[variables('enableFrontDoor')]"
           }
         },
         "template": {
@@ -134,6 +153,9 @@
             },
             "enableAzureFirewall": {
               "type": "Bool"
+            },
+            "enableFrontDoor": {
+              "type": "Bool"
             }
           },
           "variables": {
@@ -148,8 +170,8 @@
             "applicationPrivateEndpointsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 25, 6)]",
             "azureFirewallSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 14)]",
             "k8sPublicIpName": "pip-k8s-ingress",
-            "firewallName": "afw-lovable",
-            "firewallPolicyName": "afwp-lovable",
+            "firewallName": "afw-service",
+            "firewallPolicyName": "afwp-service",
             "firewallPublicIpName": "pip-afw",
             "routeTableName": "rt-egress",
             "firewallPrivateIp": "[cidrHost(variables('azureFirewallSubnetAddressPrefix'), 3)]",
@@ -162,7 +184,7 @@
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "443",
-              "sourceAddressPrefix": "AzureFrontDoor.Backend"
+              "sourceAddressPrefix": "[if(parameters('enableFrontDoor'), 'AzureFrontDoor.Backend', 'Internet')]"
             }
           },
           "resources": {
@@ -966,9 +988,17 @@
       "type": "string",
       "value": "[toLower(string(variables('enableAzureFirewall')))]"
     },
+    "enableFrontDoor": {
+      "type": "string",
+      "value": "[toLower(string(variables('enableFrontDoor')))]"
+    },
+    "networkProfile": {
+      "type": "string",
+      "value": "[variables('networkProfile')]"
+    },
     "availabilityZones": {
       "type": "string",
-      "value": "[string(parameters('availabilityZones'))]"
+      "value": "[join(parameters('availabilityZones'), ',')]"
     }
   }
 }

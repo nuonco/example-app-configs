@@ -3,10 +3,12 @@ name = "aca-medium-{{.nuon.install.id}}"
 description = "Azure Container Apps medium application stack"
 
 deployment_scope = "subscription"
+ui_definition    = "./arm/ui.json"
 
+vpc_nested_template_url = "https://raw.githubusercontent.com/nuonco/example-app-configs/refs/heads/fd/feat/aca-medium/aca-medium/arm/virtual_network/stack.json"
 runner_nested_template_url = "https://raw.githubusercontent.com/nuonco/example-app-configs/refs/heads/fd/feat/aca-medium/aca-medium/arm/runner/stack.json"
 
-[[custom_nested_stacks]]
-name         = "virtual_network"
-template_url = "./arm/virtual_network/stack.json"
-index        = 0
+# [[custom_nested_stacks]]
+# name         = "virtual_network"
+# template_url = "./arm/virtual_network/stack.json"
+# index        = 0

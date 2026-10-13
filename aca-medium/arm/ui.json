@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "resourceGroupName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Resource group name",
+        "defaultValue": "",
+        "toolTip": "Name of the resource group to create.",
+        "constraints": {
+          "required": true,
+          "regex": "^[-\\w\\._\\(\\)]{0,89}[-\\w_\\(\\)]$",
+          "validationMessage": "1-90 characters: letters, digits, '-', '_', '.', '(' and ')'. Cannot end with a period."
+        }
+      }
+    ],
+    "steps": [
+      {
+        "name": "networking",
+        "label": "Networking",
+        "elements": [
+          {
+            "name": "virtualNetworkName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Virtual network name",
+            "defaultValue": "",
+            "toolTip": "Name of the virtual network to create.",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,62}[a-zA-Z0-9_]$",
+              "validationMessage": "2-64 characters: letters, digits, '.', '_' and '-'. Must start with a letter or digit and end with a letter, digit or '_'."
+            }
+          },
+          {
+            "name": "addressSpace",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Address space",
+            "defaultValue": "10.100.0.0/22",
+            "toolTip": "IPv4 CIDR block for the virtual network. A /22 or larger is required to accommodate all subnets.",
+            "constraints": {
+              "required": true,
+              "regex": "^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])/(1[6-9]|2[0-2])$",
+              "validationMessage": "Enter an IPv4 CIDR block with a prefix length between /16 and /22."
+            }
+          },
+          {
+            "name": "clusterIngressEndpointType",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Cluster ingress endpoint type",
+            "defaultValue": "Public",
+            "toolTip": "Public: external gateway on a public IP. Private: internal gateway.",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                {
+                  "label": "Public",
+                  "value": "public"
+                },
+                {
+                  "label": "Private",
+                  "value": "private"
+                }
+              ]
+            }
+          },
+          {
+            "name": "enableAzureFirewall",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Azure Firewall for egress control",
+            "toolTip": "Forces all egress through an Azure Firewall.",
+            "visible": "[equals(steps('networking').clusterIngressEndpointType, 'private')]"
+          },
+          {
+            "name": "enableFrontDoor",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Azure Front Door",
+            "toolTip": "Front Door is created downstream of this deployment; only the request is recorded.",
+            "visible": "[equals(steps('networking').clusterIngressEndpointType, 'public')]"
+          }
+        ]
+      },
+      {
+        "name": "compute",
+        "label": "Compute",
+        "elements": [
+          {
+            "name": "availabilityZones",
+            "type": "Microsoft.Common.DropDown",
+            "label": "AKS cluster availability zones",
+            "multiselect": true,
+            "defaultValue": ["Zone 1", "Zone 2", "Zone 3"],
+            "toolTip": "Availability zones used by the AKS cluster and its node pools. Zonal networking resources in this template (public IPs, Azure Firewall) always span zones 1, 2 and 3 and are not affected by this selection.",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                {
+                  "label": "Zone 1",
+                  "value": "1"
+                },
+                {
+                  "label": "Zone 2",
+                  "value": "2"
+                },
+                {
+                  "label": "Zone 3",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "nuonInstallID": "",
+      "commonTags": {},
+      "resourceGroupName": "[basics('resourceGroupName')]",
+      "virtualNetworkName": "[steps('networking').virtualNetworkName]",
+      "addressSpace": "[steps('networking').addressSpace]",
+      "clusterIngressEndpointType": "[steps('networking').clusterIngressEndpointType]",
+      "enableAzureFirewall": "[and(equals(steps('networking').clusterIngressEndpointType, 'private'), steps('networking').enableAzureFirewall)]",
+      "enableFrontDoor": "[and(equals(steps('networking').clusterIngressEndpointType, 'public'), steps('networking').enableFrontDoor)]",
+      "availabilityZones": "[steps('compute').availabilityZones]"
+    }
+  }
+}
