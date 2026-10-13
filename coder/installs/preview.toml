@@ -8,11 +8,11 @@ approval_option = "approve-all"
 
 [labels]
 preview = "true"
-channel = "mainline"
+channel = "stable"
 release = "{{ .nuon.install.inputs.coder_image_tag }}"
 
 [aws_account]
 region = "us-east-1"
 
 [[inputs]]
-coder_image_tag = "v2.36.3"
+coder_image_tag = "v2.33.10"

@@ -279,14 +279,14 @@ Tune these from **Current Inputs → Edit Inputs**. Changes trigger a redeploy o
 | `max_token_lifetime` | `{{ dig "max_token_lifetime" "—" $in }}` | Maximum lifetime for CLI and API tokens |
 | `session_duration` | `{{ dig "session_duration" "—" $in }}` | Session duration before re-authentication is required |
 | `block_direct` | `{{ dig "block_direct" "—" $in }}` | Force all workspace connections through the Coder relay (disables peer-to-peer) |
-| `coder_image_tag` | `{{ dig "coder_image_tag" "—" $in }}` | Exact Coder container image tag (e.g. `v2.33.10`). Also drives the `release` label. |
 
 ### Vendor-controlled
 
-The vendor pins these in the app config and rolls them on the `main` app branch (a push under `coder/` starts the train).
+The vendor pins these in the app config / install configs (not via the install stack). Shared config rolls on the `main` app branch (a push under `coder/` starts the train). Bump `coder_image_tag` per install or cohort with `nuon installs sync`.
 
 | Input | Current value | Description |
 |---|---|---|
+| `coder_image_tag` | `{{ dig "coder_image_tag" "—" $in }}` | Exact Coder container image tag (e.g. `v2.33.10`). Also drives the `release` label. |
 | `replicas` | `{{ dig "replicas" "—" $in }}` | Coder control plane replica count |
 | `provisioners` | `{{ dig "provisioners" "—" $in }}` | Terraform provisioners for workspace lifecycle |
 | `cluster_version` | `{{ dig "cluster_version" "—" $in }}` | EKS Kubernetes version |
@@ -391,7 +391,7 @@ Sample pins are intentionally several releases back so you can demo an upgrade t
 | Mainline | `installs/mainline/` | `customer-square(-stage)`, `customer-dropbox(-stage)` | `v2.36.3` | Yes — `env=stage` then `env=prod` |
 | Stable | `installs/stable/` | `customer-palantir(-stage)`, `customer-mercedes-benz(-stage)`, `customer-kkr(-stage)` | `v2.33.10` | Yes — `env=stage` then `env=prod` |
 | Pinned | `installs/pinned/` | `customer-discord(-stage)`, `customer-dod(-stage)` | `v2.33.8` | Yes — `env=stage` then `env=prod` |
-| Preview | `installs/preview.toml` | `preview` | `v2.36.3` | Yes — on `main`; targeted by `branches preview` via `preview = "true"` |
+| Preview | `installs/preview.toml` | `preview` | `v2.33.10` (`channel=stable`) | Yes — on `main`; targeted by `branches preview` via `preview = "true"` |
 
 Each fictional customer has a **stage** install and a **prod** install (same `coder_image_tag` / channel). A branch run (push under `coder/`, or `branches trigger`) deploys stage first, then prod. Channel folders only control which Coder binary cohort you sync when bumping tags.
 
