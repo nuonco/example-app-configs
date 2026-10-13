@@ -1,7 +1,7 @@
 #:schema https://api.nuon.co/v1/general/config-schema?type=install
 
-# Preview install for nuon branches preview (apply). On main so create/apply
-# work; [preview.label_selector] still targets it.
+# Preview install for branches preview (default plan-only). Use --mode apply
+# or dashboard Mode → Apply to smoke-test. On main so create/apply work.
 name = "preview"
 app_branch = "main"
 approval_option = "approve-all"

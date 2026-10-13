@@ -1,5 +1,4 @@
-# Continuous train for the Coder app config. Same git source as always.
-# Coder image version is an install input (coder_image_tag), not a Nuon app branch.
+# Continuous train on push. Coder image tag is an install input, not a Nuon app branch.
 name = "main"
 
 ignore_changes_regex     = "^([^c]|c([^o]|o([^d]|d([^e]|e([^r]|r[^/]))))).*"
@@ -11,10 +10,10 @@ directory = "coder"
 branch    = "main"
 
 [run]
-mode = "manual_only"
+mode = "push"
 
 [preview]
-mode          = "apply"
+mode          = "plan-only"
 set_statuses  = false
 comment       = false
 ignore_drafts = true
