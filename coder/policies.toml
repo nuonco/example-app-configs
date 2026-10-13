@@ -5,6 +5,60 @@ type     = "kubernetes_cluster"
 contents = "./policies/disallow-ingress-nginx-custom-snippets.yaml"
 
 [[policy]]
+type     = "kubernetes_cluster"
+contents = "./policies/set-karpenter-non-cpu-limits.yaml"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/pass-vpc-cidr.rego"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/pass-multi-az-subnets.rego"
+
+[[policy]]
 type     = "sandbox"
 engine   = "opa"
 contents = "./policies/warn-public-eks-endpoint.rego"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/deny-extra-access-entries.rego"
+
+[[policy]]
+type     = "sandbox"
+engine   = "opa"
+contents = "./policies/warn-public-sensitive-ports.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["*"]
+contents   = "./policies/warn-public-sensitive-ports.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["rds_cluster_coder"]
+contents   = "./policies/warn-rds-encryption.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["rds_cluster_coder"]
+contents   = "./policies/warn-rds-destructive.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["rds_cluster_coder"]
+contents   = "./policies/deny-rds-unsafe-updates.rego"
+
+[[policy]]
+type       = "helm_chart"
+engine     = "opa"
+components = ["coder"]
+contents   = "./policies/warn-coder-image-pin.rego"
