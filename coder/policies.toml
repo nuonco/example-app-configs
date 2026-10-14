@@ -29,11 +29,13 @@ engine   = "opa"
 contents = "./policies/deny-extra-access-entries.rego"
 
 [[policy]]
+name     = "warn-public-sensitive-ports-sandbox"
 type     = "sandbox"
 engine   = "opa"
 contents = "./policies/warn-public-sensitive-ports.rego"
 
 [[policy]]
+name       = "warn-public-sensitive-ports-modules"
 type       = "terraform_module"
 engine     = "opa"
 components = ["*"]
