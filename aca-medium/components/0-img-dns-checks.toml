@@ -1,0 +1,15 @@
+# action
+name = "dns-checks"
+type = "container_image"
+
+[public]
+image_url = "nuonco/dns-checks"
+tag       = "latest"
+
+[verification]
+require_signature = true
+
+[[verification.authorities]]
+type    = "keyless"
+issuer  = "https://token.actions.githubusercontent.com"
+subject = "https://github.com/nuonco/actions/.github/workflows/images.yml@refs/heads/main"

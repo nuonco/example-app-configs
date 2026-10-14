@@ -1,0 +1,1004 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "nuonInstallID": {
+      "type": "String",
+      "metadata": {
+        "description": "Injected by Nuon. The unique identifier for the installation. This is used to ensure that the Resource Group and Virtual Network names are unique across deployments."
+      }
+    },
+    "location": {
+      "type": "String",
+      "metadata": {
+        "description": "Injected by Nuon. The region where the virtual network will be deployed. Nuon binds this to the install's Azure location; the name must stay 'location' to receive it."
+      }
+    },
+    "commonTags": {
+      "type": "Object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Injected by Nuon: install_nuon_co_id, org_nuon_co_id, app_nuon_co_id."
+      }
+    },
+    "resourceGroupName": {
+      "defaultValue": "[format('rg-lvbdev-net-{0}-01', parameters('nuonInstallID'))]",
+      "type": "String",
+      "metadata": {
+        "description": "Optional. The name of the resource group to be created. If not provided, a default name will be generated based."
+      }
+    },
+    "virtualNetworkName": {
+      "defaultValue": "[format('{0}-vnet', parameters('nuonInstallID'))]",
+      "type": "String",
+      "metadata": {
+        "description": "Optional. The name of the virtual network to be created. Defaults to <install id>-vnet, matching Nuon's built-in VNet naming."
+      }
+    },
+    "addressSpace": {
+      "defaultValue": "10.100.0.0/22",
+      "type": "String",
+      "metadata": {
+        "description": "Optional. The address space for the virtual network. A /22 or larger is REQUIRED to accommodate all subnets."
+      }
+    },
+    "availabilityZones": {
+      "defaultValue": ["1", "2", "3"],
+      "type": "Array",
+      "metadata": {
+        "description": "Optional. Availability zones used by the AKS cluster and its node pools. Only surfaced as the availabilityZones output; no resource in this template consumes it."
+      }
+    },
+    "clusterIngressEndpointType": {
+      "defaultValue": "public",
+      "type": "String",
+      "allowedValues": ["public", "private"],
+      "metadata": {
+        "description": "Optional. Ingress endpoint type. private: previews served from the internal istio gateway. public: external gateway on a public IP."
+      }
+    },
+    "enableAzureFirewall": {
+      "defaultValue": false,
+      "type": "Bool",
+      "metadata": {
+        "description": "Optional. Force all egress through an Azure Firewall. Honored only when clusterIngressEndpointType is private; public ingress combined with a firewall default route is not offered -- it makes inbound return traffic asymmetric."
+      }
+    },
+    "enableFrontDoor": {
+      "defaultValue": false,
+      "type": "Bool",
+      "metadata": {
+        "description": "Optional. Request Azure Front Door in front of the public ingress. Honored only when clusterIngressEndpointType is public. Only surfaced as the enableFrontDoor output; Front Door is created downstream."
+      }
+    }
+  },
+  "variables": {
+    "subnetNames": {
+      "runner": "snet-nuon",
+      "agw": "snet-agw",
+      "systemNodepool": "snet-system-nodepool",
+      "sandboxNodepool": "snet-sandbox-nodepool",
+      "applicationPrivateEndpoints": "snet-application-private-endpoints"
+    },
+    "networkProfile": "[if(equals(parameters('clusterIngressEndpointType'), 'public'), 'PublicNoFirewall', if(parameters('enableAzureFirewall'), 'PrivateWithFirewall', 'PrivateNoFirewall'))]",
+    "enablePrivateAccess": "[not(equals(variables('networkProfile'), 'PublicNoFirewall'))]",
+    "enableAzureFirewall": "[equals(variables('networkProfile'), 'PrivateWithFirewall')]",
+    "enableFrontDoor": "[and(equals(parameters('clusterIngressEndpointType'), 'public'), parameters('enableFrontDoor'))]"
+  },
+  "resources": {
+    "resourceGroup": {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2026-06-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": "[union(parameters('commonTags'), createObject('install-nuon-co-id', parameters('nuonInstallID')))]"
+    },
+    "virtualNetworkDeployment": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "virtual-network-deployment",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "dependsOn": ["resourceGroup"],
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "addressSpace": {
+            "value": "[parameters('addressSpace')]"
+          },
+          "commonTags": {
+            "value": "[parameters('commonTags')]"
+          },
+          "subnetNames": {
+            "value": "[variables('subnetNames')]"
+          },
+          "enablePrivateAccess": {
+            "value": "[variables('enablePrivateAccess')]"
+          },
+          "enableAzureFirewall": {
+            "value": "[variables('enableAzureFirewall')]"
+          },
+          "enableFrontDoor": {
+            "value": "[variables('enableFrontDoor')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "String"
+            },
+            "virtualNetworkName": {
+              "type": "String"
+            },
+            "addressSpace": {
+              "type": "String"
+            },
+            "commonTags": {
+              "type": "Object"
+            },
+            "subnetNames": {
+              "type": "Object"
+            },
+            "enablePrivateAccess": {
+              "type": "Bool"
+            },
+            "enableAzureFirewall": {
+              "type": "Bool"
+            },
+            "enableFrontDoor": {
+              "type": "Bool"
+            }
+          },
+          "variables": {
+            "apiserverSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 27, 0)]",
+            "pgsqlSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 27, 1)]",
+            "platformPrivateEndpointsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 28, 4)]",
+            "publishingSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 2)]",
+            "nuonRunnerSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 29, 10)]",
+            "agwSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 24, 1)]",
+            "systemNodepoolSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 8)]",
+            "sandboxNodepoolsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 25, 5)]",
+            "applicationPrivateEndpointsSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 25, 6)]",
+            "azureFirewallSubnetAddressPrefix": "[cidrSubnet(parameters('addressSpace'), 26, 14)]",
+            "k8sPublicIpName": "pip-k8s-ingress",
+            "firewallName": "afw-service",
+            "firewallPolicyName": "afwp-service",
+            "firewallPublicIpName": "pip-afw",
+            "routeTableName": "rt-egress",
+            "firewallPrivateIp": "[cidrHost(variables('azureFirewallSubnetAddressPrefix'), 3)]",
+            "natGatewayName": "natgw-nuon",
+            "natGatewayPublicIpName": "pip-natgw",
+            "publicIngressRuleBase": {
+              "priority": 100,
+              "access": "Allow",
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "[if(parameters('enableFrontDoor'), 'AzureFrontDoor.Backend', 'Internet')]"
+            }
+          },
+          "resources": {
+            "virtualNetwork": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2025-07-01",
+              "name": "[parameters('virtualNetworkName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": "[array(parameters('addressSpace'))]"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "dhcpOptions": {
+                  "dnsServers": []
+                },
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+              }
+            },
+            "snet_nuon": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').runner)]",
+              "dependsOn": ["virtualNetwork", "nsg_snet_nuon", "route_table", "natgw"],
+              "properties": {
+                "addressPrefixes": "[array(variables('nuonRunnerSubnetAddressPrefix'))]",
+                "routeTable": "[if(parameters('enableAzureFirewall'), createObject('id', resourceId('Microsoft.Network/routeTables', variables('routeTableName'))), null())]",
+                "natGateway": "[if(parameters('enableAzureFirewall'), null(), createObject('id', resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))))]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').runner))]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "nsg_snet_nuon": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "[concat('nsg-', parameters('subnetNames').runner)]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_agw": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').agw)]",
+              "dependsOn": ["snet_nuon", "nsg_snet_agw"],
+              "properties": {
+                "addressPrefixes": "[array(variables('agwSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "alb",
+                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').agw), '/delegations/alb')]",
+                    "properties": {
+                      "serviceName": "Microsoft.ServiceNetworking/trafficControllers"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                  }
+                ],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').agw))]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "nsg_snet_agw": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "[concat('nsg-', parameters('subnetNames').agw)]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_apiserver": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-apiserver')]",
+              "dependsOn": ["snet_agw", "nsg_snet_apiserver"],
+              "properties": {
+                "addressPrefixes": "[array(variables('apiserverSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "aks-delegation",
+                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-apiserver'), '/delegations/aks-delegation')]",
+                    "properties": {
+                      "serviceName": "Microsoft.ContainerService/managedClusters"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                  }
+                ],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-apiserver')]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "nsg_snet_apiserver": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "nsg-snet-apiserver",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_pgsql": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-pgsql')]",
+              "dependsOn": ["snet_apiserver", "nsg_snet_pgsql"],
+              "properties": {
+                "addressPrefixes": "[array(variables('pgsqlSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "postgres-flexible-server",
+                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-pgsql'), '/delegations/postgres-flexible-server')]",
+                    "properties": {
+                      "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+                    },
+                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                  }
+                ],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-pgsql')]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "nsg_snet_pgsql": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "nsg-snet-pgsql",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_platform_private_endpoints": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-platform-private-endpoints')]",
+              "dependsOn": ["snet_pgsql", "nsg_snet_platform_private_endpoints", "route_table"],
+              "properties": {
+                "addressPrefixes": "[array(variables('platformPrivateEndpointsSubnetAddressPrefix'))]",
+                "routeTable": "[if(parameters('enableAzureFirewall'), createObject('id', resourceId('Microsoft.Network/routeTables', variables('routeTableName'))), null())]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-platform-private-endpoints')]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "nsg_snet_platform_private_endpoints": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "nsg-snet-platform-private-endpoints",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_application_private_endpoints": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').applicationPrivateEndpoints)]",
+              "dependsOn": ["snet_platform_private_endpoints", "nsg_snet_application_private_endpoints", "route_table"],
+              "properties": {
+                "addressPrefixes": "[array(variables('applicationPrivateEndpointsSubnetAddressPrefix'))]",
+                "routeTable": "[if(parameters('enableAzureFirewall'), createObject('id', resourceId('Microsoft.Network/routeTables', variables('routeTableName'))), null())]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').applicationPrivateEndpoints))]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "nsg_snet_application_private_endpoints": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "[concat('nsg-', parameters('subnetNames').applicationPrivateEndpoints)]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_system_nodepool": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').systemNodepool)]",
+              "dependsOn": ["snet_application_private_endpoints", "nsg_snet_system_nodepool", "route_table"],
+              "properties": {
+                "addressPrefixes": "[array(variables('systemNodepoolSubnetAddressPrefix'))]",
+                "routeTable": "[if(parameters('enableAzureFirewall'), createObject('id', resourceId('Microsoft.Network/routeTables', variables('routeTableName'))), null())]",
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').systemNodepool))]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "nsg_snet_system_nodepool": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "[concat('nsg-', parameters('subnetNames').systemNodepool)]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "dependsOn": ["pip_k8s_ingress"],
+              "properties": {
+                "securityRules": "[if(parameters('enablePrivateAccess'), createArray(), createArray(createObject('name', 'allow_https', 'properties', union(variables('publicIngressRuleBase'), createObject('destinationAddressPrefix', reference('pip_k8s_ingress').ipAddress)))))]"
+              }
+            },
+            "snet_sandbox_nodepools": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetNames').sandboxNodepool)]",
+              "dependsOn": ["snet_system_nodepool", "nsg_snet_sandbox_nodepool", "route_table"],
+              "properties": {
+                "addressPrefixes": "[array(variables('sandboxNodepoolsSubnetAddressPrefix'))]",
+                "routeTable": "[if(parameters('enableAzureFirewall'), createObject('id', resourceId('Microsoft.Network/routeTables', variables('routeTableName'))), null())]",
+                "natGateway": null,
+                "serviceEndpoints": [],
+                "delegations": [],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').sandboxNodepool))]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "nsg_snet_sandbox_nodepool": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "[concat('nsg-', parameters('subnetNames').sandboxNodepool)]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "snet_publishing": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/snet-publishing')]",
+              "dependsOn": ["snet_sandbox_nodepools", "nsg_snet_publishing", "route_table", "natgw"],
+              "properties": {
+                "addressPrefixes": "[array(variables('publishingSubnetAddressPrefix'))]",
+                "routeTable": "[if(parameters('enableAzureFirewall'), createObject('id', resourceId('Microsoft.Network/routeTables', variables('routeTableName'))), null())]",
+                "natGateway": "[if(parameters('enableAzureFirewall'), null(), createObject('id', resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))))]",
+                "serviceEndpoints": [],
+                "delegations": [
+                  {
+                    "name": "function-flex",
+                    "properties": {
+                      "serviceName": "Microsoft.App/environments"
+                    }
+                  }
+                ],
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-publishing')]"
+                },
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+              }
+            },
+            "nsg_snet_publishing": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2025-07-01",
+              "name": "nsg-snet-publishing",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            "azure_firewall_subnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(parameters('virtualNetworkName'), '/AzureFirewallSubnet')]",
+              "dependsOn": ["snet_publishing"],
+              "properties": {
+                "addressPrefixes": "[array(variables('azureFirewallSubnetAddressPrefix'))]",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+              }
+            },
+            "pip_k8s_ingress": {
+              "condition": "[not(parameters('enablePrivateAccess'))]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('k8sPublicIpName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "zones": ["1", "2", "3"],
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 30,
+                "ipTags": []
+              }
+            },
+            "pip_afw": {
+              "condition": "[parameters('enableAzureFirewall')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('firewallPublicIpName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "zones": ["1", "2", "3"],
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "ipTags": []
+              }
+            },
+            "firewall_policy": {
+              "condition": "[parameters('enableAzureFirewall')]",
+              "type": "Microsoft.Network/firewallPolicies",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('firewallPolicyName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "sku": {
+                  "tier": "Standard"
+                },
+                "threatIntelMode": "Off",
+                "dnsSettings": {
+                  "enableProxy": false
+                }
+              }
+            },
+            "firewall_policy_nuon_runner": {
+              "condition": "[parameters('enableAzureFirewall')]",
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2025-07-01",
+              "name": "[concat(variables('firewallPolicyName'), '/Nuon-Runner')]",
+              "dependsOn": ["firewall_policy"],
+              "properties": {
+                "priority": 100,
+                "ruleCollections": [
+                  {
+                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                    "name": "nuon-runner-network",
+                    "priority": 100,
+                    "action": {
+                      "type": "Allow"
+                    },
+                    "rules": [
+                      {
+                        "ruleType": "NetworkRule",
+                        "name": "allow-runner-https",
+                        "ipProtocols": ["TCP"],
+                        "sourceAddresses": "[array(variables('nuonRunnerSubnetAddressPrefix'))]",
+                        "destinationAddresses": ["*"],
+                        "destinationPorts": ["443"]
+                      },
+                      {
+                        "ruleType": "NetworkRule",
+                        "name": "allow-runner-ntp",
+                        "ipProtocols": ["UDP"],
+                        "sourceAddresses": "[array(variables('nuonRunnerSubnetAddressPrefix'))]",
+                        "destinationAddresses": ["*"],
+                        "destinationPorts": ["123"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "firewall": {
+              "condition": "[parameters('enableAzureFirewall')]",
+              "type": "Microsoft.Network/azureFirewalls",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('firewallName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "zones": ["1", "2", "3"],
+              "dependsOn": ["azure_firewall_subnet", "pip_afw", "firewall_policy", "firewall_policy_nuon_runner"],
+              "properties": {
+                "sku": {
+                  "name": "AZFW_VNet",
+                  "tier": "Standard"
+                },
+                "firewallPolicy": {
+                  "id": "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
+                },
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'AzureFirewallSubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewallPublicIpName'))]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "route_table": {
+              "condition": "[parameters('enableAzureFirewall')]",
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('routeTableName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "properties": {
+                "routes": [
+                  {
+                    "name": "default-to-firewall",
+                    "properties": {
+                      "addressPrefix": "0.0.0.0/0",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "[variables('firewallPrivateIp')]"
+                    }
+                  }
+                ]
+              }
+            },
+            "pip_natgw": {
+              "condition": "[not(parameters('enableAzureFirewall'))]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('natGatewayPublicIpName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "sku": {
+                "name": "StandardV2",
+                "tier": "Regional"
+              },
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            "natgw": {
+              "condition": "[not(parameters('enableAzureFirewall'))]",
+              "type": "Microsoft.Network/natGateways",
+              "apiVersion": "2025-07-01",
+              "name": "[variables('natGatewayName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('commonTags')]",
+              "sku": {
+                "name": "StandardV2"
+              },
+              "dependsOn": ["pip_natgw"],
+              "properties": {
+                "idleTimeoutInMinutes": 4,
+                "publicIpAddresses": [
+                  {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('natGatewayPublicIpName'))]"
+                  }
+                ]
+              }
+            }
+          },
+          "outputs": {
+            "virtualNetworkName": {
+              "type": "string",
+              "value": "[parameters('virtualNetworkName')]"
+            },
+            "virtualNetworkId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+            },
+            "nuonSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').runner)]"
+            },
+            "nuonNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').runner))]"
+            },
+            "agwSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').agw)]"
+            },
+            "agwNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').agw))]"
+            },
+            "apiserverSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-apiserver')]"
+            },
+            "apiserverNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-apiserver')]"
+            },
+            "postgresSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-pgsql')]"
+            },
+            "postgresNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-pgsql')]"
+            },
+            "platformPrivateEndpointsSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'snet-platform-private-endpoints')]"
+            },
+            "platformPrivateEndpointsNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-platform-private-endpoints')]"
+            },
+            "applicationPrivateEndpointsSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').applicationPrivateEndpoints)]"
+            },
+            "applicationPrivateEndpointsNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').applicationPrivateEndpoints))]"
+            },
+            "systemNodepoolSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').systemNodepool)]"
+            },
+            "systemNodepoolNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').systemNodepool))]"
+            },
+            "sandboxNodepoolSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames').sandboxNodepool)]"
+            },
+            "sandboxNodepoolNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnetNames').sandboxNodepool))]"
+            },
+            "publishingNsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-snet-publishing')]"
+            },
+            "azureFirewallSubnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'AzureFirewallSubnet')]"
+            },
+            "k8sPublicIpName": {
+              "type": "string",
+              "value": "[if(parameters('enablePrivateAccess'), '', variables('k8sPublicIpName'))]"
+            },
+            "firewallId": {
+              "type": "string",
+              "value": "[if(parameters('enableAzureFirewall'), resourceId('Microsoft.Network/azureFirewalls', variables('firewallName')), '')]"
+            },
+            "firewallPolicyId": {
+              "type": "string",
+              "value": "[if(parameters('enableAzureFirewall'), resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName')), '')]"
+            },
+            "firewallPrivateIpAddress": {
+              "type": "string",
+              "value": "[if(parameters('enableAzureFirewall'), reference('firewall').ipConfigurations[0].properties.privateIPAddress, '')]"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "vnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkId.value]"
+    },
+    "vnetName": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkName.value]"
+    },
+    "runnerSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.nuonSubnetId.value]"
+    },
+    "runnerSubnetName": {
+      "type": "string",
+      "value": "[variables('subnetNames').runner]"
+    },
+    "nuonNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.nuonNsgId.value]"
+    },
+    "privateSubnet1Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.systemNodepoolSubnetId.value]"
+    },
+    "privateSubnet1Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').systemNodepool]"
+    },
+    "privateSubnet2Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.sandboxNodepoolSubnetId.value]"
+    },
+    "privateSubnet2Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').sandboxNodepool]"
+    },
+    "privateSubnet3Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsSubnetId.value]"
+    },
+    "privateSubnet3Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').applicationPrivateEndpoints]"
+    },
+    "privateSubnetIds": {
+      "type": "string",
+      "value": "[join(createArray(reference('virtualNetworkDeployment').outputs.systemNodepoolSubnetId.value, reference('virtualNetworkDeployment').outputs.sandboxNodepoolSubnetId.value, reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsSubnetId.value), ',')]"
+    },
+    "privateSubnetNames": {
+      "type": "string",
+      "value": "[join(createArray(variables('subnetNames').systemNodepool, variables('subnetNames').sandboxNodepool, variables('subnetNames').applicationPrivateEndpoints), ',')]"
+    },
+    "publicSubnet1Id": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwSubnetId.value]"
+    },
+    "publicSubnet1Name": {
+      "type": "string",
+      "value": "[variables('subnetNames').agw]"
+    },
+    "agwNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwNsgId.value]"
+    },
+    "apiserverNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.apiserverNsgId.value]"
+    },
+    "postgresNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.postgresNsgId.value]"
+    },
+    "platformPrivateEndpointsNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.platformPrivateEndpointsNsgId.value]"
+    },
+    "applicationPrivateEndpointsNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsNsgId.value]"
+    },
+    "systemNodepoolNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.systemNodepoolNsgId.value]"
+    },
+    "sandboxNodepoolNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.sandboxNodepoolNsgId.value]"
+    },
+    "publishingNsgId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.publishingNsgId.value]"
+    },
+    "publicSubnet2Id": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnet2Name": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnet3Id": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnet3Name": {
+      "type": "string",
+      "value": ""
+    },
+    "publicSubnetIds": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwSubnetId.value]"
+    },
+    "publicSubnetNames": {
+      "type": "string",
+      "value": "[variables('subnetNames').agw]"
+    },
+    "location": {
+      "type": "string",
+      "value": "[parameters('location')]"
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "value": "[parameters('resourceGroupName')]"
+    },
+    "installUniqueString": {
+      "type": "string",
+      "value": "[substring(uniqueString(parameters('nuonInstallID')), 0, 4)]"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkName.value]"
+    },
+    "virtualNetworkId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.virtualNetworkId.value]"
+    },
+    "nuonSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.nuonSubnetId.value]"
+    },
+    "agwSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.agwSubnetId.value]"
+    },
+    "apiserverSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.apiserverSubnetId.value]"
+    },
+    "postgresSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.postgresSubnetId.value]"
+    },
+    "platformPrivateEndpointsSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.platformPrivateEndpointsSubnetId.value]"
+    },
+    "applicationPrivateEndpointsSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.applicationPrivateEndpointsSubnetId.value]"
+    },
+    "systemNodepoolSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.systemNodepoolSubnetId.value]"
+    },
+    "sandboxNodepoolSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.sandboxNodepoolSubnetId.value]"
+    },
+    "azureFirewallSubnetId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.azureFirewallSubnetId.value]"
+    },
+    "k8sPublicIpName": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.k8sPublicIpName.value]"
+    },
+    "firewallId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.firewallId.value]"
+    },
+    "firewallPolicyId": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.firewallPolicyId.value]"
+    },
+    "firewallPrivateIpAddress": {
+      "type": "string",
+      "value": "[reference('virtualNetworkDeployment').outputs.firewallPrivateIpAddress.value]"
+    },
+    "enablePrivateAccess": {
+      "type": "string",
+      "value": "[toLower(string(variables('enablePrivateAccess')))]"
+    },
+    "enableAzureFirewall": {
+      "type": "string",
+      "value": "[toLower(string(variables('enableAzureFirewall')))]"
+    },
+    "enableFrontDoor": {
+      "type": "string",
+      "value": "[toLower(string(variables('enableFrontDoor')))]"
+    },
+    "networkProfile": {
+      "type": "string",
+      "value": "[variables('networkProfile')]"
+    },
+    "availabilityZones": {
+      "type": "string",
+      "value": "[join(parameters('availabilityZones'), ',')]"
+    }
+  }
+}

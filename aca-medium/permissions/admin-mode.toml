@@ -1,0 +1,11 @@
+type           = "custom"
+cloud_platform = "azure"
+name           = "{{.nuon.install.id}}-admin-mode"
+description    = "grants admin access for {{.nuon.install.id}}."
+display_name   = "break glass admin mode role"
+
+[[policies]]
+name = "break-glass"
+azure_actions = [
+  "*",
+]
