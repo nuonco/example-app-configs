@@ -62,3 +62,9 @@ type       = "helm_chart"
 engine     = "opa"
 components = ["coder"]
 contents   = "./policies/warn-coder-image-pin.rego"
+
+[[policy]]
+type       = "terraform_module"
+engine     = "opa"
+components = ["certificate"]
+contents   = "./policies/warn-wildcard-certificate.rego"
