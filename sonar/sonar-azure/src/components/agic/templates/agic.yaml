@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ingress-azure
+  namespace: {{ .Values.namespace }}
+  annotations:
+    azure.workload.identity/client-id: {{ .Values.identityClientId | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ingress-azure
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "secrets", "endpoints", "configmaps", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingressclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses/status"]
+    verbs: ["update"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ingress-azure
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ingress-azure
+subjects:
+  - kind: ServiceAccount
+    name: ingress-azure
+    namespace: {{ .Values.namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-azure
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ingress-azure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-azure
+  template:
+    metadata:
+      labels:
+        app: ingress-azure
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: ingress-azure
+      containers:
+        - name: ingress-azure
+          image: mcr.microsoft.com/azure-application-gateway/kubernetes-ingress:1.7.6
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AGIC_SUBSCRIPTION_ID
+              value: {{ .Values.subscriptionId | quote }}
+            - name: AGIC_RESOURCE_GROUP
+              value: {{ .Values.resourceGroup | quote }}
+            - name: AGIC_APPLICATION_GATEWAY_NAME
+              value: {{ .Values.applicationGatewayName | quote }}
+            - name: AGIC_IDENTITY_RESOURCE_ID
+              value: {{ .Values.identityResourceId | quote }}
+            - name: AGIC_WATCH_NAMESPACE
+              value: ""
+            - name: AGIC_VERBOSITY_LEVEL
+              value: "3"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: azure-application-gateway
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "false"
+spec:
+  controller: azureapplicationgateway.azure.io/ingress

@@ -1,0 +1,99 @@
+# action
+
+name    = "k8s_status"
+timeout = "5m"
+enable_kube_config = true
+labels  = { service = "kubernetes", type = "report" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name = "k8s-status"
+inline_contents = '''
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo "==> k8s-status: $SONAR_NAMESPACE"
+
+nodes_json=$(kubectl get nodes -o json)
+nodes_total=$(echo "$nodes_json" | jq '.items | length')
+nodes_ready=$(echo "$nodes_json" | jq '[.items[] | select(.status.conditions[]? | select(.type=="Ready" and .status=="True"))] | length')
+
+pod_stats() {
+  ns=$1
+  kubectl get pods -n "$ns" -o json | jq -c --arg ns "$ns" '{
+    namespace: $ns,
+    total: (.items | length),
+    ready: ([.items[]
+      | select(((.status.containerStatuses // []) | length) > 0
+              and ((.status.containerStatuses // []) | all(.ready)))] | length),
+    not_ready: [.items[]
+      | select(((.status.containerStatuses // []) | any(.ready | not))
+              or (.status.phase != "Running" and .status.phase != "Succeeded"))
+      | {name: .metadata.name, phase: .status.phase,
+         reason: (.status.containerStatuses // [] | map(.state | keys[0]?) | join(","))}]
+  }'
+}
+
+deploy_stats() {
+  ns=$1
+  kubectl get deployments -n "$ns" -o json | jq -c --arg ns "$ns" '{
+    namespace: $ns,
+    total: (.items | length),
+    available: ([.items[]
+      | select((.status.availableReplicas // 0) == (.spec.replicas // 0))] | length),
+    under_replicated: [.items[]
+      | select((.status.availableReplicas // 0) != (.spec.replicas // 0))
+      | {name: .metadata.name,
+         want: (.spec.replicas // 0),
+         have: (.status.availableReplicas // 0)}]
+  }'
+}
+
+sonar_pods=$(pod_stats "$SONAR_NAMESPACE")
+sonar_deploys=$(deploy_stats "$SONAR_NAMESPACE")
+
+fail=0
+if [ "$(echo "$sonar_pods" | jq '.not_ready | length')" != "0" ]; then
+  fail=1
+fi
+if [ "$(echo "$sonar_deploys" | jq '.under_replicated | length')" != "0" ]; then
+  fail=1
+fi
+if [ "$nodes_ready" -lt "$nodes_total" ]; then
+  fail=1
+fi
+
+if [ "$fail" = "0" ]; then
+  indicator="🟢"
+else
+  indicator="🔴"
+fi
+
+output=$(jq --null-input -c \
+  --arg indicator "$indicator" \
+  --arg updated_at "$(TZ=UTC date +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson nodes_total "$nodes_total" \
+  --argjson nodes_ready "$nodes_ready" \
+  --argjson sonar_pods "$sonar_pods" \
+  --argjson sonar_deploys "$sonar_deploys" \
+  '{
+    indicator: $indicator,
+    updated_at: $updated_at,
+    nodes: {total: $nodes_total, ready: $nodes_ready},
+    pods: [$sonar_pods],
+    deployments: [$sonar_deploys]
+  }')
+
+echo "$output" | jq .
+echo "$output" >> "$NUON_ACTIONS_OUTPUT_FILEPATH"
+
+[ "$fail" = "0" ] || exit 1
+'''
+
+[steps.env_vars]
+SONAR_NAMESPACE = "sonarqube"

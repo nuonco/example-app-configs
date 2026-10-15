@@ -1,0 +1,20 @@
+name           = "gateway"
+type           = "helm_chart"
+chart_name     = "gateway"
+storage_driver = "configmap"
+namespace      = "sonarqube"
+dependencies   = ["sonarqube", "certificate", "external_dns"]
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "sonar/sonar-gcp/src/components/gateway"
+branch    = "mm/sonar"
+
+[values]
+install_name         = "{{ .nuon.install.id }}"
+namespace            = "sonarqube"
+domain               = "{{ .nuon.install.sandbox.outputs.nuon_dns.public_domain.name }}"
+cert_map             = "{{ .nuon.components.certificate.outputs.cert_map_name }}"
+sonarqube_service    = "sonarqube"
+sonarqube_namespace  = "sonarqube"
+sonarqube_port       = "9000"

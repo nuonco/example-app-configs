@@ -1,0 +1,11 @@
+install_name: ""
+
+name: ""
+domain: ""
+domain_certificate: ""
+https_port: ""
+service_name: ""
+service_port: ""
+
+healthcheck_path: "/livez"
+namespace: ""

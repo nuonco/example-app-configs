@@ -1,0 +1,6 @@
+install_name: ""
+namespace: "sonarqube"
+domain: ""
+service_name: "sonarqube"
+service_port: "9000"
+healthcheck_path: "/api/system/status"

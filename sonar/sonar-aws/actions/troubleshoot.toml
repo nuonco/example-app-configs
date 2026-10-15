@@ -1,0 +1,27 @@
+# action
+name    = "troubleshoot"
+timeout = "5m"
+enable_kube_config = true
+labels  = { service = "kubernetes", type = "tool" }
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name            = "run_command"
+inline_contents = """
+#!/usr/bin/env bash
+set -e
+
+echo "==> Executing troubleshoot command"
+echo "Command: $COMMAND"
+echo ""
+
+eval "$COMMAND"
+
+echo ""
+echo "==> Command completed"
+"""
+
+[steps.env_vars]
+COMMAND = "kubectl get pods -n sonarqube"

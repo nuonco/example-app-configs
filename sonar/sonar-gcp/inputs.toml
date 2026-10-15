@@ -1,0 +1,31 @@
+[[group]]
+name         = "sonarqube"
+description  = "SonarQube Community Build — https://github.com/SonarSource/docker-sonarqube/releases"
+display_name = "SonarQube Configurations"
+
+[[input]]
+name              = "sonarqube_build_number"
+description       = "Exact SonarQube Community Build number (e.g. 26.9.0.129388). Image becomes sonarqube:<buildNumber>-community."
+default           = "26.9.0.129388"
+display_name      = "SonarQube Build Number"
+internal          = false
+user_configurable = true
+group             = "sonarqube"
+
+[[group]]
+name         = "infrastructure"
+description  = "GKE Autopilot https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview"
+display_name = "Infrastructure"
+
+[[group]]
+name         = "database"
+description  = "Cloud SQL PostgreSQL configuration - see https://cloud.google.com/sql/docs/postgres/instance-settings"
+display_name = "Database Configuration"
+
+[[input]]
+name         = "sonar_db_instance_tier"
+description  = "Cloud SQL machine tier for the SonarQube database (e.g. db-custom-2-8192)."
+default      = "db-custom-2-8192"
+display_name = "Database Instance Tier"
+internal     = true
+group        = "database"

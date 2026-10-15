@@ -1,0 +1,59 @@
+[[group]]
+name         = "sonarqube"
+description  = "SonarQube Community Build — https://github.com/SonarSource/docker-sonarqube/releases"
+display_name = "SonarQube Configurations"
+
+[[input]]
+name              = "sonarqube_build_number"
+description       = "Exact SonarQube Community Build number (e.g. 26.9.0.129388). Image becomes sonarqube:<buildNumber>-community."
+default           = "26.9.0.129388"
+display_name      = "SonarQube Build Number"
+internal          = false
+user_configurable = true
+group             = "sonarqube"
+
+[[group]]
+name         = "dns"
+description  = "DNS configuration for the public SonarQube endpoint"
+display_name = "DNS"
+
+[[input]]
+name         = "domain"
+description  = "Root domain for the install (e.g. nuon.run)"
+default      = "nuon.run"
+display_name = "Domain"
+group        = "dns"
+
+[[group]]
+name         = "infrastructure"
+description  = "AKS and Application Gateway networking"
+display_name = "Infrastructure"
+
+[[input]]
+name         = "postgres_subnet_cidr"
+description  = "CIDR for the delegated PostgreSQL Flexible Server subnet. Must fit the install VNet and not overlap existing subnets."
+default      = "10.2.0.0/24"
+display_name = "Postgres Subnet CIDR"
+internal     = true
+group        = "infrastructure"
+
+[[input]]
+name         = "appgw_subnet_cidr"
+description  = "CIDR for the Application Gateway subnet. Must fit the install VNet and not overlap existing subnets."
+default      = "10.3.0.0/24"
+display_name = "App Gateway Subnet CIDR"
+internal     = true
+group        = "infrastructure"
+
+[[group]]
+name         = "database"
+description  = "Azure Database for PostgreSQL Flexible Server"
+display_name = "Database Configuration"
+
+[[input]]
+name         = "sonar_db_sku_name"
+description  = "Flexible Server SKU name (e.g. GP_Standard_D2s_v3)."
+default      = "GP_Standard_D2s_v3"
+display_name = "Database SKU"
+internal     = true
+group        = "database"

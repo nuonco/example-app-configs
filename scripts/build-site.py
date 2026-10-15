@@ -25,6 +25,7 @@ from jinja2 import Environment, FileSystemLoader
 REPO_ROOT = Path(__file__).parent.parent
 DOCS_DIR = REPO_ROOT / "docs"
 SKIP_DIRS = {".git", "scripts", "docs", ".github"}
+CLOUD_SUBDIRS = ("sonar-aws", "sonar-azure", "sonar-gcp", "aws", "azure", "gcp")
 TEMPLATE_FILE = "index.j2.html"
 OUTPUT_FILE = "index.html"
 ONBOARDING_OUTPUT_FILE = "onboarding-apps.json"
@@ -57,19 +58,43 @@ def extract_sandbox_repo(sandbox: dict) -> str | None:
     return None
 
 
+def rel_demo_path(demo_dir: Path) -> str:
+    """Return demo path relative to repo root (e.g. eks-simple or sonar/sonar-aws)."""
+    return demo_dir.relative_to(REPO_ROOT).as_posix()
+
+
+def iter_demo_dirs():
+    """Yield app config directories: top-level apps and nested cloud-qualified app dirs."""
+    for entry in sorted(REPO_ROOT.iterdir()):
+        if not entry.is_dir():
+            continue
+        if entry.name in SKIP_DIRS or entry.name.startswith("."):
+            continue
+
+        nested = [entry / cloud for cloud in CLOUD_SUBDIRS if (entry / cloud / "metadata.toml").is_file()]
+        if nested:
+            for cloud_dir in nested:
+                yield cloud_dir
+            continue
+
+        if (entry / "metadata.toml").is_file():
+            yield entry
+
+
 def build_demo(demo_dir: Path) -> dict | None:
     """Build a demo entry from a directory."""
     metadata = parse_toml(demo_dir / "metadata.toml")
     sandbox = parse_toml(demo_dir / "sandbox.toml")
     meta = parse_yaml(demo_dir / ".meta.yaml")
+    rel = rel_demo_path(demo_dir)
 
     if not metadata:
-        print(f"  Skipping {demo_dir.name}: no metadata.toml", file=sys.stderr)
+        print(f"  Skipping {rel}: no metadata.toml", file=sys.stderr)
         return None
 
     return {
-        "name": demo_dir.name,
-        "title": metadata.get("display_name", demo_dir.name),
+        "name": rel,
+        "title": metadata.get("display_name", rel),
         "description": metadata.get("description", ""),
         "sandbox": extract_sandbox_repo(sandbox),
         "cloud": meta.get("cloud", ""),
@@ -79,7 +104,7 @@ def build_demo(demo_dir: Path) -> dict | None:
         "features": meta.get("features", []),
         "tags": meta.get("tags", []),
         "links": meta.get("links", {}),
-        "github": f"https://github.com/nuonco/example-app-configs/tree/main/{demo_dir.name}",
+        "github": f"https://github.com/nuonco/example-app-configs/tree/main/{rel}",
     }
 
 
@@ -91,17 +116,18 @@ def build_onboarding_entry(demo_dir: Path) -> dict | None:
         return None
 
     meta = parse_yaml(demo_dir / ".meta.yaml")
+    rel = rel_demo_path(demo_dir)
 
     return {
-        "slug": demo_dir.name,
-        "display_name": metadata.get("display_name", demo_dir.name),
+        "slug": rel.replace("/", "-"),
+        "display_name": metadata.get("display_name", rel),
         "description": metadata.get("description", ""),
         "category": onboarding.get("category", ""),
         "difficulty": onboarding.get("difficulty", ""),
         "tags": meta.get("tags", []),
         "cloud_provider": onboarding.get("cloud_provider", ""),
         "repo": REPO_URL,
-        "directory": demo_dir.name,
+        "directory": rel,
         "branch": BRANCH,
     }
 
@@ -118,12 +144,7 @@ def main():
 
     print("Building index.html from template...", file=sys.stderr)
 
-    for entry in sorted(REPO_ROOT.iterdir()):
-        if not entry.is_dir():
-            continue
-        if entry.name in SKIP_DIRS or entry.name.startswith("."):
-            continue
-
+    for entry in iter_demo_dirs():
         demo = build_demo(entry)
         if demo:
             demos.append(demo)
