@@ -1,3 +1,2 @@
 # runner
 runner_type = "aws"
-init_script_url = "https://raw.githubusercontent.com/nuonco/runner/refs/tags/aws-v0.1.11/scripts/aws/init-mng.sh"
