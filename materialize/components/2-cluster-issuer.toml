@@ -1,0 +1,14 @@
+name         = "materialize_cluster_issuer"
+type         = "kubernetes_manifest"
+dependencies = []
+namespace    = "cert-manager"
+max_auto_retries = 5
+
+manifest = """
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: materialize-selfsigned
+spec:
+  selfSigned: {}
+"""

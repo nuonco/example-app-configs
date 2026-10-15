@@ -1,0 +1,28 @@
+name               = "seed_auction_demo"
+timeout            = "10m"
+enable_kube_config = true
+
+[[triggers]]
+type           = "post-deploy-component"
+component_name = "sql_nlb"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "Seed Materialize auction quickstart demo"
+command = "./seed.sh"
+
+[steps.public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "materialize/src/actions/seed_auction_demo"
+branch    = "mm/materialize"
+
+[steps.env_vars]
+TARGET_NAMESPACE = "materialize-environment"
+BACKEND_SECRET   = "materialize-backend"
+SQL_HOST         = "mz-sql.materialize-environment.svc.cluster.local"
+SQL_PORT         = "6875"
+SQL_USER         = "mz_system"
+SQL_DATABASE     = "materialize"
+CONSOLE_URL      = "https://{{.nuon.install.sandbox.outputs.nuon_dns.public_domain.name}}"
