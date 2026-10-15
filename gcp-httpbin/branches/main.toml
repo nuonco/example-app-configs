@@ -8,6 +8,7 @@ branch    = "main"
 [[install_groups]]
 name             = "prod"
 order            = 1
+default          = true
 use_for_previews = true
 
 [install_groups.label_selector]
