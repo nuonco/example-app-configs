@@ -1,0 +1,7 @@
+installId: "{{.nuon.install.id}}"
+domain: "{{.nuon.inputs.inputs.domain}}"
+subDomain: "{{.nuon.inputs.inputs.sub_domain}}"
+namespaces:
+  - whoami
+  - stage
+  - dev

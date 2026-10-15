@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars. Nuon-generated values (install id, runner, phone-home
+# URL, IAM policy documents) arrive in the vendor tfvars and are not listed here.
+
+vpc_id             = "vpc-0123456789abcdef0"
+runner_subnet_id   = "subnet-0123456789abcdef0"
+public_subnet_ids  = ["subnet-aaaaaaaaaaaaaaaaa"]
+private_subnet_ids = ["subnet-bbbbbbbbbbbbbbbbb"]
+
+# Set both together. The sample app that consumes this BYO VPC stack deploys
+# only into whoami. Pass the namespaces your install actually uses — Roles are
+# created in that list and nowhere else. Leave both unset to skip Kubernetes RBAC.
+#
+# eks_cluster_arn        = "arn:aws:eks:us-west-2:111122223333:cluster/my-cluster"
+# maintenance_namespaces = ["whoami"]
