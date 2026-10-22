@@ -38,7 +38,7 @@ module "ec2_instance" {
   source = "terraform-aws-modules/ec2-instance/aws"
 
   name          = "httpbin-${var.install_id}"
-  instance_type = "t2.micro"
+  instance_type = "t2.small"
   ami           = data.aws_ami.amazon_linux_2023.id
   subnet_id     = var.subnet_id
 
