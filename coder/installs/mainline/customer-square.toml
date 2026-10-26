@@ -13,4 +13,4 @@ release = "{{ .nuon.install.inputs.coder_image_tag }}"
 region = "us-east-1"
 
 [[inputs]]
-coder_image_tag = "v2.36.3"
+coder_image_tag = "v2.38.1"

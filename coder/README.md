@@ -54,7 +54,7 @@
 {{ $previewLbl  := dig "preview" "" $labels }}
 {{ $installName := dig "name" "" $install }}
 {{ $inEarly     := default dict (dig "inputs" dict $install) }}
-{{ $coderTag    := dig "coder_image_tag" "v2.33.10" $inEarly }}
+{{ $coderTag    := dig "coder_image_tag" "v2.37.5" $inEarly }}
 {{ $releaseLbl  := dig "release" "" $labels }}
 {{ if eq $releaseLbl "" }}{{ $releaseLbl = $coderTag }}{{ end }}
 
@@ -286,7 +286,7 @@ The vendor pins these in the app config / install configs (not via the install s
 
 | Input | Current value | Description |
 |---|---|---|
-| `coder_image_tag` | `{{ dig "coder_image_tag" "—" $in }}` | Exact Coder container image tag (e.g. `v2.33.10`). Also drives the `release` label. |
+| `coder_image_tag` | `{{ dig "coder_image_tag" "—" $in }}` | Exact Coder container image tag (e.g. `v2.37.5`). Also drives the `release` label. |
 | `replicas` | `{{ dig "replicas" "—" $in }}` | Coder control plane replica count |
 | `provisioners` | `{{ dig "provisioners" "—" $in }}` | Terraform provisioners for workspace lifecycle |
 | `cluster_version` | `{{ dig "cluster_version" "—" $in }}` | EKS Kubernetes version |
@@ -343,7 +343,7 @@ Set the tag **once** in `[[inputs]]`. The `release` label is templated from it �
 
 ```toml
 [[inputs]]
-coder_image_tag = "v2.33.10"
+coder_image_tag = "v2.37.5"
 
 [labels]
 channel = "stable"
@@ -360,38 +360,38 @@ gh api "repos/coder/coder/releases?per_page=15" --jq 'sort_by(.published_at) | r
 
 Last ten **mainline** (newest first; `*` = used in this app’s install configs):
 
+- `v2.38.2`
+- `v2.38.1` *
+- `v2.38.0`
 - `v2.37.3`
 - `v2.37.2`
 - `v2.37.1`
 - `v2.37.0`
 - `v2.36.4`
-- `v2.36.3` *
+- `v2.36.3`
 - `v2.36.1`
-- `v2.36.0`
-- `v2.35.2`
-- `v2.35.1`
 
 Last ten **stable**:
 
+- `v2.37.6`
+- `v2.37.5` *
+- `v2.37.4` *
+- `v2.36.7`
 - `v2.36.6`
 - `v2.36.5`
 - `v2.35.4`
 - `v2.34.6`
 - `v2.33.11`
-- `v2.33.10` *
-- `v2.33.9`
-- `v2.33.8` *
-- `v2.33.7`
-- `v2.32.5`
+- `v2.33.10`
 
-Sample pins are intentionally several releases back so you can demo an upgrade to a newer tag.
+Sample pins: stable/preview/default one behind latest stable; mainline one behind latest mainline; pinned two behind latest stable — so you can demo an upgrade to a newer tag.
 
 | Cohort | Directory | Installs | `coder_image_tag` | On branch runs? |
 |---|---|---|---|---|
-| Mainline | `installs/mainline/` | `customer-square(-stage)`, `customer-dropbox(-stage)` | `v2.36.3` | Yes — `env=stage` then `env=prod` |
-| Stable | `installs/stable/` | `customer-palantir(-stage)`, `customer-mercedes-benz(-stage)`, `customer-kkr(-stage)` | `v2.33.10` | Yes — `env=stage` then `env=prod` |
-| Pinned | `installs/pinned/` | `customer-discord(-stage)`, `customer-dod(-stage)` | `v2.33.8` | Yes — `env=stage` then `env=prod` |
-| Preview | `installs/preview.toml` | `preview` | `v2.33.10` (`channel=stable`) | Yes — on `main`; targeted by `branches preview` via `preview = "true"` |
+| Mainline | `installs/mainline/` | `customer-square(-stage)`, `customer-dropbox(-stage)` | `v2.38.1` | Yes — `env=stage` then `env=prod` |
+| Stable | `installs/stable/` | `customer-palantir(-stage)`, `customer-mercedes-benz(-stage)`, `customer-kkr(-stage)` | `v2.37.5` | Yes — `env=stage` then `env=prod` |
+| Pinned | `installs/pinned/` | `customer-discord(-stage)`, `customer-dod(-stage)` | `v2.37.4` | Yes — `env=stage` then `env=prod` |
+| Preview | `installs/preview.toml` | `preview` | `v2.37.5` (`channel=stable`) | Yes — on `main`; targeted by `branches preview` via `preview = "true"` |
 
 Each fictional customer has a **stage** install and a **prod** install (same `coder_image_tag` / channel). A branch run (push under `coder/`, or `branches trigger`) deploys stage first, then prod. Channel folders only control which Coder binary cohort you sync when bumping tags.
 
