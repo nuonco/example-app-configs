@@ -3,7 +3,6 @@
 {{ $installStack := default dict (dig "install_stack" dict $nuonRoot) }}
 {{ $actionsMap  := default dict (dig "actions" dict $nuonRoot) }}
 {{ $workflows   := default dict (dig "workflows" dict $actionsMap) }}
-{{ $installID   := dig "id" "" $install }}
 
 {{ $k8s   := default dict (dig "k8s_status" dict $workflows) }}
 {{ $coder := default dict (dig "coder_health" dict $workflows) }}
@@ -128,15 +127,15 @@ Coder's cloud development environment platform — for developers and agents. Th
 <table>
   <thead><tr><th>Subsystem</th><th>Status</th><th>Action</th></tr></thead>
   <tbody>
-    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $k8sID }}<a href="./{{ $installID }}/actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">k8s_status</code>{{ end }}</td></tr>
-    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $coderID }}<a href="./{{ $installID }}/actions/{{ $coderID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_health</code>{{ end }}</td></tr>
-    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if and $installID $albID }}<a href="./{{ $installID }}/actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
+    <tr><td>Kubernetes</td><td>{{ if eq $k8sInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $k8sInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if $k8sID }}<a href="./actions/{{ $k8sID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">k8s_status</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">k8s_status</code>{{ end }}</td></tr>
+    <tr><td>Coder API</td><td>{{ if eq $coderInd "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $coderInd "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if $coderID }}<a href="./actions/{{ $coderID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_health</code>{{ end }}</td></tr>
+    <tr><td>ALB · Coder ingress</td><td>{{ if eq $albCoder "🟢" }}<nuon-status status="active" variant="badge"></nuon-status>{{ else if eq $albCoder "🔴" }}<nuon-status status="error" variant="badge"></nuon-status>{{ else }}<nuon-status status="pending" variant="badge"></nuon-status>{{ end }}</td><td>{{ if $albID }}<a href="./actions/{{ $albID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">alb_healthcheck</code>{{ end }}</td></tr>
   </tbody>
 </table>
 
 <div style="display:flex; align-items:baseline; gap:0.75rem; margin-top:1.25rem; margin-bottom:0.5rem;">
   <p style="font-size:1.05rem; font-weight:700; margin:0;">Coder health</p>
-  <span style="font-size:0.85em; color:#6b7280;">action:</span> {{ if and $installID $dhID }}<a href="./{{ $installID }}/actions/{{ $dhID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>{{ end }}
+  <span style="font-size:0.85em; color:#6b7280;">action:</span> {{ if $dhID }}<a href="./actions/{{ $dhID }}" style="color:inherit; text-decoration:none;"><code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code></a>{{ else }}<code style="font-size:0.85em; color:#6b7280;">coder_deployment_health</code>{{ end }}
   {{ with $dhUpdated }}<span style="margin-left:auto; font-size:0.85em; color:#6b7280;">Last updated <nuon-time time="{{ . }}" format="relative"></nuon-time></span>{{ end }}
 </div>
 
