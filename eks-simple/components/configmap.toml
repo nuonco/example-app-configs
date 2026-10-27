@@ -1,0 +1,15 @@
+#:schema https://api.nuon.co/v1/general/config-schema?type=kubernetes-manifest
+
+name   = "configmap" 
+type   = "kubernetes_manifest"
+
+namespace = "{{.nuon.install.id}}"
+manifest = """
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.nuon.install.id}}
+  namespace: {{.nuon.install.id}}
+data:
+  DEMO_KEY: hello erc!
+"""
