@@ -1,0 +1,4 @@
+# input-group
+name         = "infrastructure"
+description  = "EKS https://docs.aws.amazon.com/eks/"
+display_name = "Infrastructure"

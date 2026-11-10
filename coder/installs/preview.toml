@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=install
+# install
 
 # Preview install for branches preview (default plan-only). Use --mode apply
 # or dashboard Mode → Apply to smoke-test. On main so create/apply work.

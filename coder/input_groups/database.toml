@@ -1,0 +1,4 @@
+# input-group
+name         = "database"
+description  = "RDS PostgreSQL database configuration - See https://aws.amazon.com/rds/instance-types/"
+display_name = "Database Configuration"
