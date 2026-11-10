@@ -327,7 +327,7 @@ Update the parameter in the install stack and re-run the secret sync from the **
 
 <br/>
 
-The Coder binary is selected per install via the `coder_image_tag` input (wired to `coder.image.tag` in [`components/values/coder.yaml`](./components/values/coder.yaml)):
+The Coder binary is selected per install via the `coder_image_tag` input (wired to `coder.image.tag` in the inline values on [`components/2-coder.toml`](./components/2-coder.toml)):
 
 ```yaml
 tag: "{{.nuon.inputs.inputs.coder_image_tag}}"

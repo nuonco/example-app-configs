@@ -1,0 +1,4 @@
+# input-group
+name         = "coder"
+description  = "Coder Configrations for the Coder Cloud Development Environment platform https://github.com/coder/coder/releases"
+display_name = "Coder Configurations"

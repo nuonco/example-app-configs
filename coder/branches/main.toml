@@ -1,3 +1,4 @@
+# branch
 # Continuous train on push. Coder image tag is an install input, not a Nuon app branch.
 name = "main"
 
@@ -13,7 +14,7 @@ branch    = "main"
 mode = "push"
 
 [preview]
-mode          = "plan-only"
+mode          = "apply"
 set_statuses  = false
 comment       = false
 ignore_drafts = true

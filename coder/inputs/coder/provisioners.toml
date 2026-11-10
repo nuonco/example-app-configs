@@ -1,0 +1,7 @@
+# input
+name         = "provisioners"
+description  = "The number of Terraform provisioners to create and destroy workspace resources"
+default      = "3"
+display_name = "Terraform Provisioners"
+internal     = true
+group        = "coder"

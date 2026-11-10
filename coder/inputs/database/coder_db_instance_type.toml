@@ -1,0 +1,7 @@
+# input
+name         = "coder_db_instance_type"
+description  = "RDS instance type for Coder database."
+default      = "db.t4g.micro"
+display_name = "Database Instance Type"
+internal     = true
+group        = "database"

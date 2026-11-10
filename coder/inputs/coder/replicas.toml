@@ -1,0 +1,7 @@
+# input
+name         = "replicas"
+description  = "The number of replicas of the Coder control plane pods to deploy"
+default      = "1"
+display_name = "Coder Replicas"
+internal     = true
+group        = "coder"

@@ -1,4 +1,4 @@
-#:schema https://api.nuon.co/v1/general/config-schema?type=install
+# install
 
 # Prefer installs sync on this file/folder for Coder tag bumps.
 name = "customer-discord-stage"

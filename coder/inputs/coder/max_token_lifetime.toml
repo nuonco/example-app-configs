@@ -1,0 +1,8 @@
+# input
+name              = "max_token_lifetime"
+description       = "Maximum lifetime of a user token for CLI and API access"
+default           = "8760h0m0s"
+display_name      = "Token Lifetime"
+internal          = false
+user_configurable = true
+group             = "coder"

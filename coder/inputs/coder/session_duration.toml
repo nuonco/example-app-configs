@@ -1,0 +1,8 @@
+# input
+name              = "session_duration"
+description       = "Duration of a user session before requiring re-authentication"
+default           = "168h0m0s"
+display_name      = "Session duration"
+internal          = false
+user_configurable = true
+group             = "coder"
