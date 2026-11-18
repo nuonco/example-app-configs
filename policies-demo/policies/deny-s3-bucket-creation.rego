@@ -1,4 +1,5 @@
-# the s3-bucket component creates an aws_s3_bucket resource, which intentionally triggers the following policy:
+# the s3-bucket component creates an aws_s3_bucket resource, which intentionally triggers the following policy.
+# policy-only change: contents updated so the s3_bucket component should roll out.
 
 package nuon
 
