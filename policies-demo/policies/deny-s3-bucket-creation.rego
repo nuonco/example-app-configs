@@ -8,3 +8,5 @@ deny contains msg if {
 	resource.change.actions[_] == "create"
 	msg := sprintf("S3 bucket creation is not allowed (%s)", [resource.address])
 }
+
+# paths-e2e policy file change
