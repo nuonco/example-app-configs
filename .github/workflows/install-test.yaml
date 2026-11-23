@@ -121,7 +121,7 @@ jobs:
       STACK_PREFIX: nuon-e2e
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
 
       - name: Install nuon CLI
         run: ./scripts/install-cli.sh
@@ -132,7 +132,7 @@ jobs:
         run: printf '%s' "$NUON_CONFIG" > "$HOME/.nuon"
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.3.1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -344,7 +344,7 @@ jobs:
       STACK_PREFIX: nuon-e2e
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
 
       - name: Install nuon CLI
         run: ./scripts/install-cli.sh
@@ -355,7 +355,7 @@ jobs:
         run: printf '%s' "$NUON_CONFIG" > "$HOME/.nuon"
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.3.1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
