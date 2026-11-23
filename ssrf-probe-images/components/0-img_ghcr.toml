@@ -1,0 +1,6 @@
+name   = "img_ghcr"
+type   = "container_image"
+
+[public]
+image_url = "ghcr.io/stefanprodan/podinfo"
+tag       = "latest"

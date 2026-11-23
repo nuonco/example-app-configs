@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Grant the runner security group network access to the EKS cluster
+
+Parameters:
+  ClusterName:
+    Type: String
+  NuonInstallID:
+    Type: String
+
+Resources:
+  SgAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SgAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - eks:DescribeCluster
+                Resource: !Sub arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeSecurityGroups
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:RevokeSecurityGroupIngress
+                Resource: "*"
+
+  SgAccessFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.12
+      Handler: index.handler
+      Timeout: 120
+      Role: !GetAtt SgAccessRole.Arn
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import urllib3
+
+          http = urllib3.PoolManager()
+
+          def send_cfn_response(event, context, status, data=None, reason=""):
+              body = json.dumps({
+                  "Status": status,
+                  "Reason": reason or f"See CloudWatch Log Stream: {context.log_stream_name}",
+                  "PhysicalResourceId": event.get("PhysicalResourceId", context.log_stream_name),
+                  "StackId": event["StackId"],
+                  "RequestId": event["RequestId"],
+                  "LogicalResourceId": event["LogicalResourceId"],
+                  "Data": data or {},
+              })
+              http.request("PUT", event["ResponseURL"], body=body, headers={"Content-Type": ""})
+
+          def find_runner_sg(ec2, install_id):
+              resp = ec2.describe_security_groups(Filters=[
+                  {"Name": "tag:network.nuon.co/domain", "Values": ["runner"]},
+                  {"Name": "tag:install.nuon.co/id", "Values": [install_id]},
+              ])
+              sgs = resp["SecurityGroups"]
+              if not sgs:
+                  raise Exception(f"No runner security group found for install {install_id}")
+              return sgs[0]["GroupId"]
+
+          def get_cluster_sg(eks, cluster_name):
+              cluster = eks.describe_cluster(name=cluster_name)["cluster"]
+              sg = cluster["resourcesVpcConfig"].get("clusterSecurityGroupId")
+              if not sg:
+                  raise Exception(f"No cluster security group found for {cluster_name}")
+              return sg
+
+          def ensure_ingress(ec2, cluster_sg, runner_sg):
+              try:
+                  ec2.authorize_security_group_ingress(
+                      GroupId=cluster_sg,
+                      IpPermissions=[{
+                          "IpProtocol": "-1",
+                          "UserIdGroupPairs": [{"GroupId": runner_sg}],
+                      }],
+                  )
+              except ec2.exceptions.ClientError as e:
+                  if "InvalidPermission.Duplicate" not in str(e):
+                      raise
+
+          def revoke_ingress(ec2, cluster_sg, runner_sg):
+              try:
+                  ec2.revoke_security_group_ingress(
+                      GroupId=cluster_sg,
+                      IpPermissions=[{
+                          "IpProtocol": "-1",
+                          "UserIdGroupPairs": [{"GroupId": runner_sg}],
+                      }],
+                  )
+              except ec2.exceptions.ClientError as e:
+                  if "InvalidPermission.NotFound" not in str(e):
+                      raise
+
+          def handler(event, context):
+              try:
+                  props = event["ResourceProperties"]
+                  cluster_name = props["ClusterName"]
+                  install_id = props["NuonInstallID"]
+
+                  ec2 = boto3.client("ec2")
+                  eks = boto3.client("eks")
+
+                  runner_sg = find_runner_sg(ec2, install_id)
+                  cluster_sg = get_cluster_sg(eks, cluster_name)
+
+                  if event["RequestType"] == "Delete":
+                      revoke_ingress(ec2, cluster_sg, runner_sg)
+                  else:
+                      ensure_ingress(ec2, cluster_sg, runner_sg)
+
+                  send_cfn_response(event, context, "SUCCESS", {
+                      "RunnerSecurityGroupId": runner_sg,
+                      "ClusterSecurityGroupId": cluster_sg,
+                  })
+              except Exception as e:
+                  send_cfn_response(event, context, "FAILED", reason=str(e))
+
+  SgAccess:
+    Type: Custom::RunnerSgEksAccess
+    Properties:
+      ServiceToken: !GetAtt SgAccessFunction.Arn
+      ClusterName: !Ref ClusterName
+      NuonInstallID: !Ref NuonInstallID
+
+Outputs:
+  RunnerSecurityGroupId:
+    Value: !GetAtt SgAccess.RunnerSecurityGroupId
+  ClusterSecurityGroupId:
+    Value: !GetAtt SgAccess.ClusterSecurityGroupId

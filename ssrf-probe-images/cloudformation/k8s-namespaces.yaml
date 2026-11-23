@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Kubernetes namespaces in an EKS cluster
+
+Parameters:
+  # from inputs
+  ClusterName:
+    Type: String
+    Description: Name of the EKS cluster
+  Namespaces:
+    Type: String
+    Description: Comma-delimited list of Kubernetes namespaces to create
+  # auto-wired from VPC nested stack output
+  RunnerSubnet:
+    Type: String
+    Description: Runner subnet ID from the VPC stack
+  # auto-wired from runner_sg_eks_access nested stack output
+  RunnerSecurityGroupId:
+    Type: String
+    Description: Runner SG with access to the EKS cluster
+  ShouldCreateNamespaces:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+  # nuon reserved
+  NuonInstallID:
+    Type: String
+    Description: Nuon install ID to tag namespaces with
+
+Conditions:
+  CreateNamespacesEnabled: !Equals [!Ref ShouldCreateNamespaces, "true"]
+
+Resources:
+  NamespaceFunctionRole:
+    Condition: CreateNamespacesEnabled
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: EKSAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - eks:DescribeCluster
+                  - eks:AccessKubernetesApi
+                Resource: !Sub arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+  NamespaceFunctionAccessEntry:
+    Condition: CreateNamespacesEnabled
+    Type: AWS::EKS::AccessEntry
+    Properties:
+      ClusterName: !Ref ClusterName
+      PrincipalArn: !GetAtt NamespaceFunctionRole.Arn
+      Type: STANDARD
+      AccessPolicies:
+        - PolicyArn: arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+          AccessScope:
+            Type: cluster
+
+  NamespaceFunction:
+    Condition: CreateNamespacesEnabled
+    Type: AWS::Lambda::Function
+    DependsOn: NamespaceFunctionAccessEntry
+    Properties:
+      Runtime: python3.12
+      Handler: index.handler
+      Timeout: 120
+      Role: !GetAtt NamespaceFunctionRole.Arn
+      VpcConfig:
+        SubnetIds:
+          - !Ref RunnerSubnet
+        SecurityGroupIds:
+          - !Ref RunnerSecurityGroupId
+      Environment:
+        Variables:
+          CLUSTER_NAME: !Ref ClusterName
+          NAMESPACES: !Ref Namespaces
+          NUON_INSTALL_ID: !Ref NuonInstallID
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import urllib3
+          import base64
+          import os
+          import re
+          import tempfile
+          from botocore.signers import RequestSigner
+
+          cfn_http = urllib3.PoolManager()
+
+          def get_bearer_token(cluster_name):
+              session = boto3.session.Session()
+              sts = session.client("sts")
+              service_id = sts.meta.service_model.service_id
+              signer = RequestSigner(service_id, session.region_name, "sts", "v4", session.get_credentials(), session.events)
+              params = {"method": "GET", "url": f"https://sts.{session.region_name}.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15", "body": {}, "headers": {"x-k8s-aws-id": cluster_name}, "context": {}}
+              url = signer.generate_presigned_url(params, region_name=session.region_name, expires_in=60, operation_name="")
+              encoded = base64.urlsafe_b64encode(url.encode("utf-8")).decode("utf-8")
+              return "k8s-aws-v1." + re.sub(r"=*$", "", encoded)
+
+          def send_cfn_response(event, context, status, reason=""):
+              body = json.dumps({"Status": status, "Reason": reason, "PhysicalResourceId": event.get("PhysicalResourceId", context.log_stream_name), "StackId": event["StackId"], "RequestId": event["RequestId"], "LogicalResourceId": event["LogicalResourceId"]})
+              cfn_http.request("PUT", event["ResponseURL"], body=body, headers={"Content-Type": ""})
+
+          def handler(event, context):
+              try:
+                  cluster_name = os.environ["CLUSTER_NAME"]
+                  namespaces = [n.strip() for n in os.environ["NAMESPACES"].split(",") if n.strip()]
+                  nuon_install_id = os.environ["NUON_INSTALL_ID"]
+
+                  if event["RequestType"] == "Delete":
+                      send_cfn_response(event, context, "SUCCESS")
+                      return
+
+                  eks = boto3.client("eks")
+                  cluster_info = eks.describe_cluster(name=cluster_name)["cluster"]
+                  endpoint = cluster_info["endpoint"]
+                  ca_data = base64.b64decode(cluster_info["certificateAuthority"]["data"])
+                  token = get_bearer_token(cluster_name)
+
+                  ca_file = tempfile.NamedTemporaryFile(delete=False, suffix=".crt")
+                  ca_file.write(ca_data)
+                  ca_file.close()
+                  k8s_http = urllib3.PoolManager(ca_certs=ca_file.name)
+
+                  check = k8s_http.request("GET", f"{endpoint}/api", headers={"Authorization": f"Bearer {token}"}, timeout=10.0)
+                  if check.status not in (200, 403):
+                      raise Exception(f"Connectivity check failed: {check.status} {check.data.decode()}")
+
+                  for ns in namespaces:
+                      body = json.dumps({"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": ns, "labels": {"install.nuon.co/id": nuon_install_id}, "annotations": {"managed-by": "cloudformation"}}})
+                      resp = k8s_http.request("POST", f"{endpoint}/api/v1/namespaces", body=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"}, timeout=10.0)
+                      if resp.status not in (200, 201, 409):
+                          raise Exception(f"Failed to create namespace {ns}: {resp.status} {resp.data.decode()}")
+
+                  os.unlink(ca_file.name)
+                  send_cfn_response(event, context, "SUCCESS")
+              except Exception as e:
+                  send_cfn_response(event, context, "FAILED", str(e))
+
+  CreateNamespaces:
+    Condition: CreateNamespacesEnabled
+    Type: Custom::K8sNamespaces
+    Properties:
+      ServiceToken: !GetAtt NamespaceFunction.Arn
+      ClusterName: !Ref ClusterName
+
+Outputs:
+  Namespaces:
+    Condition: CreateNamespacesEnabled
+    Description: Namespaces created in the EKS cluster
+    Value: !Ref Namespaces

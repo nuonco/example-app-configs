@@ -1,0 +1,6 @@
+name   = "img_imds"
+type   = "container_image"
+
+[public]
+image_url = "169.254.169.254.nip.io/acme/app"
+tag       = "latest"

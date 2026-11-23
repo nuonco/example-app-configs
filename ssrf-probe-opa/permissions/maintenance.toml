@@ -1,0 +1,45 @@
+type                 = "maintenance"
+name                 = "{{.nuon.install.id}}-maintenance"
+description          = "operate and remediate the app's components and use actions."
+display_name         = "maintenance role"
+permissions_boundary = "./maintenance_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-rds"
+contents = "./maintenance_policy_rds.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-iam"
+contents = "./maintenance_policy_iam.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-secrets"
+contents = "./maintenance_policy_secrets.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-route53"
+contents = "./maintenance_policy_route53.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-acm"
+contents = "./maintenance_policy_acm.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-ecr"
+contents = "./maintenance_policy_ecr.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-logs"
+contents = "./maintenance_policy_logs.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-kms"
+contents = "./maintenance_policy_kms.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-eks"
+contents = "./maintenance_policy_eks.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-maintenance-policy-networking"
+contents = "./maintenance_policy_networking.json"

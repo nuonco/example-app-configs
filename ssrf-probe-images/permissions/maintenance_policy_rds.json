@@ -1,0 +1,50 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "RDSCreate",
+      "Effect": "Allow",
+      "Action": [
+        "rds:CreateDBInstance",
+        "rds:CreateDBSubnetGroup",
+        "rds:CreateDBParameterGroup",
+        "rds:CreateOptionGroup",
+        "rds:AddTagsToResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RDSReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "rds:Describe*",
+        "rds:List*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RDSModifyTagged",
+      "Effect": "Allow",
+      "Action": [
+        "rds:DeleteDBInstance",
+        "rds:DeleteDBSubnetGroup",
+        "rds:DeleteDBParameterGroup",
+        "rds:DeleteOptionGroup",
+        "rds:ModifyDBInstance",
+        "rds:ModifyDBSubnetGroup",
+        "rds:ModifyDBParameterGroup",
+        "rds:ModifyOptionGroup",
+        "rds:RebootDBInstance",
+        "rds:RemoveTagsFromResource",
+        "rds:StopDBInstance",
+        "rds:StartDBInstance"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/install.nuon.co/id": "{{.nuon.install.id}}"
+        }
+      }
+    }
+  ]
+}

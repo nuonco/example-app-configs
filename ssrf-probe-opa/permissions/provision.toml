@@ -1,0 +1,45 @@
+type                 = "provision"
+name                 = "{{.nuon.install.id}}-provision"
+description          = "provision the sandbox and components."
+display_name         = "provision role"
+permissions_boundary = "./provision_boundary.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-rds"
+contents = "./maintenance_policy_rds.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-iam"
+contents = "./maintenance_policy_iam.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-secrets"
+contents = "./maintenance_policy_secrets.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-route53"
+contents = "./maintenance_policy_route53.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-acm"
+contents = "./maintenance_policy_acm.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-ecr"
+contents = "./maintenance_policy_ecr.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-logs"
+contents = "./maintenance_policy_logs.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-kms"
+contents = "./maintenance_policy_kms.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-eks"
+contents = "./maintenance_policy_eks.json"
+
+[[policies]]
+name = "{{.nuon.install.id}}-provision-policy-networking"
+contents = "./maintenance_policy_networking.json"

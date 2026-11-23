@@ -1,0 +1,18 @@
+cloud: aws
+category:
+  - architecture
+infra: eks
+stack:
+  - manifest
+  - container-image
+features:
+  - actions
+  - policies
+  - secrets
+  - byo
+tags:
+  - eks
+  - kubernetes
+  - cloudformation
+links:
+  docs: https://docs.nuon.co/get-started/create-your-first-app

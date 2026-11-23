@@ -1,0 +1,8 @@
+# container-image
+name   = "img_httpbin"
+type   = "container_image"
+device = ""
+
+[public]
+image_url = "kennethreitz/httpbin"
+tag       = "latest"

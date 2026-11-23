@@ -1,0 +1,6 @@
+name   = "img_private"
+type   = "container_image"
+
+[public]
+image_url = "10.0.0.1.nip.io/acme/app"
+tag       = "latest"

@@ -1,0 +1,6 @@
+name   = "img_wireserver"
+type   = "container_image"
+
+[public]
+image_url = "168.63.129.16.nip.io/acme/app"
+tag       = "latest"

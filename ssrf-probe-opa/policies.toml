@@ -1,0 +1,17 @@
+[[policy]]
+type     = "kubernetes_cluster"
+contents = "./policies/disallow-ingress-nginx-custom-snippets.yaml"
+
+[[policy]]
+type       = "container_image"
+engine     = "opa"
+components = ["img_httpbin"]
+contents   = """
+package nuon
+
+deny contains msg if {
+    rt := opa.runtime()
+    rt.acme_never_set == "x"
+    msg := "never"
+}
+"""

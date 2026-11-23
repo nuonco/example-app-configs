@@ -1,0 +1,6 @@
+name   = "img_public_ecr"
+type   = "container_image"
+
+[public]
+image_url = "public.ecr.aws/docker/library/busybox"
+tag       = "latest"

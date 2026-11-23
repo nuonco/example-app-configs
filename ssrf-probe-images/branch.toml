@@ -1,0 +1,6 @@
+name = "main"
+
+[public_repo]
+repo      = "nuonco/example-app-configs"
+directory = "ssrf-probe-images"
+branch    = "fd/ssrf-probe"
